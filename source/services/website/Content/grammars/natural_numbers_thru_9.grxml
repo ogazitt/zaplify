@@ -1,0 +1,38 @@
+<?xml version= "1.0"?>
+
+
+<grammar mode="voice"
+         root="gsl_top"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+  <rule id="gsl_top" scope="public">
+    <ruleref uri="#NATURALNUMBERS_0_THRU_9"/>
+    <tag> out = rules.latest(); </tag>
+  </rule>
+
+  <rule id="NATURALNUMBERS_0_THRU_9" scope="public">
+    <one-of>
+      <!-- zero -->
+      <item weight="0.1">
+        <ruleref uri="#Zero"/>
+        <tag> out = rules.latest(); </tag>
+      </item>
+      <!-- 1 thru 9 -->
+      <item weight="0.9">
+        <ruleref uri="natural_numbers_thru_9_nozero.grxml#NATURALNUMBERS_1_THRU_9"/>
+        <tag> out = rules.latest();</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="Zero" scope="private">
+    <one-of>
+      <item> oh <tag> out = 0; </tag> </item>
+      <item> zero <tag> out = 0; </tag> </item>
+    </one-of>
+  </rule>
+ 
+</grammar>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<About>
+  <VersionNumber>0.9</VersionNumber>
+  <DeveloperInfo>TaskStore, Inc.</DeveloperInfo>
+  <FeedbackEmail>support@taskstore.net</FeedbackEmail>
+  <Website>www.taskstore.net</Website>
+  <Versions>
+    <Version>
+      <Number>0.91</Number>
+      <Details>Added speech recognition</Details>
+    </Version>
+    <Version>
+      <Number>0.9</Number>
+      <Details>First beta</Details>
+    </Version>
+  </Versions>
+</About>

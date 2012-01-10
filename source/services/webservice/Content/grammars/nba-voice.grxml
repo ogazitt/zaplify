@@ -1,0 +1,355 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="gsl_top"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+ <rule id="gsl_top" scope="public">
+  <one-of>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     atlanta
+    </item>
+    hawks
+    <tag>out = "atlanta";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     boston
+    </item>
+    celtics
+    <tag>out = "boston";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     charlotte
+    </item>
+    bobcats
+    <tag>out = "charlotte";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     chicago
+    </item>
+    bulls
+    <tag>out = "chicago";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     cleveland
+    </item>
+    cavaliers
+    <tag>out = "cleveland";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     dallas
+    </item>
+    mavericks
+    <tag>out = "dallas";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     denver
+    </item>
+    nuggets
+    <tag>out = "denver";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     detroit
+    </item>
+    pistons
+    <tag>out = "detroit";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     golden state
+    </item>
+    warriors
+    <tag>out = "goldenst";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     houston
+    </item>
+    rockets
+    <tag>out = "houston";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     indiana
+    </item>
+    pacers
+    <tag>out = "indiana";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     <one-of>
+      <item>
+       los angeles
+      </item>
+      <item>
+       l a
+      </item>
+     </one-of>
+    </item>
+    clippers
+    <tag>out = "laclippers";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     <one-of>
+      <item>
+       los angeles
+      </item>
+      <item>
+       l a
+      </item>
+     </one-of>
+    </item>
+    lakers
+    <tag>out = "lalakers";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     <one-of>
+      <item>
+       vancouver
+      </item>
+      <item>
+       memphis
+      </item>
+     </one-of>
+    </item>
+    grizzlies
+    <tag>out = "memphis";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     miami
+    </item>
+    heat
+    <tag>out = "miami";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     milwaukee
+    </item>
+    bucks
+    <tag>out = "milwaukee";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     minnesota
+    </item>
+    timberwolves
+    <tag>out = "minnesota";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new jersey
+    </item>
+    nets
+    <tag>out = "newjersey";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new orleans
+    </item>
+    hornets
+    <tag>out = "neworleans";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new york
+    </item>
+    knicks
+    <tag>out = "newyork";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     orlando
+    </item>
+    magic
+    <tag>out = "orlando";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     philadelphia
+    </item>
+    seventy sixers
+    <tag>out = "philadelph";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     phoenix
+    </item>
+    suns
+    <tag>out = "phoenix";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     portland
+    </item>
+    trail blazers
+    <tag>out = "portland";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     sacramento
+    </item>
+    kings
+    <tag>out = "sacramento";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     san antonio
+    </item>
+    spurs
+    <tag>out = "sanantonio";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     seattle
+    </item>
+    <one-of>
+     <item>
+      sonics
+     </item>
+     <item>
+      supersonics
+     </item>
+    </one-of>
+    <tag>out = "seattle";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     toronto
+    </item>
+    raptors
+    <tag>out = "toronto";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     utah
+    </item>
+    jazz
+    <tag>out = "utah";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     washington
+    </item>
+    wizards
+    <tag>out = "washington";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     oklahoma
+     <item repeat="0-1">
+      city
+     </item>
+    </item>
+    thunder
+    <tag>out = "oklacity";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

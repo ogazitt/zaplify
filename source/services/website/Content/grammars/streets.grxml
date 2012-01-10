@@ -1,0 +1,6231 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="Streets"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="Streets" scope="public">
+  <one-of>
+   <item weight="0.058786">
+    main
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "main street";</tag>
+   </item>
+   <item weight="0.014198">
+    broad
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "broadway";</tag>
+   </item>
+   <item weight="0.0093666">
+    sixth avenue north
+    <tag>out = "sixth avenue north";</tag>
+   </item>
+   <item weight="0.0085348">
+    park
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "park avenue";</tag>
+   </item>
+   <item weight="0.0072472">
+    main
+    <tag>out = "main";</tag>
+   </item>
+   <item weight="0.0066432">
+    east main
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east main street";</tag>
+   </item>
+   <item weight="0.0064951">
+    north main
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north main street";</tag>
+   </item>
+   <item weight="0.0062558">
+    madison
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "madison avenue";</tag>
+   </item>
+   <item weight="0.0061646">
+    south main
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south main street";</tag>
+   </item>
+   <item weight="0.0059937">
+    west main
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west main street";</tag>
+   </item>
+   <item weight="0.0059481">
+    central
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "central avenue";</tag>
+   </item>
+   <item weight="0.0052302">
+    market
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "market street";</tag>
+   </item>
+   <item weight="0.0052302">
+    first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "first street";</tag>
+   </item>
+   <item weight="0.0050821">
+    state
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "state street";</tag>
+   </item>
+   <item weight="0.0049568">
+    second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "second street";</tag>
+   </item>
+   <item weight="0.004934">
+    fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fourth street";</tag>
+   </item>
+   <item weight="0.0046947">
+    washington
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "washington street";</tag>
+   </item>
+   <item weight="0.004387">
+    third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "third street";</tag>
+   </item>
+   <item weight="0.0043414">
+    washington
+    <tag>out = "washington";</tag>
+   </item>
+   <item weight="0.0042389">
+    fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifth street";</tag>
+   </item>
+   <item weight="0.0041249">
+    broad
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "broad street";</tag>
+   </item>
+   <item weight="0.0039654">
+    ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "ninth street";</tag>
+   </item>
+   <item weight="0.003954">
+    seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "seventh street";</tag>
+   </item>
+   <item weight="0.0038059">
+    washington
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "washington avenue";</tag>
+   </item>
+   <item weight="0.0036577">
+    west w t harris
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west w t harris boulevard";</tag>
+   </item>
+   <item weight="0.0036463">
+    eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "eighth street";</tag>
+   </item>
+   <item weight="0.0035438">
+    church
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "church street";</tag>
+   </item>
+   <item weight="0.003464">
+    eastern avenue northeast
+    <tag>out = "eastern avenue northeast";</tag>
+   </item>
+   <item weight="0.0034184">
+    high
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "high street";</tag>
+   </item>
+   <item weight="0.0033957">
+    atlantic
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "atlantic avenue";</tag>
+   </item>
+   <item weight="0.0032703">
+    tenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "tenth street";</tag>
+   </item>
+   <item weight="0.0032361">
+    oak street
+    <tag>out = "oak street";</tag>
+   </item>
+   <item weight="0.0032133">
+    maple
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "maple street";</tag>
+   </item>
+   <item weight="0.0031678">
+    bedford
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "bedford avenue";</tag>
+   </item>
+   <item weight="0.0031336">
+    sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "sixth street";</tag>
+   </item>
+   <item weight="0.0031108">
+    pennsylvania
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "pennsylvania avenue";</tag>
+   </item>
+   <item weight="0.0030994">
+    fifth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fifth avenue";</tag>
+   </item>
+   <item weight="0.0030652">
+    westminster
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "westminster boulevard";</tag>
+   </item>
+   <item weight="0.0030196">
+    elm street
+    <tag>out = "elm street";</tag>
+   </item>
+   <item weight="0.0029626">
+    downey
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "downey avenue";</tag>
+   </item>
+   <item weight="0.0029171">
+    wilshire
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "wilshire boulevard";</tag>
+   </item>
+   <item weight="0.0028943">
+    ridge
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "ridge road";</tag>
+   </item>
+   <item weight="0.0028829">
+    center
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "center street";</tag>
+   </item>
+   <item weight="0.0027917">
+    maple
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "maple avenue";</tag>
+   </item>
+   <item weight="0.0027917">
+    highland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "highland avenue";</tag>
+   </item>
+   <item weight="0.0027803">
+    forest
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "forest avenue";</tag>
+   </item>
+   <item weight="0.0027233">
+    university
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "university avenue";</tag>
+   </item>
+   <item weight="0.0027233">
+    lincoln
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lincoln avenue";</tag>
+   </item>
+   <item weight="0.0027233">
+    first
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "first avenue";</tag>
+   </item>
+   <item weight="0.0026778">
+    spring
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "spring street";</tag>
+   </item>
+   <item weight="0.002655">
+    river
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "river road";</tag>
+   </item>
+   <item weight="0.0025866">
+    third
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "third avenue";</tag>
+   </item>
+   <item weight="0.0025752">
+    grand
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "grand avenue";</tag>
+   </item>
+   <item weight="0.0024727">
+    lundy
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lundy avenue";</tag>
+   </item>
+   <item weight="0.0024271">
+    pine
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "pine street";</tag>
+   </item>
+   <item weight="0.0023815">
+    second
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "second avenue";</tag>
+   </item>
+   <item weight="0.0023587">
+    madison
+    <tag>out = "madison";</tag>
+   </item>
+   <item weight="0.0023587">
+    fountain northeast
+    <tag>out = "fountain northeast";</tag>
+   </item>
+   <item weight="0.0023131">
+    ocean park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "ocean parkway";</tag>
+   </item>
+   <item weight="0.0022903">
+    park
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "park street";</tag>
+   </item>
+   <item weight="0.0022789">
+    fourteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fourteenth street";</tag>
+   </item>
+   <item weight="0.0022675">
+    walnut
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "walnut street";</tag>
+   </item>
+   <item weight="0.002222">
+    north main
+    <tag>out = "north main";</tag>
+   </item>
+   <item weight="0.002222">
+    lexington
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lexington avenue";</tag>
+   </item>
+   <item weight="0.002222">
+    union
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "union street";</tag>
+   </item>
+   <item weight="0.0021992">
+    south
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south street";</tag>
+   </item>
+   <item weight="0.0021992">
+    ocean
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "ocean avenue";</tag>
+   </item>
+   <item weight="0.0021878">
+    east hawk
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "east hawk drive";</tag>
+   </item>
+   <item weight="0.0021422">
+    chestnut
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "chestnut street";</tag>
+   </item>
+   <item weight="0.0021194">
+    central
+    <tag>out = "central";</tag>
+   </item>
+   <item weight="0.0020169">
+    jefferson
+    <tag>out = "jefferson";</tag>
+   </item>
+   <item weight="0.0019827">
+    vine
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "vine street";</tag>
+   </item>
+   <item weight="0.0019485">
+    gilbertsville high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "gilbertsville highway";</tag>
+   </item>
+   <item weight="0.0019371">
+    river plaza
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "river plaza drive";</tag>
+   </item>
+   <item weight="0.0019029">
+    north
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north avenue";</tag>
+   </item>
+   <item weight="0.0018915">
+    eastern park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "eastern parkway";</tag>
+   </item>
+   <item weight="0.0018915">
+    foothill
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "foothill boulevard";</tag>
+   </item>
+   <item weight="0.0018687">
+    laura koppe
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "laura koppe road";</tag>
+   </item>
+   <item weight="0.0018345">
+    frelinghuysen
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "frelinghuysen avenue";</tag>
+   </item>
+   <item weight="0.0018345">
+    fourth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fourth avenue";</tag>
+   </item>
+   <item weight="0.0018345">
+    prospect
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "prospect street";</tag>
+   </item>
+   <item weight="0.0018345">
+    california
+    <tag>out = "california";</tag>
+   </item>
+   <item weight="0.0018345">
+    euclid
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "euclid avenue";</tag>
+   </item>
+   <item weight="0.0018231">
+    riverside
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "riverside drive";</tag>
+   </item>
+   <item weight="0.0018118">
+    lincoln
+    <tag>out = "lincoln";</tag>
+   </item>
+   <item weight="0.0018004">
+    first
+    <tag>out = "first";</tag>
+   </item>
+   <item weight="0.001789">
+    washington
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "washington boulevard";</tag>
+   </item>
+   <item weight="0.001789">
+    university
+    <tag>out = "university";</tag>
+   </item>
+   <item weight="0.001789">
+    maple
+    <tag>out = "maple";</tag>
+   </item>
+   <item weight="0.0017776">
+    franklin
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "franklin street";</tag>
+   </item>
+   <item weight="0.0017662">
+    eighth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "eighth avenue";</tag>
+   </item>
+   <item weight="0.0017548">
+    hooper
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hooper avenue";</tag>
+   </item>
+   <item weight="0.0017548">
+    franklin
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "franklin avenue";</tag>
+   </item>
+   <item weight="0.0017434">
+    reis
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "reis avenue";</tag>
+   </item>
+   <item weight="0.0017206">
+    james
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "james street";</tag>
+   </item>
+   <item weight="0.0017206">
+    walnut
+    <tag>out = "walnut";</tag>
+   </item>
+   <item weight="0.0016978">
+    east second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east second street";</tag>
+   </item>
+   <item weight="0.0016864">
+    jackson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "jackson street";</tag>
+   </item>
+   <item weight="0.0016864">
+    north
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north street";</tag>
+   </item>
+   <item weight="0.0016864">
+    magnolia
+    <tag>out = "magnolia";</tag>
+   </item>
+   <item weight="0.001675">
+    west pershing
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west pershing boulevard";</tag>
+   </item>
+   <item weight="0.001675">
+    twelfth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twelfth street";</tag>
+   </item>
+   <item weight="0.0016408">
+    west
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west street";</tag>
+   </item>
+   <item weight="0.001618">
+    water
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "water street";</tag>
+   </item>
+   <item weight="0.001618">
+    lee avenue
+    <tag>out = "lee avenue";</tag>
+   </item>
+   <item weight="0.0016066">
+    south main
+    <tag>out = "south main";</tag>
+   </item>
+   <item weight="0.0015839">
+    harrison
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "harrison avenue";</tag>
+   </item>
+   <item weight="0.0015725">
+    airport
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "airport road";</tag>
+   </item>
+   <item weight="0.0015725">
+    cedar
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "cedar street";</tag>
+   </item>
+   <item weight="0.0015725">
+    river
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "river avenue";</tag>
+   </item>
+   <item weight="0.0015611">
+    front
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "front street";</tag>
+   </item>
+   <item weight="0.0015611">
+    east main
+    <tag>out = "east main";</tag>
+   </item>
+   <item weight="0.0015497">
+    eleventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "eleventh street";</tag>
+   </item>
+   <item weight="0.0015497">
+    county line
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "county line road";</tag>
+   </item>
+   <item weight="0.0015269">
+    college
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "college avenue";</tag>
+   </item>
+   <item weight="0.0015269">
+    west main
+    <tag>out = "west main";</tag>
+   </item>
+   <item weight="0.0015155">
+    pacific
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "pacific avenue";</tag>
+   </item>
+   <item weight="0.0015155">
+    lake
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "lake street";</tag>
+   </item>
+   <item weight="0.0015155">
+    union
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "union avenue";</tag>
+   </item>
+   <item weight="0.0015041">
+    michigan
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "michigan avenue";</tag>
+   </item>
+   <item weight="0.0014813">
+    east seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east seventh street";</tag>
+   </item>
+   <item weight="0.0014813">
+    las vegas boulevard
+    <tag>out = "las vegas boulevard";</tag>
+   </item>
+   <item weight="0.0014699">
+    jefferson
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "jefferson avenue";</tag>
+   </item>
+   <item weight="0.0014699">
+    sixth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "sixth avenue";</tag>
+   </item>
+   <item weight="0.0014699">
+    king
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "king street";</tag>
+   </item>
+   <item weight="0.0014699">
+    elm avenue
+    <tag>out = "elm avenue";</tag>
+   </item>
+   <item weight="0.0014585">
+    imperial high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "imperial highway";</tag>
+   </item>
+   <item weight="0.0014585">
+    beach
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "beach boulevard";</tag>
+   </item>
+   <item weight="0.0014585">
+    jefferson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "jefferson street";</tag>
+   </item>
+   <item weight="0.0014471">
+    court
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "court street";</tag>
+   </item>
+   <item weight="0.0014471">
+    forty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty second street";</tag>
+   </item>
+   <item weight="0.0014471">
+    mill
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mill street";</tag>
+   </item>
+   <item weight="0.0014357">
+    william
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "william street";</tag>
+   </item>
+   <item weight="0.0014357">
+    pacific coast high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "pacific coast highway";</tag>
+   </item>
+   <item weight="0.0014243">
+    mount zion
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mount zion road";</tag>
+   </item>
+   <item weight="0.0013901">
+    seventh
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "seventh avenue";</tag>
+   </item>
+   <item weight="0.0013901">
+    western
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "western avenue";</tag>
+   </item>
+   <item weight="0.0013901">
+    market
+    <tag>out = "market";</tag>
+   </item>
+   <item weight="0.0013787">
+    valley
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "valley road";</tag>
+   </item>
+   <item weight="0.0013673">
+    thirteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirteenth street";</tag>
+   </item>
+   <item weight="0.0013673">
+    chestnut
+    <tag>out = "chestnut";</tag>
+   </item>
+   <item weight="0.0013673">
+    cherry
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "cherry street";</tag>
+   </item>
+   <item weight="0.001356">
+    franklin
+    <tag>out = "franklin";</tag>
+   </item>
+   <item weight="0.001356">
+    east ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east ninth street";</tag>
+   </item>
+   <item weight="0.001356">
+    lyons
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lyons avenue";</tag>
+   </item>
+   <item weight="0.0013446">
+    california
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "california avenue";</tag>
+   </item>
+   <item weight="0.0013446">
+    west third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west third street";</tag>
+   </item>
+   <item weight="0.0013218">
+    adams
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "adams street";</tag>
+   </item>
+   <item weight="0.0013218">
+    east tudor
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "east tudor road";</tag>
+   </item>
+   <item weight="0.0013218">
+    airport
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "airport boulevard";</tag>
+   </item>
+   <item weight="0.0013218">
+    massachusetts
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "massachusetts avenue";</tag>
+   </item>
+   <item weight="0.0013218">
+    sixteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "sixteenth street";</tag>
+   </item>
+   <item weight="0.0013218">
+    fourteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fourteenth avenue";</tag>
+   </item>
+   <item weight="0.0013104">
+    ninth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "ninth avenue";</tag>
+   </item>
+   <item weight="0.001299">
+    south broad
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "south broadway";</tag>
+   </item>
+   <item weight="0.0012876">
+    lincoln
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "lincoln street";</tag>
+   </item>
+   <item weight="0.0012876">
+    hamilton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hamilton avenue";</tag>
+   </item>
+   <item weight="0.0012762">
+    jackson
+    <tag>out = "jackson";</tag>
+   </item>
+   <item weight="0.0012762">
+    eighteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "eighteenth street";</tag>
+   </item>
+   <item weight="0.0012762">
+    century
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "century boulevard";</tag>
+   </item>
+   <item weight="0.0012648">
+    east fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east fifth street";</tag>
+   </item>
+   <item weight="0.0012534">
+    highland
+    <tag>out = "highland";</tag>
+   </item>
+   <item weight="0.0012534">
+    linden
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "linden avenue";</tag>
+   </item>
+   <item weight="0.0012534">
+    somerset
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "somerset street";</tag>
+   </item>
+   <item weight="0.001242">
+    west seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west seventh street";</tag>
+   </item>
+   <item weight="0.001242">
+    fulton
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fulton street";</tag>
+   </item>
+   <item weight="0.001242">
+    ridge
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "ridge avenue";</tag>
+   </item>
+   <item weight="0.001242">
+    eighteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "eighteenth avenue";</tag>
+   </item>
+   <item weight="0.001242">
+    kings high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "kings highway";</tag>
+   </item>
+   <item weight="0.0012306">
+    bloomfield
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "bloomfield avenue";</tag>
+   </item>
+   <item weight="0.0012306">
+    fifteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fifteenth avenue";</tag>
+   </item>
+   <item weight="0.0012306">
+    mission
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mission street";</tag>
+   </item>
+   <item weight="0.0012306">
+    railroad
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "railroad avenue";</tag>
+   </item>
+   <item weight="0.0012192">
+    pleasant
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "pleasant street";</tag>
+   </item>
+   <item weight="0.0012192">
+    division
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "division avenue";</tag>
+   </item>
+   <item weight="0.0012192">
+    prospect
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "prospect avenue";</tag>
+   </item>
+   <item weight="0.0012192">
+    sunset
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "sunset boulevard";</tag>
+   </item>
+   <item weight="0.0012078">
+    west broad
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west broad street";</tag>
+   </item>
+   <item weight="0.0012078">
+    prospect
+    <tag>out = "prospect";</tag>
+   </item>
+   <item weight="0.001185">
+    harrison
+    <tag>out = "harrison";</tag>
+   </item>
+   <item weight="0.001185">
+    seventeenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "seventeenth street";</tag>
+   </item>
+   <item weight="0.001185">
+    south
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "south avenue";</tag>
+   </item>
+   <item weight="0.001185">
+    howard
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "howard street";</tag>
+   </item>
+   <item weight="0.001185">
+    grove
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "grove street";</tag>
+   </item>
+   <item weight="0.001185">
+    north broad
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "north broadway";</tag>
+   </item>
+   <item weight="0.0011622">
+    forty fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty fifth street";</tag>
+   </item>
+   <item weight="0.0011508">
+    magnolia
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "magnolia avenue";</tag>
+   </item>
+   <item weight="0.0011508">
+    union
+    <tag>out = "union";</tag>
+   </item>
+   <item weight="0.0011394">
+    elmwood
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "elmwood avenue";</tag>
+   </item>
+   <item weight="0.0011394">
+    summer
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "summer street";</tag>
+   </item>
+   <item weight="0.0011394">
+    monroe
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "monroe street";</tag>
+   </item>
+   <item weight="0.0011394">
+    forty seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty seventh street";</tag>
+   </item>
+   <item weight="0.0011394">
+    north broad
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north broad street";</tag>
+   </item>
+   <item weight="0.0011394">
+    grand
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "grand street";</tag>
+   </item>
+   <item weight="0.0011281">
+    cedar
+    <tag>out = "cedar";</tag>
+   </item>
+   <item weight="0.0011281">
+    fairview
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fairview avenue";</tag>
+   </item>
+   <item weight="0.0011281">
+    columbia
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "columbia avenue";</tag>
+   </item>
+   <item weight="0.0011281">
+    park
+    <tag>out = "park";</tag>
+   </item>
+   <item weight="0.0011281">
+    beverly
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "beverly boulevard";</tag>
+   </item>
+   <item weight="0.0011281">
+    fifty fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty fourth street";</tag>
+   </item>
+   <item weight="0.0011281">
+    twelfth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "twelfth avenue";</tag>
+   </item>
+   <item weight="0.0011167">
+    west broad
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "west broadway";</tag>
+   </item>
+   <item weight="0.0011167">
+    east fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east fourth street";</tag>
+   </item>
+   <item weight="0.0011167">
+    bridge
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "bridge street";</tag>
+   </item>
+   <item weight="0.0011167">
+    grant
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "grant street";</tag>
+   </item>
+   <item weight="0.0011167">
+    valley
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "valley boulevard";</tag>
+   </item>
+   <item weight="0.0011053">
+    cleveland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cleveland avenue";</tag>
+   </item>
+   <item weight="0.0011053">
+    monroe
+    <tag>out = "monroe";</tag>
+   </item>
+   <item weight="0.0011053">
+    third
+    <tag>out = "third";</tag>
+   </item>
+   <item weight="0.0011053">
+    burbank
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "burbank boulevard";</tag>
+   </item>
+   <item weight="0.0010939">
+    east tenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east tenth street";</tag>
+   </item>
+   <item weight="0.0010825">
+    north fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north fourth street";</tag>
+   </item>
+   <item weight="0.0010711">
+    fifteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifteenth street";</tag>
+   </item>
+   <item weight="0.0010711">
+    monmouth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "monmouth avenue";</tag>
+   </item>
+   <item weight="0.0010711">
+    thirteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "thirteenth avenue";</tag>
+   </item>
+   <item weight="0.0010711">
+    clifton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "clifton avenue";</tag>
+   </item>
+   <item weight="0.0010711">
+    university
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "university drive";</tag>
+   </item>
+   <item weight="0.0010597">
+    forty eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty eighth street";</tag>
+   </item>
+   <item weight="0.0010597">
+    forty fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty fourth street";</tag>
+   </item>
+   <item weight="0.0010597">
+    west fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west fourth street";</tag>
+   </item>
+   <item weight="0.0010597">
+    madison
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "madison street";</tag>
+   </item>
+   <item weight="0.0010597">
+    adams
+    <tag>out = "adams";</tag>
+   </item>
+   <item weight="0.0010483">
+    lafayette
+    <tag>out = "lafayette";</tag>
+   </item>
+   <item weight="0.0010483">
+    long beach
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "long beach boulevard";</tag>
+   </item>
+   <item weight="0.0010483">
+    wilson
+    <tag>out = "wilson";</tag>
+   </item>
+   <item weight="0.0010369">
+    harrison
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "harrison street";</tag>
+   </item>
+   <item weight="0.0010369">
+    euclid
+    <tag>out = "euclid";</tag>
+   </item>
+   <item weight="0.0010369">
+    sunset
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "sunset drive";</tag>
+   </item>
+   <item weight="0.0010255">
+    us highway twenty two
+    <tag>out = "us highway twenty two";</tag>
+   </item>
+   <item weight="0.0010255">
+    richmond
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "richmond avenue";</tag>
+   </item>
+   <item weight="0.0010255">
+    richmond
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "richmond road";</tag>
+   </item>
+   <item weight="0.0010255">
+    memorial
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "memorial drive";</tag>
+   </item>
+   <item weight="0.0010141">
+    virginia
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "virginia avenue";</tag>
+   </item>
+   <item weight="0.0010141">
+    pearl
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "pearl street";</tag>
+   </item>
+   <item weight="0.0010141">
+    west end
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "west end avenue";</tag>
+   </item>
+   <item weight="0.0010141">
+    myrtle
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "myrtle avenue";</tag>
+   </item>
+   <item weight="0.0010141">
+    locust
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "locust street";</tag>
+   </item>
+   <item weight="0.0010141">
+    dutch
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "dutch lane";</tag>
+   </item>
+   <item weight="0.0010027">
+    connecticut
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "connecticut avenue";</tag>
+   </item>
+   <item weight="0.0010027">
+    union
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "union road";</tag>
+   </item>
+   <item weight="0.0010027">
+    van buren
+    <tag>out = "van buren";</tag>
+   </item>
+   <item weight="0.0010027">
+    arlington
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "arlington avenue";</tag>
+   </item>
+   <item weight="0.0010027">
+    vassar
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "vassar street";</tag>
+   </item>
+   <item weight="0.0010027">
+    santa monica
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "santa monica boulevard";</tag>
+   </item>
+   <item weight="0.0010027">
+    lawrence
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lawrence avenue";</tag>
+   </item>
+   <item weight="0.0010027">
+    telegraph
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "telegraph road";</tag>
+   </item>
+   <item weight="0.0010027">
+    tenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "tenth avenue";</tag>
+   </item>
+   <item weight="0.00099136">
+    princeton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "princeton avenue";</tag>
+   </item>
+   <item weight="0.00097996">
+    fiftieth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fiftieth street";</tag>
+   </item>
+   <item weight="0.00097996">
+    sepulveda
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "sepulveda boulevard";</tag>
+   </item>
+   <item weight="0.00097996">
+    start over
+    <tag>out = "start over";</tag>
+   </item>
+   <item weight="0.00097996">
+    main
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "main avenue";</tag>
+   </item>
+   <item weight="0.00097996">
+    coney island
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "coney island avenue";</tag>
+   </item>
+   <item weight="0.00096857">
+    east broad
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "east broadway";</tag>
+   </item>
+   <item weight="0.00096857">
+    penn
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "penn street";</tag>
+   </item>
+   <item weight="0.00096857">
+    second
+    <tag>out = "second";</tag>
+   </item>
+   <item weight="0.00096857">
+    lafayette
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "lafayette street";</tag>
+   </item>
+   <item weight="0.00096857">
+    western
+    <tag>out = "western";</tag>
+   </item>
+   <item weight="0.00096857">
+    lincoln
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "lincoln boulevard";</tag>
+   </item>
+   <item weight="0.00095717">
+    east
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east street";</tag>
+   </item>
+   <item weight="0.00095717">
+    ocean
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "ocean boulevard";</tag>
+   </item>
+   <item weight="0.00094578">
+    green
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "green street";</tag>
+   </item>
+   <item weight="0.00094578">
+    van nuys boulevard
+    <tag>out = "van nuys boulevard";</tag>
+   </item>
+   <item weight="0.00093438">
+    commercial
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "commercial avenue";</tag>
+   </item>
+   <item weight="0.00093438">
+    east third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east third street";</tag>
+   </item>
+   <item weight="0.00093438">
+    lincoln high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "lincoln highway";</tag>
+   </item>
+   <item weight="0.00092299">
+    georgetown
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "georgetown road";</tag>
+   </item>
+   <item weight="0.00092299">
+    commerce
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "commerce street";</tag>
+   </item>
+   <item weight="0.00092299">
+    roosevelt
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "roosevelt avenue";</tag>
+   </item>
+   <item weight="0.00092299">
+    spruce
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "spruce street";</tag>
+   </item>
+   <item weight="0.00092299">
+    clay
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "clay street";</tag>
+   </item>
+   <item weight="0.00092299">
+    harbor
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "harbor boulevard";</tag>
+   </item>
+   <item weight="0.00091159">
+    twenty fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty fourth street";</tag>
+   </item>
+   <item weight="0.00091159">
+    fifty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty second street";</tag>
+   </item>
+   <item weight="0.00091159">
+    avenue m
+    <tag>out = "avenue m";</tag>
+   </item>
+   <item weight="0.0009002">
+    ventura
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "ventura boulevard";</tag>
+   </item>
+   <item weight="0.0009002">
+    alameda
+    <tag>out = "alameda";</tag>
+   </item>
+   <item weight="0.0009002">
+    forty ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty ninth street";</tag>
+   </item>
+   <item weight="0.0008888">
+    menu
+    <tag>out = "menu";</tag>
+   </item>
+   <item weight="0.0008888">
+    liberty
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "liberty street";</tag>
+   </item>
+   <item weight="0.0008888">
+    frederick
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "frederick street";</tag>
+   </item>
+   <item weight="0.0008888">
+    north state
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north state street";</tag>
+   </item>
+   <item weight="0.0008888">
+    north first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north first street";</tag>
+   </item>
+   <item weight="0.0008888">
+    poplar
+    <tag>out = "poplar";</tag>
+   </item>
+   <item weight="0.0008888">
+    flatbush
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "flatbush avenue";</tag>
+   </item>
+   <item weight="0.0008888">
+    mission
+    <tag>out = "mission";</tag>
+   </item>
+   <item weight="0.0008888">
+    west sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west sixth street";</tag>
+   </item>
+   <item weight="0.00087741">
+    crenshaw
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "crenshaw boulevard";</tag>
+   </item>
+   <item weight="0.00087741">
+    san pablo avenue
+    <tag>out = "san pablo avenue";</tag>
+   </item>
+   <item weight="0.00087741">
+    arlington
+    <tag>out = "arlington";</tag>
+   </item>
+   <item weight="0.00087741">
+    new york avenue
+    <tag>out = "new york avenue";</tag>
+   </item>
+   <item weight="0.00087741">
+    fourth
+    <tag>out = "fourth";</tag>
+   </item>
+   <item weight="0.00086601">
+    west market
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west market street";</tag>
+   </item>
+   <item weight="0.00086601">
+    hill
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "hill street";</tag>
+   </item>
+   <item weight="0.00086601">
+    beech
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "beech street";</tag>
+   </item>
+   <item weight="0.00086601">
+    canal
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "canal street";</tag>
+   </item>
+   <item weight="0.00086601">
+    east eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east eighth street";</tag>
+   </item>
+   <item weight="0.00086601">
+    east seventeenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east seventeenth street";</tag>
+   </item>
+   <item weight="0.00086601">
+    twentieth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twentieth street";</tag>
+   </item>
+   <item weight="0.00086601">
+    garfield
+    <tag>out = "garfield";</tag>
+   </item>
+   <item weight="0.00085462">
+    willow
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "willow street";</tag>
+   </item>
+   <item weight="0.00085462">
+    cloverlawn
+    <tag>out = "cloverlawn";</tag>
+   </item>
+   <item weight="0.00085462">
+    montgomery
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "montgomery street";</tag>
+   </item>
+   <item weight="0.00085462">
+    woodward
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "woodward avenue";</tag>
+   </item>
+   <item weight="0.00085462">
+    west eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west eighth street";</tag>
+   </item>
+   <item weight="0.00085462">
+    walnut
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "walnut avenue";</tag>
+   </item>
+   <item weight="0.00084322">
+    las vegas boulevard south
+    <tag>out = "las vegas boulevard south";</tag>
+   </item>
+   <item weight="0.00084322">
+    mission
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "mission boulevard";</tag>
+   </item>
+   <item weight="0.00084322">
+    poplar
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "poplar avenue";</tag>
+   </item>
+   <item weight="0.00084322">
+    whittier
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "whittier boulevard";</tag>
+   </item>
+   <item weight="0.00084322">
+    school
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "school street";</tag>
+   </item>
+   <item weight="0.00084322">
+    one hundred seventy first street
+    <tag>out = "one hundred seventy first street";</tag>
+   </item>
+   <item weight="0.00084322">
+    bay street
+    <tag>out = "bay street";</tag>
+   </item>
+   <item weight="0.00083183">
+    twenty first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty first street";</tag>
+   </item>
+   <item weight="0.00083183">
+    eighth
+    <tag>out = "eighth";</tag>
+   </item>
+   <item weight="0.00083183">
+    bell
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "bell road";</tag>
+   </item>
+   <item weight="0.00083183">
+    north sierra vista
+    <tag>out = "north sierra vista";</tag>
+   </item>
+   <item weight="0.00083183">
+    summit
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "summit avenue";</tag>
+   </item>
+   <item weight="0.00083183">
+    seventh
+    <tag>out = "seventh";</tag>
+   </item>
+   <item weight="0.00083183">
+    sunset
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "sunset road";</tag>
+   </item>
+   <item weight="0.00083183">
+    atlantic
+    <tag>out = "atlantic";</tag>
+   </item>
+   <item weight="0.00083183">
+    sixteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "sixteenth avenue";</tag>
+   </item>
+   <item weight="0.00083183">
+    university
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "university boulevard";</tag>
+   </item>
+   <item weight="0.00083183">
+    vermont
+    <tag>out = "vermont";</tag>
+   </item>
+   <item weight="0.00082043">
+    ninth
+    <tag>out = "ninth";</tag>
+   </item>
+   <item weight="0.00082043">
+    lake
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lake avenue";</tag>
+   </item>
+   <item weight="0.00082043">
+    grant
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "grant avenue";</tag>
+   </item>
+   <item weight="0.00082043">
+    forty sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty sixth street";</tag>
+   </item>
+   <item weight="0.00082043">
+    oak
+    <tag>out = "oak";</tag>
+   </item>
+   <item weight="0.00082043">
+    lexington
+    <tag>out = "lexington";</tag>
+   </item>
+   <item weight="0.00082043">
+    poplar
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "poplar street";</tag>
+   </item>
+   <item weight="0.00082043">
+    hollywood
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "hollywood boulevard";</tag>
+   </item>
+   <item weight="0.00080904">
+    college
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "college street";</tag>
+   </item>
+   <item weight="0.00079764">
+    morris
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "morris avenue";</tag>
+   </item>
+   <item weight="0.00079764">
+    vintage
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "vintage road";</tag>
+   </item>
+   <item weight="0.00078625">
+    mountain
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mountain road";</tag>
+   </item>
+   <item weight="0.00078625">
+    east
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "east avenue";</tag>
+   </item>
+   <item weight="0.00078625">
+    nineteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "nineteenth street";</tag>
+   </item>
+   <item weight="0.00078625">
+    sunset
+    <tag>out = "sunset";</tag>
+   </item>
+   <item weight="0.00078625">
+    california
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "california street";</tag>
+   </item>
+   <item weight="0.00078625">
+    johnson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "johnson street";</tag>
+   </item>
+   <item weight="0.00078625">
+    west century
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west century boulevard";</tag>
+   </item>
+   <item weight="0.00078625">
+    monticello
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "monticello road";</tag>
+   </item>
+   <item weight="0.00078625">
+    park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "parkway";</tag>
+   </item>
+   <item weight="0.00077485">
+    stephanie
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "stephanie drive";</tag>
+   </item>
+   <item weight="0.00077485">
+    taylor
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "taylor street";</tag>
+   </item>
+   <item weight="0.00077485">
+    fairview
+    <tag>out = "fairview";</tag>
+   </item>
+   <item weight="0.00077485">
+    thirty seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirty seventh street";</tag>
+   </item>
+   <item weight="0.00077485">
+    warren
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "warren street";</tag>
+   </item>
+   <item weight="0.00077485">
+    south state
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south state street";</tag>
+   </item>
+   <item weight="0.00076346">
+    old philadelphia pike
+    <tag>out = "old philadelphia pike";</tag>
+   </item>
+   <item weight="0.00076346">
+    bandera
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "bandera street";</tag>
+   </item>
+   <item weight="0.00076346">
+    hollywood
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hollywood avenue";</tag>
+   </item>
+   <item weight="0.00076346">
+    montgomery
+    <tag>out = "montgomery";</tag>
+   </item>
+   <item weight="0.00076346">
+    el camino
+    <tag>out = "el camino";</tag>
+   </item>
+   <item weight="0.00075206">
+    dublin
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "dublin boulevard";</tag>
+   </item>
+   <item weight="0.00075206">
+    west bell
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "west bell road";</tag>
+   </item>
+   <item weight="0.00075206">
+    firestone
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "firestone boulevard";</tag>
+   </item>
+   <item weight="0.00075206">
+    artesia
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "artesia boulevard";</tag>
+   </item>
+   <item weight="0.00075206">
+    state
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "state road";</tag>
+   </item>
+   <item weight="0.00075206">
+    monroe
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "monroe avenue";</tag>
+   </item>
+   <item weight="0.00075206">
+    birch
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "birch street";</tag>
+   </item>
+   <item weight="0.00075206">
+    oakbrook park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "oakbrook parkway";</tag>
+   </item>
+   <item weight="0.00075206">
+    westwood
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "westwood avenue";</tag>
+   </item>
+   <item weight="0.00075206">
+    wall
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "wall street";</tag>
+   </item>
+   <item weight="0.00075206">
+    fifth
+    <tag>out = "fifth";</tag>
+   </item>
+   <item weight="0.00075206">
+    east fourteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east fourteenth street";</tag>
+   </item>
+   <item weight="0.00075206">
+    boston post
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "boston post road";</tag>
+   </item>
+   <item weight="0.00074067">
+    west w t harris
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west ltrw ltrt harris boulevard";</tag>
+   </item>
+   <item weight="0.00074067">
+    arden
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "arden way";</tag>
+   </item>
+   <item weight="0.00074067">
+    northern
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "northern boulevard";</tag>
+   </item>
+   <item weight="0.00074067">
+    anderson
+    <tag>out = "anderson";</tag>
+   </item>
+   <item weight="0.00074067">
+    westchester
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "westchester avenue";</tag>
+   </item>
+   <item weight="0.00074067">
+    east washington
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east washington street";</tag>
+   </item>
+   <item weight="0.00074067">
+    wilson
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "wilson avenue";</tag>
+   </item>
+   <item weight="0.00074067">
+    sepulveda
+    <tag>out = "sepulveda";</tag>
+   </item>
+   <item weight="0.00074067">
+    riverside
+    <tag>out = "riverside";</tag>
+   </item>
+   <item weight="0.00074067">
+    avenue l
+    <tag>out = "avenue l";</tag>
+   </item>
+   <item weight="0.00072927">
+    orange
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "orange avenue";</tag>
+   </item>
+   <item weight="0.00072927">
+    livingston
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "livingston street";</tag>
+   </item>
+   <item weight="0.00071788">
+    south sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south sixth street";</tag>
+   </item>
+   <item weight="0.00071788">
+    blossom hill
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "blossom hill road";</tag>
+   </item>
+   <item weight="0.00071788">
+    folsom
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "folsom boulevard";</tag>
+   </item>
+   <item weight="0.00071788">
+    f street
+    <tag>out = "f street";</tag>
+   </item>
+   <item weight="0.00071788">
+    garfield
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "garfield avenue";</tag>
+   </item>
+   <item weight="0.00071788">
+    mason
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mason street";</tag>
+   </item>
+   <item weight="0.00071788">
+    division
+    <tag>out = "division";</tag>
+   </item>
+   <item weight="0.00071788">
+    thirty fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirty fourth street";</tag>
+   </item>
+   <item weight="0.00071788">
+    valley view
+    <tag>out = "valley view";</tag>
+   </item>
+   <item weight="0.00071788">
+    victory
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "victory boulevard";</tag>
+   </item>
+   <item weight="0.00071788">
+    roosevelt
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "roosevelt boulevard";</tag>
+   </item>
+   <item weight="0.00071788">
+    roosevelt
+    <tag>out = "roosevelt";</tag>
+   </item>
+   <item weight="0.00071788">
+    broadway
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "broadway avenue";</tag>
+   </item>
+   <item weight="0.00070648">
+    sanders ferry
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "sanders ferry road";</tag>
+   </item>
+   <item weight="0.00070648">
+    fifty sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty sixth street";</tag>
+   </item>
+   <item weight="0.00070648">
+    belmont
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "belmont avenue";</tag>
+   </item>
+   <item weight="0.00070648">
+    rockaway park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "rockaway parkway";</tag>
+   </item>
+   <item weight="0.00070648">
+    clark
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "clark street";</tag>
+   </item>
+   <item weight="0.00070648">
+    grand
+    <tag>out = "grand";</tag>
+   </item>
+   <item weight="0.00070648">
+    east mississippi
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "east mississippi avenue";</tag>
+   </item>
+   <item weight="0.00070648">
+    east twelfth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east twelfth street";</tag>
+   </item>
+   <item weight="0.00070648">
+    twenty fourth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "twenty fourth avenue";</tag>
+   </item>
+   <item weight="0.00070648">
+    grove
+    <tag>out = "grove";</tag>
+   </item>
+   <item weight="0.00070648">
+    d street
+    <tag>out = "d street";</tag>
+   </item>
+   <item weight="0.00070648">
+    merrick
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "merrick road";</tag>
+   </item>
+   <item weight="0.00070648">
+    rosemead
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "rosemead boulevard";</tag>
+   </item>
+   <item weight="0.00069509">
+    a
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "ltra street";</tag>
+   </item>
+   <item weight="0.00069509">
+    orange
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "orange street";</tag>
+   </item>
+   <item weight="0.00069509">
+    gateway
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "gateway drive";</tag>
+   </item>
+   <item weight="0.00069509">
+    dixie high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "dixie highway";</tag>
+   </item>
+   <item weight="0.00069509">
+    twenty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty second street";</tag>
+   </item>
+   <item weight="0.00069509">
+    church
+    <tag>out = "church";</tag>
+   </item>
+   <item weight="0.00069509">
+    twentieth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "twentieth avenue";</tag>
+   </item>
+   <item weight="0.00069509">
+    ross
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "ross street";</tag>
+   </item>
+   <item weight="0.00068369">
+    nineteenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "nineteenth avenue";</tag>
+   </item>
+   <item weight="0.00068369">
+    michigan
+    <tag>out = "michigan";</tag>
+   </item>
+   <item weight="0.00068369">
+    park place
+    <tag>out = "park place";</tag>
+   </item>
+   <item weight="0.00068369">
+    route fifty nine
+    <tag>out = "route fifty nine";</tag>
+   </item>
+   <item weight="0.00068369">
+    briggs high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "briggs highway";</tag>
+   </item>
+   <item weight="0.00068369">
+    eastern
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "eastern avenue";</tag>
+   </item>
+   <item weight="0.00068369">
+    thirty ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirty ninth street";</tag>
+   </item>
+   <item weight="0.00068369">
+    howard
+    <tag>out = "howard";</tag>
+   </item>
+   <item weight="0.00068369">
+    miller
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "miller road";</tag>
+   </item>
+   <item weight="0.00068369">
+    fremont
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fremont street";</tag>
+   </item>
+   <item weight="0.00068369">
+    laurel park
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "laurel park road";</tag>
+   </item>
+   <item weight="0.00068369">
+    corporate exchange boulevard southeast
+    <tag>out = "corporate exchange boulevard southeast";</tag>
+   </item>
+   <item weight="0.00068369">
+    trammell
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "trammell road";</tag>
+   </item>
+   <item weight="0.00068369">
+    farmington
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "farmington avenue";</tag>
+   </item>
+   <item weight="0.00068369">
+    jericho turnpike
+    <tag>out = "jericho turnpike";</tag>
+   </item>
+   <item weight="0.00068369">
+    hawthorne
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "hawthorne boulevard";</tag>
+   </item>
+   <item weight="0.0006723">
+    tennessee
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "tennessee avenue";</tag>
+   </item>
+   <item weight="0.0006723">
+    industrial
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "industrial drive";</tag>
+   </item>
+   <item weight="0.0006723">
+    cross
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "cross street";</tag>
+   </item>
+   <item weight="0.0006723">
+    old seward highway
+    <tag>out = "old seward highway";</tag>
+   </item>
+   <item weight="0.0006723">
+    north shadeland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north shadeland avenue";</tag>
+   </item>
+   <item weight="0.0006723">
+    montgomery
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "montgomery road";</tag>
+   </item>
+   <item weight="0.0006723">
+    mayfield
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mayfield road";</tag>
+   </item>
+   <item weight="0.0006723">
+    willow
+    <tag>out = "willow";</tag>
+   </item>
+   <item weight="0.0006723">
+    orange
+    <tag>out = "orange";</tag>
+   </item>
+   <item weight="0.0006723">
+    chicago
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "chicago avenue";</tag>
+   </item>
+   <item weight="0.0006723">
+    thirtieth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirtieth street";</tag>
+   </item>
+   <item weight="0.0006723">
+    howard
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "howard avenue";</tag>
+   </item>
+   <item weight="0.0006723">
+    north walston bridge
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "north walston bridge road";</tag>
+   </item>
+   <item weight="0.0006723">
+    beacon
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "beacon street";</tag>
+   </item>
+   <item weight="0.0006609">
+    mccoy
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mccoy street";</tag>
+   </item>
+   <item weight="0.0006609">
+    reading
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "reading road";</tag>
+   </item>
+   <item weight="0.0006609">
+    elm
+    <tag>out = "elm";</tag>
+   </item>
+   <item weight="0.0006609">
+    broadway
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "broadway street";</tag>
+   </item>
+   <item weight="0.0006609">
+    lafayette
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lafayette avenue";</tag>
+   </item>
+   <item weight="0.0006609">
+    research
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "research drive";</tag>
+   </item>
+   <item weight="0.0006609">
+    pacific
+    <tag>out = "pacific";</tag>
+   </item>
+   <item weight="0.0006609">
+    sycamore
+    <tag>out = "sycamore";</tag>
+   </item>
+   <item weight="0.0006609">
+    telegraph
+    <tag>out = "telegraph";</tag>
+   </item>
+   <item weight="0.0006609">
+    collins
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "collins avenue";</tag>
+   </item>
+   <item weight="0.0006609">
+    river
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "river street";</tag>
+   </item>
+   <item weight="0.0006609">
+    park
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "park lane";</tag>
+   </item>
+   <item weight="0.0006609">
+    commonwealth
+    <tag>out = "commonwealth";</tag>
+   </item>
+   <item weight="0.0006609">
+    patio
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "patio road";</tag>
+   </item>
+   <item weight="0.0006609">
+    liberty
+    <tag>out = "liberty";</tag>
+   </item>
+   <item weight="0.0006609">
+    east washington
+    <tag>out = "east washington";</tag>
+   </item>
+   <item weight="0.0006609">
+    pennsylvania
+    <tag>out = "pennsylvania";</tag>
+   </item>
+   <item weight="0.0006609">
+    flushing
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "flushing avenue";</tag>
+   </item>
+   <item weight="0.0006609">
+    wilshire
+    <tag>out = "wilshire";</tag>
+   </item>
+   <item weight="0.00064951">
+    foster
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "foster avenue";</tag>
+   </item>
+   <item weight="0.00064951">
+    fairview
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "fairview road";</tag>
+   </item>
+   <item weight="0.00064951">
+    rosecrans
+    <tag>out = "rosecrans";</tag>
+   </item>
+   <item weight="0.00064951">
+    georgia
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "georgia avenue";</tag>
+   </item>
+   <item weight="0.00064951">
+    parkway north
+    <tag>out = "parkway north";</tag>
+   </item>
+   <item weight="0.00064951">
+    douglas
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "douglas avenue";</tag>
+   </item>
+   <item weight="0.00064951">
+    columbus
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "columbus avenue";</tag>
+   </item>
+   <item weight="0.00064951">
+    commerce
+    <tag>out = "commerce";</tag>
+   </item>
+   <item weight="0.00064951">
+    eleventh
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "eleventh avenue";</tag>
+   </item>
+   <item weight="0.00064951">
+    investment
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "investment boulevard";</tag>
+   </item>
+   <item weight="0.00064951">
+    avenue j
+    <tag>out = "avenue j";</tag>
+   </item>
+   <item weight="0.00064951">
+    taylor
+    <tag>out = "taylor";</tag>
+   </item>
+   <item weight="0.00064951">
+    west kennedy
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west kennedy boulevard";</tag>
+   </item>
+   <item weight="0.00064951">
+    charles
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "charles street";</tag>
+   </item>
+   <item weight="0.00063811">
+    college
+    <tag>out = "college";</tag>
+   </item>
+   <item weight="0.00063811">
+    south central
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "south central avenue";</tag>
+   </item>
+   <item weight="0.00063811">
+    hudson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "hudson street";</tag>
+   </item>
+   <item weight="0.00063811">
+    cherry
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cherry avenue";</tag>
+   </item>
+   <item weight="0.00063811">
+    university park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "university parkway";</tag>
+   </item>
+   <item weight="0.00063811">
+    east ninety sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east ninety sixth street";</tag>
+   </item>
+   <item weight="0.00063811">
+    east market
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east market street";</tag>
+   </item>
+   <item weight="0.00063811">
+    riverside
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "riverside avenue";</tag>
+   </item>
+   <item weight="0.00063811">
+    forty first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty first street";</tag>
+   </item>
+   <item weight="0.00063811">
+    carey
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "carey street";</tag>
+   </item>
+   <item weight="0.00063811">
+    marshall
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "marshall street";</tag>
+   </item>
+   <item weight="0.00063811">
+    hamilton
+    <tag>out = "hamilton";</tag>
+   </item>
+   <item weight="0.00062672">
+    west state
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west state street";</tag>
+   </item>
+   <item weight="0.00062672">
+    state
+    <tag>out = "state";</tag>
+   </item>
+   <item weight="0.00062672">
+    columbia
+    <tag>out = "columbia";</tag>
+   </item>
+   <item weight="0.00062672">
+    van ness avenue
+    <tag>out = "van ness avenue";</tag>
+   </item>
+   <item weight="0.00062672">
+    webster
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "webster street";</tag>
+   </item>
+   <item weight="0.00062672">
+    cedar
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cedar avenue";</tag>
+   </item>
+   <item weight="0.00062672">
+    south harbor
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "south harbor boulevard";</tag>
+   </item>
+   <item weight="0.00062672">
+    north state road four thirty four
+    <tag>out = "north state road four thirty four";</tag>
+   </item>
+   <item weight="0.00062672">
+    fifty first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty first street";</tag>
+   </item>
+   <item weight="0.00062672">
+    olive
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "olive street";</tag>
+   </item>
+   <item weight="0.00062672">
+    mount wilson
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "mount wilson lane";</tag>
+   </item>
+   <item weight="0.00062672">
+    pioneer
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "pioneer boulevard";</tag>
+   </item>
+   <item weight="0.00062672">
+    phyllis terrace
+    <tag>out = "phyllis terrace";</tag>
+   </item>
+   <item weight="0.00062672">
+    south fourth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south fourth street";</tag>
+   </item>
+   <item weight="0.00062672">
+    mcdonald
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "mcdonald avenue";</tag>
+   </item>
+   <item weight="0.00062672">
+    pine
+    <tag>out = "pine";</tag>
+   </item>
+   <item weight="0.00062672">
+    mulberry
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mulberry street";</tag>
+   </item>
+   <item weight="0.00062672">
+    fort hamilton park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "fort hamilton parkway";</tag>
+   </item>
+   <item weight="0.00062672">
+    alondra
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "alondra boulevard";</tag>
+   </item>
+   <item weight="0.00061532">
+    corporate
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "corporate drive";</tag>
+   </item>
+   <item weight="0.00061532">
+    north coopers hawk
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "north coopers hawk drive";</tag>
+   </item>
+   <item weight="0.00061532">
+    linden
+    <tag>out = "linden";</tag>
+   </item>
+   <item weight="0.00061532">
+    west fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west fifth street";</tag>
+   </item>
+   <item weight="0.00061532">
+    webster
+    <tag>out = "webster";</tag>
+   </item>
+   <item weight="0.00061532">
+    florence
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "florence avenue";</tag>
+   </item>
+   <item weight="0.00061532">
+    fulton
+    <tag>out = "fulton";</tag>
+   </item>
+   <item weight="0.00061532">
+    arch
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "arch street";</tag>
+   </item>
+   <item weight="0.00061532">
+    west
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "west avenue";</tag>
+   </item>
+   <item weight="0.00061532">
+    staghorn court
+    <tag>out = "staghorn court";</tag>
+   </item>
+   <item weight="0.00061532">
+    north craycroft
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "north craycroft road";</tag>
+   </item>
+   <item weight="0.00061532">
+    lakeside
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "lakeside drive";</tag>
+   </item>
+   <item weight="0.00061532">
+    haymarket trail
+    <tag>out = "haymarket trail";</tag>
+   </item>
+   <item weight="0.00061532">
+    clinton
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "clinton street";</tag>
+   </item>
+   <item weight="0.00061532">
+    boardwalk
+    <tag>out = "boardwalk";</tag>
+   </item>
+   <item weight="0.00061532">
+    fairfax
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fairfax avenue";</tag>
+   </item>
+   <item weight="0.00061532">
+    baker
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "baker street";</tag>
+   </item>
+   <item weight="0.00060393">
+    church
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "church road";</tag>
+   </item>
+   <item weight="0.00060393">
+    commonwealth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "commonwealth avenue";</tag>
+   </item>
+   <item weight="0.00060393">
+    park
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "park road";</tag>
+   </item>
+   <item weight="0.00060393">
+    j street
+    <tag>out = "j street";</tag>
+   </item>
+   <item weight="0.00060393">
+    fremont
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "fremont boulevard";</tag>
+   </item>
+   <item weight="0.00060393">
+    meadow
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "meadow lane";</tag>
+   </item>
+   <item weight="0.00060393">
+    sherman
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "sherman way";</tag>
+   </item>
+   <item weight="0.00060393">
+    villa
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "villa avenue";</tag>
+   </item>
+   <item weight="0.00060393">
+    hickory
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "hickory street";</tag>
+   </item>
+   <item weight="0.00060393">
+    cleveland
+    <tag>out = "cleveland";</tag>
+   </item>
+   <item weight="0.00060393">
+    stop
+    <tag>out = "stop";</tag>
+   </item>
+   <item weight="0.00060393">
+    bay
+    <tag>out = "bay";</tag>
+   </item>
+   <item weight="0.00060393">
+    olivera
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "olivera road";</tag>
+   </item>
+   <item weight="0.00060393">
+    north third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north third street";</tag>
+   </item>
+   <item weight="0.00060393">
+    commerce
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "commerce drive";</tag>
+   </item>
+   <item weight="0.00060393">
+    evergreen
+    <tag>out = "evergreen";</tag>
+   </item>
+   <item weight="0.00060393">
+    kirby
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "kirby drive";</tag>
+   </item>
+   <item weight="0.00060393">
+    franklin
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "franklin road";</tag>
+   </item>
+   <item weight="0.00060393">
+    lee highway
+    <tag>out = "lee highway";</tag>
+   </item>
+   <item weight="0.00060393">
+    country club
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "country club drive";</tag>
+   </item>
+   <item weight="0.00060393">
+    columbia pike
+    <tag>out = "columbia pike";</tag>
+   </item>
+   <item weight="0.00059253">
+    delaware
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "delaware avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    seventy ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "seventy ninth street";</tag>
+   </item>
+   <item weight="0.00059253">
+    east thirteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east thirteenth street";</tag>
+   </item>
+   <item weight="0.00059253">
+    seventeenth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "seventeenth avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    north seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north seventh street";</tag>
+   </item>
+   <item weight="0.00059253">
+    imperial
+    <tag>out = "imperial";</tag>
+   </item>
+   <item weight="0.00059253">
+    neptune
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "neptune avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    bay parkway
+    <tag>out = "bay parkway";</tag>
+   </item>
+   <item weight="0.00059253">
+    center
+    <tag>out = "center";</tag>
+   </item>
+   <item weight="0.00059253">
+    stewart
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "stewart avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    york
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "york road";</tag>
+   </item>
+   <item weight="0.00059253">
+    stockton
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "stockton boulevard";</tag>
+   </item>
+   <item weight="0.00059253">
+    division
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "division street";</tag>
+   </item>
+   <item weight="0.00059253">
+    brighton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "brighton avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    frankfort
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "frankfort avenue";</tag>
+   </item>
+   <item weight="0.00059253">
+    twenty third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty third street";</tag>
+   </item>
+   <item weight="0.00059253">
+    essex
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "essex street";</tag>
+   </item>
+   <item weight="0.00059253">
+    west first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west first street";</tag>
+   </item>
+   <item weight="0.00059253">
+    twenty fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty fifth street";</tag>
+   </item>
+   <item weight="0.00058114">
+    mount vernon
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "mount vernon avenue";</tag>
+   </item>
+   <item weight="0.00058114">
+    baseline
+    <tag>out = "baseline";</tag>
+   </item>
+   <item weight="0.00058114">
+    woodland
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "woodland drive";</tag>
+   </item>
+   <item weight="0.00058114">
+    wrightsboro
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "wrightsboro road";</tag>
+   </item>
+   <item weight="0.00058114">
+    honey
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "honey road";</tag>
+   </item>
+   <item weight="0.00058114">
+    palm
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "palm avenue";</tag>
+   </item>
+   <item weight="0.00058114">
+    sherwood
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "sherwood road";</tag>
+   </item>
+   <item weight="0.00058114">
+    fifty third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty third street";</tag>
+   </item>
+   <item weight="0.00058114">
+    san fernando road
+    <tag>out = "san fernando road";</tag>
+   </item>
+   <item weight="0.00058114">
+    sierra
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "sierra avenue";</tag>
+   </item>
+   <item weight="0.00058114">
+    squankum
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "squankum road";</tag>
+   </item>
+   <item weight="0.00058114">
+    kennedy
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "kennedy boulevard";</tag>
+   </item>
+   <item weight="0.00058114">
+    hempstead turnpike
+    <tag>out = "hempstead turnpike";</tag>
+   </item>
+   <item weight="0.00058114">
+    b street
+    <tag>out = "b street";</tag>
+   </item>
+   <item weight="0.00056974">
+    penn
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "penn avenue";</tag>
+   </item>
+   <item weight="0.00056974">
+    saratoga
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "saratoga avenue";</tag>
+   </item>
+   <item weight="0.00056974">
+    international
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "international drive";</tag>
+   </item>
+   <item weight="0.00056974">
+    tenth
+    <tag>out = "tenth";</tag>
+   </item>
+   <item weight="0.00056974">
+    highland
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "highland drive";</tag>
+   </item>
+   <item weight="0.00056974">
+    west second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west second street";</tag>
+   </item>
+   <item weight="0.00056974">
+    webster
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "webster avenue";</tag>
+   </item>
+   <item weight="0.00056974">
+    greenfield
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "greenfield road";</tag>
+   </item>
+   <item weight="0.00056974">
+    dale
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "dale avenue";</tag>
+   </item>
+   <item weight="0.00056974">
+    lakewood
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "lakewood boulevard";</tag>
+   </item>
+   <item weight="0.00056974">
+    john
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "john street";</tag>
+   </item>
+   <item weight="0.00056974">
+    main menu
+    <tag>out = "main menu";</tag>
+   </item>
+   <item weight="0.00056974">
+    avenue o
+    <tag>out = "avenue o";</tag>
+   </item>
+   <item weight="0.00056974">
+    peachtree
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "peachtree street";</tag>
+   </item>
+   <item weight="0.00056974">
+    south second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south second street";</tag>
+   </item>
+   <item weight="0.00056974">
+    crenshaw
+    <tag>out = "crenshaw";</tag>
+   </item>
+   <item weight="0.00056974">
+    maitland
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "maitland drive";</tag>
+   </item>
+   <item weight="0.00055835">
+    allen
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "allen street";</tag>
+   </item>
+   <item weight="0.00055835">
+    roxbury
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "roxbury road";</tag>
+   </item>
+   <item weight="0.00055835">
+    west pico
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west pico boulevard";</tag>
+   </item>
+   <item weight="0.00055835">
+    columbia
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "columbia street";</tag>
+   </item>
+   <item weight="0.00055835">
+    marshall
+    <tag>out = "marshall";</tag>
+   </item>
+   <item weight="0.00055835">
+    baltimore
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "baltimore avenue";</tag>
+   </item>
+   <item weight="0.00055835">
+    wilson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "wilson street";</tag>
+   </item>
+   <item weight="0.00055835">
+    madison
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "madison road";</tag>
+   </item>
+   <item weight="0.00055835">
+    roswell
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "roswell road";</tag>
+   </item>
+   <item weight="0.00055835">
+    avenue c
+    <tag>out = "avenue c";</tag>
+   </item>
+   <item weight="0.00055835">
+    park
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "park drive";</tag>
+   </item>
+   <item weight="0.00055835">
+    jefferson davis high
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "jefferson davis highway";</tag>
+   </item>
+   <item weight="0.00055835">
+    kelsey
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "kelsey lane";</tag>
+   </item>
+   <item weight="0.00055835">
+    hillside
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hillside avenue";</tag>
+   </item>
+   <item weight="0.00055835">
+    hayes
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "hayes road";</tag>
+   </item>
+   <item weight="0.00055835">
+    quarry
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "quarry road";</tag>
+   </item>
+   <item weight="0.00054695">
+    van ness
+    <tag>out = "van ness";</tag>
+   </item>
+   <item weight="0.00054695">
+    north second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north second street";</tag>
+   </item>
+   <item weight="0.00054695">
+    laurel canyon
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "laurel canyon boulevard";</tag>
+   </item>
+   <item weight="0.00054695">
+    east first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east first street";</tag>
+   </item>
+   <item weight="0.00054695">
+    olive
+    <tag>out = "olive";</tag>
+   </item>
+   <item weight="0.00054695">
+    yeshiva
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "yeshiva lane";</tag>
+   </item>
+   <item weight="0.00054695">
+    rodney
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "rodney street";</tag>
+   </item>
+   <item weight="0.00054695">
+    reisterstown
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "reisterstown road";</tag>
+   </item>
+   <item weight="0.00054695">
+    ash street
+    <tag>out = "ash street";</tag>
+   </item>
+   <item weight="0.00054695">
+    south orange
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "south orange avenue";</tag>
+   </item>
+   <item weight="0.00054695">
+    norwalk
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "norwalk boulevard";</tag>
+   </item>
+   <item weight="0.00054695">
+    howe
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "howe avenue";</tag>
+   </item>
+   <item weight="0.00054695">
+    fremont
+    <tag>out = "fremont";</tag>
+   </item>
+   <item weight="0.00054695">
+    church
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "church avenue";</tag>
+   </item>
+   <item weight="0.00054695">
+    south groffdale
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "south groffdale road";</tag>
+   </item>
+   <item weight="0.00053556">
+    twenty sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty sixth street";</tag>
+   </item>
+   <item weight="0.00053556">
+    hilltop
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "hilltop drive";</tag>
+   </item>
+   <item weight="0.00053556">
+    macarthur
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "macarthur boulevard";</tag>
+   </item>
+   <item weight="0.00053556">
+    indiana
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "indiana avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    laurel
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "laurel avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    mckinley
+    <tag>out = "mckinley";</tag>
+   </item>
+   <item weight="0.00053556">
+    fulton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "fulton avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    washington
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "washington road";</tag>
+   </item>
+   <item weight="0.00053556">
+    coffee
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "coffee road";</tag>
+   </item>
+   <item weight="0.00053556">
+    grant
+    <tag>out = "grant";</tag>
+   </item>
+   <item weight="0.00053556">
+    watt
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "watt avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    south eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south eighth street";</tag>
+   </item>
+   <item weight="0.00053556">
+    passaic
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "passaic avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    mission
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mission road";</tag>
+   </item>
+   <item weight="0.00053556">
+    pleasant hill
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "pleasant hill road";</tag>
+   </item>
+   <item weight="0.00053556">
+    manchester
+    <tag>out = "manchester";</tag>
+   </item>
+   <item weight="0.00053556">
+    candyman
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "candyman road";</tag>
+   </item>
+   <item weight="0.00053556">
+    spring
+    <tag>out = "spring";</tag>
+   </item>
+   <item weight="0.00053556">
+    redwood
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "redwood road";</tag>
+   </item>
+   <item weight="0.00053556">
+    curtis parkway southeast
+    <tag>out = "curtis parkway southeast";</tag>
+   </item>
+   <item weight="0.00053556">
+    stevens creek
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "stevens creek boulevard";</tag>
+   </item>
+   <item weight="0.00053556">
+    twenty eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "twenty eighth street";</tag>
+   </item>
+   <item weight="0.00053556">
+    george
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "george street";</tag>
+   </item>
+   <item weight="0.00053556">
+    hamilton
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "hamilton road";</tag>
+   </item>
+   <item weight="0.00053556">
+    bank
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "bank street";</tag>
+   </item>
+   <item weight="0.00053556">
+    south
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "south road";</tag>
+   </item>
+   <item weight="0.00053556">
+    virginia
+    <tag>out = "virginia";</tag>
+   </item>
+   <item weight="0.00053556">
+    short
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "short street";</tag>
+   </item>
+   <item weight="0.00053556">
+    new hampshire avenue
+    <tag>out = "new hampshire avenue";</tag>
+   </item>
+   <item weight="0.00053556">
+    rex road
+    <tag>out = "rex road";</tag>
+   </item>
+   <item weight="0.00052416">
+    sunset
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "sunset avenue";</tag>
+   </item>
+   <item weight="0.00052416">
+    liberty
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "liberty avenue";</tag>
+   </item>
+   <item weight="0.00052416">
+    county road thirty five
+    <tag>out = "county road thirty five";</tag>
+   </item>
+   <item weight="0.00052416">
+    arosa hill
+    <tag>out = "arosa hill";</tag>
+   </item>
+   <item weight="0.00052416">
+    post
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "post road";</tag>
+   </item>
+   <item weight="0.00052416">
+    cedar
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "cedar lane";</tag>
+   </item>
+   <item weight="0.00052416">
+    studebaker
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "studebaker road";</tag>
+   </item>
+   <item weight="0.00052416">
+    vaughan
+    <tag>out = "vaughan";</tag>
+   </item>
+   <item weight="0.00052416">
+    auburn
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "auburn boulevard";</tag>
+   </item>
+   <item weight="0.00052416">
+    oakland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "oakland avenue";</tag>
+   </item>
+   <item weight="0.00052416">
+    carson
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "carson street";</tag>
+   </item>
+   <item weight="0.00052416">
+    indiana
+    <tag>out = "indiana";</tag>
+   </item>
+   <item weight="0.00052416">
+    mulberry
+    <tag>out = "mulberry";</tag>
+   </item>
+   <item weight="0.00052416">
+    north fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north fifth street";</tag>
+   </item>
+   <item weight="0.00052416">
+    pine
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "pine road";</tag>
+   </item>
+   <item weight="0.00052416">
+    mill
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mill road";</tag>
+   </item>
+   <item weight="0.00052416">
+    cypress
+    <tag>out = "cypress";</tag>
+   </item>
+   <item weight="0.00052416">
+    north high
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north high street";</tag>
+   </item>
+   <item weight="0.00052416">
+    princeton
+    <tag>out = "princeton";</tag>
+   </item>
+   <item weight="0.00052416">
+    pleasant valley
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "pleasant valley road";</tag>
+   </item>
+   <item weight="0.00052416">
+    white
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "white road";</tag>
+   </item>
+   <item weight="0.00052416">
+    clark
+    <tag>out = "clark";</tag>
+   </item>
+   <item weight="0.00052416">
+    addison
+    <tag>out = "addison";</tag>
+   </item>
+   <item weight="0.00052416">
+    smith
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "smith street";</tag>
+   </item>
+   <item weight="0.00052416">
+    satmar
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "satmar drive";</tag>
+   </item>
+   <item weight="0.00052416">
+    buena vista
+    <tag>out = "buena vista";</tag>
+   </item>
+   <item weight="0.00052416">
+    lancaster
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "lancaster avenue";</tag>
+   </item>
+   <item weight="0.00052416">
+    vermont
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "vermont avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    cobb park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "cobb parkway";</tag>
+   </item>
+   <item weight="0.00051277">
+    cedar
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "cedar road";</tag>
+   </item>
+   <item weight="0.00051277">
+    burkett
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "burkett road";</tag>
+   </item>
+   <item weight="0.00051277">
+    artesia
+    <tag>out = "artesia";</tag>
+   </item>
+   <item weight="0.00051277">
+    center
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "center road";</tag>
+   </item>
+   <item weight="0.00051277">
+    boston
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "boston road";</tag>
+   </item>
+   <item weight="0.00051277">
+    glenwood
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "glenwood avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    south broad
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south broad street";</tag>
+   </item>
+   <item weight="0.00051277">
+    clinton
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "clinton avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    south grand
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "south grand avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    henry
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "henry street";</tag>
+   </item>
+   <item weight="0.00051277">
+    route three hundred six
+    <tag>out = "route three hundred six";</tag>
+   </item>
+   <item weight="0.00051277">
+    spring garden
+    <tag>out = "spring garden";</tag>
+   </item>
+   <item weight="0.00051277">
+    fifty fifth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty fifth street";</tag>
+   </item>
+   <item weight="0.00051277">
+    nostrand
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "nostrand avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    west washington
+    <tag>out = "west washington";</tag>
+   </item>
+   <item weight="0.00051277">
+    capitol
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "capitol avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    melrose
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "melrose avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    east sixth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east sixth street";</tag>
+   </item>
+   <item weight="0.00051277">
+    hamilton
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "hamilton street";</tag>
+   </item>
+   <item weight="0.00051277">
+    metropolitan
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "metropolitan avenue";</tag>
+   </item>
+   <item weight="0.00051277">
+    meridian
+    <tag>out = "meridian";</tag>
+   </item>
+   <item weight="0.00050137">
+    country club
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "country club road";</tag>
+   </item>
+   <item weight="0.00050137">
+    ohio
+    <tag>out = "ohio";</tag>
+   </item>
+   <item weight="0.00050137">
+    locust
+    <tag>out = "locust";</tag>
+   </item>
+   <item weight="0.00050137">
+    avenue k
+    <tag>out = "avenue k";</tag>
+   </item>
+   <item weight="0.00050137">
+    south ocean
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "south ocean boulevard";</tag>
+   </item>
+   <item weight="0.00050137">
+    plaza
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "plaza drive";</tag>
+   </item>
+   <item weight="0.00050137">
+    wolf creek road south
+    <tag>out = "wolf creek road south";</tag>
+   </item>
+   <item weight="0.00050137">
+    downey
+    <tag>out = "downey";</tag>
+   </item>
+   <item weight="0.00050137">
+    winchester
+    <tag>out = "winchester";</tag>
+   </item>
+   <item weight="0.00050137">
+    davis
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "davis street";</tag>
+   </item>
+   <item weight="0.00050137">
+    harvard
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "harvard street";</tag>
+   </item>
+   <item weight="0.00050137">
+    kedma
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "kedma drive";</tag>
+   </item>
+   <item weight="0.00050137">
+    concord
+    <tag>out = "concord";</tag>
+   </item>
+   <item weight="0.00050137">
+    thirty fifth
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "thirty fifth avenue";</tag>
+   </item>
+   <item weight="0.00050137">
+    east eighteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east eighteenth street";</tag>
+   </item>
+   <item weight="0.00050137">
+    cypress
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cypress avenue";</tag>
+   </item>
+   <item weight="0.00050137">
+    woodland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "woodland avenue";</tag>
+   </item>
+   <item weight="0.00050137">
+    west washington
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west washington street";</tag>
+   </item>
+   <item weight="0.00050137">
+    martin luther king junior
+    <tag>out = "martin luther king junior";</tag>
+   </item>
+   <item weight="0.00050137">
+    congress
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "congress street";</tag>
+   </item>
+   <item weight="0.00050137">
+    twenty first
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "twenty first avenue";</tag>
+   </item>
+   <item weight="0.00048998">
+    old country road
+    <tag>out = "old country road";</tag>
+   </item>
+   <item weight="0.00048998">
+    glenwood
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "glenwood drive";</tag>
+   </item>
+   <item weight="0.00048998">
+    jackson
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "jackson avenue";</tag>
+   </item>
+   <item weight="0.00048998">
+    buchanan
+    <tag>out = "buchanan";</tag>
+   </item>
+   <item weight="0.00048998">
+    east broad
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east broad street";</tag>
+   </item>
+   <item weight="0.00048998">
+    hancock
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hancock avenue";</tag>
+   </item>
+   <item weight="0.00048998">
+    linden
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "linden street";</tag>
+   </item>
+   <item weight="0.00048998">
+    florin
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "florin road";</tag>
+   </item>
+   <item weight="0.00048998">
+    colorado
+    <tag>out = "colorado";</tag>
+   </item>
+   <item weight="0.00048998">
+    mount hope
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mount hope road";</tag>
+   </item>
+   <item weight="0.00048998">
+    babbitt
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "babbitt road";</tag>
+   </item>
+   <item weight="0.00048998">
+    oak avenue
+    <tag>out = "oak avenue";</tag>
+   </item>
+   <item weight="0.00048998">
+    baseline
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "baseline road";</tag>
+   </item>
+   <item weight="0.00048998">
+    peters
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "peters road";</tag>
+   </item>
+   <item weight="0.00048998">
+    lakeview
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "lakeview drive";</tag>
+   </item>
+   <item weight="0.00048998">
+    enterprise
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "enterprise drive";</tag>
+   </item>
+   <item weight="0.00048998">
+    pioneer
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "pioneer road";</tag>
+   </item>
+   <item weight="0.00048998">
+    kilmer
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "kilmer road";</tag>
+   </item>
+   <item weight="0.00048998">
+    harvest
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "harvest lane";</tag>
+   </item>
+   <item weight="0.00048998">
+    yorktowne
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "yorktowne boulevard";</tag>
+   </item>
+   <item weight="0.00048998">
+    wood
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "wood street";</tag>
+   </item>
+   <item weight="0.00048998">
+    magnolia
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "magnolia street";</tag>
+   </item>
+   <item weight="0.00048998">
+    thornton
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "thornton road";</tag>
+   </item>
+   <item weight="0.00048998">
+    west
+    <tag>out = "west";</tag>
+   </item>
+   <item weight="0.00048998">
+    thirty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "thirty second street";</tag>
+   </item>
+   <item weight="0.00047858">
+    venice
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "venice boulevard";</tag>
+   </item>
+   <item weight="0.00047858">
+    monmouth
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "monmouth road";</tag>
+   </item>
+   <item weight="0.00047858">
+    wisconsin
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "wisconsin avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    crown
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "crown street";</tag>
+   </item>
+   <item weight="0.00047858">
+    wilson
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "wilson boulevard";</tag>
+   </item>
+   <item weight="0.00047858">
+    warren
+    <tag>out = "warren";</tag>
+   </item>
+   <item weight="0.00047858">
+    clayton
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "clayton road";</tag>
+   </item>
+   <item weight="0.00047858">
+    yonkers
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "yonkers avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    red hill road
+    <tag>out = "red hill road";</tag>
+   </item>
+   <item weight="0.00047858">
+    north vermont
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north vermont avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    butler
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "butler road";</tag>
+   </item>
+   <item weight="0.00047858">
+    callaghan
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "callaghan road";</tag>
+   </item>
+   <item weight="0.00047858">
+    sproul
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "sproul road";</tag>
+   </item>
+   <item weight="0.00047858">
+    east county line
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "east county line road";</tag>
+   </item>
+   <item weight="0.00047858">
+    dekalb
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "dekalb avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    eleventh
+    <tag>out = "eleventh";</tag>
+   </item>
+   <item weight="0.00047858">
+    johnson
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "johnson avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    paradise
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "paradise road";</tag>
+   </item>
+   <item weight="0.00047858">
+    middlefield
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "middlefield road";</tag>
+   </item>
+   <item weight="0.00047858">
+    twin oaks
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "twin oaks drive";</tag>
+   </item>
+   <item weight="0.00047858">
+    north market
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north market street";</tag>
+   </item>
+   <item weight="0.00047858">
+    west baltimore
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west baltimore street";</tag>
+   </item>
+   <item weight="0.00047858">
+    monterey
+    <tag>out = "monterey";</tag>
+   </item>
+   <item weight="0.00047858">
+    wythe
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "wythe avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    sunrise
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "sunrise boulevard";</tag>
+   </item>
+   <item weight="0.00047858">
+    telegraph
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "telegraph avenue";</tag>
+   </item>
+   <item weight="0.00047858">
+    fourteenth
+    <tag>out = "fourteenth";</tag>
+   </item>
+   <item weight="0.00047858">
+    orchard
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "orchard street";</tag>
+   </item>
+   <item weight="0.00047858">
+    college
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "college road";</tag>
+   </item>
+   <item weight="0.00047858">
+    forest
+    <tag>out = "forest";</tag>
+   </item>
+   <item weight="0.00047858">
+    sixth
+    <tag>out = "sixth";</tag>
+   </item>
+   <item weight="0.00047858">
+    victoria
+    <tag>out = "victoria";</tag>
+   </item>
+   <item weight="0.00047858">
+    twelfth
+    <tag>out = "twelfth";</tag>
+   </item>
+   <item weight="0.00046719">
+    avenue i
+    <tag>out = "avenue i";</tag>
+   </item>
+   <item weight="0.00046719">
+    hawthorne
+    <tag>out = "hawthorne";</tag>
+   </item>
+   <item weight="0.00046719">
+    lancaster pike
+    <tag>out = "lancaster pike";</tag>
+   </item>
+   <item weight="0.00046719">
+    hospital
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "hospital drive";</tag>
+   </item>
+   <item weight="0.00046719">
+    north crest place
+    <tag>out = "north crest place";</tag>
+   </item>
+   <item weight="0.00046719">
+    quincy
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "quincy street";</tag>
+   </item>
+   <item weight="0.00046719">
+    plymouth
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "plymouth road";</tag>
+   </item>
+   <item weight="0.00046719">
+    west touhy
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "west touhy avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    g street
+    <tag>out = "g street";</tag>
+   </item>
+   <item weight="0.00046719">
+    north genesee
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north genesee avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    campus
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "campus drive";</tag>
+   </item>
+   <item weight="0.00046719">
+    douglas
+    <tag>out = "douglas";</tag>
+   </item>
+   <item weight="0.00046719">
+    east twenty first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east twenty first street";</tag>
+   </item>
+   <item weight="0.00046719">
+    manchester
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "manchester road";</tag>
+   </item>
+   <item weight="0.00046719">
+    center
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "center avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    alondra
+    <tag>out = "alondra";</tag>
+   </item>
+   <item weight="0.00046719">
+    fifteenth
+    <tag>out = "fifteenth";</tag>
+   </item>
+   <item weight="0.00046719">
+    york
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "york street";</tag>
+   </item>
+   <item weight="0.00046719">
+    north railroad
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north railroad avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    midland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "midland avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    rose
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "rose street";</tag>
+   </item>
+   <item weight="0.00046719">
+    airport
+    <tag>out = "airport";</tag>
+   </item>
+   <item weight="0.00046719">
+    bell
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "bell avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    oakland
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "oakland drive";</tag>
+   </item>
+   <item weight="0.00046719">
+    springville
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "springville road";</tag>
+   </item>
+   <item weight="0.00046719">
+    east nineteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east nineteenth street";</tag>
+   </item>
+   <item weight="0.00046719">
+    west tenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west tenth street";</tag>
+   </item>
+   <item weight="0.00046719">
+    new central avenue
+    <tag>out = "new central avenue";</tag>
+   </item>
+   <item weight="0.00046719">
+    avenue u
+    <tag>out = "avenue u";</tag>
+   </item>
+   <item weight="0.00046719">
+    blauvelt
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "blauvelt road";</tag>
+   </item>
+   <item weight="0.00046719">
+    polk
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "polk street";</tag>
+   </item>
+   <item weight="0.00046719">
+    north church
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north church street";</tag>
+   </item>
+   <item weight="0.00046719">
+    tonawanda
+    <tag>out = "tonawanda";</tag>
+   </item>
+   <item weight="0.00045579">
+    smith
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "smith road";</tag>
+   </item>
+   <item weight="0.00045579">
+    pine
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "pine avenue";</tag>
+   </item>
+   <item weight="0.00045579">
+    hylan
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "hylan boulevard";</tag>
+   </item>
+   <item weight="0.00045579">
+    east tenth
+    <tag>out = "east tenth";</tag>
+   </item>
+   <item weight="0.00045579">
+    fifty ninth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty ninth street";</tag>
+   </item>
+   <item weight="0.00045579">
+    utica
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "utica avenue";</tag>
+   </item>
+   <item weight="0.00045579">
+    i street
+    <tag>out = "i street";</tag>
+   </item>
+   <item weight="0.00045579">
+    white horse
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "white horse road";</tag>
+   </item>
+   <item weight="0.00045579">
+    campbell
+    <tag>out = "campbell";</tag>
+   </item>
+   <item weight="0.00045579">
+    skyline
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "skyline drive";</tag>
+   </item>
+   <item weight="0.00045579">
+    cameron
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "cameron street";</tag>
+   </item>
+   <item weight="0.00045579">
+    california
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "california road";</tag>
+   </item>
+   <item weight="0.00045579">
+    edison court
+    <tag>out = "edison court";</tag>
+   </item>
+   <item weight="0.00045579">
+    saddle river
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "saddle river road";</tag>
+   </item>
+   <item weight="0.00045579">
+    belmont
+    <tag>out = "belmont";</tag>
+   </item>
+   <item weight="0.00045579">
+    cincinnati
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cincinnati avenue";</tag>
+   </item>
+   <item weight="0.00045579">
+    harvard
+    <tag>out = "harvard";</tag>
+   </item>
+   <item weight="0.00045579">
+    forty third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forty third street";</tag>
+   </item>
+   <item weight="0.00045579">
+    birch
+    <tag>out = "birch";</tag>
+   </item>
+   <item weight="0.00045579">
+    huntington
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "huntington drive";</tag>
+   </item>
+   <item weight="0.00045579">
+    state route forty two
+    <tag>out = "state route forty two";</tag>
+   </item>
+   <item weight="0.00045579">
+    woodruff
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "woodruff road";</tag>
+   </item>
+   <item weight="0.00045579">
+    white
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "white street";</tag>
+   </item>
+   <item weight="0.00045579">
+    groesbeck
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "groesbeck road";</tag>
+   </item>
+   <item weight="0.00045579">
+    columbia
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "columbia road";</tag>
+   </item>
+   <item weight="0.0004444">
+    whispering pines
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "whispering pines lane";</tag>
+   </item>
+   <item weight="0.0004444">
+    delta
+    <item repeat="0-1">
+     circle
+    </item>
+    <tag>out = "delta circle";</tag>
+   </item>
+   <item weight="0.0004444">
+    milwaukee
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "milwaukee avenue";</tag>
+   </item>
+   <item weight="0.0004444">
+    redmond
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "redmond way";</tag>
+   </item>
+   <item weight="0.0004444">
+    foster
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "foster street";</tag>
+   </item>
+   <item weight="0.0004444">
+    east state
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east state street";</tag>
+   </item>
+   <item weight="0.0004444">
+    middle
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "middle road";</tag>
+   </item>
+   <item weight="0.0004444">
+    hartman station
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "hartman station road";</tag>
+   </item>
+   <item weight="0.0004444">
+    east fourteenth
+    <tag>out = "east fourteenth";</tag>
+   </item>
+   <item weight="0.0004444">
+    prairie
+    <tag>out = "prairie";</tag>
+   </item>
+   <item weight="0.0004444">
+    delegates
+    <tag>out = "delegates";</tag>
+   </item>
+   <item weight="0.0004444">
+    central
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "central street";</tag>
+   </item>
+   <item weight="0.0004444">
+    fifty seventh
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty seventh street";</tag>
+   </item>
+   <item weight="0.0004444">
+    linden avenue southeast
+    <tag>out = "linden avenue southeast";</tag>
+   </item>
+   <item weight="0.0004444">
+    clinton
+    <tag>out = "clinton";</tag>
+   </item>
+   <item weight="0.0004444">
+    keap
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "keap street";</tag>
+   </item>
+   <item weight="0.0004444">
+    south third
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south third street";</tag>
+   </item>
+   <item weight="0.0004444">
+    sycamore
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "sycamore street";</tag>
+   </item>
+   <item weight="0.0004444">
+    east eighth
+    <tag>out = "east eighth";</tag>
+   </item>
+   <item weight="0.0004444">
+    morven court
+    <tag>out = "morven court";</tag>
+   </item>
+   <item weight="0.0004444">
+    frosty
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "frosty road";</tag>
+   </item>
+   <item weight="0.0004444">
+    cambridge
+    <tag>out = "cambridge";</tag>
+   </item>
+   <item weight="0.0004444">
+    old hickory boulevard
+    <tag>out = "old hickory boulevard";</tag>
+   </item>
+   <item weight="0.0004444">
+    wabash
+    <tag>out = "wabash";</tag>
+   </item>
+   <item weight="0.0004444">
+    seventeenth
+    <tag>out = "seventeenth";</tag>
+   </item>
+   <item weight="0.0004444">
+    parkside
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "parkside drive";</tag>
+   </item>
+   <item weight="0.0004444">
+    lincoln
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "lincoln way";</tag>
+   </item>
+   <item weight="0.0004444">
+    rock springs
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "rock springs road";</tag>
+   </item>
+   <item weight="0.0004444">
+    mount pleasant
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "mount pleasant road";</tag>
+   </item>
+   <item weight="0.0004444">
+    county line
+    <tag>out = "county line";</tag>
+   </item>
+   <item weight="0.0004444">
+    oakvale heights
+    <tag>out = "oakvale heights";</tag>
+   </item>
+   <item weight="0.0004444">
+    santa fe
+    <tag>out = "santa fe";</tag>
+   </item>
+   <item weight="0.000433">
+    canyon
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "canyon road";</tag>
+   </item>
+   <item weight="0.000433">
+    glenbrook
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "glenbrook road";</tag>
+   </item>
+   <item weight="0.000433">
+    civic center
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "civic center drive";</tag>
+   </item>
+   <item weight="0.000433">
+    haster
+    <tag>out = "haster";</tag>
+   </item>
+   <item weight="0.000433">
+    florence
+    <tag>out = "florence";</tag>
+   </item>
+   <item weight="0.000433">
+    livingston
+    <tag>out = "livingston";</tag>
+   </item>
+   <item weight="0.000433">
+    lake
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "lake road";</tag>
+   </item>
+   <item weight="0.000433">
+    figueroa
+    <tag>out = "figueroa";</tag>
+   </item>
+   <item weight="0.000433">
+    plainfield
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "plainfield avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    scott
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "scott street";</tag>
+   </item>
+   <item weight="0.000433">
+    bedford
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "bedford street";</tag>
+   </item>
+   <item weight="0.000433">
+    park heights
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "park heights avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    ohio
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "ohio street";</tag>
+   </item>
+   <item weight="0.000433">
+    twenty first
+    <tag>out = "twenty first";</tag>
+   </item>
+   <item weight="0.000433">
+    ogden
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "ogden avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    laurel
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "laurel street";</tag>
+   </item>
+   <item weight="0.000433">
+    mitchell
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "mitchell avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    forty fifth
+    <tag>out = "forty fifth";</tag>
+   </item>
+   <item weight="0.000433">
+    bloomfield
+    <tag>out = "bloomfield";</tag>
+   </item>
+   <item weight="0.000433">
+    east ninth
+    <tag>out = "east ninth";</tag>
+   </item>
+   <item weight="0.000433">
+    yosemite
+    <tag>out = "yosemite";</tag>
+   </item>
+   <item weight="0.000433">
+    west lake
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west lake street";</tag>
+   </item>
+   <item weight="0.000433">
+    piedmont
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "piedmont avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    queen
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "queen street";</tag>
+   </item>
+   <item weight="0.000433">
+    east kenyon
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "east kenyon drive";</tag>
+   </item>
+   <item weight="0.000433">
+    state route thirty nine
+    <tag>out = "state route thirty nine";</tag>
+   </item>
+   <item weight="0.000433">
+    century park east
+    <tag>out = "century park east";</tag>
+   </item>
+   <item weight="0.000433">
+    mountain
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "mountain avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    macarthur
+    <tag>out = "macarthur";</tag>
+   </item>
+   <item weight="0.000433">
+    foothill
+    <tag>out = "foothill";</tag>
+   </item>
+   <item weight="0.000433">
+    hilltop
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "hilltop road";</tag>
+   </item>
+   <item weight="0.000433">
+    county road eighteen
+    <tag>out = "county road eighteen";</tag>
+   </item>
+   <item weight="0.000433">
+    orchard
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "orchard avenue";</tag>
+   </item>
+   <item weight="0.000433">
+    five hundredth west
+    <tag>out = "five hundredth west";</tag>
+   </item>
+   <item weight="0.000433">
+    riverside park
+    <item repeat="0-1">
+     way
+    </item>
+    <tag>out = "riverside parkway";</tag>
+   </item>
+   <item weight="0.000433">
+    mckinley
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "mckinley street";</tag>
+   </item>
+   <item weight="0.000433">
+    forest
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "forest street";</tag>
+   </item>
+   <item weight="0.000433">
+    mason
+    <tag>out = "mason";</tag>
+   </item>
+   <item weight="0.000433">
+    garden
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "garden street";</tag>
+   </item>
+   <item weight="0.000433">
+    centerville
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "centerville road";</tag>
+   </item>
+   <item weight="0.000433">
+    clymer
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "clymer street";</tag>
+   </item>
+   <item weight="0.000433">
+    roberts
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "roberts road";</tag>
+   </item>
+   <item weight="0.000433">
+    reseda
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "reseda boulevard";</tag>
+   </item>
+   <item weight="0.000433">
+    bartville
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "bartville road";</tag>
+   </item>
+   <item weight="0.000433">
+    chestnut
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "chestnut avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    central park
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "central park avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    industrial
+    <tag>out = "industrial";</tag>
+   </item>
+   <item weight="0.00042161">
+    claremont
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "claremont avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    sylvia
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "sylvia road";</tag>
+   </item>
+   <item weight="0.00042161">
+    slauson
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "slauson avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    south first
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "south first street";</tag>
+   </item>
+   <item weight="0.00042161">
+    highland
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "highland road";</tag>
+   </item>
+   <item weight="0.00042161">
+    shady
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "shady lane";</tag>
+   </item>
+   <item weight="0.00042161">
+    brown
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "brown street";</tag>
+   </item>
+   <item weight="0.00042161">
+    east seventh
+    <tag>out = "east seventh";</tag>
+   </item>
+   <item weight="0.00042161">
+    adams
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "adams avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    camden
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "camden avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    florida
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "florida avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    prince
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "prince street";</tag>
+   </item>
+   <item weight="0.00042161">
+    canal
+    <tag>out = "canal";</tag>
+   </item>
+   <item weight="0.00042161">
+    clymer hill
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "clymer hill road";</tag>
+   </item>
+   <item weight="0.00042161">
+    atlantic
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "atlantic boulevard";</tag>
+   </item>
+   <item weight="0.00042161">
+    livingston
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "livingston avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    may street
+    <tag>out = "may street";</tag>
+   </item>
+   <item weight="0.00042161">
+    summit
+    <tag>out = "summit";</tag>
+   </item>
+   <item weight="0.00042161">
+    east fifteenth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east fifteenth street";</tag>
+   </item>
+   <item weight="0.00042161">
+    us highway one
+    <tag>out = "us highway one";</tag>
+   </item>
+   <item weight="0.00042161">
+    tanyard hill
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "tanyard hill road";</tag>
+   </item>
+   <item weight="0.00042161">
+    cherry
+    <item repeat="0-1">
+     lane
+    </item>
+    <tag>out = "cherry lane";</tag>
+   </item>
+   <item weight="0.00042161">
+    old york road
+    <tag>out = "old york road";</tag>
+   </item>
+   <item weight="0.00042161">
+    fifty eighth
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "fifty eighth street";</tag>
+   </item>
+   <item weight="0.00042161">
+    grandview
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "grandview avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    rose
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "rose avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    cottman
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "cottman avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    east sumner
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "east sumner avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    chester
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "chester avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    yale
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "yale avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    clark
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "clark avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    circle
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "circle drive";</tag>
+   </item>
+   <item weight="0.00042161">
+    race
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "race street";</tag>
+   </item>
+   <item weight="0.00042161">
+    beach
+    <tag>out = "beach";</tag>
+   </item>
+   <item weight="0.00042161">
+    sherman
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "sherman avenue";</tag>
+   </item>
+   <item weight="0.00042161">
+    johnson
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "johnson road";</tag>
+   </item>
+   <item weight="0.00041021">
+    north clark
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "north clark street";</tag>
+   </item>
+   <item weight="0.00041021">
+    polk
+    <tag>out = "polk";</tag>
+   </item>
+   <item weight="0.00041021">
+    west thirty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west thirty second street";</tag>
+   </item>
+   <item weight="0.00041021">
+    troy villa
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "troy villa boulevard";</tag>
+   </item>
+   <item weight="0.00041021">
+    homestead
+    <tag>out = "homestead";</tag>
+   </item>
+   <item weight="0.00041021">
+    greenfield
+    <tag>out = "greenfield";</tag>
+   </item>
+   <item weight="0.00041021">
+    south atlantic
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "south atlantic avenue";</tag>
+   </item>
+   <item weight="0.00041021">
+    east texas
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "east texas street";</tag>
+   </item>
+   <item weight="0.00041021">
+    randolph
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "randolph street";</tag>
+   </item>
+   <item weight="0.00041021">
+    burton windsor
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "burton windsor road";</tag>
+   </item>
+   <item weight="0.00041021">
+    south ridge
+    <tag>out = "south ridge";</tag>
+   </item>
+   <item weight="0.00041021">
+    shedd
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "shedd road";</tag>
+   </item>
+   <item weight="0.00041021">
+    north central
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "north central avenue";</tag>
+   </item>
+   <item weight="0.00041021">
+    saint charles rock
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "saint charles rock road";</tag>
+   </item>
+   <item weight="0.00041021">
+    maryland
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "maryland avenue";</tag>
+   </item>
+   <item weight="0.00041021">
+    santa fe
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "santa fe avenue";</tag>
+   </item>
+   <item weight="0.00041021">
+    ferry
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "ferry street";</tag>
+   </item>
+   <item weight="0.00041021">
+    converse huff
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "converse huff road";</tag>
+   </item>
+   <item weight="0.00041021">
+    skillman
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "skillman street";</tag>
+   </item>
+   <item weight="0.00041021">
+    spruce
+    <tag>out = "spruce";</tag>
+   </item>
+   <item weight="0.00041021">
+    belmont
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "belmont street";</tag>
+   </item>
+   <item weight="0.00041021">
+    beach
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "beach street";</tag>
+   </item>
+   <item weight="0.00041021">
+    virginia
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "virginia street";</tag>
+   </item>
+   <item weight="0.00041021">
+    makenna
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "makenna drive";</tag>
+   </item>
+   <item weight="0.00041021">
+    hillcrest
+    <item repeat="0-1">
+     avenue
+    </item>
+    <tag>out = "hillcrest avenue";</tag>
+   </item>
+   <item weight="0.00041021">
+    commercial
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "commercial street";</tag>
+   </item>
+   <item weight="0.00041021">
+    gateway
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "gateway boulevard";</tag>
+   </item>
+   <item weight="0.00041021">
+    thirteenth
+    <tag>out = "thirteenth";</tag>
+   </item>
+   <item weight="0.00041021">
+    west sunset
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "west sunset boulevard";</tag>
+   </item>
+   <item weight="0.00041021">
+    spring valley
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "spring valley road";</tag>
+   </item>
+   <item weight="0.00041021">
+    manor
+    <item repeat="0-1">
+     drive
+    </item>
+    <tag>out = "manor drive";</tag>
+   </item>
+   <item weight="0.00041021">
+    davis
+    <tag>out = "davis";</tag>
+   </item>
+   <item weight="0.00041021">
+    west front
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "west front street";</tag>
+   </item>
+   <item weight="0.00041021">
+    allen
+    <item repeat="0-1">
+     road
+    </item>
+    <tag>out = "allen road";</tag>
+   </item>
+   <item weight="0.00041021">
+    eighty second
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "eighty second street";</tag>
+   </item>
+   <item weight="0.00041021">
+    colorado
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "colorado boulevard";</tag>
+   </item>
+   <item weight="0.00041021">
+    harding
+    <tag>out = "harding";</tag>
+   </item>
+   <item weight="0.00041021">
+    twentieth street northwest
+    <tag>out = "twentieth street northwest";</tag>
+   </item>
+   <item weight="0.00041021">
+    wallabout
+    <item repeat="0-1">
+     street
+    </item>
+    <tag>out = "wallabout street";</tag>
+   </item>
+   <item weight="0.00041021">
+    fair oaks
+    <item repeat="0-1">
+     boulevard
+    </item>
+    <tag>out = "fair oaks boulevard";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

@@ -1,0 +1,345 @@
+<?xml version= "1.0"?>
+
+
+<grammar mode="voice"
+         root="SevenOrTenDigits"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+  <rule id="SevenOrTenDigits" scope="public">
+    <!-- prefiller -->
+    <item repeat-prob="0.01" repeat="0-1">
+      <one-of>
+       <item repeat="0-1">
+        <one-of>
+         <item>
+          <one-of>
+           <item>
+            uh
+           </item>
+           <item>
+            um
+           </item>
+          </one-of>
+         </item>
+         <item>
+          <one-of>
+           <item>
+            it's
+           </item>
+           <item>
+            it
+            is
+           </item>
+          </one-of>
+         </item>
+         <item>
+          <one-of>
+           <item>
+            okay
+           </item>
+           <item>
+            ok
+           </item>
+          </one-of>
+          it's
+         </item>
+         <item>
+          <one-of>
+           <item>
+            uh
+           </item>
+           <item>
+            um
+           </item>
+          </one-of>
+          it's
+         </item>
+         <item>
+          it's
+          <one-of>
+           <item>
+            uh
+           </item>
+           <item>
+            um
+           </item>
+          </one-of>
+         </item>
+         <item>
+          <one-of>
+           <item>
+            uh
+           </item>
+           <item>
+            um
+           </item>
+           <item>
+            yes
+           </item>
+           <item>
+            it's
+           </item>
+           <item>
+            ok
+           </item>
+           <item>
+            okay
+           </item>
+          </one-of>
+          area
+          code
+         </item>
+         <item>
+          <item repeat="0-1">
+           the
+          </item>
+          area
+          code
+          <item repeat="0-1">
+           is
+          </item>
+         </item>
+         <item>
+          <item repeat="0-1">
+           the
+          </item>
+          <item repeat="0-1">
+           <one-of>
+            <item>
+             telephone
+            </item>
+            <item>
+             cell
+             <item repeat="0-1">
+              phone
+             </item>
+            </item>
+            <item>
+             phone
+            </item>
+           </one-of>
+          </item>
+          number
+          <item repeat="0-1">
+           is
+          </item>
+         </item>
+        </one-of>
+       </item>
+      </one-of>
+    </item>
+
+    <one-of>
+      <!-- seven digits -->
+      <item weight="0.01">
+        <ruleref uri="#SevenDigits"/>
+        <tag> out = rules.latest() </tag>
+      </item>
+      <!-- ten digits -->
+      <item weight="0.99">
+        <ruleref uri="#TenDigits"/>
+        <tag> out = rules.latest() </tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="SevenDigits" scope="public">
+    <ruleref uri="#PhoneNumNXX"/>
+    <tag> out = rules.latest() </tag>
+    <ruleref uri="#PhoneNumFourDigs"/>
+    <tag> out += rules.latest() </tag>
+  </rule>
+
+  <rule id="TenDigits" scope="public">
+    <item repeat-prob="0.01" repeat="0-1"> one </item>
+    <ruleref uri="#PhoneNumNPA"/>
+    <tag> out = rules.latest() </tag>
+    <ruleref uri="#PhoneNumNXX"/>
+    <tag> out += rules.latest() </tag>
+    <ruleref uri="#PhoneNumFourDigs"/>
+    <tag> out += rules.latest() </tag>
+  </rule>
+
+  <rule id="PhoneNumNPA" scope="private">
+    <one-of>
+      <item weight="0.01">
+        eight hundred
+        <tag> out = "800" </tag>
+      </item>
+      <item weight="0.99">
+        <ruleref uri="#TwoThruNine"/> 
+        <tag> out = rules.latest() </tag>
+        <ruleref uri="#ZeroThruNine"/>
+        <tag> out += rules.latest() </tag>
+        <ruleref uri="#ZeroThruNine"/>
+        <tag> out += rules.latest() </tag>
+      </item>
+    </one-of>
+  </rule>
+  
+  <rule id="PhoneNumNXX" scope="private">
+    <ruleref uri="#TwoThruNine"/> 
+    <tag> out = rules.latest() </tag>
+    <ruleref uri="#ZeroThruNine"/>
+    <tag> out += rules.latest() </tag>
+    <ruleref uri="#ZeroThruNine"/>
+    <tag> out += rules.latest() </tag>
+  </rule>
+  
+  <rule id="PhoneNumFourDigs" scope="private">
+    <one-of>
+      <!-- DDDD, Xty-D Xty-D, Xty-D DD, DD Xty-D, DD Xty .... -->
+      <item weight="0.98">
+        <tag> out = "" </tag>
+        <!-- first two digs -->
+        <one-of>
+          <!-- dig + dig -->
+          <item weight="0.98">
+            <item repeat="2-2">
+              <ruleref uri="#ZeroThruNine"/>
+              <tag> out += rules.latest() </tag>
+            </item>
+          </item>
+          <!-- xty + non-zero-dig -->
+          <item weight="0.01">
+            <ruleref uri="#Decade"/>
+            <tag> out += rules.latest() </tag>
+            <ruleref uri="#OneThruNine"/>
+            <tag> out += rules.latest() </tag>
+          </item>
+          <!-- xteen -->
+          <item weight="0.01">
+            <ruleref uri="#Teen"/>
+            <tag> out += rules.latest() </tag>
+          </item>
+        </one-of>
+        <!-- second two digs -->
+        <one-of>
+          <!-- dig + dig -->
+          <item weight="0.97">
+            <item repeat="2-2">
+              <ruleref uri="#ZeroThruNine"/>
+              <tag> out += rules.latest() </tag>
+            </item>
+          </item>
+          <!-- xty + non-zero-dig -->
+          <item weight="0.01">
+            <ruleref uri="#Decade"/>
+            <tag> out += rules.latest() </tag>
+            <ruleref uri="#OneThruNine"/>
+            <tag> out += rules.latest() </tag>
+          </item>
+          <!-- xty alone -->
+          <item weight="0.01">
+            <ruleref uri="#Decade"/>
+            <tag> out += rules.latest() + "0" </tag>
+          </item>
+          <!-- xteen -->
+          <item weight="0.01">
+            <ruleref uri="#Teen"/>
+            <tag> out += rules.latest() </tag>
+          </item>
+        </one-of>
+      </item>
+      <!-- X thousand -->
+      <item weight="0.01">
+        <ruleref uri="#OneThruNine"/>
+        <tag> out = rules.latest() </tag>
+        thousand
+        <tag> out += "000" </tag>
+      </item>
+      <!-- XX hundred -->
+      <item weight="0.01">
+        <one-of>
+          <item>
+            <ruleref uri="#Teen"/> 
+            <tag> out = rules.latest() </tag>
+          </item>
+          <item>
+            <ruleref uri="#Decade"/>
+            <tag> out = rules.latest() </tag>
+            <ruleref uri="#OneThruNine"/>
+            <tag> out += rules.latest() </tag>
+          </item>
+        </one-of>
+        hundred
+        <tag> out += "00" </tag>
+      </item>
+    </one-of>
+  </rule>
+  
+  <rule id="ZeroThruNine" scope="private">
+    <one-of>
+      <item> zero <tag> out = "0" </tag> </item>
+      <item> oh <tag> out = "0" </tag> </item>
+      <item> one <tag> out = "1" </tag> </item>
+      <item> two <tag> out = "2" </tag> </item>
+      <item> three <tag> out = "3" </tag> </item>
+      <item> four <tag> out = "4" </tag> </item>
+      <item> five <tag> out = "5" </tag> </item>
+      <item> six <tag> out = "6" </tag> </item>
+      <item> seven <tag> out = "7" </tag> </item>
+      <item> eight <tag> out = "8" </tag> </item>
+      <item> nine <tag> out = "9" </tag> </item>
+    </one-of>
+  </rule>
+  
+  <rule id="OneThruNine" scope="private">
+    <one-of>
+      <item> one <tag> out = "1" </tag> </item>
+      <item> two <tag> out = "2" </tag> </item>
+      <item> three <tag> out = "3" </tag> </item>
+      <item> four <tag> out = "4" </tag> </item>
+      <item> five <tag> out = "5" </tag> </item>
+      <item> six <tag> out = "6" </tag> </item>
+      <item> seven <tag> out = "7" </tag> </item>
+      <item> eight <tag> out = "8" </tag> </item>
+      <item> nine <tag> out = "9" </tag> </item>
+    </one-of>
+  </rule>
+  
+  <rule id="TwoThruNine" scope="private">
+    <one-of>
+      <item> two <tag> out = "2" </tag> </item>
+      <item> three <tag> out = "3" </tag> </item>
+      <item> four <tag> out = "4" </tag> </item>
+      <item> five <tag> out = "5" </tag> </item>
+      <item> six <tag> out = "6" </tag> </item>
+      <item> seven <tag> out = "7" </tag> </item>
+      <item> eight <tag> out = "8" </tag> </item>
+      <item> nine <tag> out = "9" </tag> </item>
+    </one-of>
+  </rule>
+  
+  <rule id="Decade" scope="private">
+    <one-of>
+      <item> twenty <tag> out = "2" </tag> </item>
+      <item> thirty <tag> out = "3" </tag> </item>
+      <item> forty <tag> out = "4" </tag> </item>
+      <item> fifty <tag> out = "5" </tag> </item>
+      <item> sixty <tag> out = "6" </tag> </item>
+      <item> seventy <tag> out = "7" </tag> </item>
+      <item> eighty <tag> out = "8" </tag> </item>
+      <item> ninety <tag> out = "9" </tag> </item>
+    </one-of>
+  </rule>
+  
+  <rule id="Teen" scope="private">
+    <one-of>
+      <item> ten <tag> out = "10" </tag> </item>
+      <item> eleven <tag> out = "11" </tag> </item>
+      <item> twelve <tag> out = "12" </tag> </item>
+      <item> thirteen <tag> out = "13" </tag> </item>
+      <item> fourteen <tag> out = "14" </tag> </item>
+      <item> fifteen <tag> out = "15" </tag> </item>
+      <item> sixteen <tag> out = "16" </tag> </item>
+      <item> seventeen <tag> out = "17" </tag> </item>
+      <item> eighteen <tag> out = "18" </tag> </item>
+      <item> nineteen <tag> out = "19" </tag> </item>
+    </one-of>
+  </rule>
+  
+</grammar>

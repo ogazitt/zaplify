@@ -1,0 +1,1080 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="main"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="main" scope="public">
+  <ruleref uri="#Money"/>
+  <tag>out = rules.latest();</tag>
+ </rule>
+
+  <rule id="Money" scope="public">
+    <item>
+      <!-- prefiller -->
+      <item repeat-prob="0.01" repeat="0-1">
+        <one-of>
+          <item weight="0.47619">
+            <item repeat="0-1">
+              it's
+            </item>
+            <one-of>
+              <item>uh</item>
+              <item>um</item>
+            </one-of>
+          </item>
+          <item weight="0.5238">
+            <one-of>
+              <item weight="0.90909">
+                about
+              </item>
+              <item weight="0.090909">
+                it's
+                <item repeat="0-1">
+                  about
+                </item>
+                <item repeat="0-1">
+                  a
+                </item>
+              </item>
+            </one-of>
+          </item>
+        </one-of>
+      </item>
+
+      <!-- voice options -->
+      <ruleref uri="#USMONEY"/>
+      <tag>out = "dollars=" + rules.latest().dollars + "^cents=" + rules.latest().cents;</tag>
+    </item>
+  </rule>
+
+  <rule id="USMONEY" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <!-- fifty, fifty three dollars even, one hundred dollars -->
+      <item weight="0.59">
+        <item>
+          <ruleref uri="#DOLLAR_OPTIONAL_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item repeat="0-1">
+          <ruleref uri="#EVEN"/>
+        </item>
+        <tag>out.dollars = out.d; out.cents = "00";</tag>
+      </item>
+
+      <!-- ninety six dollars and forteen cents -->
+      <!-- eight thousand seven hundred thirty four dollars and thirty five cent -->
+      <item weight="0.036">
+        <item>
+          <ruleref uri="#DOLLAR_OPTIONAL_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <one-of>
+          <item weight="0.5">
+            cent
+          </item>
+          <item weight="0.5">
+            cents
+          </item>
+        </one-of>
+        <tag>out.dollars = out.d; out.cents = out.c;</tag>
+      </item>
+
+      <!-- one fifty even -->
+      <item weight="0.0001318">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#EVEN"/>
+        </item>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out.dollars = out.sum; out.cents = "00";</tag>
+      </item>
+
+      <!-- one fifty dollars -->
+      <item weight="0.0003955">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <one-of>
+          <item weight="0.5">
+            dollar
+          </item>
+          <item weight="0.5">
+            dollars
+          </item>
+        </one-of>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out.dollars = out.sum; out.cents = "00";</tag>
+      </item>
+
+      <!-- two bucks, a hundred bucks (small and round amounts only) -->
+      <item weight="0.0001318">
+        <ruleref uri="#BUCKS_AMOUNT"/>
+        <tag>out.dollars = rules.latest(); out.cents = "00";</tag>
+      </item>
+
+      <!-- a buck twenty five (only place buck is allowed with non-zero cents) -->
+      <item weight="0.0001318">
+        <ruleref uri="#MONEY_A"/>
+        buck
+        <item>
+          <ruleref uri="#MONEY_THRU_99_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <tag>out.dollars = 1; out.cents = out.c;</tag>
+      </item>
+
+      <!-- sixty two cents, no dollars and nine cents -->
+      <item weight="0.0001318">
+        <item repeat="0-1">
+          <one-of>
+            <item weight="0.5">
+              no
+            </item>
+            <item weight="0.5">
+              zero
+            </item>
+          </one-of>
+          <item repeat="0-1">
+            <one-of>
+              <item weight="0.5">
+                dollar
+              </item>
+              <item weight="0.5">
+                dollars
+              </item>
+            </one-of>
+            <item repeat="0-1">
+              and
+            </item>
+          </item>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <one-of>
+          <item weight="0.5">
+            cent
+          </item>
+          <item weight="0.5">
+            cents
+          </item>
+        </one-of>
+        <tag>out.dollars = "0"; out.cents = out.c;</tag>
+      </item>
+
+      <!-- one cent -->
+      <item weight="0.0001318">
+        <item repeat="0-1">
+          <one-of>
+            <item weight="0.5">
+              no
+            </item>
+            <item weight="0.5">
+              zero
+            </item>
+          </one-of>
+          <item repeat="0-1">
+            <one-of>
+              <item weight="0.5">
+                dollar
+              </item>
+              <item weight="0.5">
+                dollars
+              </item>
+            </one-of>
+            <item repeat="0-1">
+              and
+            </item>
+          </item>
+        </item>
+        one
+        cent
+        <tag>out.dollars = "0"; out.cents = "01";</tag>
+      </item>
+
+      <!-- five dollars and twenty seven cents, four dollars thirty cents -->
+      <item weight="0.102">
+        <item>
+          <ruleref uri="#DOLLAR_REQUIRED_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <one-of>
+          <item weight="0.5">
+            cent
+          </item>
+          <item weight="0.5">
+            cents
+          </item>
+        </one-of>
+        <tag>out.dollars = out.d; out.cents = out.c;</tag>
+      </item>
+
+      <!-- five dollars and one cent, four dollars one cent -->
+      <item weight="0.0003955">
+        <item>
+          <ruleref uri="#DOLLAR_REQUIRED_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item repeat="0-1">
+          and
+        </item>
+        one
+        cent
+        <tag>out.dollars = out.d; out.cents = "01";</tag>
+      </item>
+
+      <!-- forty two oh six -->
+      <item weight="0.024">
+        <item>
+          <ruleref uri="#MONEY_THRU_99"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <tag>out.dollars = out.d; out.cents = out.c;</tag>
+      </item>
+
+      <!-- one hundred seventeen twenty -->
+      <item weight="0.002">
+        <one-of>
+          <item weight="0.99">
+            <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+            <tag>out.h = rules.latest();</tag>
+          </item>
+          <item weight="0.01">
+            <ruleref uri="#MONEY_A"/>
+            <tag>out.h = rules.latest();</tag>
+          </item>
+        </one-of>
+        hundred
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out.dollars = out.sum; out.cents = out.c;</tag>
+      </item>
+
+      <!-- five thirty four fifty, one oh four ninety nine -->
+      <item weight="0.009">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99_WITH_OH_CENTS"/>
+          <tag>out.c = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out.dollars = out.sum; out.cents = out.c;</tag>
+      </item>
+
+      <!-- ten million dollars, just to make the end point a round number -->
+      <item weight="0.0003955">
+        ten
+        million
+        <one-of>
+          <item weight="0.66666">
+            <one-of>
+              <item weight="0.5">
+                dollar
+              </item>
+              <item weight="0.5">
+                dollars
+              </item>
+            </one-of>
+          </item>
+          <item weight="0.33333">
+            bucks
+          </item>
+        </one-of>
+        <tag>out.dollars = 10000000; out.cents = "00";</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_A" scope="private">
+    <item>
+      <one-of>
+        <item weight="1.0">
+          a
+        </item>
+      </one-of>
+      <tag>out = 1;</tag>
+    </item>
+  </rule>
+
+  <!-- for things like "a hundred" -->
+  <rule id="DOLLAR_REQUIRED_AMOUNT" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.5">
+        <one-of>
+          <item weight="0.5">
+            <ruleref uri="#MONEY_A"/>
+          </item>
+          <item weight="0.5">
+            one
+          </item>
+        </one-of>
+        dollar
+        <tag>out = 1;</tag>
+      </item>
+      <item weight="0.5">
+        <item>
+          <ruleref uri="#DOLLARS_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <one-of>
+          <item weight="0.5">
+            dollar
+          </item>
+          <item weight="0.5">
+            dollars
+          </item>
+        </one-of>
+        <tag>out = out.d;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DOLLAR_OPTIONAL_AMOUNT" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.25">
+        one
+        <item repeat="0-1">
+          dollar
+        </item>
+        <tag>out = 1;</tag>
+      </item>
+      <item weight="0.25">
+        <ruleref uri="#MONEY_A"/>
+        dollar
+        <tag>out = 1;</tag>
+      </item>
+      <item weight="0.5">
+        <item>
+          <ruleref uri="#DOLLARS_AMOUNT"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        <item repeat="0-1">
+          <one-of>
+            <item weight="0.5">
+              dollars
+            </item>
+            <item weight="0.5">
+              dollar
+            </item>
+          </one-of>
+        </item>
+        <tag>out = out.d;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DOLLARS_AMOUNT" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.071428">
+        <item repeat="0-1">
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        hundred
+        <tag>out = 100;</tag>
+      </item>
+      <item weight="0.071428">
+        <item repeat="0-1">
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        thousand
+        <tag>out = 1000;</tag>
+      </item>
+      <item weight="0.071428">
+        <item repeat="0-1">
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        million
+        <tag>out = 1000000;</tag>
+      </item>
+      <item weight="0.071428">
+        <ruleref uri="#MONEY_THRU_999"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        thousand
+        <tag>out.mult = 1000 * out.t;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        thousand
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 1000 * out.t;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#TEEN"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        <tag>out.sum = out.t + out.h;</tag>
+        <tag>out.mult = 100 * out.sum;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#TEEN"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.sum = out.t + out.h;</tag>
+        <tag>out.mult = 100 * out.sum;</tag>
+        <tag>out.sumt = out.mult + out.u;</tag>
+        <tag>out = out.sumt;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.m = rules.latest();</tag>
+        </item>
+        million
+        <tag>out.mult = 1000000 * out.m;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.m = rules.latest();</tag>
+        </item>
+        million
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 1000000 * out.m;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.m = rules.latest();</tag>
+        </item>
+        million
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        thousand
+        <tag>out.multa = 1000000 * out.m;</tag>
+        <tag>out.multb = 1000 * out.t;</tag>
+        <tag>out.sum = out.multa + out.multb;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+      <item weight="0.071428">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.m = rules.latest();</tag>
+        </item>
+        million
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        thousand
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.multa = 1000000 * out.m;</tag>
+        <tag>out.multb = 1000 * out.t;</tag>
+        <tag>out.sum = out.multa + out.multb;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="BUCKS_AMOUNT" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#MONEY_THRU_999"/>
+          <tag>out.d = rules.latest();</tag>
+        </item>
+        bucks
+        <tag>out = out.d;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        hundred
+        bucks
+        <tag>out = 100;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#TEEN"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        bucks
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        hundred
+        bucks
+        <tag>out.sum = out.t + out.h;</tag>
+        <tag>out.mult = 100 * out.sum;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        thousand
+        bucks
+        <tag>out = 1000;</tag>
+      </item>
+      <item weight="0.2">
+        <one-of>
+          <item weight="0.5">
+            <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+            <tag>out.h = rules.latest();</tag>
+          </item>
+          <item weight="0.5">
+            <ruleref uri="#TEEN"/>
+            <tag>out.h = rules.latest();</tag>
+          </item>
+        </one-of>
+        thousand
+        bucks
+        <tag>out.mult = 1000 * out.h;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.h = rules.latest();</tag>
+        </item>
+        thousand
+        bucks
+        <tag>out.sum = out.t + out.h;</tag>
+        <tag>out.mult = 1000 * out.sum;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#MONEY_A"/>
+        </item>
+        million
+        bucks
+        <tag>out = 1000000;</tag>
+      </item>
+      <item weight="0.1">
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.m = rules.latest();</tag>
+        </item>
+        million
+        bucks
+        <tag>out.mult = 1000000 * out.m;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_THRU_999" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.2">
+        <ruleref uri="#MONEY_THRU_99"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.4">
+        <tag>out.h = 1;</tag>
+        <item repeat-prob="0.9" repeat="0-1">
+          <one-of>
+            <item weight="0.99">
+              <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+              <tag>out.h = rules.latest();</tag>
+            </item>
+            <item weight="0.01">
+              <ruleref uri="#MONEY_A"/>
+              <tag>out.h = rules.latest();</tag>
+            </item>
+          </one-of>
+        </item>
+        hundred
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out = out.mult;</tag>
+      </item>
+      <item weight="0.4">
+        <tag>out.h = 1;</tag>
+        <item repeat-prob="0.9" repeat="0-1">
+          <one-of>
+            <item weight="0.99">
+              <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+              <tag>out.h = rules.latest();</tag>
+            </item>
+            <item weight="0.01">
+              <ruleref uri="#MONEY_A"/>
+              <tag>out.h = rules.latest();</tag>
+            </item>
+          </one-of>
+        </item>
+        hundred
+        <item repeat="0-1">
+          and
+        </item>
+        <item>
+          <ruleref uri="#MONEY_THRU_99"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.mult = 100 * out.h;</tag>
+        <tag>out.sum = out.mult + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_THRU_99" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.16666">
+        zero
+        <tag>out = 0;</tag>
+      </item>
+      <item weight="0.16666">
+        <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.16666">
+        <ruleref uri="#TEEN"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.16666">
+        ten
+        <tag>out = 10;</tag>
+      </item>
+      <item weight="0.16666">
+        <ruleref uri="#DECADE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.16666">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.sum = out.t + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_THRU_99_WITH_OH" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.2">
+        oh
+        <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#TEEN"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        ten
+        <tag>out = 10;</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#DECADE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.sum = out.t + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_THRU_99_CENTS" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.2">
+        <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+        <tag>out = "0" + rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#TEEN"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        ten
+        <tag>out = 10;</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#DECADE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.sum = out.t + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="MONEY_THRU_99_WITH_OH_CENTS" scope="private">
+    <tag>var out = new Object();</tag>
+    <one-of>
+      <item weight="0.2">
+        oh
+        <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+        <tag>out = "0" + rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#TEEN"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        ten
+        <tag>out = 10;</tag>
+      </item>
+      <item weight="0.2">
+        <ruleref uri="#DECADE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <item weight="0.2">
+        <item>
+          <ruleref uri="#DECADE"/>
+          <tag>out.t = rules.latest();</tag>
+        </item>
+        <item>
+          <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+          <tag>out.u = rules.latest();</tag>
+        </item>
+        <tag>out.sum = out.t + out.u;</tag>
+        <tag>out = out.sum;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="EVEN" scope="private">
+    <one-of>
+      <item weight="0.16666">
+        even
+      </item>
+      <item weight="0.16666">
+        exactly
+      </item>
+      <item weight="0.66666">
+        <item repeat="0-1">
+          and
+        </item>
+        <one-of>
+          <item weight="0.5">
+            no
+          </item>
+          <item weight="0.5">
+            zero
+          </item>
+        </one-of>
+        <one-of>
+          <item weight="0.5">
+            cent
+          </item>
+          <item weight="0.5">
+            cents
+          </item>
+        </one-of>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DIGIT_ONE_THRU_NINE" scope="private">
+    <one-of>
+      <item weight="0.5">
+        one
+        <tag>out = 1;</tag>
+      </item>
+      <item weight="0.5">
+        <ruleref uri="#DIGIT_TWO_THRU_NINE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DIGIT" scope="private">
+    <one-of>
+      <item weight="0.66666">
+        <one-of>
+          <item weight="0.5">
+            zero
+          </item>
+          <item weight="0.5">
+            oh
+          </item>
+        </one-of>
+        <tag>out = 0;</tag>
+      </item>
+      <item weight="0.33333">
+        <ruleref uri="#DIGIT_ONE_THRU_NINE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DIGIT_TWO_THRU_NINE" scope="private">
+    <one-of>
+      <item weight="0.125">
+        two
+        <tag>out = 2;</tag>
+      </item>
+      <item weight="0.125">
+        three
+        <tag>out = 3;</tag>
+      </item>
+      <item weight="0.125">
+        four
+        <tag>out = 4;</tag>
+      </item>
+      <item weight="0.125">
+        five
+        <tag>out = 5;</tag>
+      </item>
+      <item weight="0.125">
+        six
+        <tag>out = 6;</tag>
+      </item>
+      <item weight="0.125">
+        seven
+        <tag>out = 7;</tag>
+      </item>
+      <item weight="0.125">
+        eight
+        <tag>out = 8;</tag>
+      </item>
+      <item weight="0.125">
+        nine
+        <tag>out = 9;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="TEEN" scope="private">
+    <one-of>
+      <item weight="0.11111">
+        eleven
+        <tag>out = 11;</tag>
+      </item>
+      <item weight="0.11111">
+        twelve
+        <tag>out = 12;</tag>
+      </item>
+      <item weight="0.11111">
+        thirteen
+        <tag>out = 13;</tag>
+      </item>
+      <item weight="0.11111">
+        fourteen
+        <tag>out = 14;</tag>
+      </item>
+      <item weight="0.11111">
+        fifteen
+        <tag>out = 15;</tag>
+      </item>
+      <item weight="0.11111">
+        sixteen
+        <tag>out = 16;</tag>
+      </item>
+      <item weight="0.11111">
+        seventeen
+        <tag>out = 17;</tag>
+      </item>
+      <item weight="0.11111">
+        eighteen
+        <tag>out = 18;</tag>
+      </item>
+      <item weight="0.11111">
+        nineteen
+        <tag>out = 19;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="DECADE" scope="private">
+    <one-of>
+      <item weight="0.125">
+        twenty
+        <tag>out = 20;</tag>
+      </item>
+      <item weight="0.125">
+        thirty
+        <tag>out = 30;</tag>
+      </item>
+      <item weight="0.125">
+        forty
+        <tag>out = 40;</tag>
+      </item>
+      <item weight="0.125">
+        fifty
+        <tag>out = 50;</tag>
+      </item>
+      <item weight="0.125">
+        sixty
+        <tag>out = 60;</tag>
+      </item>
+      <item weight="0.125">
+        seventy
+        <tag>out = 70;</tag>
+      </item>
+      <item weight="0.125">
+        eighty
+        <tag>out = 80;</tag>
+      </item>
+      <item weight="0.125">
+        ninety
+        <tag>out = 90;</tag>
+      </item>
+    </one-of>
+  </rule>
+
+</grammar>

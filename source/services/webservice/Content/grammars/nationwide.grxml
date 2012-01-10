@@ -1,0 +1,4015 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="CompanyName"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="CompanyName" scope="public">
+  <one-of>
+   <item weight="0.026227">
+    southwest airlines
+    <tag>out = "southwest airlines";</tag>
+   </item>
+   <item weight="0.026227">
+    american airlines
+    <tag>out = "american airlines";</tag>
+   </item>
+   <item weight="0.020098">
+    delta airlines
+    <tag>out = "delta airlines";</tag>
+   </item>
+   <item weight="0.019549">
+    a t and t
+    <tag>out = "a t and t";</tag>
+   </item>
+   <item weight="0.01733">
+    united airlines
+    <tag>out = "united airlines";</tag>
+   </item>
+   <item weight="0.017043">
+    continental airlines
+    <tag>out = "continental airlines";</tag>
+   </item>
+   <item weight="0.016762">
+    comcast
+    <tag>out = "comcast";</tag>
+   </item>
+   <item weight="0.014361">
+    u p s
+    <tag>out = "u p s";</tag>
+   </item>
+   <item weight="0.012083">
+    verizon
+    <tag>out = "verizon";</tag>
+   </item>
+   <item weight="0.01154">
+    u s airways
+    <tag>out = "u s airways";</tag>
+   </item>
+   <item weight="0.011538">
+    direct t v
+    <tag>out = "direct t v";</tag>
+   </item>
+   <item weight="0.011369">
+    bank of america
+    <tag>out = "bank of america";</tag>
+   </item>
+   <item weight="0.011312">
+    verizon wireless
+    <tag>out = "verizon wireless";</tag>
+   </item>
+   <item weight="0.011107">
+    amtrak
+    <tag>out = "amtrak";</tag>
+   </item>
+   <item weight="0.0092607">
+    northwest airlines
+    <tag>out = "northwest airlines";</tag>
+   </item>
+   <item weight="0.0090898">
+    t mobile
+    <tag>out = "t mobile";</tag>
+   </item>
+   <item weight="0.0078354">
+    western union
+    <tag>out = "western union";</tag>
+   </item>
+   <item weight="0.0074108">
+    dell computers
+    <tag>out = "dell computers";</tag>
+   </item>
+   <item weight="0.0072674">
+    a o l
+    <tag>out = "a o l";</tag>
+   </item>
+   <item weight="0.0070055">
+    a t and t wireless
+    <tag>out = "a t and t wireless";</tag>
+   </item>
+   <item weight="0.0068759">
+    fedex
+    <tag>out = "fedex";</tag>
+   </item>
+   <item weight="0.0066085">
+    american express
+    <tag>out = "american express";</tag>
+   </item>
+   <item weight="0.0063107">
+    greyhound
+    <tag>out = "greyhound";</tag>
+   </item>
+   <item weight="0.0062363">
+    sprint
+    <tag>out = "sprint";</tag>
+   </item>
+   <item weight="0.0060929">
+    dish network
+    <tag>out = "dish network";</tag>
+   </item>
+   <item weight="0.0060626">
+    social security
+    <tag>out = "social security";</tag>
+   </item>
+   <item weight="0.0057593">
+    dell
+    <tag>out = "dell";</tag>
+   </item>
+   <item weight="0.0054064">
+    jet blue
+    <tag>out = "jet blue";</tag>
+   </item>
+   <item weight="0.0053899">
+    internal revenue service
+    <tag>out = "internal revenue service";</tag>
+   </item>
+   <item weight="0.0053072">
+    geico
+    <tag>out = "geico";</tag>
+   </item>
+   <item weight="0.0052879">
+    federal express
+    <tag>out = "federal express";</tag>
+   </item>
+   <item weight="0.0051997">
+    america online
+    <tag>out = "america online";</tag>
+   </item>
+   <item weight="0.0050453">
+    marriott hotels
+    <tag>out = "marriott hotels";</tag>
+   </item>
+   <item weight="0.0049956">
+    spirit airlines
+    <tag>out = "spirit airlines";</tag>
+   </item>
+   <item weight="0.0049515">
+    capital one
+    <tag>out = "capital one";</tag>
+   </item>
+   <item weight="0.0049047">
+    holiday inn
+    <tag>out = "holiday inn";</tag>
+   </item>
+   <item weight="0.0048606">
+    ticketmaster
+    <tag>out = "ticketmaster";</tag>
+   </item>
+   <item weight="0.0047971">
+    walmart
+    <tag>out = "walmart";</tag>
+   </item>
+   <item weight="0.0046179">
+    time warner cable
+    <tag>out = "time warner cable";</tag>
+   </item>
+   <item weight="0.0045793">
+    hewlett packard
+    <tag>out = "hewlett packard";</tag>
+   </item>
+   <item weight="0.0045407">
+    jet blue airlines
+    <tag>out = "jet blue airlines";</tag>
+   </item>
+   <item weight="0.0041465">
+    u s air
+    <tag>out = "u s air";</tag>
+   </item>
+   <item weight="0.0041024">
+    social security administration
+    <tag>out = "social security administration";</tag>
+   </item>
+   <item weight="0.0039893">
+    moneygram
+    <tag>out = "moneygram";</tag>
+   </item>
+   <item weight="0.0039149">
+    microsoft
+    <tag>out = "microsoft";</tag>
+   </item>
+   <item weight="0.0038156">
+    comcast cable
+    <tag>out = "comcast cable";</tag>
+   </item>
+   <item weight="0.0037081">
+    vonage
+    <tag>out = "vonage";</tag>
+   </item>
+   <item weight="0.0036971">
+    geico insurance
+    <tag>out = "geico insurance";</tag>
+   </item>
+   <item weight="0.0036861">
+    alaska airlines
+    <tag>out = "alaska airlines";</tag>
+   </item>
+   <item weight="0.0036557">
+    a a r p
+    <tag>out = "a a r p";</tag>
+   </item>
+   <item weight="0.003562">
+    citibank
+    <tag>out = "citibank";</tag>
+   </item>
+   <item weight="0.0032753">
+    chase bank
+    <tag>out = "chase bank";</tag>
+   </item>
+   <item weight="0.0031788">
+    triple a
+    <tag>out = "triple a";</tag>
+   </item>
+   <item weight="0.0031429">
+    hilton hotels
+    <tag>out = "hilton hotels";</tag>
+   </item>
+   <item weight="0.0031099">
+    sears
+    <tag>out = "sears";</tag>
+   </item>
+   <item weight="0.0030713">
+    hampton inn
+    <tag>out = "hampton inn";</tag>
+   </item>
+   <item weight="0.0030657">
+    x m radio
+    <tag>out = "x m radio";</tag>
+   </item>
+   <item weight="0.0030382">
+    united states postal service
+    <tag>out = "united states postal service";</tag>
+   </item>
+   <item weight="0.0029306">
+    wells fargo
+    <tag>out = "wells fargo";</tag>
+   </item>
+   <item weight="0.0029196">
+    enterprise rent a car
+    <tag>out = "enterprise rent a car";</tag>
+   </item>
+   <item weight="0.002881">
+    airtrans
+    <tag>out = "airtrans";</tag>
+   </item>
+   <item weight="0.00287">
+    dell computer
+    <tag>out = "dell computer";</tag>
+   </item>
+   <item weight="0.002859">
+    medicare
+    <tag>out = "medicare";</tag>
+   </item>
+   <item weight="0.002859">
+    frontier airlines
+    <tag>out = "frontier airlines";</tag>
+   </item>
+   <item weight="0.0027983">
+    d h l
+    <tag>out = "d h l";</tag>
+   </item>
+   <item weight="0.0027707">
+    washington mutual
+    <tag>out = "washington mutual";</tag>
+   </item>
+   <item weight="0.0026963">
+    u haul
+    <tag>out = "u haul";</tag>
+   </item>
+   <item weight="0.0026715">
+    marriott
+    <tag>out = "marriott";</tag>
+   </item>
+   <item weight="0.0025971">
+    home depot
+    <tag>out = "home depot";</tag>
+   </item>
+   <item weight="0.0025667">
+    united parcel service
+    <tag>out = "united parcel service";</tag>
+   </item>
+   <item weight="0.0025447">
+    budget rent a car
+    <tag>out = "budget rent a car";</tag>
+   </item>
+   <item weight="0.0025226">
+    equifax
+    <tag>out = "equifax";</tag>
+   </item>
+   <item weight="0.0025033">
+    wachovia bank
+    <tag>out = "wachovia bank";</tag>
+   </item>
+   <item weight="0.0024675">
+    virgin mobile
+    <tag>out = "virgin mobile";</tag>
+   </item>
+   <item weight="0.0023985">
+    readers digest
+    <tag>out = "readers digest";</tag>
+   </item>
+   <item weight="0.0023903">
+    best buy
+    <tag>out = "best buy";</tag>
+   </item>
+   <item weight="0.0023655">
+    motel six
+    <tag>out = "motel six";</tag>
+   </item>
+   <item weight="0.0023599">
+    l l bean
+    <tag>out = "l l bean";</tag>
+   </item>
+   <item weight="0.0023572">
+    hertz rental car
+    <tag>out = "hertz rental car";</tag>
+   </item>
+   <item weight="0.0023379">
+    amazon dot com
+    <tag>out = "amazon dot com";</tag>
+   </item>
+   <item weight="0.0022965">
+    u s a a
+    <tag>out = "u s a a";</tag>
+   </item>
+   <item weight="0.0022607">
+    sirius satellite radio
+    <tag>out = "sirius satellite radio";</tag>
+   </item>
+   <item weight="0.0022193">
+    enterprise car rental
+    <tag>out = "enterprise car rental";</tag>
+   </item>
+   <item weight="0.0022111">
+    i r s
+    <tag>out = "i r s";</tag>
+   </item>
+   <item weight="0.0021863">
+    united states post office
+    <tag>out = "united states post office";</tag>
+   </item>
+   <item weight="0.002178">
+    a t and t customer service
+    <tag>out = "a t and t customer service";</tag>
+   </item>
+   <item weight="0.0021284">
+    macys
+    <tag>out = "macys";</tag>
+   </item>
+   <item weight="0.0021201">
+    hertz rent a car
+    <tag>out = "hertz rent a car";</tag>
+   </item>
+   <item weight="0.0021118">
+    new jersey transit
+    <tag>out = "new jersey transit";</tag>
+   </item>
+   <item weight="0.0021008">
+    british airways
+    <tag>out = "british airways";</tag>
+   </item>
+   <item weight="0.0020567">
+    wells fargo bank
+    <tag>out = "wells fargo bank";</tag>
+   </item>
+   <item weight="0.0020401">
+    better business bureau
+    <tag>out = "better business bureau";</tag>
+   </item>
+   <item weight="0.0020319">
+    comfort inn
+    <tag>out = "comfort inn";</tag>
+   </item>
+   <item weight="0.0020264">
+    charter communications
+    <tag>out = "charter communications";</tag>
+   </item>
+   <item weight="0.0020208">
+    enterprise rental car
+    <tag>out = "enterprise rental car";</tag>
+   </item>
+   <item weight="0.0019629">
+    new york times
+    <tag>out = "new york times";</tag>
+   </item>
+   <item weight="0.0019381">
+    sprint p c s
+    <tag>out = "sprint p c s";</tag>
+   </item>
+   <item weight="0.0018995">
+    progressive insurance
+    <tag>out = "progressive insurance";</tag>
+   </item>
+   <item weight="0.0018913">
+    best western
+    <tag>out = "best western";</tag>
+   </item>
+   <item weight="0.001883">
+    delta
+    <tag>out = "delta";</tag>
+   </item>
+   <item weight="0.0018389">
+    circuit city
+    <tag>out = "circuit city";</tag>
+   </item>
+   <item weight="0.0018141">
+    budget rental car
+    <tag>out = "budget rental car";</tag>
+   </item>
+   <item weight="0.0017892">
+    avis rent a car
+    <tag>out = "avis rent a car";</tag>
+   </item>
+   <item weight="0.0017865">
+    sony
+    <tag>out = "sony";</tag>
+   </item>
+   <item weight="0.0017644">
+    national car rental
+    <tag>out = "national car rental";</tag>
+   </item>
+   <item weight="0.0017644">
+    virgin america
+    <tag>out = "virgin america";</tag>
+   </item>
+   <item weight="0.0017562">
+    weight watchers
+    <tag>out = "weight watchers";</tag>
+   </item>
+   <item weight="0.0017424">
+    net flix
+    <tag>out = "net flix";</tag>
+   </item>
+   <item weight="0.0017369">
+    greyhound buslines
+    <tag>out = "greyhound buslines";</tag>
+   </item>
+   <item weight="0.0017341">
+    sallie mae
+    <tag>out = "sallie mae";</tag>
+   </item>
+   <item weight="0.0017258">
+    state farm insurance
+    <tag>out = "state farm insurance";</tag>
+   </item>
+   <item weight="0.0017148">
+    days inn
+    <tag>out = "days inn";</tag>
+   </item>
+   <item weight="0.001701">
+    tracfone
+    <tag>out = "tracfone";</tag>
+   </item>
+   <item weight="0.0016955">
+    citi mortgage
+    <tag>out = "citi mortgage";</tag>
+   </item>
+   <item weight="0.001679">
+    chrysler financial
+    <tag>out = "chrysler financial";</tag>
+   </item>
+   <item weight="0.0016762">
+    earthlink
+    <tag>out = "earthlink";</tag>
+   </item>
+   <item weight="0.0016652">
+    southern california edison
+    <tag>out = "southern california edison";</tag>
+   </item>
+   <item weight="0.0016597">
+    m c i
+    <tag>out = "m c i";</tag>
+   </item>
+   <item weight="0.0016404">
+    countrywide
+    <tag>out = "countrywide";</tag>
+   </item>
+   <item weight="0.0016376">
+    holiday inn express
+    <tag>out = "holiday inn express";</tag>
+   </item>
+   <item weight="0.0016321">
+    dollar rent a car
+    <tag>out = "dollar rent a car";</tag>
+   </item>
+   <item weight="0.0016128">
+    bellsouth
+    <tag>out = "bellsouth";</tag>
+   </item>
+   <item weight="0.0016045">
+    embassy suites
+    <tag>out = "embassy suites";</tag>
+   </item>
+   <item weight="0.0015963">
+    orbitz
+    <tag>out = "orbitz";</tag>
+   </item>
+   <item weight="0.001588">
+    wachovia
+    <tag>out = "wachovia";</tag>
+   </item>
+   <item weight="0.0015797">
+    time warner
+    <tag>out = "time warner";</tag>
+   </item>
+   <item weight="0.0015742">
+    trans union
+    <tag>out = "trans union";</tag>
+   </item>
+   <item weight="0.0015714">
+    hyatt hotels
+    <tag>out = "hyatt hotels";</tag>
+   </item>
+   <item weight="0.0015659">
+    fidelity investments
+    <tag>out = "fidelity investments";</tag>
+   </item>
+   <item weight="0.0015632">
+    u s bank
+    <tag>out = "u s bank";</tag>
+   </item>
+   <item weight="0.0015218">
+    greyhound bus
+    <tag>out = "greyhound bus";</tag>
+   </item>
+   <item weight="0.0015163">
+    sirius radio
+    <tag>out = "sirius radio";</tag>
+   </item>
+   <item weight="0.001508">
+    experian
+    <tag>out = "experian";</tag>
+   </item>
+   <item weight="0.0014942">
+    netzero
+    <tag>out = "netzero";</tag>
+   </item>
+   <item weight="0.0014694">
+    hilton
+    <tag>out = "hilton";</tag>
+   </item>
+   <item weight="0.0014639">
+    linksys
+    <tag>out = "linksys";</tag>
+   </item>
+   <item weight="0.0014529">
+    washington mutual bank
+    <tag>out = "washington mutual bank";</tag>
+   </item>
+   <item weight="0.0014529">
+    countrywide home loans
+    <tag>out = "countrywide home loans";</tag>
+   </item>
+   <item weight="0.0014529">
+    u s postal service
+    <tag>out = "u s postal service";</tag>
+   </item>
+   <item weight="0.0014474">
+    discover card
+    <tag>out = "discover card";</tag>
+   </item>
+   <item weight="0.0014391">
+    cablevision
+    <tag>out = "cablevision";</tag>
+   </item>
+   <item weight="0.0014336">
+    kasco
+    <tag>out = "kasco";</tag>
+   </item>
+   <item weight="0.0014253">
+    walgreens
+    <tag>out = "walgreens";</tag>
+   </item>
+   <item weight="0.0014253">
+    onstar
+    <tag>out = "onstar";</tag>
+   </item>
+   <item weight="0.0014226">
+    amazon
+    <tag>out = "amazon";</tag>
+   </item>
+   <item weight="0.0014198">
+    air france
+    <tag>out = "air france";</tag>
+   </item>
+   <item weight="0.0014115">
+    post office
+    <tag>out = "post office";</tag>
+   </item>
+   <item weight="0.001406">
+    hertz
+    <tag>out = "hertz";</tag>
+   </item>
+   <item weight="0.0013812">
+    j c penney
+    <tag>out = "j c penney";</tag>
+   </item>
+   <item weight="0.0013757">
+    u s airlines
+    <tag>out = "u s airlines";</tag>
+   </item>
+   <item weight="0.0013674">
+    lands end
+    <tag>out = "lands end";</tag>
+   </item>
+   <item weight="0.0013647">
+    yahoo
+    <tag>out = "yahoo";</tag>
+   </item>
+   <item weight="0.0013564">
+    thrifty car rental
+    <tag>out = "thrifty car rental";</tag>
+   </item>
+   <item weight="0.0013426">
+    hawaiian airlines
+    <tag>out = "hawaiian airlines";</tag>
+   </item>
+   <item weight="0.0013178">
+    g m a c
+    <tag>out = "g m a c";</tag>
+   </item>
+   <item weight="0.0013178">
+    social security office
+    <tag>out = "social security office";</tag>
+   </item>
+   <item weight="0.0013123">
+    u s post office
+    <tag>out = "u s post office";</tag>
+   </item>
+   <item weight="0.0013095">
+    united health care
+    <tag>out = "united health care";</tag>
+   </item>
+   <item weight="0.0013068">
+    h s b c
+    <tag>out = "h s b c";</tag>
+   </item>
+   <item weight="0.0012957">
+    alltel
+    <tag>out = "alltel";</tag>
+   </item>
+   <item weight="0.0012902">
+    lufthansa airlines
+    <tag>out = "lufthansa airlines";</tag>
+   </item>
+   <item weight="0.0012847">
+    qwest
+    <tag>out = "qwest";</tag>
+   </item>
+   <item weight="0.0012847">
+    paypal
+    <tag>out = "paypal";</tag>
+   </item>
+   <item weight="0.0012737">
+    avis car rental
+    <tag>out = "avis car rental";</tag>
+   </item>
+   <item weight="0.0012709">
+    travelocity
+    <tag>out = "travelocity";</tag>
+   </item>
+   <item weight="0.0012654">
+    embark
+    <tag>out = "embark";</tag>
+   </item>
+   <item weight="0.0012489">
+    avis rental car
+    <tag>out = "avis rental car";</tag>
+   </item>
+   <item weight="0.0012323">
+    time magazine
+    <tag>out = "time magazine";</tag>
+   </item>
+   <item weight="0.0012296">
+    allstate insurance
+    <tag>out = "allstate insurance";</tag>
+   </item>
+   <item weight="0.0012241">
+    lowes
+    <tag>out = "lowes";</tag>
+   </item>
+   <item weight="0.0012158">
+    majic jack
+    <tag>out = "majic jack";</tag>
+   </item>
+   <item weight="0.001213">
+    alamo car rental
+    <tag>out = "alamo car rental";</tag>
+   </item>
+   <item weight="0.0011965">
+    budget car rental
+    <tag>out = "budget car rental";</tag>
+   </item>
+   <item weight="0.001191">
+    expedia
+    <tag>out = "expedia";</tag>
+   </item>
+   <item weight="0.0011799">
+    american airlines reservations
+    <tag>out = "american airlines reservations";</tag>
+   </item>
+   <item weight="0.0011744">
+    american home shield
+    <tag>out = "american home shield";</tag>
+   </item>
+   <item weight="0.0011744">
+    enterprise
+    <tag>out = "enterprise";</tag>
+   </item>
+   <item weight="0.0011717">
+    chase
+    <tag>out = "chase";</tag>
+   </item>
+   <item weight="0.0011634">
+    jet blue airways
+    <tag>out = "jet blue airways";</tag>
+   </item>
+   <item weight="0.0011607">
+    general electric
+    <tag>out = "general electric";</tag>
+   </item>
+   <item weight="0.0011496">
+    panasonic
+    <tag>out = "panasonic";</tag>
+   </item>
+   <item weight="0.0011469">
+    avis
+    <tag>out = "avis";</tag>
+   </item>
+   <item weight="0.0011331">
+    carnival cruise lines
+    <tag>out = "carnival cruise lines";</tag>
+   </item>
+   <item weight="0.0011248">
+    greyhound bus station
+    <tag>out = "greyhound bus station";</tag>
+   </item>
+   <item weight="0.0011138">
+    pizza hut
+    <tag>out = "pizza hut";</tag>
+   </item>
+   <item weight="0.0011083">
+    toshiba
+    <tag>out = "toshiba";</tag>
+   </item>
+   <item weight="0.0011055">
+    airtran airways
+    <tag>out = "airtran airways";</tag>
+   </item>
+   <item weight="0.0010917">
+    kmart
+    <tag>out = "kmart";</tag>
+   </item>
+   <item weight="0.0010862">
+    alamo rent a car
+    <tag>out = "alamo rent a car";</tag>
+   </item>
+   <item weight="0.0010835">
+    hertz car rental
+    <tag>out = "hertz car rental";</tag>
+   </item>
+   <item weight="0.0010779">
+    sheraton hotels
+    <tag>out = "sheraton hotels";</tag>
+   </item>
+   <item weight="0.0010752">
+    victorias secret
+    <tag>out = "victorias secret";</tag>
+   </item>
+   <item weight="0.0010724">
+    airtran airlines
+    <tag>out = "airtran airlines";</tag>
+   </item>
+   <item weight="0.0010669">
+    target
+    <tag>out = "target";</tag>
+   </item>
+   <item weight="0.0010642">
+    fingerhut
+    <tag>out = "fingerhut";</tag>
+   </item>
+   <item weight="0.0010614">
+    veterans administration
+    <tag>out = "veterans administration";</tag>
+   </item>
+   <item weight="0.0010559">
+    nationwide insurance
+    <tag>out = "nationwide insurance";</tag>
+   </item>
+   <item weight="0.0010504">
+    boost mobile
+    <tag>out = "boost mobile";</tag>
+   </item>
+   <item weight="0.0010476">
+    delta dental
+    <tag>out = "delta dental";</tag>
+   </item>
+   <item weight="0.0010476">
+    priceline
+    <tag>out = "priceline";</tag>
+   </item>
+   <item weight="0.0010366">
+    california department of motor vehicles
+    <tag>out = "california department of motor vehicles";</tag>
+   </item>
+   <item weight="0.0010366">
+    a d t
+    <tag>out = "a d t";</tag>
+   </item>
+   <item weight="0.0010311">
+    salvation army
+    <tag>out = "salvation army";</tag>
+   </item>
+   <item weight="0.0010118">
+    apple
+    <tag>out = "apple";</tag>
+   </item>
+   <item weight="0.0010063">
+    marriott hotel
+    <tag>out = "marriott hotel";</tag>
+   </item>
+   <item weight="0.0010007">
+    people p c
+    <tag>out = "people p c";</tag>
+   </item>
+   <item weight="0.0010007">
+    mastercard
+    <tag>out = "mastercard";</tag>
+   </item>
+   <item weight="0.000987">
+    staples
+    <tag>out = "staples";</tag>
+   </item>
+   <item weight="0.000987">
+    humana
+    <tag>out = "humana";</tag>
+   </item>
+   <item weight="0.00097598">
+    commerce bank
+    <tag>out = "commerce bank";</tag>
+   </item>
+   <item weight="0.00097046">
+    q v c
+    <tag>out = "q v c";</tag>
+   </item>
+   <item weight="0.0009677">
+    sams club
+    <tag>out = "sams club";</tag>
+   </item>
+   <item weight="0.00096495">
+    radio shack
+    <tag>out = "radio shack";</tag>
+   </item>
+   <item weight="0.00095668">
+    h and r block
+    <tag>out = "h and r block";</tag>
+   </item>
+   <item weight="0.00094565">
+    whirlpool
+    <tag>out = "whirlpool";</tag>
+   </item>
+   <item weight="0.00094013">
+    met life
+    <tag>out = "met life";</tag>
+   </item>
+   <item weight="0.00093462">
+    toys r us
+    <tag>out = "toys r us";</tag>
+   </item>
+   <item weight="0.00093462">
+    hughes net
+    <tag>out = "hughes net";</tag>
+   </item>
+   <item weight="0.00093186">
+    m s n
+    <tag>out = "m s n";</tag>
+   </item>
+   <item weight="0.00092911">
+    hotels dot com
+    <tag>out = "hotels dot com";</tag>
+   </item>
+   <item weight="0.00092635">
+    t mobile customer service
+    <tag>out = "t mobile customer service";</tag>
+   </item>
+   <item weight="0.00092359">
+    countrywide mortgage
+    <tag>out = "countrywide mortgage";</tag>
+   </item>
+   <item weight="0.00091532">
+    red roof inn
+    <tag>out = "red roof inn";</tag>
+   </item>
+   <item weight="0.00091532">
+    capital one bank
+    <tag>out = "capital one bank";</tag>
+   </item>
+   <item weight="0.00090981">
+    capital one auto finance
+    <tag>out = "capital one auto finance";</tag>
+   </item>
+   <item weight="0.00089602">
+    u s cellular
+    <tag>out = "u s cellular";</tag>
+   </item>
+   <item weight="0.00089327">
+    visa
+    <tag>out = "visa";</tag>
+   </item>
+   <item weight="0.00089327">
+    nextel
+    <tag>out = "nextel";</tag>
+   </item>
+   <item weight="0.00089327">
+    hilton hotel
+    <tag>out = "hilton hotel";</tag>
+   </item>
+   <item weight="0.00089051">
+    cingular wireless
+    <tag>out = "cingular wireless";</tag>
+   </item>
+   <item weight="0.00087948">
+    supershuttle
+    <tag>out = "supershuttle";</tag>
+   </item>
+   <item weight="0.00087672">
+    ramada inn
+    <tag>out = "ramada inn";</tag>
+   </item>
+   <item weight="0.00086845">
+    e harmony
+    <tag>out = "e harmony";</tag>
+   </item>
+   <item weight="0.0008657">
+    american online
+    <tag>out = "american online";</tag>
+   </item>
+   <item weight="0.00086294">
+    blair
+    <tag>out = "blair";</tag>
+   </item>
+   <item weight="0.00086294">
+    cox communications
+    <tag>out = "cox communications";</tag>
+   </item>
+   <item weight="0.0008464">
+    sprint customer service
+    <tag>out = "sprint customer service";</tag>
+   </item>
+   <item weight="0.0008464">
+    citizens bank
+    <tag>out = "citizens bank";</tag>
+   </item>
+   <item weight="0.00084088">
+    a t and t residential
+    <tag>out = "a t and t residential";</tag>
+   </item>
+   <item weight="0.00084088">
+    dell technical support
+    <tag>out = "dell technical support";</tag>
+   </item>
+   <item weight="0.00082158">
+    cabelas
+    <tag>out = "cabelas";</tag>
+   </item>
+   <item weight="0.00081883">
+    x m satellite radio
+    <tag>out = "x m satellite radio";</tag>
+   </item>
+   <item weight="0.00081056">
+    net ten
+    <tag>out = "net ten";</tag>
+   </item>
+   <item weight="0.0008078">
+    continental
+    <tag>out = "continental";</tag>
+   </item>
+   <item weight="0.0008078">
+    gateway
+    <tag>out = "gateway";</tag>
+   </item>
+   <item weight="0.00080504">
+    u s a a insurance
+    <tag>out = "u s a a insurance";</tag>
+   </item>
+   <item weight="0.00080504">
+    samsung
+    <tag>out = "samsung";</tag>
+   </item>
+   <item weight="0.00080228">
+    southwest
+    <tag>out = "southwest";</tag>
+   </item>
+   <item weight="0.00080228">
+    garmin
+    <tag>out = "garmin";</tag>
+   </item>
+   <item weight="0.00079953">
+    a d t security
+    <tag>out = "a d t security";</tag>
+   </item>
+   <item weight="0.00079677">
+    chase credit card
+    <tag>out = "chase credit card";</tag>
+   </item>
+   <item weight="0.00079401">
+    wells fargo home mortgage
+    <tag>out = "wells fargo home mortgage";</tag>
+   </item>
+   <item weight="0.00078574">
+    cheap tickets
+    <tag>out = "cheap tickets";</tag>
+   </item>
+   <item weight="0.00078574">
+    verizon customer service
+    <tag>out = "verizon customer service";</tag>
+   </item>
+   <item weight="0.00078299">
+    ford motor credit
+    <tag>out = "ford motor credit";</tag>
+   </item>
+   <item weight="0.00078023">
+    sheraton hotel
+    <tag>out = "sheraton hotel";</tag>
+   </item>
+   <item weight="0.00078023">
+    ikea
+    <tag>out = "ikea";</tag>
+   </item>
+   <item weight="0.00077747">
+    neiman marcus
+    <tag>out = "neiman marcus";</tag>
+   </item>
+   <item weight="0.00077747">
+    charles schwab
+    <tag>out = "charles schwab";</tag>
+   </item>
+   <item weight="0.00077747">
+    mexicana airlines
+    <tag>out = "mexicana airlines";</tag>
+   </item>
+   <item weight="0.00077471">
+    national grid
+    <tag>out = "national grid";</tag>
+   </item>
+   <item weight="0.0007692">
+    allegiant air
+    <tag>out = "allegiant air";</tag>
+   </item>
+   <item weight="0.0007692">
+    swiss colony
+    <tag>out = "swiss colony";</tag>
+   </item>
+   <item weight="0.0007692">
+    sovereign bank
+    <tag>out = "sovereign bank";</tag>
+   </item>
+   <item weight="0.00076369">
+    public storage
+    <tag>out = "public storage";</tag>
+   </item>
+   <item weight="0.00076369">
+    travelers insurance
+    <tag>out = "travelers insurance";</tag>
+   </item>
+   <item weight="0.00076093">
+    americredit
+    <tag>out = "americredit";</tag>
+   </item>
+   <item weight="0.00075817">
+    sharper image
+    <tag>out = "sharper image";</tag>
+   </item>
+   <item weight="0.00075542">
+    air canada
+    <tag>out = "air canada";</tag>
+   </item>
+   <item weight="0.00075542">
+    liberty mutual
+    <tag>out = "liberty mutual";</tag>
+   </item>
+   <item weight="0.00074714">
+    medicaid
+    <tag>out = "medicaid";</tag>
+   </item>
+   <item weight="0.00074439">
+    h p
+    <tag>out = "h p";</tag>
+   </item>
+   <item weight="0.00074163">
+    state farm
+    <tag>out = "state farm";</tag>
+   </item>
+   <item weight="0.00074163">
+    suntrust bank
+    <tag>out = "suntrust bank";</tag>
+   </item>
+   <item weight="0.00073887">
+    royal caribbean
+    <tag>out = "royal caribbean";</tag>
+   </item>
+   <item weight="0.00073887">
+    best western hotels
+    <tag>out = "best western hotels";</tag>
+   </item>
+   <item weight="0.00073612">
+    c v s pharmacy
+    <tag>out = "c v s pharmacy";</tag>
+   </item>
+   <item weight="0.00073612">
+    h s b c bank
+    <tag>out = "h s b c bank";</tag>
+   </item>
+   <item weight="0.00073336">
+    quest diagnostics
+    <tag>out = "quest diagnostics";</tag>
+   </item>
+   <item weight="0.00073336">
+    lufthansa
+    <tag>out = "lufthansa";</tag>
+   </item>
+   <item weight="0.0007306">
+    p g and e
+    <tag>out = "p g and e";</tag>
+   </item>
+   <item weight="0.0007306">
+    choice hotels
+    <tag>out = "choice hotels";</tag>
+   </item>
+   <item weight="0.00072785">
+    gateway computers
+    <tag>out = "gateway computers";</tag>
+   </item>
+   <item weight="0.00072233">
+    vanguard
+    <tag>out = "vanguard";</tag>
+   </item>
+   <item weight="0.00072233">
+    mcafee
+    <tag>out = "mcafee";</tag>
+   </item>
+   <item weight="0.00072233">
+    wall street journal
+    <tag>out = "wall street journal";</tag>
+   </item>
+   <item weight="0.00072233">
+    poison control
+    <tag>out = "poison control";</tag>
+   </item>
+   <item weight="0.00071957">
+    motorola
+    <tag>out = "motorola";</tag>
+   </item>
+   <item weight="0.00071682">
+    verizon wireless customer service
+    <tag>out = "verizon wireless customer service";</tag>
+   </item>
+   <item weight="0.00071406">
+    windstream
+    <tag>out = "windstream";</tag>
+   </item>
+   <item weight="0.0007113">
+    fidelity
+    <tag>out = "fidelity";</tag>
+   </item>
+   <item weight="0.0007113">
+    apple computers
+    <tag>out = "apple computers";</tag>
+   </item>
+   <item weight="0.0007113">
+    dollar rental car
+    <tag>out = "dollar rental car";</tag>
+   </item>
+   <item weight="0.00070855">
+    alamo rental car
+    <tag>out = "alamo rental car";</tag>
+   </item>
+   <item weight="0.00070579">
+    avon
+    <tag>out = "avon";</tag>
+   </item>
+   <item weight="0.00070028">
+    westin hotels
+    <tag>out = "westin hotels";</tag>
+   </item>
+   <item weight="0.00070028">
+    symantec
+    <tag>out = "symantec";</tag>
+   </item>
+   <item weight="0.00069752">
+    google
+    <tag>out = "google";</tag>
+   </item>
+   <item weight="0.00069752">
+    bank of america customer service
+    <tag>out = "bank of america customer service";</tag>
+   </item>
+   <item weight="0.00069476">
+    marriott reservations
+    <tag>out = "marriott reservations";</tag>
+   </item>
+   <item weight="0.000692">
+    c v s
+    <tag>out = "c v s";</tag>
+   </item>
+   <item weight="0.00068925">
+    super eight motel
+    <tag>out = "super eight motel";</tag>
+   </item>
+   <item weight="0.00068649">
+    publishers clearing house
+    <tag>out = "publishers clearing house";</tag>
+   </item>
+   <item weight="0.00068098">
+    apple computer
+    <tag>out = "apple computer";</tag>
+   </item>
+   <item weight="0.00067822">
+    cingular
+    <tag>out = "cingular";</tag>
+   </item>
+   <item weight="0.00067822">
+    black and decker
+    <tag>out = "black and decker";</tag>
+   </item>
+   <item weight="0.00067822">
+    p s e and g
+    <tag>out = "p s e and g";</tag>
+   </item>
+   <item weight="0.00067822">
+    dell customer service
+    <tag>out = "dell customer service";</tag>
+   </item>
+   <item weight="0.00067546">
+    barnes and noble
+    <tag>out = "barnes and noble";</tag>
+   </item>
+   <item weight="0.00067546">
+    blue hippo
+    <tag>out = "blue hippo";</tag>
+   </item>
+   <item weight="0.00067546">
+    home shopping network
+    <tag>out = "home shopping network";</tag>
+   </item>
+   <item weight="0.00067271">
+    georgia power
+    <tag>out = "georgia power";</tag>
+   </item>
+   <item weight="0.00066995">
+    global tel link
+    <tag>out = "global tel link";</tag>
+   </item>
+   <item weight="0.00066995">
+    bose
+    <tag>out = "bose";</tag>
+   </item>
+   <item weight="0.00066995">
+    los angeles times
+    <tag>out = "los angeles times";</tag>
+   </item>
+   <item weight="0.00066719">
+    allegiant airlines
+    <tag>out = "allegiant airlines";</tag>
+   </item>
+   <item weight="0.00066719">
+    aflac
+    <tag>out = "aflac";</tag>
+   </item>
+   <item weight="0.00066443">
+    all tell
+    <tag>out = "all tell";</tag>
+   </item>
+   <item weight="0.00066168">
+    a t and t you verse
+    <tag>out = "a t and t you verse";</tag>
+   </item>
+   <item weight="0.00066168">
+    dominos pizza
+    <tag>out = "dominos pizza";</tag>
+   </item>
+   <item weight="0.00066168">
+    consumer reports
+    <tag>out = "consumer reports";</tag>
+   </item>
+   <item weight="0.00065892">
+    allstate
+    <tag>out = "allstate";</tag>
+   </item>
+   <item weight="0.00065341">
+    unemployment office
+    <tag>out = "unemployment office";</tag>
+   </item>
+   <item weight="0.00065341">
+    regions bank
+    <tag>out = "regions bank";</tag>
+   </item>
+   <item weight="0.00065341">
+    medco
+    <tag>out = "medco";</tag>
+   </item>
+   <item weight="0.00065341">
+    quality inn
+    <tag>out = "quality inn";</tag>
+   </item>
+   <item weight="0.00065065">
+    sprint wireless
+    <tag>out = "sprint wireless";</tag>
+   </item>
+   <item weight="0.00065065">
+    canon
+    <tag>out = "canon";</tag>
+   </item>
+   <item weight="0.00065065">
+    charter cable
+    <tag>out = "charter cable";</tag>
+   </item>
+   <item weight="0.00064513">
+    p n c bank
+    <tag>out = "p n c bank";</tag>
+   </item>
+   <item weight="0.00063962">
+    big lots
+    <tag>out = "big lots";</tag>
+   </item>
+   <item weight="0.00063686">
+    midwest airlines
+    <tag>out = "midwest airlines";</tag>
+   </item>
+   <item weight="0.00062859">
+    a t and t cellular
+    <tag>out = "a t and t cellular";</tag>
+   </item>
+   <item weight="0.00062584">
+    r c a
+    <tag>out = "r c a";</tag>
+   </item>
+   <item weight="0.00062308">
+    aetna
+    <tag>out = "aetna";</tag>
+   </item>
+   <item weight="0.00062308">
+    norwegian cruise lines
+    <tag>out = "norwegian cruise lines";</tag>
+   </item>
+   <item weight="0.00062032">
+    royal carribean cruise lines
+    <tag>out = "royal carribean cruise lines";</tag>
+   </item>
+   <item weight="0.00062032">
+    navy federal credit union
+    <tag>out = "navy federal credit union";</tag>
+   </item>
+   <item weight="0.00061205">
+    united airlines reservations
+    <tag>out = "united airlines reservations";</tag>
+   </item>
+   <item weight="0.00060929">
+    office depot
+    <tag>out = "office depot";</tag>
+   </item>
+   <item weight="0.00060378">
+    a i g insurance
+    <tag>out = "a i g insurance";</tag>
+   </item>
+   <item weight="0.00060378">
+    bloomingdales
+    <tag>out = "bloomingdales";</tag>
+   </item>
+   <item weight="0.00060102">
+    laquinta inn
+    <tag>out = "laquinta inn";</tag>
+   </item>
+   <item weight="0.00060102">
+    priceline dot com
+    <tag>out = "priceline dot com";</tag>
+   </item>
+   <item weight="0.00060102">
+    a i g
+    <tag>out = "a i g";</tag>
+   </item>
+   <item weight="0.00059551">
+    coles
+    <tag>out = "coles";</tag>
+   </item>
+   <item weight="0.00058999">
+    stanley steemer
+    <tag>out = "stanley steemer";</tag>
+   </item>
+   <item weight="0.00058999">
+    delta airlines reservations
+    <tag>out = "delta airlines reservations";</tag>
+   </item>
+   <item weight="0.00058999">
+    a t and t internet
+    <tag>out = "a t and t internet";</tag>
+   </item>
+   <item weight="0.00058999">
+    citifinancial
+    <tag>out = "citifinancial";</tag>
+   </item>
+   <item weight="0.00058724">
+    e z pass
+    <tag>out = "e z pass";</tag>
+   </item>
+   <item weight="0.00058448">
+    starrett
+    <tag>out = "starrett";</tag>
+   </item>
+   <item weight="0.00058448">
+    nutrisystem
+    <tag>out = "nutrisystem";</tag>
+   </item>
+   <item weight="0.00058172">
+    people magazine
+    <tag>out = "people magazine";</tag>
+   </item>
+   <item weight="0.00057897">
+    bradford exchange
+    <tag>out = "bradford exchange";</tag>
+   </item>
+   <item weight="0.00057621">
+    air jamaica
+    <tag>out = "air jamaica";</tag>
+   </item>
+   <item weight="0.00057621">
+    maytag
+    <tag>out = "maytag";</tag>
+   </item>
+   <item weight="0.00057345">
+    starbucks
+    <tag>out = "starbucks";</tag>
+   </item>
+   <item weight="0.0005707">
+    nascar
+    <tag>out = "nascar";</tag>
+   </item>
+   <item weight="0.00056518">
+    lane bryant
+    <tag>out = "lane bryant";</tag>
+   </item>
+   <item weight="0.00056242">
+    a t and t mobile
+    <tag>out = "a t and t mobile";</tag>
+   </item>
+   <item weight="0.00056242">
+    general motors
+    <tag>out = "general motors";</tag>
+   </item>
+   <item weight="0.00055691">
+    citi cards
+    <tag>out = "citi cards";</tag>
+   </item>
+   <item weight="0.00055691">
+    waste management
+    <tag>out = "waste management";</tag>
+   </item>
+   <item weight="0.00055415">
+    capital one credit card
+    <tag>out = "capital one credit card";</tag>
+   </item>
+   <item weight="0.00054864">
+    sheraton
+    <tag>out = "sheraton";</tag>
+   </item>
+   <item weight="0.00053761">
+    fifth third bank
+    <tag>out = "fifth third bank";</tag>
+   </item>
+   <item weight="0.00053761">
+    u s a today
+    <tag>out = "u s a today";</tag>
+   </item>
+   <item weight="0.00053485">
+    progressive
+    <tag>out = "progressive";</tag>
+   </item>
+   <item weight="0.00053485">
+    vontage
+    <tag>out = "vontage";</tag>
+   </item>
+   <item weight="0.0005321">
+    kodak
+    <tag>out = "kodak";</tag>
+   </item>
+   <item weight="0.0005321">
+    kaiser permanente
+    <tag>out = "kaiser permanente";</tag>
+   </item>
+   <item weight="0.00052934">
+    disney world
+    <tag>out = "disney world";</tag>
+   </item>
+   <item weight="0.00052383">
+    chase manhattan bank
+    <tag>out = "chase manhattan bank";</tag>
+   </item>
+   <item weight="0.00052383">
+    credit one
+    <tag>out = "credit one";</tag>
+   </item>
+   <item weight="0.00052107">
+    alltel wireless
+    <tag>out = "alltel wireless";</tag>
+   </item>
+   <item weight="0.00052107">
+    j crew
+    <tag>out = "j crew";</tag>
+   </item>
+   <item weight="0.00051831">
+    a o l customer service
+    <tag>out = "a o l customer service";</tag>
+   </item>
+   <item weight="0.00051556">
+    g m a c mortgage
+    <tag>out = "g m a c mortgage";</tag>
+   </item>
+   <item weight="0.00051556">
+    j p morgan chase
+    <tag>out = "j p morgan chase";</tag>
+   </item>
+   <item weight="0.0005128">
+    ford credit
+    <tag>out = "ford credit";</tag>
+   </item>
+   <item weight="0.00051004">
+    pottery barn
+    <tag>out = "pottery barn";</tag>
+   </item>
+   <item weight="0.00050728">
+    t v guide
+    <tag>out = "t v guide";</tag>
+   </item>
+   <item weight="0.00050728">
+    econolodge
+    <tag>out = "econolodge";</tag>
+   </item>
+   <item weight="0.00050728">
+    t d ameritrade
+    <tag>out = "t d ameritrade";</tag>
+   </item>
+   <item weight="0.00050453">
+    e trade
+    <tag>out = "e trade";</tag>
+   </item>
+   <item weight="0.00050453">
+    telecheck
+    <tag>out = "telecheck";</tag>
+   </item>
+   <item weight="0.00050177">
+    discover
+    <tag>out = "discover";</tag>
+   </item>
+   <item weight="0.00050177">
+    walt disney world
+    <tag>out = "walt disney world";</tag>
+   </item>
+   <item weight="0.00049901">
+    progressive auto insurance
+    <tag>out = "progressive auto insurance";</tag>
+   </item>
+   <item weight="0.00049901">
+    budget
+    <tag>out = "budget";</tag>
+   </item>
+   <item weight="0.0004935">
+    eddie bauer
+    <tag>out = "eddie bauer";</tag>
+   </item>
+   <item weight="0.0004935">
+    chase auto finance
+    <tag>out = "chase auto finance";</tag>
+   </item>
+   <item weight="0.00049074">
+    national rent a car
+    <tag>out = "national rent a car";</tag>
+   </item>
+   <item weight="0.00049074">
+    j p morgan chase bank
+    <tag>out = "j p morgan chase bank";</tag>
+   </item>
+   <item weight="0.00049074">
+    doubletree hotel
+    <tag>out = "doubletree hotel";</tag>
+   </item>
+   <item weight="0.00049074">
+    florida power and light
+    <tag>out = "florida power and light";</tag>
+   </item>
+   <item weight="0.00048799">
+    toyota
+    <tag>out = "toyota";</tag>
+   </item>
+   <item weight="0.00048799">
+    thrifty rent a car
+    <tag>out = "thrifty rent a car";</tag>
+   </item>
+   <item weight="0.00048523">
+    cricket wireless
+    <tag>out = "cricket wireless";</tag>
+   </item>
+   <item weight="0.00048523">
+    national geographic
+    <tag>out = "national geographic";</tag>
+   </item>
+   <item weight="0.00048523">
+    the gas company
+    <tag>out = "the gas company";</tag>
+   </item>
+   <item weight="0.00048523">
+    verizon residential
+    <tag>out = "verizon residential";</tag>
+   </item>
+   <item weight="0.00048247">
+    national rental car
+    <tag>out = "national rental car";</tag>
+   </item>
+   <item weight="0.00048247">
+    labcorp
+    <tag>out = "labcorp";</tag>
+   </item>
+   <item weight="0.00047971">
+    virgin atlantic airlines
+    <tag>out = "virgin atlantic airlines";</tag>
+   </item>
+   <item weight="0.00047971">
+    acer
+    <tag>out = "acer";</tag>
+   </item>
+   <item weight="0.00047971">
+    kohls department store
+    <tag>out = "kohls department store";</tag>
+   </item>
+   <item weight="0.00047971">
+    fairfield inn
+    <tag>out = "fairfield inn";</tag>
+   </item>
+   <item weight="0.00047971">
+    vista print
+    <tag>out = "vista print";</tag>
+   </item>
+   <item weight="0.00047971">
+    southwest airlines reservations
+    <tag>out = "southwest airlines reservations";</tag>
+   </item>
+   <item weight="0.00047696">
+    harry and david
+    <tag>out = "harry and david";</tag>
+   </item>
+   <item weight="0.0004742">
+    verizon d s l
+    <tag>out = "verizon d s l";</tag>
+   </item>
+   <item weight="0.0004742">
+    norton
+    <tag>out = "norton";</tag>
+   </item>
+   <item weight="0.00047144">
+    dollar tree
+    <tag>out = "dollar tree";</tag>
+   </item>
+   <item weight="0.00047144">
+    mutual of omaha
+    <tag>out = "mutual of omaha";</tag>
+   </item>
+   <item weight="0.00046593">
+    bed bath and beyond
+    <tag>out = "bed bath and beyond";</tag>
+   </item>
+   <item weight="0.00046317">
+    jitterbug
+    <tag>out = "jitterbug";</tag>
+   </item>
+   <item weight="0.00046317">
+    geico auto insurance
+    <tag>out = "geico auto insurance";</tag>
+   </item>
+   <item weight="0.00046317">
+    continental airlines reservations
+    <tag>out = "continental airlines reservations";</tag>
+   </item>
+   <item weight="0.00046042">
+    hartford insurance
+    <tag>out = "hartford insurance";</tag>
+   </item>
+   <item weight="0.00046042">
+    k l m airlines
+    <tag>out = "k l m airlines";</tag>
+   </item>
+   <item weight="0.00045766">
+    twenty four hour fitness
+    <tag>out = "twenty four hour fitness";</tag>
+   </item>
+   <item weight="0.00045766">
+    net zero
+    <tag>out = "net zero";</tag>
+   </item>
+   <item weight="0.00045214">
+    geek squad
+    <tag>out = "geek squad";</tag>
+   </item>
+   <item weight="0.00044939">
+    pacific gas and electric
+    <tag>out = "pacific gas and electric";</tag>
+   </item>
+   <item weight="0.00044939">
+    geico insurance company
+    <tag>out = "geico insurance company";</tag>
+   </item>
+   <item weight="0.00044663">
+    liberty medical
+    <tag>out = "liberty medical";</tag>
+   </item>
+   <item weight="0.00044663">
+    qantas airlines
+    <tag>out = "qantas airlines";</tag>
+   </item>
+   <item weight="0.00044663">
+    toyota financial services
+    <tag>out = "toyota financial services";</tag>
+   </item>
+   <item weight="0.00044663">
+    x box
+    <tag>out = "x box";</tag>
+   </item>
+   <item weight="0.00044663">
+    norton anti virus
+    <tag>out = "norton anti virus";</tag>
+   </item>
+   <item weight="0.00044387">
+    chicago tribune
+    <tag>out = "chicago tribune";</tag>
+   </item>
+   <item weight="0.00044387">
+    internal revenue
+    <tag>out = "internal revenue";</tag>
+   </item>
+   <item weight="0.00044387">
+    virgin atlantic
+    <tag>out = "virgin atlantic";</tag>
+   </item>
+   <item weight="0.00044387">
+    bottom line books
+    <tag>out = "bottom line books";</tag>
+   </item>
+   <item weight="0.00044112">
+    american express customer service
+    <tag>out = "american express customer service";</tag>
+   </item>
+   <item weight="0.00044112">
+    airtrans airlines
+    <tag>out = "airtrans airlines";</tag>
+   </item>
+   <item weight="0.00044112">
+    caremark
+    <tag>out = "caremark";</tag>
+   </item>
+   <item weight="0.00043836">
+    ritz carlton
+    <tag>out = "ritz carlton";</tag>
+   </item>
+   <item weight="0.00043836">
+    ameritrade
+    <tag>out = "ameritrade";</tag>
+   </item>
+   <item weight="0.00043836">
+    u s p s
+    <tag>out = "u s p s";</tag>
+   </item>
+   <item weight="0.00043836">
+    talbots
+    <tag>out = "talbots";</tag>
+   </item>
+   <item weight="0.0004356">
+    liberty mutual insurance
+    <tag>out = "liberty mutual insurance";</tag>
+   </item>
+   <item weight="0.0004356">
+    nordstrom
+    <tag>out = "nordstrom";</tag>
+   </item>
+   <item weight="0.0004356">
+    target stores
+    <tag>out = "target stores";</tag>
+   </item>
+   <item weight="0.00043009">
+    media com
+    <tag>out = "media com";</tag>
+   </item>
+   <item weight="0.00043009">
+    a o l dot com
+    <tag>out = "a o l dot com";</tag>
+   </item>
+   <item weight="0.00043009">
+    columbia house
+    <tag>out = "columbia house";</tag>
+   </item>
+   <item weight="0.00043009">
+    philips
+    <tag>out = "philips";</tag>
+   </item>
+   <item weight="0.00043009">
+    linens and things
+    <tag>out = "linens and things";</tag>
+   </item>
+   <item weight="0.00043009">
+    compaq
+    <tag>out = "compaq";</tag>
+   </item>
+   <item weight="0.00043009">
+    hilton garden inn
+    <tag>out = "hilton garden inn";</tag>
+   </item>
+   <item weight="0.00042733">
+    cox cable
+    <tag>out = "cox cable";</tag>
+   </item>
+   <item weight="0.00042733">
+    net gear
+    <tag>out = "net gear";</tag>
+   </item>
+   <item weight="0.00042733">
+    lexmark
+    <tag>out = "lexmark";</tag>
+   </item>
+   <item weight="0.00042733">
+    tricare
+    <tag>out = "tricare";</tag>
+   </item>
+   <item weight="0.00042457">
+    express scripts
+    <tag>out = "express scripts";</tag>
+   </item>
+   <item weight="0.00042457">
+    macys department store
+    <tag>out = "macys department store";</tag>
+   </item>
+   <item weight="0.00042457">
+    bender and bender
+    <tag>out = "bender and bender";</tag>
+   </item>
+   <item weight="0.00042457">
+    metro north
+    <tag>out = "metro north";</tag>
+   </item>
+   <item weight="0.00042457">
+    harrahs casino
+    <tag>out = "harrahs casino";</tag>
+   </item>
+   <item weight="0.00042182">
+    g e
+    <tag>out = "g e";</tag>
+   </item>
+   <item weight="0.00042182">
+    residence inn
+    <tag>out = "residence inn";</tag>
+   </item>
+   <item weight="0.00042182">
+    con edison
+    <tag>out = "con edison";</tag>
+   </item>
+   <item weight="0.00041906">
+    hyatt
+    <tag>out = "hyatt";</tag>
+   </item>
+   <item weight="0.0004163">
+    the bradford exchange
+    <tag>out = "the bradford exchange";</tag>
+   </item>
+   <item weight="0.0004163">
+    alamo
+    <tag>out = "alamo";</tag>
+   </item>
+   <item weight="0.0004163">
+    sports illustrated
+    <tag>out = "sports illustrated";</tag>
+   </item>
+   <item weight="0.00041355">
+    cuisinart
+    <tag>out = "cuisinart";</tag>
+   </item>
+   <item weight="0.00041079">
+    j c penneys
+    <tag>out = "j c penneys";</tag>
+   </item>
+   <item weight="0.00041079">
+    toyota financial
+    <tag>out = "toyota financial";</tag>
+   </item>
+   <item weight="0.00041079">
+    employment development department
+    <tag>out = "employment development department";</tag>
+   </item>
+   <item weight="0.00040803">
+    farmers insurance
+    <tag>out = "farmers insurance";</tag>
+   </item>
+   <item weight="0.00040803">
+    vontage telephone
+    <tag>out = "vontage telephone";</tag>
+   </item>
+   <item weight="0.00040803">
+    autozone
+    <tag>out = "autozone";</tag>
+   </item>
+   <item weight="0.00040528">
+    united postal service
+    <tag>out = "united postal service";</tag>
+   </item>
+   <item weight="0.00040528">
+    nordstroms
+    <tag>out = "nordstroms";</tag>
+   </item>
+   <item weight="0.00040528">
+    proactiv
+    <tag>out = "proactiv";</tag>
+   </item>
+   <item weight="0.00040528">
+    babies r us
+    <tag>out = "babies r us";</tag>
+   </item>
+   <item weight="0.00040252">
+    kitchen aid
+    <tag>out = "kitchen aid";</tag>
+   </item>
+   <item weight="0.00039976">
+    dollar car rental
+    <tag>out = "dollar car rental";</tag>
+   </item>
+   <item weight="0.00039976">
+    fandango
+    <tag>out = "fandango";</tag>
+   </item>
+   <item weight="0.00039976">
+    esurance
+    <tag>out = "esurance";</tag>
+   </item>
+   <item weight="0.00039976">
+    amtrak trains
+    <tag>out = "amtrak trains";</tag>
+   </item>
+   <item weight="0.000397">
+    expedia dot com
+    <tag>out = "expedia dot com";</tag>
+   </item>
+   <item weight="0.000397">
+    charter
+    <tag>out = "charter";</tag>
+   </item>
+   <item weight="0.000397">
+    super eight
+    <tag>out = "super eight";</tag>
+   </item>
+   <item weight="0.00039425">
+    century tel
+    <tag>out = "century tel";</tag>
+   </item>
+   <item weight="0.00039149">
+    metro
+    <tag>out = "metro";</tag>
+   </item>
+   <item weight="0.00039149">
+    harrahs
+    <tag>out = "harrahs";</tag>
+   </item>
+   <item weight="0.00039149">
+    procter and gamble
+    <tag>out = "procter and gamble";</tag>
+   </item>
+   <item weight="0.00039149">
+    frigidaire
+    <tag>out = "frigidaire";</tag>
+   </item>
+   <item weight="0.00038873">
+    united
+    <tag>out = "united";</tag>
+   </item>
+   <item weight="0.00038873">
+    honda
+    <tag>out = "honda";</tag>
+   </item>
+   <item weight="0.00038873">
+    amtrak reservations
+    <tag>out = "amtrak reservations";</tag>
+   </item>
+   <item weight="0.00038873">
+    gamestop
+    <tag>out = "gamestop";</tag>
+   </item>
+   <item weight="0.00038873">
+    laquinta
+    <tag>out = "laquinta";</tag>
+   </item>
+   <item weight="0.00038873">
+    virgin airlines
+    <tag>out = "virgin airlines";</tag>
+   </item>
+   <item weight="0.00038873">
+    duke energy
+    <tag>out = "duke energy";</tag>
+   </item>
+   <item weight="0.00038598">
+    saks fifth avenue
+    <tag>out = "saks fifth avenue";</tag>
+   </item>
+   <item weight="0.00038598">
+    office max
+    <tag>out = "office max";</tag>
+   </item>
+   <item weight="0.00038598">
+    overstock dot com
+    <tag>out = "overstock dot com";</tag>
+   </item>
+   <item weight="0.00038322">
+    radisson hotels
+    <tag>out = "radisson hotels";</tag>
+   </item>
+   <item weight="0.00038322">
+    thrifty rental car
+    <tag>out = "thrifty rental car";</tag>
+   </item>
+   <item weight="0.00038322">
+    emirates airlines
+    <tag>out = "emirates airlines";</tag>
+   </item>
+   <item weight="0.00038322">
+    southern california gas company
+    <tag>out = "southern california gas company";</tag>
+   </item>
+   <item weight="0.00038322">
+    empire carpet
+    <tag>out = "empire carpet";</tag>
+   </item>
+   <item weight="0.00038322">
+    doubletree hotels
+    <tag>out = "doubletree hotels";</tag>
+   </item>
+   <item weight="0.00038322">
+    citifinancial auto
+    <tag>out = "citifinancial auto";</tag>
+   </item>
+   <item weight="0.00038046">
+    visa credit card
+    <tag>out = "visa credit card";</tag>
+   </item>
+   <item weight="0.00038046">
+    better homes and gardens
+    <tag>out = "better homes and gardens";</tag>
+   </item>
+   <item weight="0.00038046">
+    cavalier telephone
+    <tag>out = "cavalier telephone";</tag>
+   </item>
+   <item weight="0.00038046">
+    princess cruise lines
+    <tag>out = "princess cruise lines";</tag>
+   </item>
+   <item weight="0.00037771">
+    country inn and suites
+    <tag>out = "country inn and suites";</tag>
+   </item>
+   <item weight="0.00037495">
+    blockbuster
+    <tag>out = "blockbuster";</tag>
+   </item>
+   <item weight="0.00037495">
+    el al airlines
+    <tag>out = "el al airlines";</tag>
+   </item>
+   <item weight="0.00037495">
+    brinks home security
+    <tag>out = "brinks home security";</tag>
+   </item>
+   <item weight="0.00037495">
+    chrysler
+    <tag>out = "chrysler";</tag>
+   </item>
+   <item weight="0.00037219">
+    crickets
+    <tag>out = "crickets";</tag>
+   </item>
+   <item weight="0.00037219">
+    i n g direct
+    <tag>out = "i n g direct";</tag>
+   </item>
+   <item weight="0.00036943">
+    taca airlines
+    <tag>out = "taca airlines";</tag>
+   </item>
+   <item weight="0.00036943">
+    on star
+    <tag>out = "on star";</tag>
+   </item>
+   <item weight="0.00036668">
+    spirit air
+    <tag>out = "spirit air";</tag>
+   </item>
+   <item weight="0.00036668">
+    seventh avenue
+    <tag>out = "seventh avenue";</tag>
+   </item>
+   <item weight="0.00036668">
+    merrill lynch
+    <tag>out = "merrill lynch";</tag>
+   </item>
+   <item weight="0.00036668">
+    tivo
+    <tag>out = "tivo";</tag>
+   </item>
+   <item weight="0.00036668">
+    singapore airlines
+    <tag>out = "singapore airlines";</tag>
+   </item>
+   <item weight="0.00036668">
+    dell support
+    <tag>out = "dell support";</tag>
+   </item>
+   <item weight="0.00036392">
+    hotwire
+    <tag>out = "hotwire";</tag>
+   </item>
+   <item weight="0.00036116">
+    chase credit card services
+    <tag>out = "chase credit card services";</tag>
+   </item>
+   <item weight="0.00036116">
+    r c i
+    <tag>out = "r c i";</tag>
+   </item>
+   <item weight="0.00036116">
+    american cancer society
+    <tag>out = "american cancer society";</tag>
+   </item>
+   <item weight="0.00036116">
+    wyndham hotels
+    <tag>out = "wyndham hotels";</tag>
+   </item>
+   <item weight="0.00035841">
+    westin hotel
+    <tag>out = "westin hotel";</tag>
+   </item>
+   <item weight="0.00035841">
+    brighthouse
+    <tag>out = "brighthouse";</tag>
+   </item>
+   <item weight="0.00035841">
+    wells fargo mortgage
+    <tag>out = "wells fargo mortgage";</tag>
+   </item>
+   <item weight="0.00035565">
+    honeywell
+    <tag>out = "honeywell";</tag>
+   </item>
+   <item weight="0.00035565">
+    nokia
+    <tag>out = "nokia";</tag>
+   </item>
+   <item weight="0.00035565">
+    kinkos
+    <tag>out = "kinkos";</tag>
+   </item>
+   <item weight="0.00035565">
+    a a a
+    <tag>out = "a a a";</tag>
+   </item>
+   <item weight="0.00035289">
+    healthnet
+    <tag>out = "healthnet";</tag>
+   </item>
+   <item weight="0.00035289">
+    m c i operator
+    <tag>out = "m c i operator";</tag>
+   </item>
+   <item weight="0.00035289">
+    intuit
+    <tag>out = "intuit";</tag>
+   </item>
+   <item weight="0.00035289">
+    reliant energy
+    <tag>out = "reliant energy";</tag>
+   </item>
+   <item weight="0.00035289">
+    the scooter store
+    <tag>out = "the scooter store";</tag>
+   </item>
+   <item weight="0.00035014">
+    alaskan airlines
+    <tag>out = "alaskan airlines";</tag>
+   </item>
+   <item weight="0.00035014">
+    wells fargo financial
+    <tag>out = "wells fargo financial";</tag>
+   </item>
+   <item weight="0.00035014">
+    u s airways reservations
+    <tag>out = "u s airways reservations";</tag>
+   </item>
+   <item weight="0.00034738">
+    h s n
+    <tag>out = "h s n";</tag>
+   </item>
+   <item weight="0.00034738">
+    omaha steaks
+    <tag>out = "omaha steaks";</tag>
+   </item>
+   <item weight="0.00034738">
+    best western hotel
+    <tag>out = "best western hotel";</tag>
+   </item>
+   <item weight="0.00034738">
+    dish t v
+    <tag>out = "dish t v";</tag>
+   </item>
+   <item weight="0.00034738">
+    movie phone
+    <tag>out = "movie phone";</tag>
+   </item>
+   <item weight="0.00034462">
+    scottrade
+    <tag>out = "scottrade";</tag>
+   </item>
+   <item weight="0.00034462">
+    comfort suites
+    <tag>out = "comfort suites";</tag>
+   </item>
+   <item weight="0.00034462">
+    coca cola
+    <tag>out = "coca cola";</tag>
+   </item>
+   <item weight="0.00034462">
+    aetna insurance
+    <tag>out = "aetna insurance";</tag>
+   </item>
+   <item weight="0.00034462">
+    bank of america credit card
+    <tag>out = "bank of america credit card";</tag>
+   </item>
+   <item weight="0.00034186">
+    loreal
+    <tag>out = "loreal";</tag>
+   </item>
+   <item weight="0.00033911">
+    hyatt regency
+    <tag>out = "hyatt regency";</tag>
+   </item>
+   <item weight="0.00033635">
+    kohler
+    <tag>out = "kohler";</tag>
+   </item>
+   <item weight="0.00033359">
+    applebees
+    <tag>out = "applebees";</tag>
+   </item>
+   <item weight="0.00033359">
+    vonage phone service
+    <tag>out = "vonage phone service";</tag>
+   </item>
+   <item weight="0.00033359">
+    ann taylor
+    <tag>out = "ann taylor";</tag>
+   </item>
+   <item weight="0.00033359">
+    old navy
+    <tag>out = "old navy";</tag>
+   </item>
+   <item weight="0.00033084">
+    b m w
+    <tag>out = "b m w";</tag>
+   </item>
+   <item weight="0.00033084">
+    sears repair
+    <tag>out = "sears repair";</tag>
+   </item>
+   <item weight="0.00033084">
+    optimum online
+    <tag>out = "optimum online";</tag>
+   </item>
+   <item weight="0.00033084">
+    courtyard by marriott
+    <tag>out = "courtyard by marriott";</tag>
+   </item>
+   <item weight="0.00032808">
+    sage telecom
+    <tag>out = "sage telecom";</tag>
+   </item>
+   <item weight="0.00032808">
+    veterans affairs
+    <tag>out = "veterans affairs";</tag>
+   </item>
+   <item weight="0.00032808">
+    clearwater
+    <tag>out = "clearwater";</tag>
+   </item>
+   <item weight="0.00032532">
+    drive financial
+    <tag>out = "drive financial";</tag>
+   </item>
+   <item weight="0.00032532">
+    newsweek magazine
+    <tag>out = "newsweek magazine";</tag>
+   </item>
+   <item weight="0.00032256">
+    dunkin donuts
+    <tag>out = "dunkin donuts";</tag>
+   </item>
+   <item weight="0.00032256">
+    red box
+    <tag>out = "red box";</tag>
+   </item>
+   <item weight="0.00032256">
+    hewlett packard technical support
+    <tag>out = "hewlett packard technical support";</tag>
+   </item>
+   <item weight="0.00032256">
+    celebrity cruises
+    <tag>out = "celebrity cruises";</tag>
+   </item>
+   <item weight="0.00032256">
+    juno
+    <tag>out = "juno";</tag>
+   </item>
+   <item weight="0.00031981">
+    chicago sun times
+    <tag>out = "chicago sun times";</tag>
+   </item>
+   <item weight="0.00031981">
+    fisher price
+    <tag>out = "fisher price";</tag>
+   </item>
+   <item weight="0.00031705">
+    pet smart
+    <tag>out = "pet smart";</tag>
+   </item>
+   <item weight="0.00031705">
+    t rowe price
+    <tag>out = "t rowe price";</tag>
+   </item>
+   <item weight="0.00031705">
+    university of phoenix
+    <tag>out = "university of phoenix";</tag>
+   </item>
+   <item weight="0.00031429">
+    consumers energy
+    <tag>out = "consumers energy";</tag>
+   </item>
+   <item weight="0.00031429">
+    burger king
+    <tag>out = "burger king";</tag>
+   </item>
+   <item weight="0.00031154">
+    northwest airlines reservations
+    <tag>out = "northwest airlines reservations";</tag>
+   </item>
+   <item weight="0.00031154">
+    m and t bank
+    <tag>out = "m and t bank";</tag>
+   </item>
+   <item weight="0.00030878">
+    verizon internet
+    <tag>out = "verizon internet";</tag>
+   </item>
+   <item weight="0.00030878">
+    enterprise rental
+    <tag>out = "enterprise rental";</tag>
+   </item>
+   <item weight="0.00030602">
+    american red cross
+    <tag>out = "american red cross";</tag>
+   </item>
+   <item weight="0.00030602">
+    crate and barrel
+    <tag>out = "crate and barrel";</tag>
+   </item>
+   <item weight="0.00030602">
+    i n g
+    <tag>out = "i n g";</tag>
+   </item>
+   <item weight="0.00030602">
+    aer lingus
+    <tag>out = "aer lingus";</tag>
+   </item>
+   <item weight="0.00030602">
+    radisson hotel
+    <tag>out = "radisson hotel";</tag>
+   </item>
+   <item weight="0.00030602">
+    restoration hardware
+    <tag>out = "restoration hardware";</tag>
+   </item>
+   <item weight="0.00030602">
+    sony electronics
+    <tag>out = "sony electronics";</tag>
+   </item>
+   <item weight="0.00030327">
+    ford motor company
+    <tag>out = "ford motor company";</tag>
+   </item>
+   <item weight="0.00030327">
+    budget operator
+    <tag>out = "budget operator";</tag>
+   </item>
+   <item weight="0.00030327">
+    newport news
+    <tag>out = "newport news";</tag>
+   </item>
+   <item weight="0.00030327">
+    gerber life insurance
+    <tag>out = "gerber life insurance";</tag>
+   </item>
+   <item weight="0.00030051">
+    chase card member services
+    <tag>out = "chase card member services";</tag>
+   </item>
+   <item weight="0.00030051">
+    laquinta hotels
+    <tag>out = "laquinta hotels";</tag>
+   </item>
+   <item weight="0.00030051">
+    j c penney catalog
+    <tag>out = "j c penney catalog";</tag>
+   </item>
+   <item weight="0.00030051">
+    mervyns
+    <tag>out = "mervyns";</tag>
+   </item>
+   <item weight="0.00030051">
+    mercury insurance
+    <tag>out = "mercury insurance";</tag>
+   </item>
+   <item weight="0.00029775">
+    tire rack
+    <tag>out = "tire rack";</tag>
+   </item>
+   <item weight="0.00029775">
+    roamans
+    <tag>out = "roamans";</tag>
+   </item>
+   <item weight="0.00029775">
+    air india
+    <tag>out = "air india";</tag>
+   </item>
+   <item weight="0.00029775">
+    a t and t cell phone
+    <tag>out = "a t and t cell phone";</tag>
+   </item>
+   <item weight="0.00029775">
+    golden corral
+    <tag>out = "golden corral";</tag>
+   </item>
+   <item weight="0.00029775">
+    washington post
+    <tag>out = "washington post";</tag>
+   </item>
+   <item weight="0.00029499">
+    capital one customer service
+    <tag>out = "capital one customer service";</tag>
+   </item>
+   <item weight="0.00029499">
+    fox news
+    <tag>out = "fox news";</tag>
+   </item>
+   <item weight="0.00029499">
+    fema
+    <tag>out = "fema";</tag>
+   </item>
+   <item weight="0.00029499">
+    mercedes benz
+    <tag>out = "mercedes benz";</tag>
+   </item>
+   <item weight="0.00029499">
+    u s department of education
+    <tag>out = "u s department of education";</tag>
+   </item>
+   <item weight="0.00029499">
+    verizon telephone
+    <tag>out = "verizon telephone";</tag>
+   </item>
+   <item weight="0.00029224">
+    a t and t mobility
+    <tag>out = "a t and t mobility";</tag>
+   </item>
+   <item weight="0.00029224">
+    horizon airlines
+    <tag>out = "horizon airlines";</tag>
+   </item>
+   <item weight="0.00029224">
+    holiday inn reservations
+    <tag>out = "holiday inn reservations";</tag>
+   </item>
+   <item weight="0.00029224">
+    s b c
+    <tag>out = "s b c";</tag>
+   </item>
+   <item weight="0.00029224">
+    cathay pacific
+    <tag>out = "cathay pacific";</tag>
+   </item>
+   <item weight="0.00029224">
+    metlife insurance
+    <tag>out = "metlife insurance";</tag>
+   </item>
+   <item weight="0.00029224">
+    magnavox
+    <tag>out = "magnavox";</tag>
+   </item>
+   <item weight="0.00029224">
+    r c n
+    <tag>out = "r c n";</tag>
+   </item>
+   <item weight="0.00028948">
+    philips electronics
+    <tag>out = "philips electronics";</tag>
+   </item>
+   <item weight="0.00028948">
+    child support
+    <tag>out = "child support";</tag>
+   </item>
+   <item weight="0.00028948">
+    guideposts
+    <tag>out = "guideposts";</tag>
+   </item>
+   <item weight="0.00028948">
+    chase visa
+    <tag>out = "chase visa";</tag>
+   </item>
+   <item weight="0.00028948">
+    a t and t wireless customer service
+    <tag>out = "a t and t wireless customer service";</tag>
+   </item>
+   <item weight="0.00028948">
+    chase mortgage
+    <tag>out = "chase mortgage";</tag>
+   </item>
+   <item weight="0.00028948">
+    household bank
+    <tag>out = "household bank";</tag>
+   </item>
+   <item weight="0.00028672">
+    kraft foods
+    <tag>out = "kraft foods";</tag>
+   </item>
+   <item weight="0.00028672">
+    chamber of commerce
+    <tag>out = "chamber of commerce";</tag>
+   </item>
+   <item weight="0.00028672">
+    c n n
+    <tag>out = "c n n";</tag>
+   </item>
+   <item weight="0.00028672">
+    princess cruises
+    <tag>out = "princess cruises";</tag>
+   </item>
+   <item weight="0.00028672">
+    hampton inns
+    <tag>out = "hampton inns";</tag>
+   </item>
+   <item weight="0.00028672">
+    commonwealth edison
+    <tag>out = "commonwealth edison";</tag>
+   </item>
+   <item weight="0.00028672">
+    evercom
+    <tag>out = "evercom";</tag>
+   </item>
+   <item weight="0.00028397">
+    southwest air
+    <tag>out = "southwest air";</tag>
+   </item>
+   <item weight="0.00028397">
+    american girl
+    <tag>out = "american girl";</tag>
+   </item>
+   <item weight="0.00028397">
+    california unemployment
+    <tag>out = "california unemployment";</tag>
+   </item>
+   <item weight="0.00028397">
+    mohegan sun
+    <tag>out = "mohegan sun";</tag>
+   </item>
+   <item weight="0.00028397">
+    american
+    <tag>out = "american";</tag>
+   </item>
+   <item weight="0.00028397">
+    t j max
+    <tag>out = "t j max";</tag>
+   </item>
+   <item weight="0.00028397">
+    american express credit card
+    <tag>out = "american express credit card";</tag>
+   </item>
+   <item weight="0.00028121">
+    foremost insurance
+    <tag>out = "foremost insurance";</tag>
+   </item>
+   <item weight="0.00028121">
+    budget truck rental
+    <tag>out = "budget truck rental";</tag>
+   </item>
+   <item weight="0.00028121">
+    pods
+    <tag>out = "pods";</tag>
+   </item>
+   <item weight="0.00028121">
+    rite aid
+    <tag>out = "rite aid";</tag>
+   </item>
+   <item weight="0.00028121">
+    alitalia airlines
+    <tag>out = "alitalia airlines";</tag>
+   </item>
+   <item weight="0.00027845">
+    costco wholesale
+    <tag>out = "costco wholesale";</tag>
+   </item>
+   <item weight="0.00027845">
+    national city
+    <tag>out = "national city";</tag>
+   </item>
+   <item weight="0.00027845">
+    hampton inn hotels
+    <tag>out = "hampton inn hotels";</tag>
+   </item>
+   <item weight="0.00027845">
+    jenny craig
+    <tag>out = "jenny craig";</tag>
+   </item>
+   <item weight="0.00027845">
+    great wolf lodge
+    <tag>out = "great wolf lodge";</tag>
+   </item>
+   <item weight="0.00027845">
+    newsweek
+    <tag>out = "newsweek";</tag>
+   </item>
+   <item weight="0.00027845">
+    indymac bank
+    <tag>out = "indymac bank";</tag>
+   </item>
+   <item weight="0.00027845">
+    courtyard marriott
+    <tag>out = "courtyard marriott";</tag>
+   </item>
+   <item weight="0.0002757">
+    humana health insurance
+    <tag>out = "humana health insurance";</tag>
+   </item>
+   <item weight="0.0002757">
+    a t and t operator
+    <tag>out = "a t and t operator";</tag>
+   </item>
+   <item weight="0.0002757">
+    union workers credit services
+    <tag>out = "union workers credit services";</tag>
+   </item>
+   <item weight="0.0002757">
+    anthem blue cross
+    <tag>out = "anthem blue cross";</tag>
+   </item>
+   <item weight="0.0002757">
+    alcoholics anonymous
+    <tag>out = "alcoholics anonymous";</tag>
+   </item>
+   <item weight="0.0002757">
+    south west airlines
+    <tag>out = "south west airlines";</tag>
+   </item>
+   <item weight="0.00027294">
+    job corps
+    <tag>out = "job corps";</tag>
+   </item>
+   <item weight="0.00027294">
+    bank of the west
+    <tag>out = "bank of the west";</tag>
+   </item>
+   <item weight="0.00027294">
+    homewood suites
+    <tag>out = "homewood suites";</tag>
+   </item>
+   <item weight="0.00027294">
+    a m c theatres
+    <tag>out = "a m c theatres";</tag>
+   </item>
+   <item weight="0.00027294">
+    iberia airlines
+    <tag>out = "iberia airlines";</tag>
+   </item>
+   <item weight="0.00027294">
+    nintendo
+    <tag>out = "nintendo";</tag>
+   </item>
+   <item weight="0.00027294">
+    sony corporation
+    <tag>out = "sony corporation";</tag>
+   </item>
+   <item weight="0.00027018">
+    chase credit cards
+    <tag>out = "chase credit cards";</tag>
+   </item>
+   <item weight="0.00027018">
+    brighthouse networks
+    <tag>out = "brighthouse networks";</tag>
+   </item>
+   <item weight="0.00027018">
+    air new zealand
+    <tag>out = "air new zealand";</tag>
+   </item>
+   <item weight="0.00027018">
+    cathay pacific airlines
+    <tag>out = "cathay pacific airlines";</tag>
+   </item>
+   <item weight="0.00027018">
+    credit acceptance
+    <tag>out = "credit acceptance";</tag>
+   </item>
+   <item weight="0.00027018">
+    epson
+    <tag>out = "epson";</tag>
+   </item>
+   <item weight="0.00027018">
+    excel energy
+    <tag>out = "excel energy";</tag>
+   </item>
+   <item weight="0.00027018">
+    k l m
+    <tag>out = "k l m";</tag>
+   </item>
+   <item weight="0.00027018">
+    burlington coat factory
+    <tag>out = "burlington coat factory";</tag>
+   </item>
+   <item weight="0.00027018">
+    national city mortgage
+    <tag>out = "national city mortgage";</tag>
+   </item>
+   <item weight="0.00027018">
+    chase home finance
+    <tag>out = "chase home finance";</tag>
+   </item>
+   <item weight="0.00027018">
+    domestications
+    <tag>out = "domestications";</tag>
+   </item>
+   <item weight="0.00027018">
+    police department
+    <tag>out = "police department";</tag>
+   </item>
+   <item weight="0.00026742">
+    countrywide bank
+    <tag>out = "countrywide bank";</tag>
+   </item>
+   <item weight="0.00026742">
+    philippine airlines
+    <tag>out = "philippine airlines";</tag>
+   </item>
+   <item weight="0.00026742">
+    pep boys
+    <tag>out = "pep boys";</tag>
+   </item>
+   <item weight="0.00026742">
+    better homes and gardens magazine
+    <tag>out = "better homes and gardens magazine";</tag>
+   </item>
+   <item weight="0.00026742">
+    a o l america online
+    <tag>out = "a o l america online";</tag>
+   </item>
+   <item weight="0.00026742">
+    key bank
+    <tag>out = "key bank";</tag>
+   </item>
+   <item weight="0.00026467">
+    holland america
+    <tag>out = "holland america";</tag>
+   </item>
+   <item weight="0.00026467">
+    nicor gas
+    <tag>out = "nicor gas";</tag>
+   </item>
+   <item weight="0.00026467">
+    proflowers
+    <tag>out = "proflowers";</tag>
+   </item>
+   <item weight="0.00026467">
+    olive garden
+    <tag>out = "olive garden";</tag>
+   </item>
+   <item weight="0.00026467">
+    kentucky fried chicken
+    <tag>out = "kentucky fried chicken";</tag>
+   </item>
+   <item weight="0.00026467">
+    tiaa cref
+    <tag>out = "tiaa cref";</tag>
+   </item>
+   <item weight="0.00026467">
+    allstate insurance company
+    <tag>out = "allstate insurance company";</tag>
+   </item>
+   <item weight="0.00026467">
+    a t and t telephone
+    <tag>out = "a t and t telephone";</tag>
+   </item>
+   <item weight="0.00026467">
+    caesars palace
+    <tag>out = "caesars palace";</tag>
+   </item>
+   <item weight="0.00026467">
+    wachovia dealer service
+    <tag>out = "wachovia dealer service";</tag>
+   </item>
+   <item weight="0.00026467">
+    comcast internet
+    <tag>out = "comcast internet";</tag>
+   </item>
+   <item weight="0.00026191">
+    b b and t bank
+    <tag>out = "b b and t bank";</tag>
+   </item>
+   <item weight="0.00026191">
+    budget rental
+    <tag>out = "budget rental";</tag>
+   </item>
+   <item weight="0.00026191">
+    sirius
+    <tag>out = "sirius";</tag>
+   </item>
+   <item weight="0.00026191">
+    jet airways
+    <tag>out = "jet airways";</tag>
+   </item>
+   <item weight="0.00026191">
+    microsoft technical support
+    <tag>out = "microsoft technical support";</tag>
+   </item>
+   <item weight="0.00026191">
+    bank one
+    <tag>out = "bank one";</tag>
+   </item>
+   <item weight="0.00026191">
+    red cross
+    <tag>out = "red cross";</tag>
+   </item>
+   <item weight="0.00026191">
+    frontier communications
+    <tag>out = "frontier communications";</tag>
+   </item>
+   <item weight="0.00025915">
+    starwood hotels
+    <tag>out = "starwood hotels";</tag>
+   </item>
+   <item weight="0.00025915">
+    care credit
+    <tag>out = "care credit";</tag>
+   </item>
+   <item weight="0.00025915">
+    east bay
+    <tag>out = "east bay";</tag>
+   </item>
+   <item weight="0.00025915">
+    extended stay america
+    <tag>out = "extended stay america";</tag>
+   </item>
+   <item weight="0.00025915">
+    comcast technical support
+    <tag>out = "comcast technical support";</tag>
+   </item>
+   <item weight="0.00025915">
+    rent a center
+    <tag>out = "rent a center";</tag>
+   </item>
+   <item weight="0.00025915">
+    tupperware
+    <tag>out = "tupperware";</tag>
+   </item>
+   <item weight="0.0002564">
+    progress energy
+    <tag>out = "progress energy";</tag>
+   </item>
+   <item weight="0.0002564">
+    american electric power
+    <tag>out = "american electric power";</tag>
+   </item>
+   <item weight="0.0002564">
+    terminex
+    <tag>out = "terminex";</tag>
+   </item>
+   <item weight="0.0002564">
+    airtrans airways
+    <tag>out = "airtrans airways";</tag>
+   </item>
+   <item weight="0.0002564">
+    sunbeam
+    <tag>out = "sunbeam";</tag>
+   </item>
+   <item weight="0.0002564">
+    sudden link
+    <tag>out = "sudden link";</tag>
+   </item>
+   <item weight="0.0002564">
+    citi card
+    <tag>out = "citi card";</tag>
+   </item>
+   <item weight="0.0002564">
+    american family insurance
+    <tag>out = "american family insurance";</tag>
+   </item>
+   <item weight="0.0002564">
+    coach
+    <tag>out = "coach";</tag>
+   </item>
+   <item weight="0.0002564">
+    royal caribbean cruises
+    <tag>out = "royal caribbean cruises";</tag>
+   </item>
+   <item weight="0.00025364">
+    ebony magazine
+    <tag>out = "ebony magazine";</tag>
+   </item>
+   <item weight="0.00025364">
+    edison
+    <tag>out = "edison";</tag>
+   </item>
+   <item weight="0.00025364">
+    a t and t residential service
+    <tag>out = "a t and t residential service";</tag>
+   </item>
+   <item weight="0.00025364">
+    american home mortgage
+    <tag>out = "american home mortgage";</tag>
+   </item>
+   <item weight="0.00025364">
+    hilton reservations
+    <tag>out = "hilton reservations";</tag>
+   </item>
+   <item weight="0.00025364">
+    hay band
+    <tag>out = "hay band";</tag>
+   </item>
+   <item weight="0.00025364">
+    ritz carlton hotels
+    <tag>out = "ritz carlton hotels";</tag>
+   </item>
+   <item weight="0.00025364">
+    paris hotel
+    <tag>out = "paris hotel";</tag>
+   </item>
+   <item weight="0.00025364">
+    hilton honors
+    <tag>out = "hilton honors";</tag>
+   </item>
+   <item weight="0.00025364">
+    sun country airlines
+    <tag>out = "sun country airlines";</tag>
+   </item>
+   <item weight="0.00025088">
+    banana republic
+    <tag>out = "banana republic";</tag>
+   </item>
+   <item weight="0.00025088">
+    safe auto
+    <tag>out = "safe auto";</tag>
+   </item>
+   <item weight="0.00025088">
+    aldi
+    <tag>out = "aldi";</tag>
+   </item>
+   <item weight="0.00025088">
+    dish satellite
+    <tag>out = "dish satellite";</tag>
+   </item>
+   <item weight="0.00024813">
+    wow cable
+    <tag>out = "wow cable";</tag>
+   </item>
+   <item weight="0.00024813">
+    washington mutual credit
+    <tag>out = "washington mutual credit";</tag>
+   </item>
+   <item weight="0.00024813">
+    acer computers
+    <tag>out = "acer computers";</tag>
+   </item>
+   <item weight="0.00024813">
+    reiman publications
+    <tag>out = "reiman publications";</tag>
+   </item>
+   <item weight="0.00024813">
+    sears roebuck
+    <tag>out = "sears roebuck";</tag>
+   </item>
+   <item weight="0.00024813">
+    yahoo dot com
+    <tag>out = "yahoo dot com";</tag>
+   </item>
+   <item weight="0.00024813">
+    brother
+    <tag>out = "brother";</tag>
+   </item>
+   <item weight="0.00024813">
+    volkswagen credit
+    <tag>out = "volkswagen credit";</tag>
+   </item>
+   <item weight="0.00024813">
+    midnight velvet
+    <tag>out = "midnight velvet";</tag>
+   </item>
+   <item weight="0.00024813">
+    chadwicks
+    <tag>out = "chadwicks";</tag>
+   </item>
+   <item weight="0.00024813">
+    rival
+    <tag>out = "rival";</tag>
+   </item>
+   <item weight="0.00024813">
+    travelodge
+    <tag>out = "travelodge";</tag>
+   </item>
+   <item weight="0.00024537">
+    direct buy
+    <tag>out = "direct buy";</tag>
+   </item>
+   <item weight="0.00024537">
+    vanguard investments
+    <tag>out = "vanguard investments";</tag>
+   </item>
+   <item weight="0.00024537">
+    microsoft corporation
+    <tag>out = "microsoft corporation";</tag>
+   </item>
+   <item weight="0.00024537">
+    cigna
+    <tag>out = "cigna";</tag>
+   </item>
+   <item weight="0.00024537">
+    proactive solutions
+    <tag>out = "proactive solutions";</tag>
+   </item>
+   <item weight="0.00024537">
+    coldwater creek
+    <tag>out = "coldwater creek";</tag>
+   </item>
+   <item weight="0.00024537">
+    d h l express
+    <tag>out = "d h l express";</tag>
+   </item>
+   <item weight="0.00024537">
+    interval international
+    <tag>out = "interval international";</tag>
+   </item>
+   <item weight="0.00024537">
+    united way
+    <tag>out = "united way";</tag>
+   </item>
+   <item weight="0.00024537">
+    comerica bank
+    <tag>out = "comerica bank";</tag>
+   </item>
+   <item weight="0.00024261">
+    prevention magazine
+    <tag>out = "prevention magazine";</tag>
+   </item>
+   <item weight="0.00024261">
+    mayo clinic
+    <tag>out = "mayo clinic";</tag>
+   </item>
+   <item weight="0.00024261">
+    hawthorne village
+    <tag>out = "hawthorne village";</tag>
+   </item>
+   <item weight="0.00024261">
+    verizon online
+    <tag>out = "verizon online";</tag>
+   </item>
+   <item weight="0.00024261">
+    marriott courtyard
+    <tag>out = "marriott courtyard";</tag>
+   </item>
+   <item weight="0.00024261">
+    amica insurance
+    <tag>out = "amica insurance";</tag>
+   </item>
+   <item weight="0.00024261">
+    wells fargo auto finance
+    <tag>out = "wells fargo auto finance";</tag>
+   </item>
+   <item weight="0.00024261">
+    immigration
+    <tag>out = "immigration";</tag>
+   </item>
+   <item weight="0.00024261">
+    a t and t phone service
+    <tag>out = "a t and t phone service";</tag>
+   </item>
+   <item weight="0.00024261">
+    citigroup
+    <tag>out = "citigroup";</tag>
+   </item>
+   <item weight="0.00024261">
+    roadrunner
+    <tag>out = "roadrunner";</tag>
+   </item>
+   <item weight="0.00023985">
+    twenty first century insurance
+    <tag>out = "twenty first century insurance";</tag>
+   </item>
+   <item weight="0.00023985">
+    american airlines advantage
+    <tag>out = "american airlines advantage";</tag>
+   </item>
+   <item weight="0.00023985">
+    department of water and power
+    <tag>out = "department of water and power";</tag>
+   </item>
+   <item weight="0.00023985">
+    comp u s a
+    <tag>out = "comp u s a";</tag>
+   </item>
+   <item weight="0.00023985">
+    social services
+    <tag>out = "social services";</tag>
+   </item>
+   <item weight="0.0002371">
+    orbitz dot com
+    <tag>out = "orbitz dot com";</tag>
+   </item>
+   <item weight="0.0002371">
+    wild blue
+    <tag>out = "wild blue";</tag>
+   </item>
+   <item weight="0.0002371">
+    crowne plaza hotel
+    <tag>out = "crowne plaza hotel";</tag>
+   </item>
+   <item weight="0.0002371">
+    a t and t internet service
+    <tag>out = "a t and t internet service";</tag>
+   </item>
+   <item weight="0.0002371">
+    fairpoint
+    <tag>out = "fairpoint";</tag>
+   </item>
+   <item weight="0.0002371">
+    taste of home
+    <tag>out = "taste of home";</tag>
+   </item>
+   <item weight="0.0002371">
+    washington mutual customer service
+    <tag>out = "washington mutual customer service";</tag>
+   </item>
+   <item weight="0.0002371">
+    national rifle association
+    <tag>out = "national rifle association";</tag>
+   </item>
+   <item weight="0.0002371">
+    atmos energy
+    <tag>out = "atmos energy";</tag>
+   </item>
+   <item weight="0.0002371">
+    union bank of california
+    <tag>out = "union bank of california";</tag>
+   </item>
+   <item weight="0.0002371">
+    lillian vernon
+    <tag>out = "lillian vernon";</tag>
+   </item>
+   <item weight="0.0002371">
+    wellcare
+    <tag>out = "wellcare";</tag>
+   </item>
+   <item weight="0.00023434">
+    mcdonalds
+    <tag>out = "mcdonalds";</tag>
+   </item>
+   <item weight="0.00023434">
+    century twenty one
+    <tag>out = "century twenty one";</tag>
+   </item>
+   <item weight="0.00023434">
+    venetian hotel
+    <tag>out = "venetian hotel";</tag>
+   </item>
+   <item weight="0.00023434">
+    ladies home journal
+    <tag>out = "ladies home journal";</tag>
+   </item>
+   <item weight="0.00023434">
+    air tran
+    <tag>out = "air tran";</tag>
+   </item>
+   <item weight="0.00023434">
+    sharp
+    <tag>out = "sharp";</tag>
+   </item>
+   <item weight="0.00023434">
+    time life
+    <tag>out = "time life";</tag>
+   </item>
+   <item weight="0.00023434">
+    life alert
+    <tag>out = "life alert";</tag>
+   </item>
+   <item weight="0.00023434">
+    department of education
+    <tag>out = "department of education";</tag>
+   </item>
+   <item weight="0.00023434">
+    penske truck rental
+    <tag>out = "penske truck rental";</tag>
+   </item>
+   <item weight="0.00023434">
+    embassy suites hotel
+    <tag>out = "embassy suites hotel";</tag>
+   </item>
+   <item weight="0.00023158">
+    lifeline
+    <tag>out = "lifeline";</tag>
+   </item>
+   <item weight="0.00023158">
+    exxon mobile
+    <tag>out = "exxon mobile";</tag>
+   </item>
+   <item weight="0.00023158">
+    x box live
+    <tag>out = "x box live";</tag>
+   </item>
+   <item weight="0.00023158">
+    radisson
+    <tag>out = "radisson";</tag>
+   </item>
+   <item weight="0.00023158">
+    nelnet
+    <tag>out = "nelnet";</tag>
+   </item>
+   <item weight="0.00023158">
+    farberware
+    <tag>out = "farberware";</tag>
+   </item>
+   <item weight="0.00023158">
+    shop n b c
+    <tag>out = "shop n b c";</tag>
+   </item>
+   <item weight="0.00023158">
+    wamu
+    <tag>out = "wamu";</tag>
+   </item>
+   <item weight="0.00023158">
+    honey baked ham
+    <tag>out = "honey baked ham";</tag>
+   </item>
+   <item weight="0.00022883">
+    u s a three thousand
+    <tag>out = "u s a three thousand";</tag>
+   </item>
+   <item weight="0.00022883">
+    nissan
+    <tag>out = "nissan";</tag>
+   </item>
+   <item weight="0.00022883">
+    quest laboratories
+    <tag>out = "quest laboratories";</tag>
+   </item>
+   <item weight="0.00022883">
+    sears department store
+    <tag>out = "sears department store";</tag>
+   </item>
+   <item weight="0.00022883">
+    saxon mortgage
+    <tag>out = "saxon mortgage";</tag>
+   </item>
+   <item weight="0.00022883">
+    borders books
+    <tag>out = "borders books";</tag>
+   </item>
+   <item weight="0.00022883">
+    hewlett packard customer service
+    <tag>out = "hewlett packard customer service";</tag>
+   </item>
+   <item weight="0.00022883">
+    carmax
+    <tag>out = "carmax";</tag>
+   </item>
+   <item weight="0.00022607">
+    wells fargo customer service
+    <tag>out = "wells fargo customer service";</tag>
+   </item>
+   <item weight="0.00022607">
+    carnival cruise
+    <tag>out = "carnival cruise";</tag>
+   </item>
+   <item weight="0.00022607">
+    ballys total fitness
+    <tag>out = "ballys total fitness";</tag>
+   </item>
+   <item weight="0.00022607">
+    williams sonoma
+    <tag>out = "williams sonoma";</tag>
+   </item>
+   <item weight="0.00022607">
+    japan airlines
+    <tag>out = "japan airlines";</tag>
+   </item>
+   <item weight="0.00022607">
+    lakeside collections
+    <tag>out = "lakeside collections";</tag>
+   </item>
+   <item weight="0.00022607">
+    direct t v general information
+    <tag>out = "direct t v general information";</tag>
+   </item>
+   <item weight="0.00022331">
+    f c c
+    <tag>out = "f c c";</tag>
+   </item>
+   <item weight="0.00022331">
+    sheer cover
+    <tag>out = "sheer cover";</tag>
+   </item>
+   <item weight="0.00022331">
+    i b m
+    <tag>out = "i b m";</tag>
+   </item>
+   <item weight="0.00022331">
+    hyatt hotel
+    <tag>out = "hyatt hotel";</tag>
+   </item>
+   <item weight="0.00022331">
+    logitech
+    <tag>out = "logitech";</tag>
+   </item>
+   <item weight="0.00022331">
+    playboy magazine
+    <tag>out = "playboy magazine";</tag>
+   </item>
+   <item weight="0.00022331">
+    discover credit card
+    <tag>out = "discover credit card";</tag>
+   </item>
+   <item weight="0.00022331">
+    pentagon federal credit union
+    <tag>out = "pentagon federal credit union";</tag>
+   </item>
+   <item weight="0.00022331">
+    compass bank
+    <tag>out = "compass bank";</tag>
+   </item>
+   <item weight="0.00022331">
+    wendys
+    <tag>out = "wendys";</tag>
+   </item>
+   <item weight="0.00022056">
+    marriott rewards
+    <tag>out = "marriott rewards";</tag>
+   </item>
+   <item weight="0.00022056">
+    four seasons hotel
+    <tag>out = "four seasons hotel";</tag>
+   </item>
+   <item weight="0.00022056">
+    bose corporation
+    <tag>out = "bose corporation";</tag>
+   </item>
+   <item weight="0.00022056">
+    stream energy
+    <tag>out = "stream energy";</tag>
+   </item>
+   <item weight="0.00022056">
+    korean airlines
+    <tag>out = "korean airlines";</tag>
+   </item>
+   <item weight="0.00022056">
+    jersey central power and light
+    <tag>out = "jersey central power and light";</tag>
+   </item>
+   <item weight="0.00022056">
+    u p s customer service
+    <tag>out = "u p s customer service";</tag>
+   </item>
+   <item weight="0.00022056">
+    shell
+    <tag>out = "shell";</tag>
+   </item>
+   <item weight="0.00022056">
+    lowes home improvement
+    <tag>out = "lowes home improvement";</tag>
+   </item>
+   <item weight="0.00022056">
+    arp
+    <tag>out = "arp";</tag>
+   </item>
+   <item weight="0.00022056">
+    f t d florist
+    <tag>out = "f t d florist";</tag>
+   </item>
+   <item weight="0.00022056">
+    american automobile association
+    <tag>out = "american automobile association";</tag>
+   </item>
+   <item weight="0.0002178">
+    legal aid
+    <tag>out = "legal aid";</tag>
+   </item>
+   <item weight="0.0002178">
+    columbia gas
+    <tag>out = "columbia gas";</tag>
+   </item>
+   <item weight="0.0002178">
+    yellow cab
+    <tag>out = "yellow cab";</tag>
+   </item>
+   <item weight="0.0002178">
+    dillards
+    <tag>out = "dillards";</tag>
+   </item>
+   <item weight="0.0002178">
+    lord and taylor
+    <tag>out = "lord and taylor";</tag>
+   </item>
+   <item weight="0.0002178">
+    fannie mae
+    <tag>out = "fannie mae";</tag>
+   </item>
+   <item weight="0.0002178">
+    microsoft windows
+    <tag>out = "microsoft windows";</tag>
+   </item>
+   <item weight="0.0002178">
+    m g m grand
+    <tag>out = "m g m grand";</tag>
+   </item>
+   <item weight="0.0002178">
+    hertz rental
+    <tag>out = "hertz rental";</tag>
+   </item>
+   <item weight="0.0002178">
+    rubbermaid
+    <tag>out = "rubbermaid";</tag>
+   </item>
+   <item weight="0.0002178">
+    new york times home delivery
+    <tag>out = "new york times home delivery";</tag>
+   </item>
+   <item weight="0.00021504">
+    swift trucking
+    <tag>out = "swift trucking";</tag>
+   </item>
+   <item weight="0.00021504">
+    orchard bank
+    <tag>out = "orchard bank";</tag>
+   </item>
+   <item weight="0.00021504">
+    crutchfield
+    <tag>out = "crutchfield";</tag>
+   </item>
+   <item weight="0.00021504">
+    family circle magazine
+    <tag>out = "family circle magazine";</tag>
+   </item>
+   <item weight="0.00021504">
+    globe life insurance
+    <tag>out = "globe life insurance";</tag>
+   </item>
+   <item weight="0.00021504">
+    johnson and johnson
+    <tag>out = "johnson and johnson";</tag>
+   </item>
+   <item weight="0.00021504">
+    a t and t business
+    <tag>out = "a t and t business";</tag>
+   </item>
+   <item weight="0.00021504">
+    disney
+    <tag>out = "disney";</tag>
+   </item>
+   <item weight="0.00021504">
+    prudential insurance
+    <tag>out = "prudential insurance";</tag>
+   </item>
+   <item weight="0.00021504">
+    asiana airlines
+    <tag>out = "asiana airlines";</tag>
+   </item>
+   <item weight="0.00021504">
+    secure horizons
+    <tag>out = "secure horizons";</tag>
+   </item>
+   <item weight="0.00021504">
+    crowne plaza
+    <tag>out = "crowne plaza";</tag>
+   </item>
+   <item weight="0.00021504">
+    lenox
+    <tag>out = "lenox";</tag>
+   </item>
+   <item weight="0.00021228">
+    postal service
+    <tag>out = "postal service";</tag>
+   </item>
+   <item weight="0.00021228">
+    safeco insurance
+    <tag>out = "safeco insurance";</tag>
+   </item>
+   <item weight="0.00021228">
+    national
+    <tag>out = "national";</tag>
+   </item>
+   <item weight="0.00021228">
+    trans union credit bureau
+    <tag>out = "trans union credit bureau";</tag>
+   </item>
+   <item weight="0.00021228">
+    infinity insurance
+    <tag>out = "infinity insurance";</tag>
+   </item>
+   <item weight="0.00021228">
+    walgreens pharmacy
+    <tag>out = "walgreens pharmacy";</tag>
+   </item>
+   <item weight="0.00021228">
+    l a times
+    <tag>out = "l a times";</tag>
+   </item>
+   <item weight="0.00021228">
+    ditech
+    <tag>out = "ditech";</tag>
+   </item>
+   <item weight="0.00020953">
+    alltel customer service
+    <tag>out = "alltel customer service";</tag>
+   </item>
+   <item weight="0.00020953">
+    u p s united parcel service
+    <tag>out = "u p s united parcel service";</tag>
+   </item>
+   <item weight="0.00020953">
+    intercontinental hotels
+    <tag>out = "intercontinental hotels";</tag>
+   </item>
+   <item weight="0.00020953">
+    safeway
+    <tag>out = "safeway";</tag>
+   </item>
+   <item weight="0.00020953">
+    compaq computers
+    <tag>out = "compaq computers";</tag>
+   </item>
+   <item weight="0.00020953">
+    advantage rent a car
+    <tag>out = "advantage rent a car";</tag>
+   </item>
+   <item weight="0.00020953">
+    sears credit card
+    <tag>out = "sears credit card";</tag>
+   </item>
+   <item weight="0.00020953">
+    prepaid legal
+    <tag>out = "prepaid legal";</tag>
+   </item>
+   <item weight="0.00020953">
+    triad financial
+    <tag>out = "triad financial";</tag>
+   </item>
+   <item weight="0.00020953">
+    the company store
+    <tag>out = "the company store";</tag>
+   </item>
+   <item weight="0.00020953">
+    trader joes
+    <tag>out = "trader joes";</tag>
+   </item>
+   <item weight="0.00020953">
+    emachine
+    <tag>out = "emachine";</tag>
+   </item>
+   <item weight="0.00020953">
+    uniden
+    <tag>out = "uniden";</tag>
+   </item>
+   <item weight="0.00020677">
+    department of labor
+    <tag>out = "department of labor";</tag>
+   </item>
+   <item weight="0.00020677">
+    boston market
+    <tag>out = "boston market";</tag>
+   </item>
+   <item weight="0.00020677">
+    sun trust
+    <tag>out = "sun trust";</tag>
+   </item>
+   <item weight="0.00020677">
+    harrahs hotel
+    <tag>out = "harrahs hotel";</tag>
+   </item>
+   <item weight="0.00020677">
+    sleep inn
+    <tag>out = "sleep inn";</tag>
+   </item>
+   <item weight="0.00020677">
+    carnival cruises
+    <tag>out = "carnival cruises";</tag>
+   </item>
+   <item weight="0.00020677">
+    lexus
+    <tag>out = "lexus";</tag>
+   </item>
+   <item weight="0.00020677">
+    ford
+    <tag>out = "ford";</tag>
+   </item>
+   <item weight="0.00020677">
+    j v c
+    <tag>out = "j v c";</tag>
+   </item>
+   <item weight="0.00020677">
+    dell tech support
+    <tag>out = "dell tech support";</tag>
+   </item>
+   <item weight="0.00020677">
+    sirius satellite
+    <tag>out = "sirius satellite";</tag>
+   </item>
+   <item weight="0.00020677">
+    hotel dot com
+    <tag>out = "hotel dot com";</tag>
+   </item>
+   <item weight="0.00020677">
+    american education services
+    <tag>out = "american education services";</tag>
+   </item>
+   <item weight="0.00020677">
+    papa johns
+    <tag>out = "papa johns";</tag>
+   </item>
+   <item weight="0.00020401">
+    sharp electronics
+    <tag>out = "sharp electronics";</tag>
+   </item>
+   <item weight="0.00020401">
+    secretary of state
+    <tag>out = "secretary of state";</tag>
+   </item>
+   <item weight="0.00020401">
+    tiger direct
+    <tag>out = "tiger direct";</tag>
+   </item>
+   <item weight="0.00020401">
+    nationwide
+    <tag>out = "nationwide";</tag>
+   </item>
+   <item weight="0.00020401">
+    quick books
+    <tag>out = "quick books";</tag>
+   </item>
+   <item weight="0.00020401">
+    america online customer service
+    <tag>out = "america online customer service";</tag>
+   </item>
+   <item weight="0.00020401">
+    walmart dot com
+    <tag>out = "walmart dot com";</tag>
+   </item>
+   <item weight="0.00020401">
+    tellme
+    <tag>out = "tellme";</tag>
+   </item>
+   <item weight="0.00020126">
+    t d bank north
+    <tag>out = "t d bank north";</tag>
+   </item>
+   <item weight="0.00020126">
+    apple store
+    <tag>out = "apple store";</tag>
+   </item>
+   <item weight="0.00020126">
+    motel eight
+    <tag>out = "motel eight";</tag>
+   </item>
+   <item weight="0.00020126">
+    bellagio hotel
+    <tag>out = "bellagio hotel";</tag>
+   </item>
+   <item weight="0.00020126">
+    i tunes
+    <tag>out = "i tunes";</tag>
+   </item>
+   <item weight="0.00020126">
+    j b hunt
+    <tag>out = "j b hunt";</tag>
+   </item>
+   <item weight="0.00020126">
+    planned parenthood
+    <tag>out = "planned parenthood";</tag>
+   </item>
+   <item weight="0.00020126">
+    disabled american veterans
+    <tag>out = "disabled american veterans";</tag>
+   </item>
+   <item weight="0.00020126">
+    bank of new york
+    <tag>out = "bank of new york";</tag>
+   </item>
+   <item weight="0.00020126">
+    t s i
+    <tag>out = "t s i";</tag>
+   </item>
+   <item weight="0.00020126">
+    aetna health insurance
+    <tag>out = "aetna health insurance";</tag>
+   </item>
+   <item weight="0.00020126">
+    global
+    <tag>out = "global";</tag>
+   </item>
+   <item weight="0.00020126">
+    metropolitan life insurance
+    <tag>out = "metropolitan life insurance";</tag>
+   </item>
+   <item weight="0.0001985">
+    edible arrangements
+    <tag>out = "edible arrangements";</tag>
+   </item>
+   <item weight="0.0001985">
+    drury inn
+    <tag>out = "drury inn";</tag>
+   </item>
+   <item weight="0.0001985">
+    dicks sporting goods
+    <tag>out = "dicks sporting goods";</tag>
+   </item>
+   <item weight="0.0001985">
+    j jill
+    <tag>out = "j jill";</tag>
+   </item>
+   <item weight="0.0001985">
+    one eight hundred flowers
+    <tag>out = "one eight hundred flowers";</tag>
+   </item>
+   <item weight="0.00019574">
+    city bank
+    <tag>out = "city bank";</tag>
+   </item>
+   <item weight="0.00019574">
+    cleveland clinic
+    <tag>out = "cleveland clinic";</tag>
+   </item>
+   <item weight="0.00019574">
+    prudential
+    <tag>out = "prudential";</tag>
+   </item>
+   <item weight="0.00019574">
+    blue shield of california
+    <tag>out = "blue shield of california";</tag>
+   </item>
+   <item weight="0.00019574">
+    erie insurance
+    <tag>out = "erie insurance";</tag>
+   </item>
+   <item weight="0.00019574">
+    cash for gold
+    <tag>out = "cash for gold";</tag>
+   </item>
+   <item weight="0.00019574">
+    omni hotels
+    <tag>out = "omni hotels";</tag>
+   </item>
+   <item weight="0.00019574">
+    video professor
+    <tag>out = "video professor";</tag>
+   </item>
+   <item weight="0.00019574">
+    america west airlines
+    <tag>out = "america west airlines";</tag>
+   </item>
+   <item weight="0.00019574">
+    do not call
+    <tag>out = "do not call";</tag>
+   </item>
+   <item weight="0.00019574">
+    cash call
+    <tag>out = "cash call";</tag>
+   </item>
+   <item weight="0.00019574">
+    bellagio
+    <tag>out = "bellagio";</tag>
+   </item>
+   <item weight="0.00019574">
+    direct energy
+    <tag>out = "direct energy";</tag>
+   </item>
+   <item weight="0.00019574">
+    magellans
+    <tag>out = "magellans";</tag>
+   </item>
+   <item weight="0.00019574">
+    gas company
+    <tag>out = "gas company";</tag>
+   </item>
+   <item weight="0.00019574">
+    laquinta hotel
+    <tag>out = "laquinta hotel";</tag>
+   </item>
+   <item weight="0.00019574">
+    first national bank
+    <tag>out = "first national bank";</tag>
+   </item>
+   <item weight="0.00019574">
+    craigs list
+    <tag>out = "craigs list";</tag>
+   </item>
+   <item weight="0.00019574">
+    bloomingdales department store
+    <tag>out = "bloomingdales department store";</tag>
+   </item>
+   <item weight="0.00019299">
+    national city and co
+    <tag>out = "national city and co";</tag>
+   </item>
+   <item weight="0.00019299">
+    days inn hotel
+    <tag>out = "days inn hotel";</tag>
+   </item>
+   <item weight="0.00019299">
+    u s a a auto insurance
+    <tag>out = "u s a a auto insurance";</tag>
+   </item>
+   <item weight="0.00019299">
+    turbo tax
+    <tag>out = "turbo tax";</tag>
+   </item>
+   <item weight="0.00019299">
+    microtel
+    <tag>out = "microtel";</tag>
+   </item>
+   <item weight="0.00019299">
+    doctor leonards
+    <tag>out = "doctor leonards";</tag>
+   </item>
+   <item weight="0.00019299">
+    triple a insurance
+    <tag>out = "triple a insurance";</tag>
+   </item>
+   <item weight="0.00019299">
+    united parcel
+    <tag>out = "united parcel";</tag>
+   </item>
+   <item weight="0.00019299">
+    extended stay
+    <tag>out = "extended stay";</tag>
+   </item>
+   <item weight="0.00019023">
+    vermont country store
+    <tag>out = "vermont country store";</tag>
+   </item>
+   <item weight="0.00019023">
+    sanyo
+    <tag>out = "sanyo";</tag>
+   </item>
+   <item weight="0.00019023">
+    y m c a
+    <tag>out = "y m c a";</tag>
+   </item>
+   <item weight="0.00019023">
+    national geographic society
+    <tag>out = "national geographic society";</tag>
+   </item>
+   <item weight="0.00019023">
+    t mobil wireless
+    <tag>out = "t mobil wireless";</tag>
+   </item>
+   <item weight="0.00019023">
+    t x u energy
+    <tag>out = "t x u energy";</tag>
+   </item>
+   <item weight="0.00019023">
+    microsoft customer service
+    <tag>out = "microsoft customer service";</tag>
+   </item>
+   <item weight="0.00019023">
+    oreck
+    <tag>out = "oreck";</tag>
+   </item>
+   <item weight="0.00019023">
+    medi cal
+    <tag>out = "medi cal";</tag>
+   </item>
+   <item weight="0.00019023">
+    avianca airlines
+    <tag>out = "avianca airlines";</tag>
+   </item>
+   <item weight="0.00019023">
+    howard johnson
+    <tag>out = "howard johnson";</tag>
+   </item>
+   <item weight="0.00019023">
+    sallie mae servicing
+    <tag>out = "sallie mae servicing";</tag>
+   </item>
+   <item weight="0.00018747">
+    crowne plaza hotels
+    <tag>out = "crowne plaza hotels";</tag>
+   </item>
+   <item weight="0.00018747">
+    new york post
+    <tag>out = "new york post";</tag>
+   </item>
+   <item weight="0.00018747">
+    geico car insurance
+    <tag>out = "geico car insurance";</tag>
+   </item>
+   <item weight="0.00018747">
+    continental airlines domestic
+    <tag>out = "continental airlines domestic";</tag>
+   </item>
+   <item weight="0.00018747">
+    harriet carter
+    <tag>out = "harriet carter";</tag>
+   </item>
+   <item weight="0.00018747">
+    cracker barrel
+    <tag>out = "cracker barrel";</tag>
+   </item>
+   <item weight="0.00018747">
+    lens crafters
+    <tag>out = "lens crafters";</tag>
+   </item>
+   <item weight="0.00018747">
+    poison control center
+    <tag>out = "poison control center";</tag>
+   </item>
+   <item weight="0.00018747">
+    morgan stanley
+    <tag>out = "morgan stanley";</tag>
+   </item>
+   <item weight="0.00018747">
+    independent living aids
+    <tag>out = "independent living aids";</tag>
+   </item>
+   <item weight="0.00018747">
+    liberty mutual insurance company
+    <tag>out = "liberty mutual insurance company";</tag>
+   </item>
+   <item weight="0.00018747">
+    alitalia
+    <tag>out = "alitalia";</tag>
+   </item>
+   <item weight="0.00018747">
+    wachovia mortgage
+    <tag>out = "wachovia mortgage";</tag>
+   </item>
+   <item weight="0.00018747">
+    dell d e l l
+    <tag>out = "dell d e l l";</tag>
+   </item>
+   <item weight="0.00018747">
+    check systems
+    <tag>out = "check systems";</tag>
+   </item>
+   <item weight="0.00018747">
+    g e appliances
+    <tag>out = "g e appliances";</tag>
+   </item>
+   <item weight="0.00018747">
+    zappos
+    <tag>out = "zappos";</tag>
+   </item>
+   <item weight="0.00018747">
+    spiegel
+    <tag>out = "spiegel";</tag>
+   </item>
+   <item weight="0.00018747">
+    goodwill
+    <tag>out = "goodwill";</tag>
+   </item>
+   <item weight="0.00018747">
+    credit bureau
+    <tag>out = "credit bureau";</tag>
+   </item>
+   <item weight="0.00018471">
+    yellow pages
+    <tag>out = "yellow pages";</tag>
+   </item>
+   <item weight="0.00018471">
+    charter one bank
+    <tag>out = "charter one bank";</tag>
+   </item>
+   <item weight="0.00018471">
+    b jays wholesale club
+    <tag>out = "b jays wholesale club";</tag>
+   </item>
+   <item weight="0.00018471">
+    federal communications commission
+    <tag>out = "federal communications commission";</tag>
+   </item>
+   <item weight="0.00018471">
+    operator specialty
+    <tag>out = "operator specialty";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

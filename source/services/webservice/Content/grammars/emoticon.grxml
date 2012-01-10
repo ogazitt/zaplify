@@ -1,0 +1,35 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="Emoticon"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="Emoticon" scope="public">
+  <one-of>
+   <!-- smile -->
+   <item>
+    <one-of>
+     <item> smiley </item>
+     <item> smiley face </item>
+     <item> smiley icon </item>
+     <item> smiley emoticon </item>
+    </one-of>
+    <tag>out = ":)";</tag>
+   </item>
+   <!-- frown -->
+   <item>
+    <one-of>
+     <item> frowny </item>
+     <item> frowny face </item>
+     <item> frowny icon </item>
+     <item> frowny emoticon </item>
+    </one-of>
+    <tag>out = ":(";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

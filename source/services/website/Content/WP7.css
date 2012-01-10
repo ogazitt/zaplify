@@ -1,0 +1,16 @@
+﻿p, li 
+{
+    text-align:justify;
+}
+
+#endofheader
+{
+    display:block;
+    height:90px;
+}
+
+#main
+{
+    min-width: 285px;
+    max-width: 285px;
+}

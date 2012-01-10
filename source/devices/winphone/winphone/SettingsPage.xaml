@@ -1,0 +1,91 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="TaskStoreWinPhone.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:keyboard="clr-namespace:WPKeyboardHelper;assembly=WPKeyboardHelper"
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+    d:DataContext="{d:DesignData SampleData/TagListSampleData.xaml}"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="FullListPickerTemplate">
+            <TextBlock
+                    Text="{Binding Name}"
+                    FontSize="36"
+                    FontWeight="Normal"
+                    VerticalAlignment="Center"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <i:Interaction.Behaviors>
+            <keyboard:KeyboardTabHelperBehavior />
+        </i:Interaction.Behaviors>
+        <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
+        <ProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
+        <controls:Pivot x:Name="MainPivot" Title="TASKSTORE">
+            <!--account pivot item-->
+            <controls:PivotItem Header="account">
+                <ScrollViewer BorderThickness="0">
+                    <StackPanel>
+                        <TextBlock Text="username" Style="{StaticResource PhoneTextNormalStyle}" />
+                        <TextBox x:Name="Username" InputScope="EmailNameOrAddress" Text="{Binding User.Name}" IsTabStop="True" TabIndex="1" LostFocus="Textbox_LostFocus"/>
+                        <TextBlock Text="password" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        <PasswordBox x:Name="Password" Password="{Binding User.Password}" IsTabStop="True" TabIndex="2" LostFocus="Textbox_LostFocus"/>
+                        <TextBlock Text="email" Style="{StaticResource PhoneTextNormalStyle}" />
+                        <TextBox x:Name="Email" InputScope="EmailNameOrAddress" Text="{Binding User.Email}" IsTabStop="True" TabIndex="3" LostFocus="Textbox_LostFocus"/>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Grid.Row="0" Grid.Column="0" x:Name="CreateUserButton" Content="create" IsEnabled="{Binding EnableCreateButton}" Click="CreateUserButton_Click"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="a new account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0"/>
+                            <Button Grid.Row="1" Grid.Column="0" x:Name="SyncUserButton" Content="pair" IsEnabled="{Binding EnableSyncButton}" Click="SyncUserButton_Click"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="with an existing account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0"/>
+                            <CheckBox Grid.Row="2" Grid.Column="0" x:Name="MergeCheckbox" HorizontalAlignment="Left" Margin="0,0,-10,0" IsChecked="True"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="merge any lists created offline on the phone with any existing data in the account" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" Margin="-140,7,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </controls:PivotItem>
+
+            <!--account pivot item-->
+            <controls:PivotItem Header="settings">
+                <ScrollViewer BorderThickness="0">
+                    <StackPanel>
+                        <TextBlock Text="default list" Style="{StaticResource PhoneTextNormalStyle}" />
+                        <toolkit:ListPicker x:Name="DefaultListPicker" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemsSource="{Binding TaskLists}" DisplayMemberPath="Name"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </controls:PivotItem>
+        </controls:Pivot>
+    </Grid>
+ 
+    <!--Sample code showing usage of ApplicationBar-->
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.save.rest.png" Text="save" Click="SaveButton_Click"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</phone:PhoneApplicationPage>

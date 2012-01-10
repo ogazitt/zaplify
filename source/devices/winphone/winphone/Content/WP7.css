@@ -1,0 +1,10 @@
+﻿p, li 
+{
+    text-align:justify;
+}
+
+#endofheader
+{
+    display:block;
+    height:90px;
+}

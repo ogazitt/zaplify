@@ -1,0 +1,74 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="TaskStoreWinPhone.TaskListEditor"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+    xmlns:keyboard="clr-namespace:WPKeyboardHelper;assembly=WPKeyboardHelper"
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
+    d:DataContext="{d:DesignData SampleData/TaskListSampleData.xaml}"
+    shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="FullListPickerTemplate">
+            <TextBlock
+                    Text="{Binding Name}"
+                    FontSize="32"
+                    FontWeight="Normal"
+                    VerticalAlignment="Center"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent" d:DataContext="{Binding TaskLists[0]}">
+        <i:Interaction.Behaviors>
+            <keyboard:KeyboardTabHelperBehavior />
+        </i:Interaction.Behaviors>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-400,0,0"/>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="9,17,0,28">
+            <TextBlock x:Name="ApplicationTitle" Text="TASKSTORE" Style="{StaticResource PhoneTextNormalStyle}"/>
+            <TextBlock Text="list editor" Style="{StaticResource PhoneTextTitle1Style}"/>
+            <ScrollViewer BorderThickness="0">
+                <StackPanel Margin="0,30,0,0">
+                    <TextBlock Text="name" Style="{StaticResource PhoneTextNormalStyle}" />
+                    <TextBox x:Name="ListName" Text="{Binding Name, Mode=TwoWay}" InputScope="Text" IsTabStop="True" TabIndex="1" />
+                    <TextBlock Text="type" Style="{StaticResource PhoneTextNormalStyle}" />
+                    <toolkit:ListPicker x:Name="ListTypePicker" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" Margin="12,5,12,0" IsTabStop="True" TabIndex="2"/>
+                    <TextBlock Text="template" Margin="12,10,0,0" Style="{StaticResource PhoneTextNormalStyle}" />
+                    <CheckBox x:Name="TemplateCheckbox" IsChecked="{Binding Template, Mode=TwoWay}" Margin="2,-7,0,0" IsTabStop="True" TabIndex="3"/>
+                </StackPanel>
+            </ScrollViewer>
+        </StackPanel>        
+    </Grid>
+ 
+    <!--Sample code showing usage of ApplicationBar-->
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.save.rest.png" Text="Save" Click="SaveButton_Click"/>
+            <!--Delete is added programmatically for existing tasklists (can't have it for new tasklists-->
+            <!--<shell:ApplicationBarIconButton IconUri="/Images/appbar.delete.rest.png" Text="Delete" Click="DeleteButton_Click"/>-->
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.cancel.rest.png" Text="Cancel" Click="CancelButton_Click"/>
+            <!--<shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
+                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
+            </shell:ApplicationBar.MenuItems>-->
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</phone:PhoneApplicationPage>

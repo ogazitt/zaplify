@@ -1,0 +1,114 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="TaskStoreWinPhone.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696" 
+    d:DataContext="{d:DesignData SampleData/TaskListSampleData.xaml}"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
+        <!--<ProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>-->
+        <toolkit:PerformanceProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
+        <!--Pivot Control-->
+        <controls:Pivot x:Name="MainPivot" Title="TASKSTORE" SelectionChanged="Pivot_SelectionChanged" >
+            <!--tasks pivot item-->
+            <controls:PivotItem Header="tasks">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="SearchHeader" Grid.Row="0" Text="{Binding SearchTerm}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}" Margin="12,-25,0,0" />
+                    <ListBox Grid.Row="1" x:Name="TasksListBox" Margin="0,0,0,0" ItemsSource="{Binding TasksViewSource.View}" SelectionChanged="TasksListBox_SelectionChanged">
+                    </ListBox>
+                </Grid>
+            </controls:PivotItem>
+
+            <!--lists pivot item-->
+            <controls:PivotItem Header="lists">
+                <!--Double line list with text wrapping-->
+                <ListBox x:Name="ListsListBox" Margin="0,0,-12,0" ItemsSource="{Binding TaskLists}" SelectionChanged="ListsListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,17" Width="432">
+                                <Grid x:Name="ItemLineOne" Background="Transparent">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock  Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                                    <TextBlock  Grid.Column="1" Text="{Binding Tasks.Count}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
+                                </Grid>
+                                <TextBlock Text="{Binding FirstDue}" Foreground="{Binding FirstDueColor}" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </controls:PivotItem>
+
+            <!--tags pivot item-->
+            <controls:PivotItem Header="tags">
+                <ListBox x:Name="TagsListBox" Margin="0,0,-12,0" ItemsSource="{Binding Tags}" SelectionChanged="TagsListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,17" Width="432">
+                                <Grid x:Name="ItemLineOne" Background="Transparent">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock  Grid.Column="0" Text="{Binding Name}" Foreground="{Binding Color}" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                                    <TextBlock  Grid.Column="1" Text="{Binding TaskCount}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </controls:PivotItem>
+        </controls:Pivot>
+
+        <!--search popup panel-->
+        <Popup x:Name="SearchPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
+            <Grid>
+                <Border Background="#FF1F1F1F" Height="190"/>
+                <StackPanel Width="480">
+                    <TextBox x:Name="SearchTextBox" Margin="0,15,0,0" InputScope="Text" Width="460" />
+                    <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
+                        <Button x:Name="SearchPopup_SearchButton" Content="filter" Click="SearchPopup_SearchButton_Click" Width="230"/>
+                        <Button x:Name="SearchPopup_ClearButton" Content="clear" Click="SearchPopup_ClearButton_Click" Width="230"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Popup>
+    </Grid>
+ 
+    <!-- ApplicationBar-->
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add" />
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.refresh.rest.png" Text="sync now" Click="RefreshButton_Click"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.feature.settings.rest.png" Text="settings" Click="SettingsButton_Click"/>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="about" Click="AboutMenuItem_Click"/>
+                <shell:ApplicationBarMenuItem Text="email lists" Click="EmailMenuItem_Click"/>
+                <shell:ApplicationBarMenuItem Text="erase all data" Click="EraseMenuItem_Click"/>
+                <shell:ApplicationBarMenuItem Text="debug information" Click="DebugMenuItem_Click"/>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</phone:PhoneApplicationPage>

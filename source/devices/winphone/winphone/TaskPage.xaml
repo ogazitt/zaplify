@@ -1,0 +1,68 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="TaskStoreWinPhone.TaskPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:controls="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696" 
+    d:DataContext="{d:DesignData SampleData/TaskListSampleData.xaml}"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait"  Orientation="Portrait"
+    shell:SystemTray.IsVisible="True">
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent" d:DataContext="{Binding TaskLists[0].Tasks[0]}">
+        <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
+        <!--Pivot Control-->
+        <controls:Pivot x:Name ="TaskPagePivotControl" Title="{Binding Name}">
+            <!--Pivot item one-->
+            <controls:PivotItem Header="actions">
+                <ScrollViewer Margin="0,-30,0,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}"/>
+                        <TextBlock Text="{Binding Description}" Margin="20,5,0,0" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" />
+                        <Grid x:Name="ViewGrid" Background="Transparent" Margin="0,30,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+                <!--<StackPanel Margin="0,0,0,17" Width="432">
+                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                    <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
+                </StackPanel>-->
+            </controls:PivotItem>
+ 
+            <!--Pivot item two-->
+            <controls:PivotItem Header="edit">
+                <ListBox x:Name="EditListBox" Margin="0,0,-12,0">                   
+                </ListBox>
+                <!--<StackPanel x:Name="EditStackPanel" Margin="0,0,0,17">
+                </StackPanel>-->
+            </controls:PivotItem>
+        </controls:Pivot>
+    </Grid>
+ 
+    <!-- ApplicationBar-->
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.save.rest.png" Text="Save" Click="SaveButton_Click"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.delete.rest.png" Text="Delete" Click="DeleteButton_Click"/>
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.cancel.rest.png" Text="Cancel" Click="CancelButton_Click"/>
+            <!--<shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem Text="MenuItem 1"/>
+                <shell:ApplicationBarMenuItem Text="MenuItem 2"/>
+            </shell:ApplicationBar.MenuItems>-->
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+
+</phone:PhoneApplicationPage>

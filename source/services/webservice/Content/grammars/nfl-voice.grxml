@@ -1,0 +1,348 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="gsl_top"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+ <rule id="gsl_top" scope="public">
+  <one-of>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     arizona
+    </item>
+    cardinals
+    <tag>out = "arizona";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     atlanta
+    </item>
+    falcons
+    <tag>out = "atlanta";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     baltimore
+    </item>
+    ravens
+    <tag>out = "baltimore";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     buffalo
+    </item>
+    bills
+    <tag>out = "buffalo";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     carolina
+    </item>
+    panthers
+    <tag>out = "carolina";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     chicago
+    </item>
+    bears
+    <tag>out = "chicago";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     cincinnati
+    </item>
+    bengals
+    <tag>out = "cincinnati";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     cleveland
+    </item>
+    browns
+    <tag>out = "cleveland";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     dallas
+    </item>
+    cowboys
+    <tag>out = "dallas";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     denver
+    </item>
+    broncos
+    <tag>out = "denver";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     detroit
+    </item>
+    lions
+    <tag>out = "detroit";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     green bay
+    </item>
+    packers
+    <tag>out = "greenbay";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     houston
+    </item>
+    texans
+    <tag>out = "houston";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     indianapolis
+    </item>
+    colts
+    <tag>out = "indianapol";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     jacksonville
+    </item>
+    jaguars
+    <tag>out = "jacksonvil";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     kansas city
+    </item>
+    chiefs
+    <tag>out = "kansascity";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     miami
+    </item>
+    dolphins
+    <tag>out = "miami";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     minnesota
+    </item>
+    vikings
+    <tag>out = "minnesota";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new england
+    </item>
+    <one-of>
+     <item>
+      pats
+     </item>
+     <item>
+      patriots
+     </item>
+    </one-of>
+    <tag>out = "newengland";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new orleans
+    </item>
+    saints
+    <tag>out = "neworleans";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new york
+    </item>
+    giants
+    <tag>out = "nygiants";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     new york
+    </item>
+    jets
+    <tag>out = "nyjets";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     oakland
+    </item>
+    raiders
+    <tag>out = "oakland";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     philadelphia
+    </item>
+    eagles
+    <tag>out = "philadelph";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     pittsburgh
+    </item>
+    steelers
+    <tag>out = "pittsburgh";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     san diego
+    </item>
+    chargers
+    <tag>out = "sandiego";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     san francisco
+    </item>
+    <one-of>
+     <item>
+      niners
+     </item>
+     <item>
+      forty niners
+     </item>
+    </one-of>
+    <tag>out = "sanfrncsco";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     seattle
+    </item>
+    hawks
+    <tag>out = "seattle";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     saint louis
+    </item>
+    rams
+    <tag>out = "stlouis";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     tampa bay
+    </item>
+    bukaneers
+    <tag>out = "tampabay";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     tennessee
+    </item>
+    titans
+    <tag>out = "tennessee";</tag>
+   </item>
+   <item>
+    <item repeat="0-1">
+     the
+    </item>
+    <item repeat="0-1">
+     washington
+    </item>
+    redskins
+    <tag>out = "washington";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

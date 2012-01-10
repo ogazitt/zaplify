@@ -1,0 +1,31 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="SportsTeam"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="SportsTeam" scope="public">
+  <one-of>
+   <item>
+    <ruleref uri="ml-voice.grxml"/>
+    <tag>out = rules.latest();</tag>
+   </item>
+   <item>
+    <ruleref uri="nfl-voice.grxml"/>
+    <tag>out = rules.latest();</tag>
+   </item>
+   <item>
+    <ruleref uri="nba-voice.grxml"/>
+    <tag>out = rules.latest();</tag>
+   </item>
+   <item>
+    <ruleref uri="nhl-voice.grxml"/>
+    <tag>out = rules.latest();</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

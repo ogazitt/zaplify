@@ -1,0 +1,7015 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="CitiesTop"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="CitiesTop" scope="public">
+  <one-of>
+   <item weight="0.028256">
+    new york
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "new_york@ny";</tag>
+   </item>
+   <item weight="0.023534">
+    philadelphia
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "philadelphia@pa";</tag>
+   </item>
+   <item weight="0.019482">
+    baltimore
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "baltimore@md";</tag>
+   </item>
+   <item weight="0.015291">
+    washington
+    <item repeat="0-1">
+     district of columbia
+    </item>
+    <tag>out = "washington@dc";</tag>
+   </item>
+   <item weight="0.013808">
+    los angeles
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "los_angeles@ca";</tag>
+   </item>
+   <item weight="0.013395">
+    brooklyn
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "brooklyn@ny";</tag>
+   </item>
+   <item weight="0.012045">
+    dallas
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "dallas@tx";</tag>
+   </item>
+   <item weight="0.011202">
+    boston
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "boston@ma";</tag>
+   </item>
+   <item weight="0.010509">
+    houston
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "houston@tx";</tag>
+   </item>
+   <item weight="0.0091224">
+    manhattan
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "manhattan@ny";</tag>
+   </item>
+   <item weight="0.0083501">
+    tampa
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "tampa@fl";</tag>
+   </item>
+   <item weight="0.0075723">
+    las vegas
+    <item repeat="0-1">
+     nevada
+    </item>
+    <tag>out = "las_vegas@nv";</tag>
+   </item>
+   <item weight="0.0072728">
+    chicago
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "chicago@il";</tag>
+   </item>
+   <item weight="0.0072528">
+    atlanta
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "atlanta@ga";</tag>
+   </item>
+   <item weight="0.0065596">
+    austin
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "austin@tx";</tag>
+   </item>
+   <item weight="0.0062322">
+    richmond
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "richmond@va";</tag>
+   </item>
+   <item weight="0.0059853">
+    pittsburgh
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "pittsburgh@pa";</tag>
+   </item>
+   <item weight="0.0059255">
+    queens
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "queens@ny";</tag>
+   </item>
+   <item weight="0.0058679">
+    san antonio
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "san_antonio@tx";</tag>
+   </item>
+   <item weight="0.0057983">
+    bronx
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "bronx@ny";</tag>
+   </item>
+   <item weight="0.0054595">
+    miami
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "miami@fl";</tag>
+   </item>
+   <item weight="0.0053778">
+    orlando
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "orlando@fl";</tag>
+   </item>
+   <item weight="0.004822">
+    newark
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "newark@nj";</tag>
+   </item>
+   <item weight="0.0046866">
+    san francisco
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_francisco@ca";</tag>
+   </item>
+   <item weight="0.0046552">
+    long beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "long_beach@ca";</tag>
+   </item>
+   <item weight="0.0046211">
+    fort worth
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "fort_worth@tx";</tag>
+   </item>
+   <item weight="0.0045278">
+    san diego
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_diego@ca";</tag>
+   </item>
+   <item weight="0.0043156">
+    staten island
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "staten_island@ny";</tag>
+   </item>
+   <item weight="0.0040026">
+    oklahoma city
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "oklahoma_city@ok";</tag>
+   </item>
+   <item weight="0.003963">
+    saint louis
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "saint_louis@mo";</tag>
+   </item>
+   <item weight="0.0039526">
+    baton rouge
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "baton_rouge@la";</tag>
+   </item>
+   <item weight="0.0038695">
+    sacramento
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "sacramento@ca";</tag>
+   </item>
+   <item weight="0.0037085">
+    worcester
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "worcester@ma";</tag>
+   </item>
+   <item weight="0.0036826">
+    portland
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "portland@or";</tag>
+   </item>
+   <item weight="0.0036211">
+    tulsa
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "tulsa@ok";</tag>
+   </item>
+   <item weight="0.0036103">
+    seattle
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "seattle@wa";</tag>
+   </item>
+   <item weight="0.0036067">
+    jersey city
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "jersey_city@nj";</tag>
+   </item>
+   <item weight="0.0033969">
+    virginia beach
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "virginia_beach@va";</tag>
+   </item>
+   <item weight="0.0033725">
+    jacksonville
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "jacksonville@fl";</tag>
+   </item>
+   <item weight="0.0033244">
+    springfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "springfield@ma";</tag>
+   </item>
+   <item weight="0.0032435">
+    san jose
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_jose@ca";</tag>
+   </item>
+   <item weight="0.0031773">
+    indianapolis
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "indianapolis@in";</tag>
+   </item>
+   <item weight="0.0031572">
+    fresno
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "fresno@ca";</tag>
+   </item>
+   <item weight="0.0030492">
+    memphis
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "memphis@tn";</tag>
+   </item>
+   <item weight="0.0030262">
+    louisville
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "louisville@ky";</tag>
+   </item>
+   <item weight="0.0030186">
+    plano
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "plano@tx";</tag>
+   </item>
+   <item weight="0.0029251">
+    san bernardino
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_bernardino@ca";</tag>
+   </item>
+   <item weight="0.0027804">
+    toms river
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "toms_river@nj";</tag>
+   </item>
+   <item weight="0.0027548">
+    alexandria
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "alexandria@va";</tag>
+   </item>
+   <item weight="0.0027254">
+    providence
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "providence@ri";</tag>
+   </item>
+   <item weight="0.002715">
+    bakersfield
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "bakersfield@ca";</tag>
+   </item>
+   <item weight="0.0027141">
+    wilmington
+    <item repeat="0-1">
+     delaware
+    </item>
+    <tag>out = "wilmington@de";</tag>
+   </item>
+   <item weight="0.0026659">
+    norfolk
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "norfolk@va";</tag>
+   </item>
+   <item weight="0.0026592">
+    denver
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "denver@co";</tag>
+   </item>
+   <item weight="0.0025997">
+    santa monica
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_monica@ca";</tag>
+   </item>
+   <item weight="0.0025472">
+    sarasota
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "sarasota@fl";</tag>
+   </item>
+   <item weight="0.0025432">
+    little rock
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "little_rock@ar";</tag>
+   </item>
+   <item weight="0.0025382">
+    annapolis
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "annapolis@md";</tag>
+   </item>
+   <item weight="0.0024741">
+    riverside
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "riverside@ca";</tag>
+   </item>
+   <item weight="0.0024139">
+    saint petersburg
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "saint_petersburg@fl";</tag>
+   </item>
+   <item weight="0.002388">
+    buffalo
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "buffalo@ny";</tag>
+   </item>
+   <item weight="0.0023416">
+    charlotte
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "charlotte@nc";</tag>
+   </item>
+   <item weight="0.002332">
+    lafayette
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "lafayette@la";</tag>
+   </item>
+   <item weight="0.0023193">
+    arlington
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "arlington@tx";</tag>
+   </item>
+   <item weight="0.0023175">
+    phoenix
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "phoenix@az";</tag>
+   </item>
+   <item weight="0.0023008">
+    rockville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "rockville@md";</tag>
+   </item>
+   <item weight="0.0022949">
+    brockton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "brockton@ma";</tag>
+   </item>
+   <item weight="0.0022391">
+    new orleans
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "new_orleans@la";</tag>
+   </item>
+   <item weight="0.0022376">
+    ontario
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "ontario@ca";</tag>
+   </item>
+   <item weight="0.0022345">
+    silver spring
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "silver_spring@md";</tag>
+   </item>
+   <item weight="0.0022204">
+    nashville
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "nashville@tn";</tag>
+   </item>
+   <item weight="0.0021973">
+    detroit
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "detroit@mi";</tag>
+   </item>
+   <item weight="0.002186">
+    bowie
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "bowie@md";</tag>
+   </item>
+   <item weight="0.0021052">
+    santa barbara
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_barbara@ca";</tag>
+   </item>
+   <item weight="0.0021043">
+    fairfax
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "fairfax@va";</tag>
+   </item>
+   <item weight="0.0020891">
+    reno
+    <item repeat="0-1">
+     nevada
+    </item>
+    <tag>out = "reno@nv";</tag>
+   </item>
+   <item weight="0.0020429">
+    lynn
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "lynn@ma";</tag>
+   </item>
+   <item weight="0.0020321">
+    harrisburg
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "harrisburg@pa";</tag>
+   </item>
+   <item weight="0.0020166">
+    lexington
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "lexington@ky";</tag>
+   </item>
+   <item weight="0.0020092">
+    lancaster
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "lancaster@ca";</tag>
+   </item>
+   <item weight="0.0019949">
+    arlington
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "arlington@va";</tag>
+   </item>
+   <item weight="0.0019801">
+    glen burnie
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "glen_burnie@md";</tag>
+   </item>
+   <item weight="0.0019689">
+    charleston
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "charleston@wv";</tag>
+   </item>
+   <item weight="0.0019652">
+    birmingham
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "birmingham@al";</tag>
+   </item>
+   <item weight="0.0019614">
+    frederick
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "frederick@md";</tag>
+   </item>
+   <item weight="0.0019609">
+    cherry hill
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "cherry_hill@nj";</tag>
+   </item>
+   <item weight="0.001957">
+    quincy
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "quincy@ma";</tag>
+   </item>
+   <item weight="0.0019468">
+    fort lauderdale
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "fort_lauderdale@fl";</tag>
+   </item>
+   <item weight="0.001932">
+    lakeland
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "lakeland@fl";</tag>
+   </item>
+   <item weight="0.0019308">
+    trenton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "trenton@nj";</tag>
+   </item>
+   <item weight="0.0019207">
+    wayne
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "wayne@nj";</tag>
+   </item>
+   <item weight="0.0019031">
+    durham
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "durham@nc";</tag>
+   </item>
+   <item weight="0.0018829">
+    albany
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "albany@ny";</tag>
+   </item>
+   <item weight="0.0018752">
+    raleigh
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "raleigh@nc";</tag>
+   </item>
+   <item weight="0.0018663">
+    oakland
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "oakland@ca";</tag>
+   </item>
+   <item weight="0.0018639">
+    columbus
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "columbus@oh";</tag>
+   </item>
+   <item weight="0.0018169">
+    modesto
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "modesto@ca";</tag>
+   </item>
+   <item weight="0.0018167">
+    waldorf
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "waldorf@md";</tag>
+   </item>
+   <item weight="0.0017808">
+    columbia
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "columbia@md";</tag>
+   </item>
+   <item weight="0.001775">
+    allentown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "allentown@pa";</tag>
+   </item>
+   <item weight="0.001758">
+    portland
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "portland@me";</tag>
+   </item>
+   <item weight="0.0017324">
+    temecula
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "temecula@ca";</tag>
+   </item>
+   <item weight="0.0017275">
+    clearwater
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "clearwater@fl";</tag>
+   </item>
+   <item weight="0.0017264">
+    victorville
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "victorville@ca";</tag>
+   </item>
+   <item weight="0.0017236">
+    atlantic city
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "atlantic_city@nj";</tag>
+   </item>
+   <item weight="0.0017041">
+    rancho cucamonga
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "rancho_cucamonga@ca";</tag>
+   </item>
+   <item weight="0.0016906">
+    paramus
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "paramus@nj";</tag>
+   </item>
+   <item weight="0.0016731">
+    torrance
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "torrance@ca";</tag>
+   </item>
+   <item weight="0.0016719">
+    cambridge
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "cambridge@ma";</tag>
+   </item>
+   <item weight="0.0016662">
+    ventura
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "ventura@ca";</tag>
+   </item>
+   <item weight="0.0016602">
+    bethesda
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "bethesda@md";</tag>
+   </item>
+   <item weight="0.0016171">
+    warwick
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "warwick@ri";</tag>
+   </item>
+   <item weight="0.0016084">
+    fredericksburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "fredericksburg@va";</tag>
+   </item>
+   <item weight="0.001601">
+    white plains
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "white_plains@ny";</tag>
+   </item>
+   <item weight="0.0015556">
+    huntington beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "huntington_beach@ca";</tag>
+   </item>
+   <item weight="0.0015545">
+    stockton
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "stockton@ca";</tag>
+   </item>
+   <item weight="0.0015537">
+    edison
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "edison@nj";</tag>
+   </item>
+   <item weight="0.001549">
+    newport news
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "newport_news@va";</tag>
+   </item>
+   <item weight="0.0015415">
+    santa rosa
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_rosa@ca";</tag>
+   </item>
+   <item weight="0.0015341">
+    mobile
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "mobile@al";</tag>
+   </item>
+   <item weight="0.0015324">
+    gaithersburg
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "gaithersburg@md";</tag>
+   </item>
+   <item weight="0.0015323">
+    moreno valley
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "moreno_valley@ca";</tag>
+   </item>
+   <item weight="0.001525">
+    roanoke
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "roanoke@va";</tag>
+   </item>
+   <item weight="0.0015249">
+    bradenton
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "bradenton@fl";</tag>
+   </item>
+   <item weight="0.0015236">
+    palm desert
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "palm_desert@ca";</tag>
+   </item>
+   <item weight="0.001519">
+    whittier
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "whittier@ca";</tag>
+   </item>
+   <item weight="0.0015177">
+    oxnard
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "oxnard@ca";</tag>
+   </item>
+   <item weight="0.001514">
+    yonkers
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "yonkers@ny";</tag>
+   </item>
+   <item weight="0.0015066">
+    west palm beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "west_palm_beach@fl";</tag>
+   </item>
+   <item weight="0.0015059">
+    fort wayne
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "fort_wayne@in";</tag>
+   </item>
+   <item weight="0.0014995">
+    syracuse
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "syracuse@ny";</tag>
+   </item>
+   <item weight="0.0014944">
+    pasadena
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "pasadena@ca";</tag>
+   </item>
+   <item weight="0.0014876">
+    hampton
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "hampton@va";</tag>
+   </item>
+   <item weight="0.0014873">
+    laurel
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "laurel@md";</tag>
+   </item>
+   <item weight="0.001485">
+    union
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "union@nj";</tag>
+   </item>
+   <item weight="0.0014704">
+    shreveport
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "shreveport@la";</tag>
+   </item>
+   <item weight="0.0014695">
+    manassas
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "manassas@va";</tag>
+   </item>
+   <item weight="0.0014556">
+    braintree
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "braintree@ma";</tag>
+   </item>
+   <item weight="0.001434">
+    chesapeake
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "chesapeake@va";</tag>
+   </item>
+   <item weight="0.0014225">
+    towson
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "towson@md";</tag>
+   </item>
+   <item weight="0.0014143">
+    anaheim
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "anaheim@ca";</tag>
+   </item>
+   <item weight="0.0014137">
+    tyler
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "tyler@tx";</tag>
+   </item>
+   <item weight="0.0014">
+    salt lake city
+    <item repeat="0-1">
+     utah
+    </item>
+    <tag>out = "salt_lake_city@ut";</tag>
+   </item>
+   <item weight="0.0013953">
+    brick
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "brick@nj";</tag>
+   </item>
+   <item weight="0.0013681">
+    woodbridge
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "woodbridge@va";</tag>
+   </item>
+   <item weight="0.0013674">
+    boca raton
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "boca_raton@fl";</tag>
+   </item>
+   <item weight="0.0013518">
+    hackensack
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "hackensack@nj";</tag>
+   </item>
+   <item weight="0.0013332">
+    freehold
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "freehold@nj";</tag>
+   </item>
+   <item weight="0.0013318">
+    irving
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "irving@tx";</tag>
+   </item>
+   <item weight="0.0013221">
+    manchester
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "manchester@nh";</tag>
+   </item>
+   <item weight="0.0013098">
+    milwaukee
+    <item repeat="0-1">
+     wisconsin
+    </item>
+    <tag>out = "milwaukee@wi";</tag>
+   </item>
+   <item weight="0.0013019">
+    newton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "newton@ma";</tag>
+   </item>
+   <item weight="0.0012995">
+    marietta
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "marietta@ga";</tag>
+   </item>
+   <item weight="0.0012947">
+    fall river
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "fall_river@ma";</tag>
+   </item>
+   <item weight="0.0012945">
+    new bedford
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "new_bedford@ma";</tag>
+   </item>
+   <item weight="0.001292">
+    plymouth
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "plymouth@ma";</tag>
+   </item>
+   <item weight="0.0012859">
+    springfield
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "springfield@mo";</tag>
+   </item>
+   <item weight="0.0012859">
+    fort myers
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "fort_myers@fl";</tag>
+   </item>
+   <item weight="0.0012851">
+    denton
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "denton@tx";</tag>
+   </item>
+   <item weight="0.0012774">
+    kansas city
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "kansas_city@mo";</tag>
+   </item>
+   <item weight="0.0012718">
+    framingham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "framingham@ma";</tag>
+   </item>
+   <item weight="0.0012698">
+    hemet
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "hemet@ca";</tag>
+   </item>
+   <item weight="0.0012617">
+    honolulu
+    <item repeat="0-1">
+     hawaii
+    </item>
+    <tag>out = "honolulu@hi";</tag>
+   </item>
+   <item weight="0.0012588">
+    burlington
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "burlington@ma";</tag>
+   </item>
+   <item weight="0.001257">
+    hagerstown
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "hagerstown@md";</tag>
+   </item>
+   <item weight="0.0012566">
+    naples
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "naples@fl";</tag>
+   </item>
+   <item weight="0.0012556">
+    bel air
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "bel_air@md";</tag>
+   </item>
+   <item weight="0.0012463">
+    garland
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "garland@tx";</tag>
+   </item>
+   <item weight="0.0012445">
+    dorchester
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "dorchester@ma";</tag>
+   </item>
+   <item weight="0.0012443">
+    palm springs
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "palm_springs@ca";</tag>
+   </item>
+   <item weight="0.0012415">
+    everett
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "everett@wa";</tag>
+   </item>
+   <item weight="0.0012334">
+    tucson
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "tucson@az";</tag>
+   </item>
+   <item weight="0.0012287">
+    redlands
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "redlands@ca";</tag>
+   </item>
+   <item weight="0.0012277">
+    peabody
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "peabody@ma";</tag>
+   </item>
+   <item weight="0.0012242">
+    irvine
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "irvine@ca";</tag>
+   </item>
+   <item weight="0.001222">
+    york
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "york@pa";</tag>
+   </item>
+   <item weight="0.0012183">
+    clifton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "clifton@nj";</tag>
+   </item>
+   <item weight="0.0012163">
+    knoxville
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "knoxville@tn";</tag>
+   </item>
+   <item weight="0.0012114">
+    lynchburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "lynchburg@va";</tag>
+   </item>
+   <item weight="0.0012093">
+    huntington
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "huntington@ny";</tag>
+   </item>
+   <item weight="0.0012078">
+    hyannis
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "hyannis@ma";</tag>
+   </item>
+   <item weight="0.0012076">
+    lowell
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "lowell@ma";</tag>
+   </item>
+   <item weight="0.0012063">
+    jackson
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "jackson@ms";</tag>
+   </item>
+   <item weight="0.0012034">
+    chino
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "chino@ca";</tag>
+   </item>
+   <item weight="0.0011939">
+    corpus christi
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "corpus_christi@tx";</tag>
+   </item>
+   <item weight="0.0011811">
+    lubbock
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "lubbock@tx";</tag>
+   </item>
+   <item weight="0.0011805">
+    santa maria
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_maria@ca";</tag>
+   </item>
+   <item weight="0.0011707">
+    weymouth
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "weymouth@ma";</tag>
+   </item>
+   <item weight="0.0011705">
+    thousand oaks
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "thousand_oaks@ca";</tag>
+   </item>
+   <item weight="0.0011704">
+    nashua
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "nashua@nh";</tag>
+   </item>
+   <item weight="0.0011672">
+    pomona
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "pomona@ca";</tag>
+   </item>
+   <item weight="0.0011552">
+    beverly hills
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "beverly_hills@ca";</tag>
+   </item>
+   <item weight="0.0011459">
+    dover
+    <item repeat="0-1">
+     delaware
+    </item>
+    <tag>out = "dover@de";</tag>
+   </item>
+   <item weight="0.0011399">
+    newport beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "newport_beach@ca";</tag>
+   </item>
+   <item weight="0.0011369">
+    winchester
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "winchester@va";</tag>
+   </item>
+   <item weight="0.0011314">
+    waco
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "waco@tx";</tag>
+   </item>
+   <item weight="0.0011292">
+    colorado springs
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "colorado_springs@co";</tag>
+   </item>
+   <item weight="0.0011288">
+    brandon
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "brandon@fl";</tag>
+   </item>
+   <item weight="0.001124">
+    amarillo
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "amarillo@tx";</tag>
+   </item>
+   <item weight="0.0011178">
+    minneapolis
+    <item repeat="0-1">
+     minnesota
+    </item>
+    <tag>out = "minneapolis@mn";</tag>
+   </item>
+   <item weight="0.0011163">
+    roseville
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "roseville@ca";</tag>
+   </item>
+   <item weight="0.0011078">
+    salisbury
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "salisbury@md";</tag>
+   </item>
+   <item weight="0.0011046">
+    elizabeth
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "elizabeth@nj";</tag>
+   </item>
+   <item weight="0.0011025">
+    cincinnati
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "cincinnati@oh";</tag>
+   </item>
+   <item weight="0.0010995">
+    reading
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "reading@pa";</tag>
+   </item>
+   <item weight="0.0010918">
+    camden
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "camden@nj";</tag>
+   </item>
+   <item weight="0.0010852">
+    paterson
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "paterson@nj";</tag>
+   </item>
+   <item weight="0.0010756">
+    salem
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "salem@ma";</tag>
+   </item>
+   <item weight="0.0010728">
+    columbia
+    <item repeat="0-1">
+     south carolina
+    </item>
+    <tag>out = "columbia@sc";</tag>
+   </item>
+   <item weight="0.0010714">
+    lewisville
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "lewisville@tx";</tag>
+   </item>
+   <item weight="0.001065">
+    norwood
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "norwood@ma";</tag>
+   </item>
+   <item weight="0.0010619">
+    upland
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "upland@ca";</tag>
+   </item>
+   <item weight="0.0010596">
+    saugus
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "saugus@ma";</tag>
+   </item>
+   <item weight="0.0010583">
+    danvers
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "danvers@ma";</tag>
+   </item>
+   <item weight="0.0010539">
+    indio
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "indio@ca";</tag>
+   </item>
+   <item weight="0.0010485">
+    fontana
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "fontana@ca";</tag>
+   </item>
+   <item weight="0.0010373">
+    waltham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "waltham@ma";</tag>
+   </item>
+   <item weight="0.0010328">
+    west covina
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "west_covina@ca";</tag>
+   </item>
+   <item weight="0.0010326">
+    newark
+    <item repeat="0-1">
+     delaware
+    </item>
+    <tag>out = "newark@de";</tag>
+   </item>
+   <item weight="0.0010272">
+    downey
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "downey@ca";</tag>
+   </item>
+   <item weight="0.0010146">
+    costa mesa
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "costa_mesa@ca";</tag>
+   </item>
+   <item weight="0.0010134">
+    scranton
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "scranton@pa";</tag>
+   </item>
+   <item weight="0.0010061">
+    spokane
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "spokane@wa";</tag>
+   </item>
+   <item weight="0.00099638">
+    longview
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "longview@tx";</tag>
+   </item>
+   <item weight="0.00099627">
+    leesburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "leesburg@va";</tag>
+   </item>
+   <item weight="0.00099464">
+    springfield
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "springfield@il";</tag>
+   </item>
+   <item weight="0.00099422">
+    west orange
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "west_orange@nj";</tag>
+   </item>
+   <item weight="0.00099379">
+    norman
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "norman@ok";</tag>
+   </item>
+   <item weight="0.00098808">
+    livingston
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "livingston@nj";</tag>
+   </item>
+   <item weight="0.00098444">
+    huntington
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "huntington@wv";</tag>
+   </item>
+   <item weight="0.00098361">
+    mckinney
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "mckinney@tx";</tag>
+   </item>
+   <item weight="0.00098215">
+    taunton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "taunton@ma";</tag>
+   </item>
+   <item weight="0.00098192">
+    deptford
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "deptford@nj";</tag>
+   </item>
+   <item weight="0.00097972">
+    orange
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "orange@ca";</tag>
+   </item>
+   <item weight="0.00097563">
+    natick
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "natick@ma";</tag>
+   </item>
+   <item weight="0.0009632">
+    rochester
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "rochester@ny";</tag>
+   </item>
+   <item weight="0.00095474">
+    clinton
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "clinton@md";</tag>
+   </item>
+   <item weight="0.0009533">
+    evansville
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "evansville@in";</tag>
+   </item>
+   <item weight="0.00095074">
+    bellevue
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "bellevue@wa";</tag>
+   </item>
+   <item weight="0.00094904">
+    cranston
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "cranston@ri";</tag>
+   </item>
+   <item weight="0.00094295">
+    covina
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "covina@ca";</tag>
+   </item>
+   <item weight="0.00093832">
+    scottsdale
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "scottsdale@az";</tag>
+   </item>
+   <item weight="0.00093497">
+    west chester
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "west_chester@pa";</tag>
+   </item>
+   <item weight="0.00093044">
+    cleveland
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "cleveland@oh";</tag>
+   </item>
+   <item weight="0.00092568">
+    woburn
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "woburn@ma";</tag>
+   </item>
+   <item weight="0.00092119">
+    holyoke
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "holyoke@ma";</tag>
+   </item>
+   <item weight="0.00091669">
+    morristown
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "morristown@nj";</tag>
+   </item>
+   <item weight="0.00090896">
+    corona
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "corona@ca";</tag>
+   </item>
+   <item weight="0.0009053">
+    murrieta
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "murrieta@ca";</tag>
+   </item>
+   <item weight="0.00090072">
+    camarillo
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "camarillo@ca";</tag>
+   </item>
+   <item weight="0.00089954">
+    bangor
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "bangor@me";</tag>
+   </item>
+   <item weight="0.00089911">
+    sterling
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "sterling@va";</tag>
+   </item>
+   <item weight="0.00089337">
+    malden
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "malden@ma";</tag>
+   </item>
+   <item weight="0.0008891">
+    wilkes barre
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "wilkes_barre@pa";</tag>
+   </item>
+   <item weight="0.00088871">
+    garden city
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "garden_city@ny";</tag>
+   </item>
+   <item weight="0.00088698">
+    westminster
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "westminster@md";</tag>
+   </item>
+   <item weight="0.00088396">
+    walnut creek
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "walnut_creek@ca";</tag>
+   </item>
+   <item weight="0.00088322">
+    howell
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "howell@nj";</tag>
+   </item>
+   <item weight="0.00087974">
+    midland
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "midland@tx";</tag>
+   </item>
+   <item weight="0.00087948">
+    dedham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "dedham@ma";</tag>
+   </item>
+   <item weight="0.00087875">
+    visalia
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "visalia@ca";</tag>
+   </item>
+   <item weight="0.00087528">
+    burbank
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "burbank@ca";</tag>
+   </item>
+   <item weight="0.00087438">
+    greensboro
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "greensboro@nc";</tag>
+   </item>
+   <item weight="0.00087425">
+    santa ana
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_ana@ca";</tag>
+   </item>
+   <item weight="0.00087352">
+    upper marlboro
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "upper_marlboro@md";</tag>
+   </item>
+   <item weight="0.00087137">
+    marlton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "marlton@nj";</tag>
+   </item>
+   <item weight="0.0008699">
+    portsmouth
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "portsmouth@va";</tag>
+   </item>
+   <item weight="0.00086659">
+    woodbridge
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "woodbridge@nj";</tag>
+   </item>
+   <item weight="0.00086462">
+    fayetteville
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "fayetteville@ar";</tag>
+   </item>
+   <item weight="0.00085875">
+    abilene
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "abilene@tx";</tag>
+   </item>
+   <item weight="0.00085874">
+    fort smith
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "fort_smith@ar";</tag>
+   </item>
+   <item weight="0.00085855">
+    suffolk
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "suffolk@va";</tag>
+   </item>
+   <item weight="0.00085835">
+    culpeper
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "culpeper@va";</tag>
+   </item>
+   <item weight="0.00085272">
+    leominster
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "leominster@ma";</tag>
+   </item>
+   <item weight="0.00084814">
+    king of prussia
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "king_of_prussia@pa";</tag>
+   </item>
+   <item weight="0.00084783">
+    hyattsville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "hyattsville@md";</tag>
+   </item>
+   <item weight="0.00084772">
+    owings mills
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "owings_mills@md";</tag>
+   </item>
+   <item weight="0.00084079">
+    grapevine
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "grapevine@tx";</tag>
+   </item>
+   <item weight="0.0008367">
+    pensacola
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "pensacola@fl";</tag>
+   </item>
+   <item weight="0.00083326">
+    montclair
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "montclair@nj";</tag>
+   </item>
+   <item weight="0.00083109">
+    lakewood
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "lakewood@nj";</tag>
+   </item>
+   <item weight="0.0008283">
+    frisco
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "frisco@tx";</tag>
+   </item>
+   <item weight="0.00082605">
+    wichita
+    <item repeat="0-1">
+     kansas
+    </item>
+    <tag>out = "wichita@ks";</tag>
+   </item>
+   <item weight="0.00082119">
+    odessa
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "odessa@tx";</tag>
+   </item>
+   <item weight="0.00081443">
+    medford
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "medford@ma";</tag>
+   </item>
+   <item weight="0.00080934">
+    revere
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "revere@ma";</tag>
+   </item>
+   <item weight="0.00080346">
+    glendale
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "glendale@ca";</tag>
+   </item>
+   <item weight="0.00080266">
+    daytona beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "daytona_beach@fl";</tag>
+   </item>
+   <item weight="0.0008019">
+    largo
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "largo@fl";</tag>
+   </item>
+   <item weight="0.00079773">
+    falls church
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "falls_church@va";</tag>
+   </item>
+   <item weight="0.00079191">
+    vancouver
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "vancouver@wa";</tag>
+   </item>
+   <item weight="0.00078777">
+    everett
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "everett@ma";</tag>
+   </item>
+   <item weight="0.00078713">
+    mclean
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "mclean@va";</tag>
+   </item>
+   <item weight="0.00078093">
+    petersburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "petersburg@va";</tag>
+   </item>
+   <item weight="0.00077998">
+    troy
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "troy@mi";</tag>
+   </item>
+   <item weight="0.0007798">
+    salem
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "salem@or";</tag>
+   </item>
+   <item weight="0.00077879">
+    vineland
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "vineland@nj";</tag>
+   </item>
+   <item weight="0.00077751">
+    alpharetta
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "alpharetta@ga";</tag>
+   </item>
+   <item weight="0.00077314">
+    beckley
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "beckley@wv";</tag>
+   </item>
+   <item weight="0.0007726">
+    new rochelle
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "new_rochelle@ny";</tag>
+   </item>
+   <item weight="0.00076901">
+    somerville
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "somerville@ma";</tag>
+   </item>
+   <item weight="0.00076855">
+    lanham
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "lanham@md";</tag>
+   </item>
+   <item weight="0.00076738">
+    san rafael
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_rafael@ca";</tag>
+   </item>
+   <item weight="0.00076501">
+    katy
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "katy@tx";</tag>
+   </item>
+   <item weight="0.00076422">
+    bayonne
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "bayonne@nj";</tag>
+   </item>
+   <item weight="0.00076397">
+    concord
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "concord@ca";</tag>
+   </item>
+   <item weight="0.00076274">
+    edmond
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "edmond@ok";</tag>
+   </item>
+   <item weight="0.00076205">
+    terre haute
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "terre_haute@in";</tag>
+   </item>
+   <item weight="0.00076084">
+    tuscaloosa
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "tuscaloosa@al";</tag>
+   </item>
+   <item weight="0.00075877">
+    beverly
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "beverly@ma";</tag>
+   </item>
+   <item weight="0.00075868">
+    falmouth
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "falmouth@ma";</tag>
+   </item>
+   <item weight="0.00075459">
+    cerritos
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "cerritos@ca";</tag>
+   </item>
+   <item weight="0.00075458">
+    lake charles
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "lake_charles@la";</tag>
+   </item>
+   <item weight="0.00075339">
+    tallahassee
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "tallahassee@fl";</tag>
+   </item>
+   <item weight="0.00075088">
+    brea
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "brea@ca";</tag>
+   </item>
+   <item weight="0.00075">
+    eugene
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "eugene@or";</tag>
+   </item>
+   <item weight="0.00074624">
+    east orange
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "east_orange@nj";</tag>
+   </item>
+   <item weight="0.00074589">
+    henderson
+    <item repeat="0-1">
+     nevada
+    </item>
+    <tag>out = "henderson@nv";</tag>
+   </item>
+   <item weight="0.00074549">
+    palmdale
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "palmdale@ca";</tag>
+   </item>
+   <item weight="0.000745">
+    conway
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "conway@ar";</tag>
+   </item>
+   <item weight="0.00074418">
+    oxon hill
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "oxon_hill@md";</tag>
+   </item>
+   <item weight="0.00074386">
+    madison
+    <item repeat="0-1">
+     wisconsin
+    </item>
+    <tag>out = "madison@wi";</tag>
+   </item>
+   <item weight="0.00074369">
+    jonesboro
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "jonesboro@ar";</tag>
+   </item>
+   <item weight="0.00074354">
+    chattanooga
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "chattanooga@tn";</tag>
+   </item>
+   <item weight="0.00074153">
+    concord
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "concord@nh";</tag>
+   </item>
+   <item weight="0.00073952">
+    red bank
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "red_bank@nj";</tag>
+   </item>
+   <item weight="0.00073907">
+    east brunswick
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "east_brunswick@nj";</tag>
+   </item>
+   <item weight="0.00073786">
+    la quinta
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "la_quinta@ca";</tag>
+   </item>
+   <item weight="0.00073465">
+    weatherford
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "weatherford@tx";</tag>
+   </item>
+   <item weight="0.00073368">
+    erie
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "erie@pa";</tag>
+   </item>
+   <item weight="0.00073282">
+    myrtle beach
+    <item repeat="0-1">
+     south carolina
+    </item>
+    <tag>out = "myrtle_beach@sc";</tag>
+   </item>
+   <item weight="0.0007324">
+    west springfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "west_springfield@ma";</tag>
+   </item>
+   <item weight="0.00073101">
+    springfield
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "springfield@va";</tag>
+   </item>
+   <item weight="0.00073093">
+    reston
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "reston@va";</tag>
+   </item>
+   <item weight="0.00073082">
+    athens
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "athens@ga";</tag>
+   </item>
+   <item weight="0.00073042">
+    ellicott city
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "ellicott_city@md";</tag>
+   </item>
+   <item weight="0.00073021">
+    van nuys
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "van_nuys@ca";</tag>
+   </item>
+   <item weight="0.00072796">
+    vienna
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "vienna@va";</tag>
+   </item>
+   <item weight="0.00072603">
+    new port richey
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "new_port_richey@fl";</tag>
+   </item>
+   <item weight="0.00072467">
+    westbury
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "westbury@ny";</tag>
+   </item>
+   <item weight="0.00072292">
+    new brunswick
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "new_brunswick@nj";</tag>
+   </item>
+   <item weight="0.00072275">
+    westfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "westfield@ma";</tag>
+   </item>
+   <item weight="0.00072147">
+    gainesville
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "gainesville@fl";</tag>
+   </item>
+   <item weight="0.00072108">
+    college station
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "college_station@tx";</tag>
+   </item>
+   <item weight="0.00072001">
+    greenville
+    <item repeat="0-1">
+     south carolina
+    </item>
+    <tag>out = "greenville@sc";</tag>
+   </item>
+   <item weight="0.00071961">
+    linden
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "linden@nj";</tag>
+   </item>
+   <item weight="0.00071679">
+    easton
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "easton@pa";</tag>
+   </item>
+   <item weight="0.00071669">
+    redding
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "redding@ca";</tag>
+   </item>
+   <item weight="0.00071662">
+    berkeley
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "berkeley@ca";</tag>
+   </item>
+   <item weight="0.00071541">
+    albuquerque
+    <item repeat="0-1">
+     new mexico
+    </item>
+    <tag>out = "albuquerque@nm";</tag>
+   </item>
+   <item weight="0.00071415">
+    brookline
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "brookline@ma";</tag>
+   </item>
+   <item weight="0.00071118">
+    dayton
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "dayton@oh";</tag>
+   </item>
+   <item weight="0.00071007">
+    naperville
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "naperville@il";</tag>
+   </item>
+   <item weight="0.0007099">
+    monroe
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "monroe@la";</tag>
+   </item>
+   <item weight="0.00070704">
+    sherman
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "sherman@tx";</tag>
+   </item>
+   <item weight="0.00070688">
+    houma
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "houma@la";</tag>
+   </item>
+   <item weight="0.00070668">
+    apple valley
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "apple_valley@ca";</tag>
+   </item>
+   <item weight="0.00070432">
+    warrenton
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "warrenton@va";</tag>
+   </item>
+   <item weight="0.00070213">
+    stafford
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "stafford@va";</tag>
+   </item>
+   <item weight="0.00070069">
+    wilmington
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "wilmington@nc";</tag>
+   </item>
+   <item weight="0.00069965">
+    auburn
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "auburn@ma";</tag>
+   </item>
+   <item weight="0.0006969">
+    lafayette
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "lafayette@in";</tag>
+   </item>
+   <item weight="0.00069601">
+    hanover
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "hanover@ma";</tag>
+   </item>
+   <item weight="0.00069299">
+    charleston
+    <item repeat="0-1">
+     south carolina
+    </item>
+    <tag>out = "charleston@sc";</tag>
+   </item>
+   <item weight="0.00069244">
+    lynnwood
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "lynnwood@wa";</tag>
+   </item>
+   <item weight="0.0006918">
+    chico
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "chico@ca";</tag>
+   </item>
+   <item weight="0.00069065">
+    melbourne
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "melbourne@fl";</tag>
+   </item>
+   <item weight="0.00069046">
+    germantown
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "germantown@md";</tag>
+   </item>
+   <item weight="0.00068925">
+    westfield
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "westfield@nj";</tag>
+   </item>
+   <item weight="0.00068853">
+    baytown
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "baytown@tx";</tag>
+   </item>
+   <item weight="0.00068635">
+    norwalk
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "norwalk@ca";</tag>
+   </item>
+   <item weight="0.00068563">
+    redondo beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "redondo_beach@ca";</tag>
+   </item>
+   <item weight="0.00068563">
+    lawrence
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "lawrence@ma";</tag>
+   </item>
+   <item weight="0.0006845">
+    danville
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "danville@va";</tag>
+   </item>
+   <item weight="0.00067923">
+    mesquite
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "mesquite@tx";</tag>
+   </item>
+   <item weight="0.00067898">
+    columbia
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "columbia@mo";</tag>
+   </item>
+   <item weight="0.00067742">
+    norristown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "norristown@pa";</tag>
+   </item>
+   <item weight="0.00067528">
+    manhattan beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "manhattan_beach@ca";</tag>
+   </item>
+   <item weight="0.00067369">
+    riverhead
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "riverhead@ny";</tag>
+   </item>
+   <item weight="0.00067344">
+    easton
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "easton@md";</tag>
+   </item>
+   <item weight="0.00067198">
+    san mateo
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_mateo@ca";</tag>
+   </item>
+   <item weight="0.00066849">
+    beaverton
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "beaverton@or";</tag>
+   </item>
+   <item weight="0.00066798">
+    princeton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "princeton@nj";</tag>
+   </item>
+   <item weight="0.00066747">
+    bryan
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "bryan@tx";</tag>
+   </item>
+   <item weight="0.00066505">
+    napa
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "napa@ca";</tag>
+   </item>
+   <item weight="0.00066446">
+    marlborough
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "marlborough@ma";</tag>
+   </item>
+   <item weight="0.00066298">
+    voorhees
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "voorhees@nj";</tag>
+   </item>
+   <item weight="0.00066042">
+    lakewood
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "lakewood@ca";</tag>
+   </item>
+   <item weight="0.00065901">
+    summit
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "summit@nj";</tag>
+   </item>
+   <item weight="0.00065841">
+    hartford
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "hartford@ct";</tag>
+   </item>
+   <item weight="0.00065183">
+    glendora
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "glendora@ca";</tag>
+   </item>
+   <item weight="0.00065015">
+    tacoma
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "tacoma@wa";</tag>
+   </item>
+   <item weight="0.00064941">
+    augusta
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "augusta@me";</tag>
+   </item>
+   <item weight="0.00064495">
+    palo alto
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "palo_alto@ca";</tag>
+   </item>
+   <item weight="0.00064403">
+    el paso
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "el_paso@tx";</tag>
+   </item>
+   <item weight="0.00063993">
+    bay shore
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "bay_shore@ny";</tag>
+   </item>
+   <item weight="0.00063604">
+    ridgewood
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "ridgewood@nj";</tag>
+   </item>
+   <item weight="0.00063322">
+    victoria
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "victoria@tx";</tag>
+   </item>
+   <item weight="0.00063125">
+    williamsburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "williamsburg@va";</tag>
+   </item>
+   <item weight="0.00063093">
+    bloomfield
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "bloomfield@nj";</tag>
+   </item>
+   <item weight="0.00063069">
+    largo
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "largo@md";</tag>
+   </item>
+   <item weight="0.00062898">
+    watertown
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "watertown@ma";</tag>
+   </item>
+   <item weight="0.00062781">
+    carrollton
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "carrollton@tx";</tag>
+   </item>
+   <item weight="0.00062575">
+    huntsville
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "huntsville@al";</tag>
+   </item>
+   <item weight="0.00062448">
+    bossier city
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "bossier_city@la";</tag>
+   </item>
+   <item weight="0.00062414">
+    milford
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "milford@ma";</tag>
+   </item>
+   <item weight="0.00062301">
+    northridge
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "northridge@ca";</tag>
+   </item>
+   <item weight="0.00062142">
+    anchorage
+    <item repeat="0-1">
+     alaska
+    </item>
+    <tag>out = "anchorage@ak";</tag>
+   </item>
+   <item weight="0.00062096">
+    la plata
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "la_plata@md";</tag>
+   </item>
+   <item weight="0.00061981">
+    eatontown
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "eatontown@nj";</tag>
+   </item>
+   <item weight="0.00061837">
+    saint paul
+    <item repeat="0-1">
+     minnesota
+    </item>
+    <tag>out = "saint_paul@mn";</tag>
+   </item>
+   <item weight="0.00061751">
+    salem
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "salem@nh";</tag>
+   </item>
+   <item weight="0.00061728">
+    culver city
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "culver_city@ca";</tag>
+   </item>
+   <item weight="0.00061555">
+    south boston
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "south_boston@ma";</tag>
+   </item>
+   <item weight="0.00061523">
+    mount laurel
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "mount_laurel@nj";</tag>
+   </item>
+   <item weight="0.00061469">
+    morgantown
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "morgantown@wv";</tag>
+   </item>
+   <item weight="0.00061371">
+    kingston
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "kingston@ny";</tag>
+   </item>
+   <item weight="0.00061209">
+    lancaster
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "lancaster@pa";</tag>
+   </item>
+   <item weight="0.00061124">
+    commack
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "commack@ny";</tag>
+   </item>
+   <item weight="0.0006105">
+    pittsfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "pittsfield@ma";</tag>
+   </item>
+   <item weight="0.0006094">
+    hingham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "hingham@ma";</tag>
+   </item>
+   <item weight="0.00060676">
+    englewood
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "englewood@nj";</tag>
+   </item>
+   <item weight="0.00060568">
+    richardson
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "richardson@tx";</tag>
+   </item>
+   <item weight="0.00060476">
+    conroe
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "conroe@tx";</tag>
+   </item>
+   <item weight="0.00060446">
+    boise
+    <item repeat="0-1">
+     idaho
+    </item>
+    <tag>out = "boise@id";</tag>
+   </item>
+   <item weight="0.00060434">
+    jackson
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "jackson@tn";</tag>
+   </item>
+   <item weight="0.00060399">
+    massapequa
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "massapequa@ny";</tag>
+   </item>
+   <item weight="0.00060146">
+    montgomery
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "montgomery@al";</tag>
+   </item>
+   <item weight="0.00060105">
+    fullerton
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "fullerton@ca";</tag>
+   </item>
+   <item weight="0.0005989">
+    mesa
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "mesa@az";</tag>
+   </item>
+   <item weight="0.0005989">
+    killeen
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "killeen@tx";</tag>
+   </item>
+   <item weight="0.00059875">
+    poughkeepsie
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "poughkeepsie@ny";</tag>
+   </item>
+   <item weight="0.00059696">
+    fayetteville
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "fayetteville@nc";</tag>
+   </item>
+   <item weight="0.00059678">
+    bethlehem
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "bethlehem@pa";</tag>
+   </item>
+   <item weight="0.00059385">
+    redwood city
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "redwood_city@ca";</tag>
+   </item>
+   <item weight="0.00059297">
+    metairie
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "metairie@la";</tag>
+   </item>
+   <item weight="0.00059059">
+    savannah
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "savannah@ga";</tag>
+   </item>
+   <item weight="0.00058958">
+    charlottesville
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "charlottesville@va";</tag>
+   </item>
+   <item weight="0.00058928">
+    colonial heights
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "colonial_heights@va";</tag>
+   </item>
+   <item weight="0.00058837">
+    haverhill
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "haverhill@ma";</tag>
+   </item>
+   <item weight="0.00058791">
+    farmingdale
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "farmingdale@ny";</tag>
+   </item>
+   <item weight="0.00058786">
+    pasadena
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "pasadena@md";</tag>
+   </item>
+   <item weight="0.00058423">
+    media
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "media@pa";</tag>
+   </item>
+   <item weight="0.00058385">
+    joplin
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "joplin@mo";</tag>
+   </item>
+   <item weight="0.00058283">
+    northampton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "northampton@ma";</tag>
+   </item>
+   <item weight="0.00058281">
+    ocala
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "ocala@fl";</tag>
+   </item>
+   <item weight="0.00058261">
+    mission viejo
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "mission_viejo@ca";</tag>
+   </item>
+   <item weight="0.00058213">
+    wareham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "wareham@ma";</tag>
+   </item>
+   <item weight="0.00058195">
+    stoughton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "stoughton@ma";</tag>
+   </item>
+   <item weight="0.00058024">
+    winston salem
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "winston_salem@nc";</tag>
+   </item>
+   <item weight="0.00058004">
+    great neck
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "great_neck@ny";</tag>
+   </item>
+   <item weight="0.00057879">
+    winter haven
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "winter_haven@fl";</tag>
+   </item>
+   <item weight="0.00057852">
+    pleasanton
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "pleasanton@ca";</tag>
+   </item>
+   <item weight="0.00057719">
+    fremont
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "fremont@ca";</tag>
+   </item>
+   <item weight="0.0005761">
+    canton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "canton@ma";</tag>
+   </item>
+   <item weight="0.00057493">
+    schaumburg
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "schaumburg@il";</tag>
+   </item>
+   <item weight="0.00057419">
+    bensalem
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "bensalem@pa";</tag>
+   </item>
+   <item weight="0.00057403">
+    simi valley
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "simi_valley@ca";</tag>
+   </item>
+   <item weight="0.00057342">
+    south portland
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "south_portland@me";</tag>
+   </item>
+   <item weight="0.00057259">
+    macon
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "macon@ga";</tag>
+   </item>
+   <item weight="0.00057133">
+    gainesville
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "gainesville@ga";</tag>
+   </item>
+   <item weight="0.00057044">
+    newburgh
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "newburgh@ny";</tag>
+   </item>
+   <item weight="0.00057">
+    la habra
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "la_habra@ca";</tag>
+   </item>
+   <item weight="0.00056976">
+    oceanside
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "oceanside@ca";</tag>
+   </item>
+   <item weight="0.00056806">
+    bridgewater
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "bridgewater@nj";</tag>
+   </item>
+   <item weight="0.00056777">
+    altoona
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "altoona@pa";</tag>
+   </item>
+   <item weight="0.00056633">
+    lodi
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "lodi@ca";</tag>
+   </item>
+   <item weight="0.00056488">
+    tupelo
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "tupelo@ms";</tag>
+   </item>
+   <item weight="0.00056474">
+    beaumont
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "beaumont@tx";</tag>
+   </item>
+   <item weight="0.00056178">
+    randolph
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "randolph@ma";</tag>
+   </item>
+   <item weight="0.00056003">
+    doylestown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "doylestown@pa";</tag>
+   </item>
+   <item weight="0.00055876">
+    southlake
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "southlake@tx";</tag>
+   </item>
+   <item weight="0.00055873">
+    montclair
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "montclair@ca";</tag>
+   </item>
+   <item weight="0.00055864">
+    folsom
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "folsom@ca";</tag>
+   </item>
+   <item weight="0.00055778">
+    omaha
+    <item repeat="0-1">
+     nebraska
+    </item>
+    <tag>out = "omaha@ne";</tag>
+   </item>
+   <item weight="0.00055753">
+    manhasset
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "manhasset@ny";</tag>
+   </item>
+   <item weight="0.00055722">
+    old bridge
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "old_bridge@nj";</tag>
+   </item>
+   <item weight="0.00055722">
+    saint augustine
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "saint_augustine@fl";</tag>
+   </item>
+   <item weight="0.00055694">
+    vacaville
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "vacaville@ca";</tag>
+   </item>
+   <item weight="0.00055565">
+    wellesley
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "wellesley@ma";</tag>
+   </item>
+   <item weight="0.00055285">
+    lake elsinore
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "lake_elsinore@ca";</tag>
+   </item>
+   <item weight="0.00055143">
+    salinas
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "salinas@ca";</tag>
+   </item>
+   <item weight="0.00055064">
+    rockwall
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "rockwall@tx";</tag>
+   </item>
+   <item weight="0.00055041">
+    greenbelt
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "greenbelt@md";</tag>
+   </item>
+   <item weight="0.0005495">
+    muskegon
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "muskegon@mi";</tag>
+   </item>
+   <item weight="0.0005487">
+    perris
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "perris@ca";</tag>
+   </item>
+   <item weight="0.00054828">
+    parkersburg
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "parkersburg@wv";</tag>
+   </item>
+   <item weight="0.00054791">
+    miami beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "miami_beach@fl";</tag>
+   </item>
+   <item weight="0.00054758">
+    hayward
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "hayward@ca";</tag>
+   </item>
+   <item weight="0.00054705">
+    andover
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "andover@ma";</tag>
+   </item>
+   <item weight="0.00054563">
+    rogers
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "rogers@ar";</tag>
+   </item>
+   <item weight="0.00054499">
+    needham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "needham@ma";</tag>
+   </item>
+   <item weight="0.00054489">
+    boulder
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "boulder@co";</tag>
+   </item>
+   <item weight="0.0005402">
+    manahawkin
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "manahawkin@nj";</tag>
+   </item>
+   <item weight="0.00053962">
+    hot springs
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "hot_springs@ar";</tag>
+   </item>
+   <item weight="0.00053931">
+    herndon
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "herndon@va";</tag>
+   </item>
+   <item weight="0.00053908">
+    new castle
+    <item repeat="0-1">
+     delaware
+    </item>
+    <tag>out = "new_castle@de";</tag>
+   </item>
+   <item weight="0.00053827">
+    chester
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "chester@va";</tag>
+   </item>
+   <item weight="0.00053772">
+    schenectady
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "schenectady@ny";</tag>
+   </item>
+   <item weight="0.00053647">
+    berlin
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "berlin@nj";</tag>
+   </item>
+   <item weight="0.00053545">
+    hollywood
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "hollywood@ca";</tag>
+   </item>
+   <item weight="0.00053526">
+    chicopee
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "chicopee@ma";</tag>
+   </item>
+   <item weight="0.00053122">
+    patchogue
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "patchogue@ny";</tag>
+   </item>
+   <item weight="0.00053074">
+    parsippany
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "parsippany@nj";</tag>
+   </item>
+   <item weight="0.00053">
+    santa cruz
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_cruz@ca";</tag>
+   </item>
+   <item weight="0.00052823">
+    new haven
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "new_haven@ct";</tag>
+   </item>
+   <item weight="0.00052743">
+    spring
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "spring@tx";</tag>
+   </item>
+   <item weight="0.00052711">
+    smithtown
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "smithtown@ny";</tag>
+   </item>
+   <item weight="0.00052395">
+    paducah
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "paducah@ky";</tag>
+   </item>
+   <item weight="0.00052302">
+    teaneck
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "teaneck@nj";</tag>
+   </item>
+   <item weight="0.0005228">
+    woodland hills
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "woodland_hills@ca";</tag>
+   </item>
+   <item weight="0.00052143">
+    bowling green
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "bowling_green@ky";</tag>
+   </item>
+   <item weight="0.00051951">
+    medford
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "medford@or";</tag>
+   </item>
+   <item weight="0.00051936">
+    lewiston
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "lewiston@me";</tag>
+   </item>
+   <item weight="0.000519">
+    portsmouth
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "portsmouth@nh";</tag>
+   </item>
+   <item weight="0.00051739">
+    ann arbor
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "ann_arbor@mi";</tag>
+   </item>
+   <item weight="0.00051686">
+    lufkin
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "lufkin@tx";</tag>
+   </item>
+   <item weight="0.00051647">
+    neptune
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "neptune@nj";</tag>
+   </item>
+   <item weight="0.00051289">
+    covington
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "covington@la";</tag>
+   </item>
+   <item weight="0.00051243">
+    pottstown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "pottstown@pa";</tag>
+   </item>
+   <item weight="0.00050852">
+    burlington
+    <item repeat="0-1">
+     vermont
+    </item>
+    <tag>out = "burlington@vt";</tag>
+   </item>
+   <item weight="0.00050774">
+    pawtucket
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "pawtucket@ri";</tag>
+   </item>
+   <item weight="0.0005061">
+    temple
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "temple@tx";</tag>
+   </item>
+   <item weight="0.00050505">
+    carson city
+    <item repeat="0-1">
+     nevada
+    </item>
+    <tag>out = "carson_city@nv";</tag>
+   </item>
+   <item weight="0.000505">
+    belleville
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "belleville@nj";</tag>
+   </item>
+   <item weight="0.00050466">
+    nutley
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "nutley@nj";</tag>
+   </item>
+   <item weight="0.00050433">
+    southampton
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "southampton@ny";</tag>
+   </item>
+   <item weight="0.00050427">
+    escondido
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "escondido@ca";</tag>
+   </item>
+   <item weight="0.0005032">
+    owensboro
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "owensboro@ky";</tag>
+   </item>
+   <item weight="0.00050275">
+    stamford
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "stamford@ct";</tag>
+   </item>
+   <item weight="0.0005025">
+    vero beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "vero_beach@fl";</tag>
+   </item>
+   <item weight="0.00050129">
+    southfield
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "southfield@mi";</tag>
+   </item>
+   <item weight="0.00050051">
+    monterey
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "monterey@ca";</tag>
+   </item>
+   <item weight="0.0004999">
+    ocean city
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "ocean_city@md";</tag>
+   </item>
+   <item weight="0.0004991">
+    fitchburg
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "fitchburg@ma";</tag>
+   </item>
+   <item weight="0.00049854">
+    langhorne
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "langhorne@pa";</tag>
+   </item>
+   <item weight="0.00049632">
+    roswell
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "roswell@ga";</tag>
+   </item>
+   <item weight="0.00049592">
+    cumming
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "cumming@ga";</tag>
+   </item>
+   <item weight="0.00049586">
+    kennewick
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "kennewick@wa";</tag>
+   </item>
+   <item weight="0.00049554">
+    middletown
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "middletown@nj";</tag>
+   </item>
+   <item weight="0.0004951">
+    hoboken
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "hoboken@nj";</tag>
+   </item>
+   <item weight="0.00049451">
+    martinsburg
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "martinsburg@wv";</tag>
+   </item>
+   <item weight="0.00049447">
+    short hills
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "short_hills@nj";</tag>
+   </item>
+   <item weight="0.00049426">
+    mount vernon
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "mount_vernon@ny";</tag>
+   </item>
+   <item weight="0.00049368">
+    gloucester
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "gloucester@ma";</tag>
+   </item>
+   <item weight="0.00049343">
+    elk grove
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "elk_grove@ca";</tag>
+   </item>
+   <item weight="0.00049322">
+    greensburg
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "greensburg@pa";</tag>
+   </item>
+   <item weight="0.00049293">
+    long branch
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "long_branch@nj";</tag>
+   </item>
+   <item weight="0.00049217">
+    palm harbor
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "palm_harbor@fl";</tag>
+   </item>
+   <item weight="0.00049212">
+    mays landing
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "mays_landing@nj";</tag>
+   </item>
+   <item weight="0.00049185">
+    shrewsbury
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "shrewsbury@ma";</tag>
+   </item>
+   <item weight="0.00049112">
+    clarksville
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "clarksville@tn";</tag>
+   </item>
+   <item weight="0.00049104">
+    turlock
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "turlock@ca";</tag>
+   </item>
+   <item weight="0.00048959">
+    chelsea
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "chelsea@ma";</tag>
+   </item>
+   <item weight="0.00048918">
+    turnersville
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "turnersville@nj";</tag>
+   </item>
+   <item weight="0.00048773">
+    long island city
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "long_island_city@ny";</tag>
+   </item>
+   <item weight="0.00048735">
+    san ramon
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_ramon@ca";</tag>
+   </item>
+   <item weight="0.000487">
+    burlington
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "burlington@nj";</tag>
+   </item>
+   <item weight="0.000487">
+    venice
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "venice@fl";</tag>
+   </item>
+   <item weight="0.00048223">
+    monroeville
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "monroeville@pa";</tag>
+   </item>
+   <item weight="0.00048151">
+    hollywood
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "hollywood@fl";</tag>
+   </item>
+   <item weight="0.00048135">
+    midlothian
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "midlothian@va";</tag>
+   </item>
+   <item weight="0.00048129">
+    uniontown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "uniontown@pa";</tag>
+   </item>
+   <item weight="0.0004809">
+    round rock
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "round_rock@tx";</tag>
+   </item>
+   <item weight="0.0004808">
+    kennesaw
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "kennesaw@ga";</tag>
+   </item>
+   <item weight="0.00047996">
+    landover
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "landover@md";</tag>
+   </item>
+   <item weight="0.0004797">
+    rancho mirage
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "rancho_mirage@ca";</tag>
+   </item>
+   <item weight="0.00047963">
+    bellingham
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "bellingham@wa";</tag>
+   </item>
+   <item weight="0.0004792">
+    reading
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "reading@ma";</tag>
+   </item>
+   <item weight="0.00047918">
+    catonsville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "catonsville@md";</tag>
+   </item>
+   <item weight="0.00047916">
+    north little rock
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "north_little_rock@ar";</tag>
+   </item>
+   <item weight="0.0004785">
+    hesperia
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "hesperia@ca";</tag>
+   </item>
+   <item weight="0.00047765">
+    bloomington
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "bloomington@in";</tag>
+   </item>
+   <item weight="0.00047755">
+    woodbury
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "woodbury@nj";</tag>
+   </item>
+   <item weight="0.00047732">
+    grand rapids
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "grand_rapids@mi";</tag>
+   </item>
+   <item weight="0.00047533">
+    merced
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "merced@ca";</tag>
+   </item>
+   <item weight="0.00047531">
+    auburn
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "auburn@me";</tag>
+   </item>
+   <item weight="0.00047452">
+    akron
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "akron@oh";</tag>
+   </item>
+   <item weight="0.00047406">
+    stroudsburg
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "stroudsburg@pa";</tag>
+   </item>
+   <item weight="0.00047403">
+    palm beach gardens
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "palm_beach_gardens@fl";</tag>
+   </item>
+   <item weight="0.00047385">
+    amherst
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "amherst@ny";</tag>
+   </item>
+   <item weight="0.0004733">
+    fairfield
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "fairfield@ca";</tag>
+   </item>
+   <item weight="0.00047324">
+    orange
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "orange@nj";</tag>
+   </item>
+   <item weight="0.00047282">
+    chantilly
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "chantilly@va";</tag>
+   </item>
+   <item weight="0.00047231">
+    kearny
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "kearny@nj";</tag>
+   </item>
+   <item weight="0.000471">
+    delray beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "delray_beach@fl";</tag>
+   </item>
+   <item weight="0.00047013">
+    slidell
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "slidell@la";</tag>
+   </item>
+   <item weight="0.00046999">
+    sugar land
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "sugar_land@tx";</tag>
+   </item>
+   <item weight="0.00046978">
+    meridian
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "meridian@ms";</tag>
+   </item>
+   <item weight="0.00046807">
+    palm beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "palm_beach@fl";</tag>
+   </item>
+   <item weight="0.00046774">
+    new iberia
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "new_iberia@la";</tag>
+   </item>
+   <item weight="0.00046759">
+    granbury
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "granbury@tx";</tag>
+   </item>
+   <item weight="0.00046751">
+    jackson
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "jackson@nj";</tag>
+   </item>
+   <item weight="0.00046732">
+    carlsbad
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "carlsbad@ca";</tag>
+   </item>
+   <item weight="0.00046614">
+    fort washington
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "fort_washington@md";</tag>
+   </item>
+   <item weight="0.00046556">
+    san dimas
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_dimas@ca";</tag>
+   </item>
+   <item weight="0.00046532">
+    decatur
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "decatur@ga";</tag>
+   </item>
+   <item weight="0.00046513">
+    sherman oaks
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "sherman_oaks@ca";</tag>
+   </item>
+   <item weight="0.00046477">
+    santa clara
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_clara@ca";</tag>
+   </item>
+   <item weight="0.00046421">
+    clovis
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "clovis@ca";</tag>
+   </item>
+   <item weight="0.00046379">
+    logan
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "logan@wv";</tag>
+   </item>
+   <item weight="0.00046371">
+    valparaiso
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "valparaiso@in";</tag>
+   </item>
+   <item weight="0.0004605">
+    grand prairie
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "grand_prairie@tx";</tag>
+   </item>
+   <item weight="0.0004601">
+    danbury
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "danbury@ct";</tag>
+   </item>
+   <item weight="0.00045935">
+    la verne
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "la_verne@ca";</tag>
+   </item>
+   <item weight="0.00045916">
+    allen
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "allen@tx";</tag>
+   </item>
+   <item weight="0.0004584">
+    east hanover
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "east_hanover@nj";</tag>
+   </item>
+   <item weight="0.00045697">
+    plant city
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "plant_city@fl";</tag>
+   </item>
+   <item weight="0.00045682">
+    bellflower
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "bellflower@ca";</tag>
+   </item>
+   <item weight="0.00045636">
+    utica
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "utica@ny";</tag>
+   </item>
+   <item weight="0.00045631">
+    moorestown
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "moorestown@nj";</tag>
+   </item>
+   <item weight="0.00045624">
+    burleson
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "burleson@tx";</tag>
+   </item>
+   <item weight="0.0004558">
+    raynham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "raynham@ma";</tag>
+   </item>
+   <item weight="0.00045513">
+    city of industry
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "city_of_industry@ca";</tag>
+   </item>
+   <item weight="0.00045475">
+    toledo
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "toledo@oh";</tag>
+   </item>
+   <item weight="0.00045375">
+    cleburne
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "cleburne@tx";</tag>
+   </item>
+   <item weight="0.0004536">
+    walpole
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "walpole@ma";</tag>
+   </item>
+   <item weight="0.00045323">
+    overland park
+    <item repeat="0-1">
+     kansas
+    </item>
+    <tag>out = "overland_park@ks";</tag>
+   </item>
+   <item weight="0.00045307">
+    secaucus
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "secaucus@nj";</tag>
+   </item>
+   <item weight="0.00045275">
+    stoneham
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "stoneham@ma";</tag>
+   </item>
+   <item weight="0.00045253">
+    augusta
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "augusta@ga";</tag>
+   </item>
+   <item weight="0.00045231">
+    san angelo
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "san_angelo@tx";</tag>
+   </item>
+   <item weight="0.00045202">
+    white marsh
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "white_marsh@md";</tag>
+   </item>
+   <item weight="0.00045182">
+    jamaica
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "jamaica@ny";</tag>
+   </item>
+   <item weight="0.00045141">
+    duluth
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "duluth@ga";</tag>
+   </item>
+   <item weight="0.00045079">
+    petaluma
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "petaluma@ca";</tag>
+   </item>
+   <item weight="0.00044958">
+    kingston
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "kingston@ma";</tag>
+   </item>
+   <item weight="0.00044946">
+    hammond
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "hammond@la";</tag>
+   </item>
+   <item weight="0.00044888">
+    searcy
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "searcy@ar";</tag>
+   </item>
+   <item weight="0.00044741">
+    kissimmee
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "kissimmee@fl";</tag>
+   </item>
+   <item weight="0.00044698">
+    west roxbury
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "west_roxbury@ma";</tag>
+   </item>
+   <item weight="0.00044628">
+    rome
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "rome@ga";</tag>
+   </item>
+   <item weight="0.00044587">
+    ayer
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "ayer@ma";</tag>
+   </item>
+   <item weight="0.00044322">
+    rockville centre
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "rockville_centre@ny";</tag>
+   </item>
+   <item weight="0.00044285">
+    the woodlands
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "the_woodlands@tx";</tag>
+   </item>
+   <item weight="0.00044196">
+    arlington
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "arlington@ma";</tag>
+   </item>
+   <item weight="0.00044185">
+    fair lawn
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "fair_lawn@nj";</tag>
+   </item>
+   <item weight="0.00044098">
+    jupiter
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "jupiter@fl";</tag>
+   </item>
+   <item weight="0.00044083">
+    franklin
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "franklin@ma";</tag>
+   </item>
+   <item weight="0.00044014">
+    lyndhurst
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "lyndhurst@nj";</tag>
+   </item>
+   <item weight="0.00043979">
+    chino hills
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "chino_hills@ca";</tag>
+   </item>
+   <item weight="0.00043939">
+    valencia
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "valencia@ca";</tag>
+   </item>
+   <item weight="0.00043927">
+    barstow
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "barstow@ca";</tag>
+   </item>
+   <item weight="0.00043884">
+    waterbury
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "waterbury@ct";</tag>
+   </item>
+   <item weight="0.00043851">
+    methuen
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "methuen@ma";</tag>
+   </item>
+   <item weight="0.00043778">
+    jefferson city
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "jefferson_city@mo";</tag>
+   </item>
+   <item weight="0.00043707">
+    vallejo
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "vallejo@ca";</tag>
+   </item>
+   <item weight="0.00043628">
+    laredo
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "laredo@tx";</tag>
+   </item>
+   <item weight="0.00043593">
+    plainfield
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "plainfield@nj";</tag>
+   </item>
+   <item weight="0.00043494">
+    marshfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "marshfield@ma";</tag>
+   </item>
+   <item weight="0.00043466">
+    totowa
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "totowa@nj";</tag>
+   </item>
+   <item weight="0.00043457">
+    valley stream
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "valley_stream@ny";</tag>
+   </item>
+   <item weight="0.00043431">
+    alexandria
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "alexandria@la";</tag>
+   </item>
+   <item weight="0.00043381">
+    hazlet
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "hazlet@nj";</tag>
+   </item>
+   <item weight="0.00043373">
+    jamaica plain
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "jamaica_plain@ma";</tag>
+   </item>
+   <item weight="0.00043271">
+    ashburn
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "ashburn@va";</tag>
+   </item>
+   <item weight="0.00043208">
+    lawrenceville
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "lawrenceville@ga";</tag>
+   </item>
+   <item weight="0.00043206">
+    millville
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "millville@nj";</tag>
+   </item>
+   <item weight="0.00043136">
+    clark
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "clark@nj";</tag>
+   </item>
+   <item weight="0.0004273">
+    irvington
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "irvington@nj";</tag>
+   </item>
+   <item weight="0.00042668">
+    roslyn
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "roslyn@ny";</tag>
+   </item>
+   <item weight="0.00042658">
+    dover
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "dover@nh";</tag>
+   </item>
+   <item weight="0.00042508">
+    joliet
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "joliet@il";</tag>
+   </item>
+   <item weight="0.00042492">
+    passaic
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "passaic@nj";</tag>
+   </item>
+   <item weight="0.00042418">
+    kirkland
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "kirkland@wa";</tag>
+   </item>
+   <item weight="0.00042372">
+    scarsdale
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "scarsdale@ny";</tag>
+   </item>
+   <item weight="0.0004233">
+    pembroke
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "pembroke@ma";</tag>
+   </item>
+   <item weight="0.00042248">
+    millburn
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "millburn@nj";</tag>
+   </item>
+   <item weight="0.00042187">
+    livermore
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "livermore@ca";</tag>
+   </item>
+   <item weight="0.0004211">
+    ramsey
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "ramsey@nj";</tag>
+   </item>
+   <item weight="0.00042067">
+    syosset
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "syosset@ny";</tag>
+   </item>
+   <item weight="0.00042052">
+    wakefield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "wakefield@ma";</tag>
+   </item>
+   <item weight="0.0004197">
+    north bergen
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "north_bergen@nj";</tag>
+   </item>
+   <item weight="0.00041921">
+    melrose
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "melrose@ma";</tag>
+   </item>
+   <item weight="0.00041881">
+    lexington
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "lexington@ma";</tag>
+   </item>
+   <item weight="0.00041816">
+    san luis obispo
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_luis_obispo@ca";</tag>
+   </item>
+   <item weight="0.00041784">
+    asheville
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "asheville@nc";</tag>
+   </item>
+   <item weight="0.00041754">
+    dartmouth
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "dartmouth@ma";</tag>
+   </item>
+   <item weight="0.00041728">
+    denville
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "denville@nj";</tag>
+   </item>
+   <item weight="0.00041665">
+    springdale
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "springdale@ar";</tag>
+   </item>
+   <item weight="0.0004166">
+    arcadia
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "arcadia@ca";</tag>
+   </item>
+   <item weight="0.00041656">
+    denham springs
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "denham_springs@la";</tag>
+   </item>
+   <item weight="0.00041618">
+    marysville
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "marysville@wa";</tag>
+   </item>
+   <item weight="0.00041527">
+    coral springs
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "coral_springs@fl";</tag>
+   </item>
+   <item weight="0.00041501">
+    franklin
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "franklin@tn";</tag>
+   </item>
+   <item weight="0.00041372">
+    stuart
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "stuart@fl";</tag>
+   </item>
+   <item weight="0.0004137">
+    exton
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "exton@pa";</tag>
+   </item>
+   <item weight="0.00041332">
+    goleta
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "goleta@ca";</tag>
+   </item>
+   <item weight="0.00041152">
+    cape girardeau
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "cape_girardeau@mo";</tag>
+   </item>
+   <item weight="0.00041022">
+    lodi
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "lodi@nj";</tag>
+   </item>
+   <item weight="0.00040919">
+    rochester
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "rochester@nh";</tag>
+   </item>
+   <item weight="0.00040871">
+    norwalk
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "norwalk@ct";</tag>
+   </item>
+   <item weight="0.00040859">
+    rahway
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "rahway@nj";</tag>
+   </item>
+   <item weight="0.00040745">
+    yucaipa
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "yucaipa@ca";</tag>
+   </item>
+   <item weight="0.00040739">
+    niagara falls
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "niagara_falls@ny";</tag>
+   </item>
+   <item weight="0.00040682">
+    pennsauken
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "pennsauken@nj";</tag>
+   </item>
+   <item weight="0.00040675">
+    levittown
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "levittown@ny";</tag>
+   </item>
+   <item weight="0.00040646">
+    bloomington
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "bloomington@il";</tag>
+   </item>
+   <item weight="0.0004062">
+    tracy
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "tracy@ca";</tag>
+   </item>
+   <item weight="0.00040574">
+    hauppauge
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "hauppauge@ny";</tag>
+   </item>
+   <item weight="0.00040563">
+    keller
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "keller@tx";</tag>
+   </item>
+   <item weight="0.00040544">
+    saint joseph
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "saint_joseph@mo";</tag>
+   </item>
+   <item weight="0.00040523">
+    east hampton
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "east_hampton@ny";</tag>
+   </item>
+   <item weight="0.00040506">
+    westminster
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "westminster@ca";</tag>
+   </item>
+   <item weight="0.00040409">
+    egg harbor township
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "egg_harbor_township@nj";</tag>
+   </item>
+   <item weight="0.00040341">
+    billerica
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "billerica@ma";</tag>
+   </item>
+   <item weight="0.00040333">
+    pompano beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "pompano_beach@fl";</tag>
+   </item>
+   <item weight="0.00040322">
+    des moines
+    <item repeat="0-1">
+     iowa
+    </item>
+    <tag>out = "des_moines@ia";</tag>
+   </item>
+   <item weight="0.00040311">
+    upper darby
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "upper_darby@pa";</tag>
+   </item>
+   <item weight="0.00040214">
+    north hollywood
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "north_hollywood@ca";</tag>
+   </item>
+   <item weight="0.00040206">
+    oceanside
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "oceanside@ny";</tag>
+   </item>
+   <item weight="0.00040176">
+    dublin
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "dublin@ca";</tag>
+   </item>
+   <item weight="0.00040146">
+    fort collins
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "fort_collins@co";</tag>
+   </item>
+   <item weight="0.00040111">
+    malibu
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "malibu@ca";</tag>
+   </item>
+   <item weight="0.000401">
+    brighton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "brighton@ma";</tag>
+   </item>
+   <item weight="0.00040041">
+    fort lee
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "fort_lee@nj";</tag>
+   </item>
+   <item weight="0.00039969">
+    greenfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "greenfield@ma";</tag>
+   </item>
+   <item weight="0.00039929">
+    westborough
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "westborough@ma";</tag>
+   </item>
+   <item weight="0.00039723">
+    burke
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "burke@va";</tag>
+   </item>
+   <item weight="0.0003972">
+    plainview
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "plainview@ny";</tag>
+   </item>
+   <item weight="0.00039626">
+    attleboro
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "attleboro@ma";</tag>
+   </item>
+   <item weight="0.00039597">
+    hazleton
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "hazleton@pa";</tag>
+   </item>
+   <item weight="0.00039591">
+    san marcos
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "san_marcos@tx";</tag>
+   </item>
+   <item weight="0.00039554">
+    mansfield
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "mansfield@ma";</tag>
+   </item>
+   <item weight="0.00039534">
+    hillsboro
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "hillsboro@or";</tag>
+   </item>
+   <item weight="0.00039532">
+    mandeville
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "mandeville@la";</tag>
+   </item>
+   <item weight="0.00039523">
+    stillwater
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "stillwater@ok";</tag>
+   </item>
+   <item weight="0.00039456">
+    littleton
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "littleton@co";</tag>
+   </item>
+   <item weight="0.00039432">
+    winter park
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "winter_park@fl";</tag>
+   </item>
+   <item weight="0.00039417">
+    florence
+    <item repeat="0-1">
+     south carolina
+    </item>
+    <tag>out = "florence@sc";</tag>
+   </item>
+   <item weight="0.00039402">
+    new hyde park
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "new_hyde_park@ny";</tag>
+   </item>
+   <item weight="0.00039394">
+    temple hills
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "temple_hills@md";</tag>
+   </item>
+   <item weight="0.00039387">
+    manalapan
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "manalapan@nj";</tag>
+   </item>
+   <item weight="0.00039371">
+    troy
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "troy@ny";</tag>
+   </item>
+   <item weight="0.00039319">
+    hempstead
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "hempstead@ny";</tag>
+   </item>
+   <item weight="0.00039286">
+    cary
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "cary@nc";</tag>
+   </item>
+   <item weight="0.00039271">
+    somerset
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "somerset@nj";</tag>
+   </item>
+   <item weight="0.00039188">
+    newport
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "newport@ri";</tag>
+   </item>
+   <item weight="0.00038973">
+    elkhart
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "elkhart@in";</tag>
+   </item>
+   <item weight="0.00038939">
+    flower mound
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "flower_mound@tx";</tag>
+   </item>
+   <item weight="0.0003893">
+    north attleboro
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "north_attleboro@ma";</tag>
+   </item>
+   <item weight="0.00038907">
+    rockaway
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "rockaway@nj";</tag>
+   </item>
+   <item weight="0.00038903">
+    chester
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "chester@pa";</tag>
+   </item>
+   <item weight="0.00038896">
+    harrisonburg
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "harrisonburg@va";</tag>
+   </item>
+   <item weight="0.00038861">
+    redmond
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "redmond@wa";</tag>
+   </item>
+   <item weight="0.00038817">
+    broken arrow
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "broken_arrow@ok";</tag>
+   </item>
+   <item weight="0.00038806">
+    marina del rey
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "marina_del_rey@ca";</tag>
+   </item>
+   <item weight="0.00038804">
+    laguna beach
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "laguna_beach@ca";</tag>
+   </item>
+   <item weight="0.00038778">
+    los gatos
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "los_gatos@ca";</tag>
+   </item>
+   <item weight="0.00038738">
+    clarksburg
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "clarksburg@wv";</tag>
+   </item>
+   <item weight="0.00038712">
+    monrovia
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "monrovia@ca";</tag>
+   </item>
+   <item weight="0.00038668">
+    south plainfield
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "south_plainfield@nj";</tag>
+   </item>
+   <item weight="0.00038629">
+    port jefferson
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "port_jefferson@ny";</tag>
+   </item>
+   <item weight="0.00038582">
+    mineola
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "mineola@ny";</tag>
+   </item>
+   <item weight="0.00038567">
+    antioch
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "antioch@ca";</tag>
+   </item>
+   <item weight="0.00038541">
+    concord
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "concord@ma";</tag>
+   </item>
+   <item weight="0.00038423">
+    tustin
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "tustin@ca";</tag>
+   </item>
+   <item weight="0.0003838">
+    auburn
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "auburn@ca";</tag>
+   </item>
+   <item weight="0.00038296">
+    shawnee
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "shawnee@ok";</tag>
+   </item>
+   <item weight="0.00038218">
+    pembroke pines
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "pembroke_pines@fl";</tag>
+   </item>
+   <item weight="0.00038131">
+    gresham
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "gresham@or";</tag>
+   </item>
+   <item weight="0.0003812">
+    la jolla
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "la_jolla@ca";</tag>
+   </item>
+   <item weight="0.00038108">
+    new braunfels
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "new_braunfels@tx";</tag>
+   </item>
+   <item weight="0.00038078">
+    dearborn
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "dearborn@mi";</tag>
+   </item>
+   <item weight="0.00037984">
+    timonium
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "timonium@md";</tag>
+   </item>
+   <item weight="0.00037978">
+    keene
+    <item repeat="0-1">
+     new hampshire
+    </item>
+    <tag>out = "keene@nh";</tag>
+   </item>
+   <item weight="0.00037946">
+    williamsville
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "williamsville@ny";</tag>
+   </item>
+   <item weight="0.0003782">
+    cartersville
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "cartersville@ga";</tag>
+   </item>
+   <item weight="0.00037801">
+    westlake village
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "westlake_village@ca";</tag>
+   </item>
+   <item weight="0.00037788">
+    flushing
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "flushing@ny";</tag>
+   </item>
+   <item weight="0.00037757">
+    orland park
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "orland_park@il";</tag>
+   </item>
+   <item weight="0.00037757">
+    tempe
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "tempe@az";</tag>
+   </item>
+   <item weight="0.00037713">
+    orange park
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "orange_park@fl";</tag>
+   </item>
+   <item weight="0.00037701">
+    melville
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "melville@ny";</tag>
+   </item>
+   <item weight="0.00037693">
+    south charleston
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "south_charleston@wv";</tag>
+   </item>
+   <item weight="0.00037619">
+    mount holly
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "mount_holly@nj";</tag>
+   </item>
+   <item weight="0.00037611">
+    north andover
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "north_andover@ma";</tag>
+   </item>
+   <item weight="0.00037584">
+    college park
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "college_park@md";</tag>
+   </item>
+   <item weight="0.00037472">
+    bridgewater
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "bridgewater@ma";</tag>
+   </item>
+   <item weight="0.0003741">
+    ewing
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "ewing@nj";</tag>
+   </item>
+   <item weight="0.00037358">
+    california
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "california@md";</tag>
+   </item>
+   <item weight="0.00037343">
+    point pleasant
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "point_pleasant@nj";</tag>
+   </item>
+   <item weight="0.00037338">
+    elkton
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "elkton@md";</tag>
+   </item>
+   <item weight="0.0003731">
+    la puente
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "la_puente@ca";</tag>
+   </item>
+   <item weight="0.00037279">
+    boynton beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "boynton_beach@fl";</tag>
+   </item>
+   <item weight="0.0003726">
+    murfreesboro
+    <item repeat="0-1">
+     tennessee
+    </item>
+    <tag>out = "murfreesboro@tn";</tag>
+   </item>
+   <item weight="0.00037186">
+    prince frederick
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "prince_frederick@md";</tag>
+   </item>
+   <item weight="0.00037177">
+    canton
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "canton@ga";</tag>
+   </item>
+   <item weight="0.00037174">
+    somers point
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "somers_point@nj";</tag>
+   </item>
+   <item weight="0.00037132">
+    state college
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "state_college@pa";</tag>
+   </item>
+   <item weight="0.00037044">
+    hurst
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "hurst@tx";</tag>
+   </item>
+   <item weight="0.00036963">
+    altamonte springs
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "altamonte_springs@fl";</tag>
+   </item>
+   <item weight="0.00036913">
+    buford
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "buford@ga";</tag>
+   </item>
+   <item weight="0.00036912">
+    milton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "milton@ma";</tag>
+   </item>
+   <item weight="0.0003688">
+    biddeford
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "biddeford@me";</tag>
+   </item>
+   <item weight="0.00036828">
+    yuba city
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "yuba_city@ca";</tag>
+   </item>
+   <item weight="0.00036745">
+    watertown
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "watertown@ny";</tag>
+   </item>
+   <item weight="0.00036726">
+    mountain view
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "mountain_view@ca";</tag>
+   </item>
+   <item weight="0.00036721">
+    mount kisco
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "mount_kisco@ny";</tag>
+   </item>
+   <item weight="0.0003672">
+    port washington
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "port_washington@ny";</tag>
+   </item>
+   <item weight="0.00036719">
+    wichita falls
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "wichita_falls@tx";</tag>
+   </item>
+   <item weight="0.00036689">
+    severna park
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "severna_park@md";</tag>
+   </item>
+   <item weight="0.00036674">
+    johnston
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "johnston@ri";</tag>
+   </item>
+   <item weight="0.00036641">
+    capitol heights
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "capitol_heights@md";</tag>
+   </item>
+   <item weight="0.00036619">
+    cathedral city
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "cathedral_city@ca";</tag>
+   </item>
+   <item weight="0.00036558">
+    ardmore
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "ardmore@ok";</tag>
+   </item>
+   <item weight="0.00036539">
+    mansfield
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "mansfield@tx";</tag>
+   </item>
+   <item weight="0.00036506">
+    buena park
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "buena_park@ca";</tag>
+   </item>
+   <item weight="0.00036401">
+    sanford
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "sanford@fl";</tag>
+   </item>
+   <item weight="0.00036255">
+    rockford
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "rockford@il";</tag>
+   </item>
+   <item weight="0.00036211">
+    pasadena
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "pasadena@tx";</tag>
+   </item>
+   <item weight="0.00036182">
+    manteca
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "manteca@ca";</tag>
+   </item>
+   <item weight="0.00036167">
+    grand junction
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "grand_junction@co";</tag>
+   </item>
+   <item weight="0.00036142">
+    havre de grace
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "havre_de_grace@md";</tag>
+   </item>
+   <item weight="0.00036129">
+    belmont
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "belmont@ma";</tag>
+   </item>
+   <item weight="0.00036063">
+    wayne
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "wayne@pa";</tag>
+   </item>
+   <item weight="0.00036062">
+    lee
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "lee@ma";</tag>
+   </item>
+   <item weight="0.0003606">
+    abington
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "abington@ma";</tag>
+   </item>
+   <item weight="0.00035996">
+    olympia
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "olympia@wa";</tag>
+   </item>
+   <item weight="0.00035961">
+    league city
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "league_city@tx";</tag>
+   </item>
+   <item weight="0.00035939">
+    acton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "acton@ma";</tag>
+   </item>
+   <item weight="0.00035883">
+    aberdeen
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "aberdeen@md";</tag>
+   </item>
+   <item weight="0.00035838">
+    aurora
+    <item repeat="0-1">
+     colorado
+    </item>
+    <tag>out = "aurora@co";</tag>
+   </item>
+   <item weight="0.0003574">
+    carson
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "carson@ca";</tag>
+   </item>
+   <item weight="0.00035737">
+    dundalk
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "dundalk@md";</tag>
+   </item>
+   <item weight="0.0003573">
+    roxbury
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "roxbury@ma";</tag>
+   </item>
+   <item weight="0.00035641">
+    winchester
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "winchester@ma";</tag>
+   </item>
+   <item weight="0.00035621">
+    topeka
+    <item repeat="0-1">
+     kansas
+    </item>
+    <tag>out = "topeka@ks";</tag>
+   </item>
+   <item weight="0.00035614">
+    aurora
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "aurora@il";</tag>
+   </item>
+   <item weight="0.00035613">
+    auburn
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "auburn@ny";</tag>
+   </item>
+   <item weight="0.00035521">
+    pico rivera
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "pico_rivera@ca";</tag>
+   </item>
+   <item weight="0.00035515">
+    lompoc
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "lompoc@ca";</tag>
+   </item>
+   <item weight="0.00035458">
+    chevy chase
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "chevy_chase@md";</tag>
+   </item>
+   <item weight="0.0003544">
+    sewell
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "sewell@nj";</tag>
+   </item>
+   <item weight="0.00035409">
+    san leandro
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_leandro@ca";</tag>
+   </item>
+   <item weight="0.00035403">
+    olney
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "olney@md";</tag>
+   </item>
+   <item weight="0.00035365">
+    santa clarita
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_clarita@ca";</tag>
+   </item>
+   <item weight="0.0003524">
+    lawrenceville
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "lawrenceville@nj";</tag>
+   </item>
+   <item weight="0.00035228">
+    ridgecrest
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "ridgecrest@ca";</tag>
+   </item>
+   <item weight="0.00035225">
+    livonia
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "livonia@mi";</tag>
+   </item>
+   <item weight="0.00035206">
+    saint charles
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "saint_charles@mo";</tag>
+   </item>
+   <item weight="0.00035129">
+    chula vista
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "chula_vista@ca";</tag>
+   </item>
+   <item weight="0.0003507">
+    bryn mawr
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "bryn_mawr@pa";</tag>
+   </item>
+   <item weight="0.00035014">
+    claremont
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "claremont@ca";</tag>
+   </item>
+   <item weight="0.00035006">
+    lansdale
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "lansdale@pa";</tag>
+   </item>
+   <item weight="0.00034991">
+    merrick
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "merrick@ny";</tag>
+   </item>
+   <item weight="0.00034971">
+    pearland
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "pearland@tx";</tag>
+   </item>
+   <item weight="0.00034944">
+    san fernando
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_fernando@ca";</tag>
+   </item>
+   <item weight="0.00034892">
+    yakima
+    <item repeat="0-1">
+     washington
+    </item>
+    <tag>out = "yakima@wa";</tag>
+   </item>
+   <item weight="0.00034878">
+    forestville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "forestville@md";</tag>
+   </item>
+   <item weight="0.00034682">
+    freeport
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "freeport@ny";</tag>
+   </item>
+   <item weight="0.00034625">
+    hattiesburg
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "hattiesburg@ms";</tag>
+   </item>
+   <item weight="0.00034624">
+    cranford
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "cranford@nj";</tag>
+   </item>
+   <item weight="0.00034605">
+    chandler
+    <item repeat="0-1">
+     arizona
+    </item>
+    <tag>out = "chandler@az";</tag>
+   </item>
+   <item weight="0.00034602">
+    union city
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "union_city@nj";</tag>
+   </item>
+   <item weight="0.00034592">
+    ashland
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "ashland@ky";</tag>
+   </item>
+   <item weight="0.00034574">
+    coeur d alene
+    <item repeat="0-1">
+     idaho
+    </item>
+    <tag>out = "coeur_d_alene@id";</tag>
+   </item>
+   <item weight="0.00034538">
+    glen cove
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "glen_cove@ny";</tag>
+   </item>
+   <item weight="0.00034501">
+    yucca valley
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "yucca_valley@ca";</tag>
+   </item>
+   <item weight="0.00034465">
+    addison
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "addison@tx";</tag>
+   </item>
+   <item weight="0.00034391">
+    santa fe springs
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "santa_fe_springs@ca";</tag>
+   </item>
+   <item weight="0.00034324">
+    west hollywood
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "west_hollywood@ca";</tag>
+   </item>
+   <item weight="0.00034293">
+    newburyport
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "newburyport@ma";</tag>
+   </item>
+   <item weight="0.00034225">
+    bridgeton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "bridgeton@nj";</tag>
+   </item>
+   <item weight="0.00034116">
+    hicksville
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "hicksville@ny";</tag>
+   </item>
+   <item weight="0.00034052">
+    el cajon
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "el_cajon@ca";</tag>
+   </item>
+   <item weight="0.00034035">
+    holmdel
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "holmdel@nj";</tag>
+   </item>
+   <item weight="0.00033989">
+    cockeysville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "cockeysville@md";</tag>
+   </item>
+   <item weight="0.00033982">
+    barboursville
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "barboursville@wv";</tag>
+   </item>
+   <item weight="0.00033968">
+    johnstown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "johnstown@pa";</tag>
+   </item>
+   <item weight="0.00033954">
+    el monte
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "el_monte@ca";</tag>
+   </item>
+   <item weight="0.00033894">
+    valdosta
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "valdosta@ga";</tag>
+   </item>
+   <item weight="0.00033884">
+    douglasville
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "douglasville@ga";</tag>
+   </item>
+   <item weight="0.0003385">
+    long beach
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "long_beach@ny";</tag>
+   </item>
+   <item weight="0.00033772">
+    mechanicsville
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "mechanicsville@va";</tag>
+   </item>
+   <item weight="0.00033752">
+    nanuet
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "nanuet@ny";</tag>
+   </item>
+   <item weight="0.00033673">
+    east meadow
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "east_meadow@ny";</tag>
+   </item>
+   <item weight="0.00033653">
+    easton
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "easton@ma";</tag>
+   </item>
+   <item weight="0.00033653">
+    sandwich
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "sandwich@ma";</tag>
+   </item>
+   <item weight="0.00033643">
+    galveston
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "galveston@tx";</tag>
+   </item>
+   <item weight="0.00033583">
+    venice
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "venice@ca";</tag>
+   </item>
+   <item weight="0.00033567">
+    hanford
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "hanford@ca";</tag>
+   </item>
+   <item weight="0.00033535">
+    brunswick
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "brunswick@me";</tag>
+   </item>
+   <item weight="0.00033481">
+    rye
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "rye@ny";</tag>
+   </item>
+   <item weight="0.0003345">
+    gardner
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "gardner@ma";</tag>
+   </item>
+   <item weight="0.00033418">
+    san clemente
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_clemente@ca";</tag>
+   </item>
+   <item weight="0.00033316">
+    binghamton
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "binghamton@ny";</tag>
+   </item>
+   <item weight="0.00033197">
+    mcallen
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "mcallen@tx";</tag>
+   </item>
+   <item weight="0.00033187">
+    destin
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "destin@fl";</tag>
+   </item>
+   <item weight="0.00033135">
+    waxahachie
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "waxahachie@tx";</tag>
+   </item>
+   <item weight="0.00033108">
+    norwell
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "norwell@ma";</tag>
+   </item>
+   <item weight="0.00033103">
+    wheeling
+    <item repeat="0-1">
+     west virginia
+    </item>
+    <tag>out = "wheeling@wv";</tag>
+   </item>
+   <item weight="0.00033099">
+    warminster
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "warminster@pa";</tag>
+   </item>
+   <item weight="0.00033039">
+    gonzales
+    <item repeat="0-1">
+     louisiana
+    </item>
+    <tag>out = "gonzales@la";</tag>
+   </item>
+   <item weight="0.00033038">
+    russellville
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "russellville@ar";</tag>
+   </item>
+   <item weight="0.00033031">
+    orange
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "orange@va";</tag>
+   </item>
+   <item weight="0.00032979">
+    woonsocket
+    <item repeat="0-1">
+     rhode island
+    </item>
+    <tag>out = "woonsocket@ri";</tag>
+   </item>
+   <item weight="0.00032931">
+    pikesville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "pikesville@md";</tag>
+   </item>
+   <item weight="0.00032907">
+    wilmington
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "wilmington@ma";</tag>
+   </item>
+   <item weight="0.00032899">
+    wantagh
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "wantagh@ny";</tag>
+   </item>
+   <item weight="0.00032893">
+    sylmar
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "sylmar@ca";</tag>
+   </item>
+   <item weight="0.00032873">
+    merrillville
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "merrillville@in";</tag>
+   </item>
+   <item weight="0.00032872">
+    woodbury
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "woodbury@ny";</tag>
+   </item>
+   <item weight="0.00032867">
+    dalton
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "dalton@ga";</tag>
+   </item>
+   <item weight="0.00032849">
+    lansing
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "lansing@mi";</tag>
+   </item>
+   <item weight="0.00032838">
+    mechanicsburg
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "mechanicsburg@pa";</tag>
+   </item>
+   <item weight="0.00032723">
+    bridgeport
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "bridgeport@ct";</tag>
+   </item>
+   <item weight="0.00032704">
+    azusa
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "azusa@ca";</tag>
+   </item>
+   <item weight="0.00032634">
+    crofton
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "crofton@md";</tag>
+   </item>
+   <item weight="0.00032616">
+    perth amboy
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "perth_amboy@nj";</tag>
+   </item>
+   <item weight="0.00032526">
+    davie
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "davie@fl";</tag>
+   </item>
+   <item weight="0.00032492">
+    north brunswick
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "north_brunswick@nj";</tag>
+   </item>
+   <item weight="0.00032471">
+    watchung
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "watchung@nj";</tag>
+   </item>
+   <item weight="0.00032423">
+    southaven
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "southaven@ms";</tag>
+   </item>
+   <item weight="0.00032366">
+    bayside
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "bayside@ny";</tag>
+   </item>
+   <item weight="0.00032353">
+    ogden
+    <item repeat="0-1">
+     utah
+    </item>
+    <tag>out = "ogden@ut";</tag>
+   </item>
+   <item weight="0.00032352">
+    saratoga springs
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "saratoga_springs@ny";</tag>
+   </item>
+   <item weight="0.00032345">
+    tigard
+    <item repeat="0-1">
+     oregon
+    </item>
+    <tag>out = "tigard@or";</tag>
+   </item>
+   <item weight="0.00032213">
+    danville
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "danville@ca";</tag>
+   </item>
+   <item weight="0.0003216">
+    port charlotte
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "port_charlotte@fl";</tag>
+   </item>
+   <item weight="0.00032152">
+    conyers
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "conyers@ga";</tag>
+   </item>
+   <item weight="0.00032145">
+    gulfport
+    <item repeat="0-1">
+     mississippi
+    </item>
+    <tag>out = "gulfport@ms";</tag>
+   </item>
+   <item weight="0.00032082">
+    hammonton
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "hammonton@nj";</tag>
+   </item>
+   <item weight="0.00031987">
+    vista
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "vista@ca";</tag>
+   </item>
+   <item weight="0.00031952">
+    foxboro
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "foxboro@ma";</tag>
+   </item>
+   <item weight="0.00031863">
+    lebanon
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "lebanon@pa";</tag>
+   </item>
+   <item weight="0.00031859">
+    wheaton
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "wheaton@md";</tag>
+   </item>
+   <item weight="0.00031824">
+    cambridge
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "cambridge@md";</tag>
+   </item>
+   <item weight="0.00031815">
+    sunnyvale
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "sunnyvale@ca";</tag>
+   </item>
+   <item weight="0.00031764">
+    madison
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "madison@nj";</tag>
+   </item>
+   <item weight="0.00031686">
+    panama city
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "panama_city@fl";</tag>
+   </item>
+   <item weight="0.00031622">
+    nacogdoches
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "nacogdoches@tx";</tag>
+   </item>
+   <item weight="0.0003162">
+    canton
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "canton@oh";</tag>
+   </item>
+   <item weight="0.00031596">
+    woodstock
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "woodstock@ga";</tag>
+   </item>
+   <item weight="0.00031587">
+    garden grove
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "garden_grove@ca";</tag>
+   </item>
+   <item weight="0.00031574">
+    salem
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "salem@va";</tag>
+   </item>
+   <item weight="0.00031499">
+    bartow
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "bartow@fl";</tag>
+   </item>
+   <item weight="0.00031492">
+    warren
+    <item repeat="0-1">
+     michigan
+    </item>
+    <tag>out = "warren@mi";</tag>
+   </item>
+   <item weight="0.00031476">
+    columbus
+    <item repeat="0-1">
+     georgia
+    </item>
+    <tag>out = "columbus@ga";</tag>
+   </item>
+   <item weight="0.00031456">
+    oak brook
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "oak_brook@il";</tag>
+   </item>
+   <item weight="0.00031424">
+    baldwin park
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "baldwin_park@ca";</tag>
+   </item>
+   <item weight="0.00031412">
+    muskogee
+    <item repeat="0-1">
+     oklahoma
+    </item>
+    <tag>out = "muskogee@ok";</tag>
+   </item>
+   <item weight="0.00031412">
+    chelmsford
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "chelmsford@ma";</tag>
+   </item>
+   <item weight="0.00031396">
+    rocklin
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "rocklin@ca";</tag>
+   </item>
+   <item weight="0.00031373">
+    reisterstown
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "reisterstown@md";</tag>
+   </item>
+   <item weight="0.00031316">
+    latham
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "latham@ny";</tag>
+   </item>
+   <item weight="0.000313">
+    south orange
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "south_orange@nj";</tag>
+   </item>
+   <item weight="0.00031297">
+    montebello
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "montebello@ca";</tag>
+   </item>
+   <item weight="0.00031279">
+    shrewsbury
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "shrewsbury@nj";</tag>
+   </item>
+   <item weight="0.00031262">
+    milford
+    <item repeat="0-1">
+     connecticut
+    </item>
+    <tag>out = "milford@ct";</tag>
+   </item>
+   <item weight="0.00031218">
+    portsmouth
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "portsmouth@oh";</tag>
+   </item>
+   <item weight="0.00031192">
+    abington
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "abington@pa";</tag>
+   </item>
+   <item weight="0.00031183">
+    jasper
+    <item repeat="0-1">
+     alabama
+    </item>
+    <tag>out = "jasper@al";</tag>
+   </item>
+   <item weight="0.00031173">
+    texarkana
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "texarkana@tx";</tag>
+   </item>
+   <item weight="0.00031156">
+    willingboro
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "willingboro@nj";</tag>
+   </item>
+   <item weight="0.0003113">
+    scarborough
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "scarborough@me";</tag>
+   </item>
+   <item weight="0.00031117">
+    burlingame
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "burlingame@ca";</tag>
+   </item>
+   <item weight="0.00031042">
+    new city
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "new_city@ny";</tag>
+   </item>
+   <item weight="0.00030964">
+    port saint lucie
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "port_saint_lucie@fl";</tag>
+   </item>
+   <item weight="0.00030949">
+    banning
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "banning@ca";</tag>
+   </item>
+   <item weight="0.00030934">
+    centreville
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "centreville@va";</tag>
+   </item>
+   <item weight="0.00030926">
+    pine bluff
+    <item repeat="0-1">
+     arkansas
+    </item>
+    <tag>out = "pine_bluff@ar";</tag>
+   </item>
+   <item weight="0.00030889">
+    rockland
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "rockland@ma";</tag>
+   </item>
+   <item weight="0.00030792">
+    beaumont
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "beaumont@ca";</tag>
+   </item>
+   <item weight="0.0003079">
+    agawam
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "agawam@ma";</tag>
+   </item>
+   <item weight="0.00030757">
+    encino
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "encino@ca";</tag>
+   </item>
+   <item weight="0.00030735">
+    greenwood
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "greenwood@in";</tag>
+   </item>
+   <item weight="0.00030717">
+    tomball
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "tomball@tx";</tag>
+   </item>
+   <item weight="0.00030667">
+    lawrence
+    <item repeat="0-1">
+     kansas
+    </item>
+    <tag>out = "lawrence@ks";</tag>
+   </item>
+   <item weight="0.00030659">
+    decatur
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "decatur@tx";</tag>
+   </item>
+   <item weight="0.00030621">
+    marlboro
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "marlboro@nj";</tag>
+   </item>
+   <item weight="0.00030572">
+    hopewell
+    <item repeat="0-1">
+     virginia
+    </item>
+    <tag>out = "hopewell@va";</tag>
+   </item>
+   <item weight="0.00030544">
+    west los angeles
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "west_los_angeles@ca";</tag>
+   </item>
+   <item weight="0.00030508">
+    saco
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "saco@me";</tag>
+   </item>
+   <item weight="0.00030502">
+    humble
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "humble@tx";</tag>
+   </item>
+   <item weight="0.00030484">
+    quakertown
+    <item repeat="0-1">
+     pennsylvania
+    </item>
+    <tag>out = "quakertown@pa";</tag>
+   </item>
+   <item weight="0.00030468">
+    sparks
+    <item repeat="0-1">
+     nevada
+    </item>
+    <tag>out = "sparks@nv";</tag>
+   </item>
+   <item weight="0.00030436">
+    ormond beach
+    <item repeat="0-1">
+     florida
+    </item>
+    <tag>out = "ormond_beach@fl";</tag>
+   </item>
+   <item weight="0.00030394">
+    mashpee
+    <item repeat="0-1">
+     massachusetts
+    </item>
+    <tag>out = "mashpee@ma";</tag>
+   </item>
+   <item weight="0.00030383">
+    rome
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "rome@ny";</tag>
+   </item>
+   <item weight="0.00030366">
+    studio city
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "studio_city@ca";</tag>
+   </item>
+   <item weight="0.00030346">
+    san pedro
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "san_pedro@ca";</tag>
+   </item>
+   <item weight="0.00030336">
+    chillicothe
+    <item repeat="0-1">
+     ohio
+    </item>
+    <tag>out = "chillicothe@oh";</tag>
+   </item>
+   <item weight="0.0003032">
+    beltsville
+    <item repeat="0-1">
+     maryland
+    </item>
+    <tag>out = "beltsville@md";</tag>
+   </item>
+   <item weight="0.00030308">
+    waterville
+    <item repeat="0-1">
+     maine
+    </item>
+    <tag>out = "waterville@me";</tag>
+   </item>
+   <item weight="0.00030278">
+    northbrook
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "northbrook@il";</tag>
+   </item>
+   <item weight="0.0003012">
+    richmond
+    <item repeat="0-1">
+     kentucky
+    </item>
+    <tag>out = "richmond@ky";</tag>
+   </item>
+   <item weight="0.00030082">
+    jacksonville
+    <item repeat="0-1">
+     north carolina
+    </item>
+    <tag>out = "jacksonville@nc";</tag>
+   </item>
+   <item weight="0.00030011">
+    bedford
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "bedford@tx";</tag>
+   </item>
+   <item weight="0.00030001">
+    rutherford
+    <item repeat="0-1">
+     new jersey
+    </item>
+    <tag>out = "rutherford@nj";</tag>
+   </item>
+   <item weight="0.00029983">
+    lewes
+    <item repeat="0-1">
+     delaware
+    </item>
+    <tag>out = "lewes@de";</tag>
+   </item>
+   <item weight="0.00029972">
+    branson
+    <item repeat="0-1">
+     missouri
+    </item>
+    <tag>out = "branson@mo";</tag>
+   </item>
+   <item weight="0.00029952">
+    portage
+    <item repeat="0-1">
+     indiana
+    </item>
+    <tag>out = "portage@in";</tag>
+   </item>
+   <item weight="0.00029875">
+    north richland hills
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "north_richland_hills@tx";</tag>
+   </item>
+   <item weight="0.00029866">
+    gardena
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "gardena@ca";</tag>
+   </item>
+   <item weight="0.00029857">
+    evanston
+    <item repeat="0-1">
+     illinois
+    </item>
+    <tag>out = "evanston@il";</tag>
+   </item>
+   <item weight="0.00029801">
+    encinitas
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "encinitas@ca";</tag>
+   </item>
+   <item weight="0.00029782">
+    georgetown
+    <item repeat="0-1">
+     texas
+    </item>
+    <tag>out = "georgetown@tx";</tag>
+   </item>
+   <item weight="0.00029743">
+    colton
+    <item repeat="0-1">
+     california
+    </item>
+    <tag>out = "colton@ca";</tag>
+   </item>
+   <item weight="0.00029728">
+    bellmore
+    <item repeat="0-1">
+     new york
+    </item>
+    <tag>out = "bellmore@ny";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

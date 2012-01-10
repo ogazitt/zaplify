@@ -1,0 +1,23 @@
+<local:MainViewModel 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TaskStoreWinPhone"
+    xmlns:taskstore="clr-namespace:TaskStoreEntities;assembly=TaskStoreEntities">
+
+    <local:MainViewModel.TaskLists>
+        <taskstore:TaskList Name="list one" ListTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Template="True" >
+            <taskstore:TaskList.Tasks>
+                <taskstore:Task Name="task one" Complete="true" Due="2011-07-17" PriorityID="1" Description="do task one" />
+                <taskstore:Task Name="task two" Complete="false" PriorityID="2" />
+                <taskstore:Task Name="task three" PriorityID="3" Due="2011-07-31" Description="do task three" />
+            </taskstore:TaskList.Tasks>
+        </taskstore:TaskList>
+        <taskstore:TaskList Name="list two" ListTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259">
+            <taskstore:TaskList.Tasks>
+                <taskstore:Task Name="l2 task one" PriorityID="1" Description="do l2 task one" />
+                <taskstore:Task Name="l2 task two" PriorityID="2" Description="do l2 task two" />
+                <taskstore:Task Name="l2 task three" PriorityID="3" Description="do l2 task three" />
+            </taskstore:TaskList.Tasks>
+        </taskstore:TaskList>        
+     </local:MainViewModel.TaskLists>
+</local:MainViewModel>

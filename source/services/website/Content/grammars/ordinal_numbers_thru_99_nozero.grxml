@@ -1,0 +1,482 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="ORDINALNUMBERS_1_THRU_99" scope="public">
+   <one-of>
+     <!-- 1 thru 9 -->
+     <item weight="0.1">
+       <ruleref uri="ordinal_numbers_thru_9_nozero.grxml#ORDINALNUMBERS_1_THRU_9"/>
+       <tag> out = rules.latest(); </tag>
+     </item>
+     <!-- 10 thru 99 -->
+     <item weight="0.9">
+       <ruleref uri="#ORDINALNUMBERS_10_THRU_99"/>
+       <tag> out = rules.latest(); </tag>
+     </item>
+   </one-of>
+ </rule>
+
+ <rule id="ORDINALNUMBERS_10_THRU_99" scope="public">
+    <one-of>
+      <!-- 10 -->
+      <item>
+        tenth
+        <tag>out = 10;</tag>
+      </item>
+      <!-- decade -->
+      <item>
+        <ruleref uri="#SUB_DECADE"/>
+        <tag>out = rules.latest();</tag>
+      </item>
+      <!-- 11 thru 99 no trailing zero -->
+      <item>
+        <ruleref uri="#ORDINALNUMBERS_11_THRU_99"/>
+        <tag> out = rules.latest() </tag>
+      </item>
+    </one-of>
+ </rule>
+
+ <rule id="SUB_DECADE" scope="private">
+  <one-of>
+   <item>
+    twentieth
+    <tag>out = 20;</tag>
+   </item>
+   <item>
+    thirtieth
+    <tag>out = 30;</tag>
+   </item>
+   <item>
+    fortieth
+    <tag>out = 40;</tag>
+   </item>
+   <item>
+    fiftieth
+    <tag>out = 50;</tag>
+   </item>
+   <item>
+    sixtieth
+    <tag>out = 60;</tag>
+   </item>
+   <item>
+    seventieth
+    <tag>out = 70;</tag>
+   </item>
+   <item>
+    eightieth
+    <tag>out = 80;</tag>
+   </item>
+   <item>
+    ninetieth
+    <tag>out = 90;</tag>
+   </item>
+  </one-of>
+ </rule>
+
+ <rule id="ORDINALNUMBERS_11_THRU_99" scope="public">
+  <one-of>
+   <item>
+    eleventh
+    <tag>out = 11;</tag>
+   </item>
+   <item>
+    twelfth
+    <tag>out = 12;</tag>
+   </item>
+   <item>
+    thirteenth
+    <tag>out = 13;</tag>
+   </item>
+   <item>
+    fourteenth
+    <tag>out = 14;</tag>
+   </item>
+   <item>
+    fifteenth
+    <tag>out = 15;</tag>
+   </item>
+   <item>
+    sixteenth
+    <tag>out = 16;</tag>
+   </item>
+   <item>
+    seventeenth
+    <tag>out = 17;</tag>
+   </item>
+   <item>
+    eighteenth
+    <tag>out = 18;</tag>
+   </item>
+   <item>
+    nineteenth
+    <tag>out = 19;</tag>
+   </item>
+   <item>
+    twenty
+    first
+    <tag>out = 21;</tag>
+   </item>
+   <item>
+    twenty
+    second
+    <tag>out = 22;</tag>
+   </item>
+   <item>
+    twenty
+    third
+    <tag>out = 23;</tag>
+   </item>
+   <item>
+    twenty
+    forth
+    <tag>out = 24;</tag>
+   </item>
+   <item>
+    twenty
+    fifth
+    <tag>out = 25;</tag>
+   </item>
+   <item>
+    twenty
+    sixth
+    <tag>out = 26;</tag>
+   </item>
+   <item>
+    twenty
+    seventh
+    <tag>out = 27;</tag>
+   </item>
+   <item>
+    twenty
+    eighth
+    <tag>out = 28;</tag>
+   </item>
+   <item>
+    twenty
+    ninth
+    <tag>out = 29;</tag>
+   </item>
+   <item>
+    thirty
+    first
+    <tag>out = 31;</tag>
+   </item>
+   <item>
+    thirty
+    second
+    <tag>out = 32;</tag>
+   </item>
+   <item>
+    thirty
+    third
+    <tag>out = 33;</tag>
+   </item>
+   <item>
+    thirty
+    forth
+    <tag>out = 34;</tag>
+   </item>
+   <item>
+    thirty
+    fifth
+    <tag>out = 35;</tag>
+   </item>
+   <item>
+    thirty
+    sixth
+    <tag>out = 36;</tag>
+   </item>
+   <item>
+    thirty
+    seventh
+    <tag>out = 37;</tag>
+   </item>
+   <item>
+    thirty
+    eighth
+    <tag>out = 38;</tag>
+   </item>
+   <item>
+    thirty
+    ninth
+    <tag>out = 39;</tag>
+   </item>
+   <item>
+    forty
+    first
+    <tag>out = 41;</tag>
+   </item>
+   <item>
+    forty
+    second
+    <tag>out = 42;</tag>
+   </item>
+   <item>
+    forty
+    third
+    <tag>out = 43;</tag>
+   </item>
+   <item>
+    forty
+    forth
+    <tag>out = 44;</tag>
+   </item>
+   <item>
+    forty
+    fifth
+    <tag>out = 45;</tag>
+   </item>
+   <item>
+    forty
+    sixth
+    <tag>out = 46;</tag>
+   </item>
+   <item>
+    forty
+    seventh
+    <tag>out = 47;</tag>
+   </item>
+   <item>
+    forty
+    eighth
+    <tag>out = 48;</tag>
+   </item>
+   <item>
+    forty
+    ninth
+    <tag>out = 49;</tag>
+   </item>
+   <item>
+    fifty
+    first
+    <tag>out = 51;</tag>
+   </item>
+   <item>
+    fifty
+    second
+    <tag>out = 52;</tag>
+   </item>
+   <item>
+    fifty
+    third
+    <tag>out = 53;</tag>
+   </item>
+   <item>
+    fifty
+    forth
+    <tag>out = 54;</tag>
+   </item>
+   <item>
+    fifty
+    fifth
+    <tag>out = 55;</tag>
+   </item>
+   <item>
+    fifty
+    sixth
+    <tag>out = 56;</tag>
+   </item>
+   <item>
+    fifty
+    seventh
+    <tag>out = 57;</tag>
+   </item>
+   <item>
+    fifty
+    eighth
+    <tag>out = 58;</tag>
+   </item>
+   <item>
+    fifty
+    ninth
+    <tag>out = 59;</tag>
+   </item>
+   <item>
+    sixty
+    first
+    <tag>out = 61;</tag>
+   </item>
+   <item>
+    sixty
+    second
+    <tag>out = 62;</tag>
+   </item>
+   <item>
+    sixty
+    third
+    <tag>out = 63;</tag>
+   </item>
+   <item>
+    sixty
+    forth
+    <tag>out = 64;</tag>
+   </item>
+   <item>
+    sixty
+    fifth
+    <tag>out = 65;</tag>
+   </item>
+   <item>
+    sixty
+    sixth
+    <tag>out = 66;</tag>
+   </item>
+   <item>
+    sixty
+    seventh
+    <tag>out = 67;</tag>
+   </item>
+   <item>
+    sixty
+    eighth
+    <tag>out = 68;</tag>
+   </item>
+   <item>
+    sixty
+    ninth
+    <tag>out = 69;</tag>
+   </item>
+   <item>
+    seventy
+    first
+    <tag>out = 71;</tag>
+   </item>
+   <item>
+    seventy
+    second
+    <tag>out = 72;</tag>
+   </item>
+   <item>
+    seventy
+    third
+    <tag>out = 73;</tag>
+   </item>
+   <item>
+    seventy
+    forth
+    <tag>out = 74;</tag>
+   </item>
+   <item>
+    seventy
+    fifth
+    <tag>out = 75;</tag>
+   </item>
+   <item>
+    seventy
+    sixth
+    <tag>out = 76;</tag>
+   </item>
+   <item>
+    seventy
+    seventh
+    <tag>out = 77;</tag>
+   </item>
+   <item>
+    seventy
+    eighth
+    <tag>out = 78;</tag>
+   </item>
+   <item>
+    seventy
+    ninth
+    <tag>out = 79;</tag>
+   </item>
+   <item>
+    eighty
+    first
+    <tag>out = 81;</tag>
+   </item>
+   <item>
+    eighty
+    second
+    <tag>out = 82;</tag>
+   </item>
+   <item>
+    eighty
+    third
+    <tag>out = 83;</tag>
+   </item>
+   <item>
+    eighty
+    forth
+    <tag>out = 84;</tag>
+   </item>
+   <item>
+    eighty
+    fifth
+    <tag>out = 85;</tag>
+   </item>
+   <item>
+    eighty
+    sixth
+    <tag>out = 86;</tag>
+   </item>
+   <item>
+    eighty
+    seventh
+    <tag>out = 87;</tag>
+   </item>
+   <item>
+    eighty
+    eighth
+    <tag>out = 88;</tag>
+   </item>
+   <item>
+    eighty
+    ninth
+    <tag>out = 89;</tag>
+   </item>
+   <item>
+    ninety
+    first
+    <tag>out = 91;</tag>
+   </item>
+   <item>
+    ninety
+    second
+    <tag>out = 92;</tag>
+   </item>
+   <item>
+    ninety
+    third
+    <tag>out = 93;</tag>
+   </item>
+   <item>
+    ninety
+    forth
+    <tag>out = 94;</tag>
+   </item>
+   <item>
+    ninety
+    fifth
+    <tag>out = 95;</tag>
+   </item>
+   <item>
+    ninety
+    sixth
+    <tag>out = 96;</tag>
+   </item>
+   <item>
+    ninety
+    seventh
+    <tag>out = 97;</tag>
+   </item>
+   <item>
+    ninety
+    eighth
+    <tag>out = 98;</tag>
+   </item>
+   <item>
+    ninety
+    ninth
+    <tag>out = 99;</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

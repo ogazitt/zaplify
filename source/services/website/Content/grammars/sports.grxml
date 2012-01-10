@@ -1,0 +1,346 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         root="Sports"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+ <rule id="Sports" scope="public">
+  <one-of>
+   <item weight="0.096742">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       n
+      </item>
+      f l football
+     </item>
+     <item>
+      <item repeat="0-1">
+       the
+      </item>
+      n f l
+     </item>
+     <item>
+      national football league
+     </item>
+    </one-of>
+    <tag>out = "nfl";</tag>
+   </item>
+   <item weight="0.32247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         mens
+        </item>
+        <item>
+         men's
+        </item>
+        <item>
+         n
+        </item>
+        <item>
+         b
+        </item>
+        <item>
+         a
+        </item>
+       </one-of>
+      </item>
+      basketball
+     </item>
+     <item>
+      <item repeat="0-1">
+       the
+      </item>
+      n b a
+     </item>
+     <item>
+      national basketball association
+     </item>
+    </one-of>
+    <tag>out = "nba";</tag>
+   </item>
+   <item weight="0.16123">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       n
+      </item>
+      h l hockey
+     </item>
+     <item>
+      <item repeat="0-1">
+       the
+      </item>
+      n h l
+     </item>
+     <item>
+      national hockey league
+     </item>
+    </one-of>
+    <tag>out = "nhl";</tag>
+   </item>
+   <item weight="0.096742">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       major league
+      </item>
+      baseball
+     </item>
+     <item>
+      m l b
+     </item>
+    </one-of>
+    <tag>out = "ml";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       the
+      </item>
+      w n b a
+     </item>
+     <item>
+      <one-of>
+       <item>
+        womens
+       </item>
+       <item>
+        women's
+       </item>
+      </one-of>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         pro
+        </item>
+        <item>
+         professional
+        </item>
+       </one-of>
+      </item>
+      basketball
+     </item>
+    </one-of>
+    <tag>out = "wnba";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      n c a a football
+     </item>
+    </one-of>
+    <tag>out = "ncaaf";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         mens
+        </item>
+        <item>
+         men's
+        </item>
+       </one-of>
+      </item>
+      n c a a basketball
+     </item>
+     <item>
+      <item>
+       march madness
+      </item>
+     </item>
+     <item>
+      march madness
+     </item>
+    </one-of>
+    <tag>out = "ncaab";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <one-of>
+       <item>
+        womens
+       </item>
+       <item>
+        women's
+       </item>
+      </one-of>
+      n c a a basketball
+     </item>
+    </one-of>
+    <tag>out = "ncaaw";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         mens
+        </item>
+        <item>
+         men's
+        </item>
+       </one-of>
+      </item>
+      n c a a hockey
+     </item>
+    </one-of>
+    <tag>out = "ncaah";</tag>
+   </item>
+   <item weight="0.00032247">
+    <one-of>
+     <item>
+      <item repeat="0-1" repeat-prob="0.01">
+       the
+      </item>
+      p g a
+      <item repeat="0-1">
+       tour
+      </item>
+     </item>
+     <item>
+      <item repeat="0-1" repeat-prob="0.01">
+       <one-of>
+        <item>
+         mens
+        </item>
+        <item>
+         womens
+        </item>
+       </one-of>
+      </item>
+      golf
+     </item>
+    </one-of>
+    <tag>out = "golf";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         <one-of>
+          <item>
+           mens
+          </item>
+          <item>
+           men's
+          </item>
+         </one-of>
+        </item>
+        <item>
+         <one-of>
+          <item>
+           womens
+          </item>
+          <item>
+           women's
+          </item>
+         </one-of>
+        </item>
+       </one-of>
+      </item>
+      tennis
+     </item>
+    </one-of>
+    <tag>out = "tennis";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      nazcar
+     </item>
+     <item>
+      nascar
+     </item>
+     <item>
+      <one-of>
+       <item>
+        car
+       </item>
+       <item>
+        auto
+       </item>
+      </one-of>
+      racing
+     </item>
+     <item>
+      speedway
+     </item>
+     <item>
+      formula one
+     </item>
+    </one-of>
+    <tag>out = "speedway";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      boxing
+     </item>
+    </one-of>
+    <tag>out = "boxing";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       pro
+      </item>
+      wrestling
+     </item>
+     <item>
+      w w f
+     </item>
+    </one-of>
+    <tag>out = "wrestling";</tag>
+   </item>
+   <item weight="0.032247">
+    <one-of>
+     <item>
+      <item repeat="0-1">
+       <one-of>
+        <item>
+         <one-of>
+          <item>
+           mens
+          </item>
+          <item>
+           men's
+          </item>
+         </one-of>
+        </item>
+        <item>
+         <one-of>
+          <item>
+           womens
+          </item>
+          <item>
+           women's
+          </item>
+         </one-of>
+        </item>
+       </one-of>
+      </item>
+      soccer
+     </item>
+    </one-of>
+    <tag>out = "soccer";</tag>
+   </item>
+  </one-of>
+ </rule>
+
+</grammar>

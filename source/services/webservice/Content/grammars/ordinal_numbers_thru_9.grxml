@@ -1,0 +1,31 @@
+<?xml version= "1.0"?>
+
+<grammar mode="voice"
+         tag-format="semantics/1.0"
+         version="1.0"
+         xml:lang="en-US"
+         xmlns="http://www.w3.org/2001/06/grammar">
+
+  <rule id="ORDINALNUMBERS_0_THRU_9" scope="public">
+    <one-of>
+      <!-- zero -->
+      <item weight="0.1">
+        <ruleref uri="#Zero"/>
+        <tag> out = rules.latest(); </tag>
+      </item>
+      <!-- 1 thru 9 -->
+      <item weight="0.9">
+        <ruleref uri="ordinal_numbers_thru_9_nozero.grxml#ORDINALNUMBERS_1_THRU_9"/>
+        <tag> out = rules.latest();</tag>
+      </item>
+    </one-of>
+  </rule>
+
+  <rule id="Zero" scope="private">
+    <one-of>
+      <item> oh <tag> out = 0; </tag> </item>
+      <item> zero <tag> out = 0; </tag> </item>
+    </one-of>
+  </rule>
+
+</grammar>

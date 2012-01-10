@@ -1,0 +1,500 @@
+﻿/*----------------------------------------------------------
+The base color for this template is #5c87b2. If you'd like
+to use a different color start by replacing all instances of
+#5c87b2 with your new color.
+----------------------------------------------------------*/
+body
+{
+    background-color: #fff;
+    font-size: 14px;
+    /*font-size: .75em;*/
+    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+    /*font-family: Verdana, Helvetica, Sans-Serif;*/
+    margin: 0;
+    padding: 0;
+    color: #1d2a5b;
+    /*color: #696969;*/
+}
+
+a:link
+{
+    color: #034af3;
+    text-decoration: underline;
+}
+a:visited
+{
+    color: #505abc;
+}
+
+a:hover
+{
+    text-decoration: none;
+}
+/*
+a:active
+{
+    color: #12eb87;
+}
+*/
+
+p, ul
+{
+    margin-bottom: 10px;
+    line-height: 1.6em;
+}
+
+img
+{
+    border-style: none;
+}
+
+/* HEADINGS   
+----------------------------------------------------------*/
+h1, h2, h3, h4, h5, h6
+{
+    font-size: 1.5em;
+    color: #1d2a5b;
+    font-family: "lucida grande",tahoma,verdana,arial,sans-serif;
+}
+
+h1
+{
+    font-size: 2em;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+h2
+{
+    padding: 0 0 0 0;
+}
+h3
+{
+    font-size: 1.2em;
+}
+h4
+{
+    font-size: 1.1em;
+}
+h5, h6
+{
+    font-size: 1em;
+}
+
+/* this rule styles <h2> tags that are the 
+first child of the left and right table columns */
+.rightColumn > h1, .rightColumn > h2, .leftColumn > h1, .leftColumn > h2
+{
+    margin-top: 0;
+}
+
+/* PRIMARY LAYOUT ELEMENTS   
+----------------------------------------------------------*/
+
+/* you can specify a greater or lesser percentage for the 
+page width. Or, you can specify an exact pixel width. */
+.page
+{
+    width: auto;
+}
+/*
+@media only screen and (max-device-width: 480px) {
+.page
+{
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+}
+*/
+
+#header
+{
+    background-color: #3b5998;
+    position: relative;
+    margin-bottom: 0px;
+    color: #000;
+    padding: 0;
+    top: 0px;
+    left: 0px;
+    padding-top: 5px;
+    height: 100px;
+}
+
+#header h1
+{
+    font-weight: bold;
+    padding: 5px 0;
+    margin: 0;
+    color: #fff;
+    border: none;
+    line-height: 2em;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 40px !important;
+}
+
+#title a
+{
+    text-decoration: none;
+}
+
+#title a:link
+{
+    text-decoration: none;
+    color :#fff
+}
+
+#title a:visited
+{
+    text-decoration: none;
+    color :#fff
+}
+
+#title a:active
+{
+    text-decoration: none;
+    color :#fff
+}
+
+#main
+{
+    padding: 25px 15px 15px 15px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    _height: 1px; /* only IE6 applies CSS properties starting with an underscore */
+    min-width: 800px;
+    min-height: 450px;
+}
+
+#footer
+{
+    color: #999;
+    padding: 15px 15px 15px 15px;
+    text-align: left;
+    line-height: normal;
+    margin: 0;
+    font-size: 14px;
+    background-color: #fff;
+    float: left;
+    position: relative; 
+    bottom: 0px;
+    display: block;
+}
+
+#footer div, #footer a
+{
+    display: inline;
+}
+
+/* TAB MENU   
+----------------------------------------------------------*/
+ul#menu
+{
+    border-bottom: 1px #5C87B2 solid;
+    padding: 0 0 2px;
+    position: relative;
+    margin: 0;
+    text-align: right;
+}
+
+ul#menu li
+{
+    display: inline;
+    list-style: none;
+}
+
+ul#menu li#greeting
+{
+    padding: 10px 20px;
+    font-weight: bold;
+    text-decoration: none;
+    line-height: 2.8em;
+    color: #fff;
+}
+
+ul#menu li a
+{
+    padding: 10px 20px;
+    font-weight: bold;
+    text-decoration: none;
+    line-height: 2.8em;
+    background-color: #e8eef4;
+    color: #034af3;
+}
+
+ul#menu li a:hover
+{
+    background-color: #fff;
+    text-decoration: none;
+}
+
+ul#menu li a:active
+{
+    background-color: #a6e2a6;
+    text-decoration: none;
+}
+
+ul#menu li.selected a
+{
+    background-color: #fff;
+    color: #000;
+}
+
+/* FORM LAYOUT ELEMENTS   
+----------------------------------------------------------*/
+
+fieldset 
+{
+    margin: 1em 0;
+    padding: 1em;
+    border: 1px solid #1d2a5b;
+}
+
+fieldset p 
+{
+    margin: 2px 12px 10px 10px;
+}
+
+legend 
+{
+    font-size: 1.1em;
+    font-weight: 600;
+    padding: 2px 4px 8px 4px;
+    color: #1d2a5b;
+}
+
+input[type="text"] 
+{
+    font-size: 16px;
+    line-height: 1.28;
+    border: 1px solid #96a6c5;
+    padding: 6px;
+}
+
+input[type="password"] 
+{
+    font-size: 16px;
+    line-height: 1.28;
+    border: 1px solid #96a6c5;
+    padding: 6px;
+}
+
+input[type="date"] 
+{
+    font-size: 16px;
+    line-height: 1.28;
+    border: 1px solid #96a6c5;
+    padding: 6px;
+}
+
+input[type="submit"]
+{
+    margin-top:10px;
+}
+
+select
+{
+    font-size: 16px;
+    line-height: 1.28;
+    border: 1px solid #96a6c5;
+    padding: 6px;
+    /*padding-right: 0px;*/
+}
+
+
+/* TABLE
+----------------------------------------------------------*/
+
+table 
+{
+  border: solid 1px #e8eef4;
+  border-collapse: collapse;
+}
+
+table td 
+{
+  padding: 5px;   
+  border: solid 1px #e8eef4;
+}
+
+table th
+{
+  padding: 6px 5px;
+  text-align: left;
+  background-color: #e8eef4; 
+  border: solid 1px #e8eef4;   
+}
+
+/* MISC  
+----------------------------------------------------------*/
+.clear
+{
+    clear: both;
+}
+
+.error
+{
+    color:Red;
+}
+
+#menucontainer
+{
+    margin-top:40px;
+}
+
+div#title
+{
+    display:inline;
+    float:left;
+    text-align:left;
+    margin-left:20px;
+}
+
+div#logo
+{
+    display:inline;
+    float:left;
+    text-align:left;
+}
+
+a#logo
+{
+     width:200;
+}
+
+/* login display */
+
+#logindisplay
+{
+    font-size:1.1em;
+    display:block;
+    text-align:right;
+    margin:5px;
+    color:White;
+    float: right;
+    margin-top: 3px;
+}
+
+#logindisplay a:link
+{
+}
+
+#logindisplay a:visited
+{
+}
+
+#logindisplay a:hover
+{
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* main div */
+
+#taskstore-main
+{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table#taskstore-main-table
+{
+    max-width: 800px;
+    min-width: 800px;
+    border-bottom: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+}
+table#taskstore-main-table td
+{
+    border-bottom: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+}
+
+#taskstore-info
+{
+    float: right;
+    font-size: 48px;
+    padding-right: 25px;
+    margin-top: 20px;
+}
+
+#logincontrol
+{
+    float: left;
+    padding-left: 25px;
+    /*margin-top: -57px;*/
+    margin-top: -30px;
+}
+
+#logincontrol input[type="text"], #logincontrol input[type="password"]
+{
+    width: 300px;
+}
+
+#registercontrol input[type="text"], #registercontrol input[type="password"]
+{
+    width: 300px;
+}
+
+#registercontrol fieldset
+{
+    width: 320px;
+}
+
+/* Styles for validation helpers
+-----------------------------------------------------------*/
+.field-validation-error
+{
+    color: #ff0000;
+}
+
+.field-validation-valid
+{
+    display: none;
+}
+
+.input-validation-error
+{
+    border: 1px solid #ff0000;
+    background-color: #ffeeee;
+}
+
+.validation-summary-errors
+{
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.validation-summary-valid
+{
+    display: none;
+}
+
+/* Styles for editor and display helpers
+----------------------------------------------------------*/
+.display-label,
+.editor-label,
+.display-field,
+.editor-field
+{
+    margin: 0.5em 0;
+}
+
+.text-box
+{
+    width: 30em;
+}
+
+.text-box.multi-line
+{
+    height: 6.5em;
+}
+
+.tri-state
+{
+    width: 6em;
+}

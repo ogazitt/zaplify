@@ -1,0 +1,12 @@
+<local:MainViewModel 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:TaskStoreWinPhone"
+    xmlns:taskstore="clr-namespace:TaskStoreEntities;assembly=TaskStoreEntities">
+
+    <local:MainViewModel.Tags>
+        <taskstore:Tag Name="tag one" Color="Red" />
+        <taskstore:Tag Name="tag two" Color="Yellow" />
+        <taskstore:Tag Name="tag three" />
+     </local:MainViewModel.Tags>
+</local:MainViewModel>
