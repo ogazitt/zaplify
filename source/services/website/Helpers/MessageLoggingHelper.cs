@@ -25,11 +25,10 @@ namespace TaskStoreWeb.Helpers
                 "Body: {2}",
                 msg.RequestUri.AbsoluteUri,
                 msg,
-                msg.Content != null ? msg.Content.ReadAsString() : "(empty)");
+                msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
 
             LoggingHelper.TraceLine(tracemsg, LoggingHelper.LogLevel.Info);
-
-            return msg.ToMessage();
+            return msg.ToMessage(); 
         }
 
         private Message TraceHttpResponseMessage(HttpResponseMessage msg)
@@ -38,7 +37,7 @@ namespace TaskStoreWeb.Helpers
                 "Web Response Header: {0}\n" +
                 "Web Response Body: {1}",
                 msg,
-                msg.Content != null ? msg.Content.ReadAsString() : "(empty)");
+                msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
 
             LoggingHelper.TraceLine(tracemsg, LoggingHelper.LogLevel.Info);
 

@@ -202,12 +202,12 @@ namespace TaskStoreWeb.Helpers
             {
                 case "application/json":
                     DataContractJsonSerializer dcjs = new DataContractJsonSerializer(t);
-                    value = dcjs.ReadObject(req.Content.ContentReadStream);
+                    value = dcjs.ReadObject(req.Content.ReadAsStreamAsync().Result);
                     break;
                 case "text/xml":
                 case "application/xml":
                     DataContractSerializer dc = new DataContractSerializer(t);
-                    value = dc.ReadObject(req.Content.ContentReadStream);
+                    value = dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
                     break;
             }
 

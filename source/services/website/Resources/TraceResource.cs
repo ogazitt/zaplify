@@ -50,9 +50,9 @@ namespace TaskStoreWeb.Resources
             {
                 Stream stream;
                 if (req.Content.Headers.ContentType.MediaType == "application/x-gzip")
-                    stream = new GZipStream(req.Content.ContentReadStream, CompressionMode.Decompress);
+                    stream = new GZipStream(req.Content.ReadAsStreamAsync().Result, CompressionMode.Decompress);
                 else
-                    stream = req.Content.ContentReadStream;
+                    stream = req.Content.ReadAsStreamAsync().Result;
 
                 string error = WriteFile(user, stream);
                 var response = new HttpResponseMessageWrapper<string>(req, error != null ? error : "OK", HttpStatusCode.OK);

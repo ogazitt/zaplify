@@ -95,7 +95,7 @@ namespace TaskStoreWeb.Resources
             try
             {
                 // retrieve and set the stream to recognize
-                Stream stream = req.Content.ContentReadStream;
+                Stream stream = req.Content.ReadAsStreamAsync().Result;
                 IEnumerable<string> values = new List<string>();
                 if (req.Headers.Contains("TaskStore-Speech-Encoding") == true)
                     stream = GetStream(req);
@@ -266,7 +266,7 @@ namespace TaskStoreWeb.Resources
 
         private Stream GetStream(HttpRequestMessage req)
         {
-            Stream stream = req.Content.ContentReadStream;
+            Stream stream = req.Content.ReadAsStreamAsync().Result;
             string contentType = null;
 
             // get the content type

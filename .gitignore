@@ -1,12 +1,8 @@
 bin/
 obj/
-corpweb/BuiltSteadyWeb/bin/
-service/TaskStoreWeb/Bin/
+service/website/bin/
 *.suo
 *.user
 XapCacheFile.xml
-source/winphone/TaskStoreWinPhone/PerformanceLogs/
-source/winphone/TaskStoreWinPhone/bak/
-source/packages/NSpeex.1.1/lib/old/
-source/service/NSpeex
+source/devices/winphone/winphone/PerformanceLogs/
 ~$*.*
