@@ -9,7 +9,7 @@
     <ConfigurationSettings>
     </ConfigurationSettings>
   </WorkerRole>
-  <WebRole name="website" vmsize="Small">
+  <WebRole name="Website" vmsize="Small">
     <Sites>
       <Site name="Web">
         <Bindings>
@@ -18,20 +18,11 @@
       </Site>
     </Sites>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="8080" />
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
     <Imports>
       <Import moduleName="Diagnostics" />
       <Import moduleName="RemoteAccess" />
     </Imports>
-    <Startup>
-      <Task executionContext="elevated" commandLine="startup\Install.cmd">
-        <Environment>
-          <Variable name="EMULATED">
-            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
-          </Variable>
-        </Environment>
-      </Task>
-    </Startup>
   </WebRole>
 </ServiceDefinition>

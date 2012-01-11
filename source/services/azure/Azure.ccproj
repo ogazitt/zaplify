@@ -47,12 +47,12 @@
       <RoleName>mailworker</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
-    <ProjectReference Include="..\website\website.csproj">
-      <Name>website</Name>
-      <Project>{f391b690-2c45-4a8d-a99a-0c9dac3f79b8}</Project>
+    <ProjectReference Include="..\website\Website.csproj">
+      <Name>Website</Name>
+      <Project>{ae9dfdd6-e41d-4fce-9522-3f2894059ac1}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>website</RoleName>
+      <RoleName>Website</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
   </ItemGroup>
