@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TaskStoreWeb")]
+[assembly: AssemblyTitle("BuiltSteady.Zaplify.Website")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TaskStore, Inc.")]
-[assembly: AssemblyProduct("TaskStore")]
-[assembly: AssemblyCopyright("Copyright © TaskStore 2011")]
+[assembly: AssemblyCompany("BuiltSteady")]
+[assembly: AssemblyProduct("Zaplify")]
+[assembly: AssemblyCopyright("Copyright © BuiltSteady 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

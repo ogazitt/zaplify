@@ -10,14 +10,14 @@ using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
 using AE.Net.Mail;
 using AE.Net.Mail.Imap;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text;
 using System.Configuration;
-using ServiceHelpers;
+using BuiltSteady.Zaplify.ServiceHelpers;
 
-namespace TaskStoreMailWorker
+namespace BuiltSteady.Zaplify.MailWorker
 {
     public class WorkerRole : RoleEntryPoint
     {
@@ -59,7 +59,7 @@ namespace TaskStoreMailWorker
 
         public override void Run()
         {
-            TraceLine("TaskStoreMailWorker started", "Information");
+            TraceLine("BuiltSteady.Zaplify.MailWorker started", "Information");
             string hostname = ConfigurationManager.AppSettings["Hostname"];
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"]);
             string username = ConfigurationManager.AppSettings["Username"];
@@ -93,7 +93,7 @@ namespace TaskStoreMailWorker
                             MailMessage[] messages = imap.GetMessages(0, count, false);
                             foreach (var m in messages)
                             {
-                                TraceLine("TaskStoreMailWorker processing message " + m.Subject, "Information");
+                                TraceLine("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject, "Information");
                                 ProcessMessage(m);
                                 imap.MoveMessage(m.Uid, "processed");
                             }

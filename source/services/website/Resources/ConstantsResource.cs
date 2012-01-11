@@ -11,7 +11,7 @@ using System.Reflection;
 using TaskStoreWeb.Helpers;
 using TaskStoreWeb.Models;
 using System.Data.Entity;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace TaskStoreWeb.Resources
 {
@@ -61,7 +61,7 @@ namespace TaskStoreWeb.Resources
 
             try
             {
-                var actions = taskstore.Actions.OrderBy(a => a.SortOrder).ToList<TaskStoreServerEntities.Action>();
+                var actions = taskstore.Actions.OrderBy(a => a.SortOrder).ToList<BuiltSteady.Zaplify.ServerEntities.Action>();
                 var colors = taskstore.Colors.OrderBy(c => c.ColorID).ToList<Color>();
                 var fieldTypes = taskstore.FieldTypes.OrderBy(ft => ft.FieldTypeID).ToList<FieldType>();
                 var listTypes = taskstore.ListTypes.Where(l => l.UserID == null).Include("Fields").ToList<ListType>();  // get the built-in listtypes

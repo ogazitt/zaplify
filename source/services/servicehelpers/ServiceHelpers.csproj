@@ -8,8 +8,8 @@
     <ProjectGuid>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ServiceHelpers</RootNamespace>
-    <AssemblyName>ServiceHelpers</AssemblyName>
+    <RootNamespace>BuiltSteady.Zaplify.ServiceHelpers</RootNamespace>
+    <AssemblyName>BuiltSteady.Zaplify.ServiceHelpers</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

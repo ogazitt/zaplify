@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Runtime.Serialization;
 
-namespace TaskStoreServerEntities
+namespace BuiltSteady.Zaplify.ServerEntities
 {
     public class TaskList
     {

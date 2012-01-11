@@ -1,4 +1,4 @@
-<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<TaskStoreServerEntities.Task>" %>
+<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<BuiltSteady.Zaplify.ServerEntities.Task>" %>
 
 <div class="editor-label">
     <%: Html.LabelFor(model => model.Name) %>
@@ -92,7 +92,7 @@
     TaskList
 </div>
 <div class="editor-field">
-    <%: Html.DropDownListFor(model => model.TaskListID, ((IEnumerable<TaskStoreServerEntities.TaskList>)ViewBag.PossibleTaskLists).Select(option => new SelectListItem {
+    <%: Html.DropDownListFor(model => model.TaskListID, ((IEnumerable<BuiltSteady.Zaplify.ServerEntities.TaskList>)ViewBag.PossibleTaskLists).Select(option => new SelectListItem {
 		Text = (option == null ? "None" : option.Name), 
         Value = option.ID.ToString(),
         Selected = (Model != null) && (option.ID == Model.TaskListID)
@@ -103,7 +103,7 @@
     Priority
 </div>
 <div class="editor-field">
-    <%: Html.DropDownListFor(model => model.PriorityID, ((IEnumerable<TaskStoreServerEntities.Priority>)ViewBag.PossiblePriorities).Select(option => new SelectListItem {
+    <%: Html.DropDownListFor(model => model.PriorityID, ((IEnumerable<BuiltSteady.Zaplify.ServerEntities.Priority>)ViewBag.PossiblePriorities).Select(option => new SelectListItem {
 		Text = (option == null ? "None" : option.Name), 
         Value = option.PriorityID.ToString(),
         Selected = (Model != null) && (option.PriorityID == Model.PriorityID)

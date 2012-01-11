@@ -15,9 +15,9 @@ using Microsoft.Speech.Recognition;
 using Microsoft.Speech.AudioFormat;
 using System.IO;
 using System.Net.Http.Headers;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 using System.Threading;
-using ServiceHelpers;
+using BuiltSteady.Zaplify.ServiceHelpers;
 using NSpeex;
 
 namespace TaskStoreWeb.Resources

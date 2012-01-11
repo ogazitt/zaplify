@@ -5,7 +5,7 @@ using System.Web;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace ServiceHelpers
+namespace BuiltSteady.Zaplify.ServiceHelpers
 {
     public class LoggingHelper
     {

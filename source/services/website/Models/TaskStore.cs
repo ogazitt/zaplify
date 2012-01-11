@@ -5,7 +5,7 @@ using System.Web;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Web.Configuration;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace TaskStoreWeb.Models
 {
@@ -36,7 +36,7 @@ namespace TaskStoreWeb.Models
         }
 
         // constant / shared tables
-        public DbSet<TaskStoreServerEntities.Action> Actions { get; set; }
+        public DbSet<BuiltSteady.Zaplify.ServerEntities.Action> Actions { get; set; }
         public DbSet<Color> Colors { get; set; }
         public DbSet<FieldType> FieldTypes { get; set; }
         public DbSet<Priority> Priorities { get; set; }

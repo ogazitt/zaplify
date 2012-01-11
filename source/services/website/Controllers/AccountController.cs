@@ -7,8 +7,8 @@ using System.Web.Routing;
 using System.Web.Security;
 using TaskStoreWeb.Models;
 using TaskStoreWeb.Helpers;
-using TaskStoreServerEntities;
-using ServiceHelpers;
+using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHelpers;
 
 namespace TaskStoreWeb.Controllers
 {

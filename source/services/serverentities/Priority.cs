@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace TaskStoreServerEntities
+namespace BuiltSteady.Zaplify.ServerEntities
 {
     public class Priority
     {

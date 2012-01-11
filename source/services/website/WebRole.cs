@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using ServiceHelpers;
+using BuiltSteady.Zaplify.ServiceHelpers;
 
 namespace TaskStoreWeb
 {

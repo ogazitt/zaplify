@@ -1,4 +1,4 @@
-<%@ Page Title="" Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<IEnumerable<TaskStoreServerEntities.Task>>" %>
+<%@ Page Title="" Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<IEnumerable<BuiltSteady.Zaplify.ServerEntities.Task>>" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="TitleContent" runat="server">
     Index
@@ -46,7 +46,7 @@
 			<%: Html.CheckBox("Complete", item.Complete) %>
         </td>
         <td>
-            <%: Html.DropDownList("PriorityID", ((IEnumerable<TaskStoreServerEntities.Priority>)ViewBag.PossiblePriorities).Select(option => new SelectListItem {
+            <%: Html.DropDownList("PriorityID", ((IEnumerable<BuiltSteady.Zaplify.ServerEntities.Priority>)ViewBag.PossiblePriorities).Select(option => new SelectListItem {
 		        Text = (option == null ? "None" : option.Name), 
                 Value = option.PriorityID.ToString(),
                 Selected = (item != null) && (option.PriorityID == item.PriorityID)

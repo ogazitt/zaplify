@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="TaskStoreAzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
-  <Role name="TaskStoreMailWorker">
+  <Role name="mailworker">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=taskstorage;AccountKey=S7YxPLj8qIUZq0h/pik7NQnmT2+wD4O0G4hzZEn2UOkQ06iUg8e1bX8m8S5d2iPJuhkJfeWAYGUdRsi/N9UhIA==" />
@@ -14,7 +14,7 @@
       <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="D19C2E1BBFDB2C6CCDF76EC64A34739610255066" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
-  <Role name="TaskStoreWeb">
+  <Role name="website">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=taskstorage;AccountKey=S7YxPLj8qIUZq0h/pik7NQnmT2+wD4O0G4hzZEn2UOkQ06iUg8e1bX8m8S5d2iPJuhkJfeWAYGUdRsi/N9UhIA==" />

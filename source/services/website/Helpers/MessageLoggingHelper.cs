@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Net.Http;
 using Microsoft.ApplicationServer.Http.Channels;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using ServiceHelpers;
+using BuiltSteady.Zaplify.ServiceHelpers;
 
 namespace TaskStoreWeb.Helpers
 {

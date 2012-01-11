@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="TaskStoreAzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
-  <WorkerRole name="TaskStoreMailWorker" vmsize="ExtraSmall">
+  <WorkerRole name="mailworker" vmsize="ExtraSmall">
     <Imports>
       <Import moduleName="Diagnostics" />
       <Import moduleName="RemoteAccess" />
@@ -9,7 +9,7 @@
     <ConfigurationSettings>
     </ConfigurationSettings>
   </WorkerRole>
-  <WebRole name="TaskStoreWeb" vmsize="Small">
+  <WebRole name="website" vmsize="Small">
     <Sites>
       <Site name="Web">
         <Bindings>

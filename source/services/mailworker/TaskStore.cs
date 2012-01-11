@@ -5,9 +5,9 @@ using System.Web;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Configuration;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
-namespace TaskStoreServerEntities
+namespace BuiltSteady.Zaplify.ServerEntities
 {
     public class TaskStore : DbContext
     {

@@ -13,7 +13,7 @@ using TaskStoreWeb.Models;
 using System.Configuration;
 using System.Web.Configuration;
 using System.Web.Security;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace TaskStoreWeb.Resources
 {

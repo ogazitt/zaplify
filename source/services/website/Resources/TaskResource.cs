@@ -11,7 +11,7 @@ using System.Reflection;
 using TaskStoreWeb.Helpers;
 using TaskStoreWeb.Models;
 using System.Web.Configuration;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace TaskStoreWeb.Resources
 {

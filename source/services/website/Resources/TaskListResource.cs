@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Web.Configuration;
 using System.Data.Entity;
 using System.Net.Http.Headers;
-using TaskStoreServerEntities;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace TaskStoreWeb.Resources
 {
