@@ -6,11 +6,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Task
+    public class Item
     {
         public Guid ID { get; set; }
-        public Guid TaskListID { get; set; }
         public string Name { get; set; }
+        public Guid ItemListID { get; set; }
+        public Guid ItemTypeID { get; set; }
+        public List<ItemTag> ItemTags { get; set; }
+        public List<FieldValue> FieldValues { get; set; }
+
+        // these will go away
         public bool Complete { get; set; }
         public string Description { get; set; }
         public int? PriorityID { get; set; }
@@ -19,9 +24,9 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Phone { get; set; }
         public string Website { get; set; }
         public string Email { get; set; }
-        public Guid? LinkedTaskListID { get; set; }
-        public List<TaskTag> TaskTags { get; set; }
-        public List<FieldValue> FieldValues { get; set; }
+        public Guid? LinkedItemListID { get; set; }
+
+        // these are first-class attributes of each item
         public DateTime Created { get; set; }
         public DateTime LastModified { get; set; } // this has to be the last field
     }

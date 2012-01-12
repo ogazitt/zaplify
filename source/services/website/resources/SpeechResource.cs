@@ -52,17 +52,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
 #endif
         }
 
-        private TaskStore TaskStore
+        private ZaplifyStore ZaplifyStore
         {
             get
             {
                 // if in a debug build, always go to the database
                 if (isDebugEnabled)
-                    return new TaskStore();
+                    return new ZaplifyStore();
                 else // retail build
                 {
                     // use a cached context (to promote serving values out of EF cache) 
-                    return TaskStore.Current;
+                    return ZaplifyStore.Current;
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // Log function entrance
             LoggingHelper.TraceFunction();
 
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<string>(req, code);  // user not authenticated
 

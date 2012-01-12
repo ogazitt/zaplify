@@ -19,11 +19,11 @@ namespace BuiltSteady.Zaplify.Website.Resources
     [LogMessages]
     public class TagResource
     {
-        private TaskStore TaskStore
+        private ZaplifyStore ZaplifyStore
         {
             get
             {
-                return new TaskStore();
+                return new ZaplifyStore();
             }
         }
 
@@ -36,40 +36,40 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> DeleteTag(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Tag>(req, code);  // user not authenticated
 
             // get the new tag from the message body
-            Tag clientTag = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(Tag)) as Tag;
+            Tag clientTag = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Tag)) as Tag;
 
             // make sure the Tag ID's match
             if (clientTag.ID != id)
                 return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // get the tag to be deleted
             try
             {
-                Tag requestedTag = taskstore.Tags.Include("TaskTags").Single<Tag>(t => t.ID == id);
+                Tag requestedTag = zaplifystore.Tags.Include("ItemTags").Single<Tag>(t => t.ID == id);
 
                 // if the requested tag does not belong to the authenticated user, return 403 Forbidden
                 if (requestedTag.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
 
-                // delete all the tasktags associated with this task
-                if (requestedTag.TaskTags != null && requestedTag.TaskTags.Count > 0)
+                // delete all the itemtags associated with this item
+                if (requestedTag.ItemTags != null && requestedTag.ItemTags.Count > 0)
                 {
-                    foreach (var tt in requestedTag.TaskTags.ToList())
-                        taskstore.TaskTags.Remove(tt);
+                    foreach (var tt in requestedTag.ItemTags.ToList())
+                        zaplifystore.ItemTags.Remove(tt);
                 }
 
-                taskstore.Tags.Remove(requestedTag);
-                int rows = taskstore.SaveChanges();
+                zaplifystore.Tags.Remove(requestedTag);
+                int rows = zaplifystore.SaveChanges();
                 if (rows < 1)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
                 else
@@ -90,19 +90,19 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<List<Tag>> Get(HttpRequestMessage req)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<List<Tag>>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // get all Tags
             try
             {
-                var tags = taskstore.Tags.
+                var tags = zaplifystore.Tags.
                     Include("Fields").
                     Where(lt => lt.UserID == null || lt.UserID == dbUser.ID).
                     OrderBy(lt => lt.Name).
@@ -125,19 +125,19 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> GetTag(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Tag>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // get the requested tag
             try
             {
-                Tag requestedTag = taskstore.Tags.Include("Fields").Single<Tag>(t => t.ID == id);
+                Tag requestedTag = zaplifystore.Tags.Include("Fields").Single<Tag>(t => t.ID == id);
 
                 // if the requested tag is not generic (i.e. UserID == 0), 
                 // and does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
@@ -161,17 +161,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> InsertTag(HttpRequestMessage req)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Tag>(req, code);  // user not authenticated
 
             // get the new tag from the message body
-            Tag clientTag = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(Tag)) as Tag;
+            Tag clientTag = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Tag)) as Tag;
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // if the requested tag does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
             if (clientTag.UserID == null || clientTag.UserID == Guid.Empty)
@@ -182,8 +182,8 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // add the new tag to the database
             try
             {
-                var tag = taskstore.Tags.Add(clientTag);
-                int rows = taskstore.SaveChanges();
+                var tag = zaplifystore.Tags.Add(clientTag);
+                int rows = zaplifystore.SaveChanges();
                 if (tag == null || rows != 1)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Conflict);
                 else
@@ -195,7 +195,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // in that case, return 202 Accepted; otherwise, return 409 Conflict
                 try
                 {
-                    var dbTag = taskstore.Tags.Single(t => t.ID == clientTag.ID);
+                    var dbTag = zaplifystore.Tags.Single(t => t.ID == clientTag.ID);
                     if (dbTag.Name == clientTag.Name)
                         return new HttpResponseMessageWrapper<Tag>(req, dbTag, HttpStatusCode.Accepted);
                     else
@@ -217,12 +217,12 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> UpdateTag(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Tag>(req, code);  // user not authenticated
 
             // the body will be two Tags - the original and the new values.  Verify this
-            List<Tag> clientTags = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(List<Tag>)) as List<Tag>;
+            List<Tag> clientTags = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(List<Tag>)) as List<Tag>;
             if (clientTags.Count != 2)
                 return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
 
@@ -236,17 +236,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
             if (originalTag.ID != id)
                 return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // update the tag
             try
             {
-                Tag requestedTag = taskstore.Tags.Single<Tag>(t => t.ID == id);
+                Tag requestedTag = zaplifystore.Tags.Single<Tag>(t => t.ID == id);
 
-                // if the TaskList does not belong to the authenticated user, return 403 Forbidden
+                // if the ItemList does not belong to the authenticated user, return 403 Forbidden
                 if (requestedTag.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
@@ -256,7 +256,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 bool changed = Update(requestedTag, originalTag, newTag);
                 if (changed == true)
                 {
-                    int rows = taskstore.SaveChanges();
+                    int rows = zaplifystore.SaveChanges();
                     if (rows != 1)
                         return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
                     else

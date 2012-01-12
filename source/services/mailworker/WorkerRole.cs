@@ -23,23 +23,23 @@ namespace BuiltSteady.Zaplify.MailWorker
     {
         static string ListMarker = @"#list:";
 
-        static TaskStore TaskStore
+        static ZaplifyStore ZaplifyStore
         {
             get
             {
                 // use a cached context (to promote serving values out of EF cache) 
-                return TaskStore.Current;
+                return ZaplifyStore.Current;
             }
         }
 
-        static Guid toDoListType;
-        static Guid ToDoListType
+        static Guid toDoItemType;
+        static Guid ToDoItemType
         {
             get
             {
-                if (toDoListType == Guid.Empty)
-                    toDoListType = TaskStore.ListTypes.Single(lt => lt.Name == "To Do List" && lt.UserID == null).ID;
-                return toDoListType;
+                if (toDoItemType == Guid.Empty)
+                    toDoItemType = ZaplifyStore.ItemTypes.Single(lt => lt.Name == "To Do List" && lt.UserID == null).ID;
+                return toDoItemType;
             }
         }
 
@@ -115,9 +115,9 @@ namespace BuiltSteady.Zaplify.MailWorker
 
         static Guid? GetList(User u, string body, bool html)
         {
-            TaskList tasklist = null;
+            ItemList itemlist = null;
 
-            // a hash indicates a list name to add the new task to
+            // a hash indicates a list name to add the new item to
             int index = body.IndexOf(ListMarker);
             if (index >= 0)
             {
@@ -129,15 +129,15 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     listName = listName.Substring(0, listNameEnd);
                     listName = listName.Trim();
-                    tasklist = TaskStore.TaskLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.Name == listName);
-                    if (tasklist != null)
-                        return tasklist.ID;
+                    itemlist = ZaplifyStore.ItemLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.Name == listName);
+                    if (itemlist != null)
+                        return itemlist.ID;
                 }
             }
 
-            tasklist = TaskStore.TaskLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.ListTypeID == ToDoListType);
-            if (tasklist != null)
-                return tasklist.ID;
+            itemlist = ZaplifyStore.ItemLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.DefaultItemTypeID == ToDoItemType);
+            if (itemlist != null)
+                return itemlist.ID;
             else
                 return null;
         }
@@ -183,7 +183,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             TraceLine(String.Format("Retrieved message {0}", msg.Subject), "Information");
         }
 
-        static void ParseFields(Task task, string body)
+        static void ParseFields(Item item, string body)
         {
             string text = body;
             if (text == null || text == "")
@@ -194,50 +194,50 @@ namespace BuiltSteady.Zaplify.MailWorker
             // parse the text for a phone number
             m = Regex.Match(text, @"(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                task.Phone = m.Value;
+                item.Phone = m.Value;
 
             // parse the text for an email address
             m = Regex.Match(text, @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                task.Email = m.Value;
+                item.Email = m.Value;
 
             // parse the text for a website
             m = Regex.Match(text, @"((http|https)(:\/\/))?([a-zA-Z0-9]+[.]{1}){2}[a-zA-z0-9]+(\/{1}[a-zA-Z0-9]+)*\/?", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                task.Website = m.Value;
+                item.Website = m.Value;
 
             // parse the text for a date
             m = Regex.Match(text, @"(0?[1-9]|1[012])([- /.])(0?[1-9]|[12][0-9]|3[01])\2(20|19)?\d\d", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
             {
                 // convert to datetime, then back to string.  this is to canonicalize all dates into yyyy/MM/dd.
-                task.DueDate = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd");
+                item.DueDate = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd");
             }
         }
 
-        static string PrintTask(Task task)
+        static string PrintItem(Item item)
         {
             StringBuilder sb = new StringBuilder();
             bool comma = false;
             try
             {
-                TaskList list = TaskStore.TaskLists.Single(tl => tl.ID == task.TaskListID);
-                ListType listType = TaskStore.ListTypes.Include("Fields").Single(lt => lt.ID == list.ListTypeID);
+                ItemList list = ZaplifyStore.ItemLists.Single(tl => tl.ID == item.ItemListID);
+                ItemType itemType = ZaplifyStore.ItemTypes.Include("Fields").Single(lt => lt.ID == list.DefaultItemTypeID);
 
-                foreach (Field f in listType.Fields.OrderBy(f => f.SortOrder))
+                foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
                     FieldType fieldType;
                     // get the field type for this field
                     try
                     {
-                        fieldType = TaskStore.FieldTypes.Single(ft => ft.FieldTypeID == f.FieldTypeID);
+                        fieldType = ZaplifyStore.FieldTypes.Single(ft => ft.FieldTypeID == f.FieldTypeID);
                     }
                     catch (Exception)
                     {
                         continue;
                     }
 
-                    // already printed out the task name
+                    // already printed out the item name
                     if (fieldType.DisplayName == "Name")
                         continue;
 
@@ -245,7 +245,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                     // make sure the property exists on the local type
                     try
                     {
-                        pi = task.GetType().GetProperty(fieldType.Name);
+                        pi = item.GetType().GetProperty(fieldType.Name);
                         if (pi == null)
                             continue;  // see comment below
                     }
@@ -261,13 +261,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                     if (pi.CanWrite == false ||
                         pi.PropertyType == typeof(Guid) ||
                         pi.PropertyType == typeof(Guid?) ||
-                        pi.Name == "TaskTags" ||
+                        pi.Name == "ItemTags" ||
                         pi.Name == "Created" ||
                         pi.Name == "LastModified")
                         continue;
 
                     // get the value of the property
-                    var val = pi.GetValue(task, null);
+                    var val = pi.GetValue(item, null);
                     if (val != null)
                     {
                         if (comma)
@@ -283,7 +283,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
             catch (Exception ex)
             {
-                TraceLine("Exception white Printing Task: " + ex.Message, "Error");
+                TraceLine("Exception white Printing Item: " + ex.Message, "Error");
                 return "no fields parsed";
             }
         }
@@ -296,7 +296,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (from == null || from == "")
                 return;
 
-            string taskName = GetSubject(m.Subject);
+            string itemName = GetSubject(m.Subject);
             string body = m.Body;
             if (body == null || body == "")
             {
@@ -304,18 +304,18 @@ namespace BuiltSteady.Zaplify.MailWorker
                 html = true;
             }
             
-            var users = TaskStore.Users.Where(u => u.Email == from).ToList();
+            var users = ZaplifyStore.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)
             {
                 Guid? list = GetList(u, body, html);
                 if (list != null)
                 {
                     DateTime now = DateTime.Now;
-                    Task t = new Task()
+                    Item t = new Item()
                     {
                         ID = Guid.NewGuid(),
-                        Name = taskName,
-                        TaskListID = (Guid) list,
+                        Name = itemName,
+                        ItemListID = (Guid) list,
                         Created = now,
                         LastModified = now,
                     };
@@ -323,11 +323,11 @@ namespace BuiltSteady.Zaplify.MailWorker
                     // extract structured fields such as due date, e-mail, website, phone number
                     ParseFields(t, body);
 
-                    var task = TaskStore.Tasks.Add(t);
-                    int rows = TaskStore.SaveChanges();
+                    var item = ZaplifyStore.Items.Add(t);
+                    int rows = ZaplifyStore.SaveChanges();
 
                     if (rows > 0)
-                        TraceLine(String.Format("Added Task: {0} ({1})", t.Name, PrintTask(t)), "Information");
+                        TraceLine(String.Format("Added Item: {0} ({1})", t.Name, PrintItem(t)), "Information");
                 }
             }
         }

@@ -19,11 +19,11 @@ namespace BuiltSteady.Zaplify.Website.Resources
     [LogMessages]
     public class OperationResource
     {
-        private TaskStore TaskStore
+        private ZaplifyStore ZaplifyStore
         {
             get
             {
-                return new TaskStore();
+                return new ZaplifyStore();
             }
         }
 
@@ -36,21 +36,21 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Operation> DeleteOperation(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Operation>(req, code);  // user not authenticated
 
             // get the operation from the message body
-            Operation clientOperation = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(Operation)) as Operation;
+            Operation clientOperation = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Operation)) as Operation;
 
             // make sure the ID's match
             if (clientOperation.ID != id)
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
 
             // if the requested operation does not belong to the authenticated user, return 403 Forbidden
@@ -60,9 +60,9 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get the operation to be deleted
             try
             {
-                Operation requestedOperation = taskstore.Operations.Single<Operation>(t => t.ID == id);
-                taskstore.Operations.Remove(requestedOperation);
-                int rows = taskstore.SaveChanges();
+                Operation requestedOperation = zaplifystore.Operations.Single<Operation>(t => t.ID == id);
+                zaplifystore.Operations.Remove(requestedOperation);
+                int rows = zaplifystore.SaveChanges();
                 if (rows < 1)
                     return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.InternalServerError);
                 else
@@ -84,19 +84,19 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Operation> GetOperation(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Operation>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // get the requested operation
             try
             {
-                Operation requestedOperation = taskstore.Operations.Single<Operation>(t => t.ID == id);
+                Operation requestedOperation = zaplifystore.Operations.Single<Operation>(t => t.ID == id);
 
                 // if the requested operation does not belong to the authenticated user, return 403 Forbidden, otherwise return the operation
                 if (requestedOperation.UserID != dbUser.ID)
@@ -119,17 +119,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Operation> InsertOperation(HttpRequestMessage req)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Operation>(req, code);  // user not authenticated
 
             // get the new operation from the message body
-            Operation clientOperation = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(Operation)) as Operation;
+            Operation clientOperation = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Operation)) as Operation;
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // if the requested operation does not belong to the authenticated user, return 403 Forbidden
             if (clientOperation.UserID != dbUser.ID)
@@ -147,8 +147,8 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // add the new operation to the database
             try
             {
-                var operation = taskstore.Operations.Add(clientOperation);
-                int rows = taskstore.SaveChanges();
+                var operation = zaplifystore.Operations.Add(clientOperation);
+                int rows = zaplifystore.SaveChanges();
                 if (operation == null || rows < 1)
                     return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.Conflict);  // return 409 Conflict
                 else
@@ -160,7 +160,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // in that case, return 202 Accepted; otherwise, return 409 Conflict
                 try
                 {
-                    var dbOperation = taskstore.Operations.Single(t => t.ID == clientOperation.ID);
+                    var dbOperation = zaplifystore.Operations.Single(t => t.ID == clientOperation.ID);
                     if (dbOperation.EntityName == clientOperation.EntityName)
                         return new HttpResponseMessageWrapper<Operation>(req, dbOperation, HttpStatusCode.Accepted);
                     else
@@ -182,12 +182,12 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<Operation> UpdateOperation(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<Operation>(req, code);  // user not authenticated
 
             // the body will be two Operations - the original and the new values.  Verify this
-            List<Operation> clientOperations = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(List<Operation>)) as List<Operation>;
+            List<Operation> clientOperations = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(List<Operation>)) as List<Operation>;
             if (clientOperations.Count != 2)
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.BadRequest);
 
@@ -201,10 +201,10 @@ namespace BuiltSteady.Zaplify.Website.Resources
             if (originalOperation.ID != id)
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // if the operation does not belong to the authenticated user, return 403 Forbidden
             if (originalOperation.UserID != dbUser.ID || newOperation.UserID != dbUser.ID)
@@ -212,7 +212,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
 
             try
             {
-                Operation requestedOperation = taskstore.Operations.Single<Operation>(t => t.ID == id);
+                Operation requestedOperation = zaplifystore.Operations.Single<Operation>(t => t.ID == id);
 
                 bool changed = false;
 
@@ -220,7 +220,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 changed = (Update(requestedOperation, originalOperation, newOperation) == true ? true : changed);
                 if (changed == true)
                 {
-                    int rows = taskstore.SaveChanges();
+                    int rows = zaplifystore.SaveChanges();
                     if (rows < 1)
                         return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.InternalServerError);
                     else

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="TaskStoreAzureService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+<ServiceDefinition name="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
   <WorkerRole name="mailworker" vmsize="ExtraSmall">
     <Imports>
       <Import moduleName="Diagnostics" />
@@ -9,7 +9,7 @@
     <ConfigurationSettings>
     </ConfigurationSettings>
   </WorkerRole>
-  <WebRole name="Website" vmsize="Small">
+  <WebRole name="Website" vmsize="ExtraSmall">
     <Sites>
       <Site name="Web">
         <Bindings>
@@ -24,5 +24,14 @@
       <Import moduleName="Diagnostics" />
       <Import moduleName="RemoteAccess" />
     </Imports>
+    <Startup>
+      <Task executionContext="elevated" commandLine="startup\Install.cmd">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
   </WebRole>
 </ServiceDefinition>

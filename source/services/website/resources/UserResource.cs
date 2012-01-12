@@ -21,11 +21,11 @@ namespace BuiltSteady.Zaplify.Website.Resources
     [LogMessages]
     public class UserResource
     {
-        private TaskStore TaskStore
+        private ZaplifyStore ZaplifyStore
         {
             get
             {
-                return new TaskStore();
+                return new ZaplifyStore();
             }
         }
 
@@ -37,15 +37,15 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<User> CreateUser(HttpRequestMessage req)
         {
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             // get the new user from the message body
-            User user = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(User)) as User;
+            User user = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(User)) as User;
 
             try
             {
                 // try to find the user - if already exists, return 409 Conflict
-                var dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name);
+                var dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name);
 
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Conflict);
             }
@@ -53,7 +53,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             {
                 // this is the expected path - the user doesn't yet exist
                 MembershipCreateStatus createStatus;
-                HttpStatusCode status = ResourceHelper.CreateUser(taskstore, user, out createStatus);
+                HttpStatusCode status = ResourceHelper.CreateUser(zaplifystore, user, out createStatus);
                 if (status == HttpStatusCode.Created)
                     return new HttpResponseMessageWrapper<User>(req, user, HttpStatusCode.Created);
                 else
@@ -69,18 +69,18 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [WebInvoke(UriTemplate = "{id}", Method = "DELETE")]
         public HttpResponseMessageWrapper<User> DeleteUser(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<User>(req, code);  // user not authenticated
 
             // get the User from the message body
-            User clientUser = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(User)) as User;
+            User clientUser = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(User)) as User;
 
             // make sure the User ID's match
             if (clientUser.ID != id)
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
             User user = ResourceHelper.GetUserPassFromMessage(req);
 
             try
@@ -89,14 +89,14 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (Membership.DeleteUser(user.Name) == false)
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
 
-                // remove the user data from the TaskStore database
-                User dbUser = taskstore.Users.
-                    Include("ListTypes.Fields").
+                // remove the user data from the ZaplifyStore database
+                User dbUser = zaplifystore.Users.
+                    Include("ItemTypes.Fields").
                     Include("Tags").
-                    Include("TaskLists.Tasks.TaskTags").
+                    Include("ItemLists.Items.ItemTags").
                     Single<User>(u => u.Name == user.Name);
-                taskstore.Users.Remove(dbUser);
-                int rows = taskstore.SaveChanges();
+                zaplifystore.Users.Remove(dbUser);
+                int rows = zaplifystore.SaveChanges();
                 if (rows < 1)
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
                 else
@@ -131,7 +131,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 else
                 {
                     user = ResourceHelper.GetUserPassFromMessage(req);
-                    HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+                    HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
                     if (code != HttpStatusCode.OK)
                         return new HttpResponseMessageWrapper<User>(req, code);  // user not authenticated
                 }
@@ -142,15 +142,15 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
             }
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             try
             {
                 // get the user and all of their top-level objects
-                User dbUser = taskstore.Users.
-                    Include("ListTypes.Fields").
+                User dbUser = zaplifystore.Users.
+                    Include("ItemTypes.Fields").
                     Include("Tags").
-                    Include("TaskLists.Tasks.TaskTags").
+                    Include("ItemLists.Items.ItemTags").
                     Single<User>(u => u.Name == user.Name);
                 
                 // make sure the response isn't cached
@@ -174,17 +174,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [LogMessages]
         public HttpResponseMessageWrapper<User> GetUser(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<User>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             try
             {
-                User requestedUser = taskstore.Users.Single<User>(u => u.ID == id);
+                User requestedUser = zaplifystore.Users.Single<User>(u => u.ID == id);
 
                 // if the requested user is not the same as the authenticated user, blank out password field
                 if (requestedUser.ID != dbUser.ID)
@@ -199,49 +199,49 @@ namespace BuiltSteady.Zaplify.Website.Resources
         }
 
         /// <summary>
-        /// Get all tasklists for a user
+        /// Get all itemlists for a user
         /// </summary>
         /// <param name="id">ID for the user</param>
-        /// <returns>List of tasklists for the user</returns>
-        [WebGet(UriTemplate = "{id}/tasklists")]
+        /// <returns>List of itemlists for the user</returns>
+        [WebGet(UriTemplate = "{id}/itemlists")]
         [LogMessages]
-        public HttpResponseMessageWrapper<List<TaskList>> GetTaskListsForUser(HttpRequestMessage req, Guid id)
+        public HttpResponseMessageWrapper<List<ItemList>> GetItemListsForUser(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<List<TaskList>>(req, code);  // user not authenticated
+                return new HttpResponseMessageWrapper<List<ItemList>>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             try
             {
-                User requestedUser = taskstore.Users.Single<User>(u => u.ID == id);
+                User requestedUser = zaplifystore.Users.Single<User>(u => u.ID == id);
 
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
                 if (requestedUser.ID != dbUser.ID)
-                    return new HttpResponseMessageWrapper<List<TaskList>>(req, HttpStatusCode.Forbidden);
+                    return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.Forbidden);
                 else
                 {
                     try
                     {
-                        var tasklists = taskstore.TaskLists.Include("User").Include("Tasks").Where(tl => tl.UserID == id).ToList();
-                        var response = new HttpResponseMessageWrapper<List<TaskList>>(req, tasklists, HttpStatusCode.OK);
+                        var itemlists = zaplifystore.ItemLists.Include("User").Include("Items").Where(tl => tl.UserID == id).ToList();
+                        var response = new HttpResponseMessageWrapper<List<ItemList>>(req, itemlists, HttpStatusCode.OK);
                         response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                         return response;
                     }
                     catch (Exception)
                     {
-                        // tasklists not found - return 404 Not Found
-                        return new HttpResponseMessageWrapper<List<TaskList>>(req, HttpStatusCode.NotFound);
+                        // itemlists not found - return 404 Not Found
+                        return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.NotFound);
                     }
                 }
             }
             catch (Exception)
             {
                 // user not found - return 404 Not Found
-                return new HttpResponseMessageWrapper<List<TaskList>>(req, HttpStatusCode.NotFound);
+                return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.NotFound);
             }
         }
 
@@ -253,29 +253,29 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [WebInvoke(UriTemplate = "{id}", Method = "PUT")]
         public HttpResponseMessageWrapper<User> UpdateUser(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<User>(req, code);  // user not authenticated
 
             // the body will be two Users - the original and the new values.  Verify this
-            List<User> clientUsers = ResourceHelper.ProcessRequestBody(req, TaskStore, typeof(List<User>)) as List<User>;
+            List<User> clientUsers = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(List<User>)) as List<User>;
             if (clientUsers.Count != 2)
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
 
-            // get the original and new tasks out of the message body
+            // get the original and new items out of the message body
             User originalUser = clientUsers[0];
             User newUser = clientUsers[1];
 
-            // make sure the task ID's match
+            // make sure the item ID's match
             if (originalUser.ID != newUser.ID)
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
             if (originalUser.ID != id)
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
             // check to make sure the old password in the message matches what's in the database
             if (originalUser.Password != dbUser.Password)
@@ -296,10 +296,10 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // update the membership provider
                 Membership.UpdateUser(mu);
 
-                // update the user data in the TaskStore database
+                // update the user data in the ZaplifyStore database
                 dbUser.Password = newUser.Password;
                 dbUser.Email = newUser.Email;
-                int rows = taskstore.SaveChanges();
+                int rows = zaplifystore.SaveChanges();
                 if (rows < 1)
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
                 else

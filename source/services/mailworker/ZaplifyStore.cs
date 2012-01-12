@@ -4,28 +4,28 @@ using System.Linq;
 using System.Web;
 using System.Data.Entity;
 using System.Data.SqlClient;
-using System.Web.Configuration;
+using System.Configuration;
 using BuiltSteady.Zaplify.ServerEntities;
 
-namespace BuiltSteady.Zaplify.Website.Models
+namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class TaskStore : DbContext
+    public class ZaplifyStore : DbContext
     {
         // the default constructor loads the Connection appsetting (from web.config) 
         // which is the alias of the correct connection string (also from web.config)
-        public TaskStore() : base(WebConfigurationManager.AppSettings["Connection"]) { }
+        public ZaplifyStore() : base(ConfigurationManager.AppSettings["Connection"]) { }
 
-        public TaskStore(string connstr) : base(connstr) { }
+        public ZaplifyStore(string connstr) : base(connstr) { }
 
-        private static TaskStore current;
-        public static TaskStore Current
+        private static ZaplifyStore current;
+        public static ZaplifyStore Current
         {
             get
             {
                 // only return a new context if one hasn't already been created
                 if (current == null)
                 {
-                    current = new TaskStore();
+                    current = new ZaplifyStore();
                 }
                 return current;
             }
@@ -36,19 +36,19 @@ namespace BuiltSteady.Zaplify.Website.Models
         }
 
         // constant / shared tables
-        public DbSet<BuiltSteady.Zaplify.ServerEntities.Action> Actions { get; set; }
+        public DbSet<Action> Actions { get; set; }
         public DbSet<Color> Colors { get; set; }
         public DbSet<FieldType> FieldTypes { get; set; }
         public DbSet<Priority> Priorities { get; set; }
 
         // user-specific tables
         public DbSet<Field> Fields { get; set; }
-        public DbSet<ListType> ListTypes { get; set; }
-        public DbSet<Operation> Operations { get; set; }
-        public DbSet<Task> Tasks { get; set; }
+        public DbSet<FieldValue> FieldValues { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<ItemList> ItemLists { get; set; }
+        public DbSet<ItemType> ItemTypes { get; set; }
+        public DbSet<ItemTag> ItemTags { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<TaskTag> TaskTags { get; set; }
-        public DbSet<TaskList> TaskLists { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }

@@ -11,6 +11,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public Guid UserID { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
-        public List<TaskTag> TaskTags { get; set; }
+        public List<ItemTag> ItemTags { get; set; }
     }
 }

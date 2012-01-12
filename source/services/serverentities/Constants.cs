@@ -10,7 +10,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public List<Action> Actions { get; set; }
         public List<Color> Colors { get; set; }
         public List<FieldType> FieldTypes { get; set; }
-        public List<ListType> ListTypes { get; set; }
+        public List<ItemType> ItemTypes { get; set; }
         public List<Priority> Priorities { get; set; }
     }
 }

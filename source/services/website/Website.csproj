@@ -74,12 +74,15 @@
     <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Diagnostics" />
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime" />
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.WindowsAzure.StorageClient" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
@@ -148,15 +151,15 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="helpers\ResourceHelper.cs" />
     <Compile Include="Models\AccountModels.cs" />
-    <Compile Include="Models\TaskStore.cs" />
+    <Compile Include="Models\ZaplifyStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="resources\ConstantsResource.cs" />
-    <Compile Include="resources\ListTypeResource.cs" />
+    <Compile Include="resources\ItemTypeResource.cs" />
     <Compile Include="resources\OperationResource.cs" />
     <Compile Include="resources\SpeechResource.cs" />
     <Compile Include="resources\TagResource.cs" />
-    <Compile Include="resources\TaskListResource.cs" />
-    <Compile Include="resources\TaskResource.cs" />
+    <Compile Include="resources\ItemListResource.cs" />
+    <Compile Include="resources\ItemResource.cs" />
     <Compile Include="resources\TraceResource.cs" />
     <Compile Include="resources\UserResource.cs" />
     <Compile Include="WebRole.cs" />
@@ -232,6 +235,7 @@
     <Content Include="startup\7z.dll" />
     <Content Include="startup\7z.exe" />
     <Content Include="startup\DeployBlob.exe" />
+    <Content Include="startup\DeployBlob.exe.config" />
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.dll" />
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.xml" />
     <Content Include="Web.config" />
@@ -262,16 +266,13 @@
     <Content Include="Views\Shared\LogOnUserControl.ascx" />
     <Content Include="Views\Shared\Site.Master" />
     <Content Include="Views\Web.config" />
+    <Content Include="Website.Publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="startup\DeployBlob.exe.config" />
-    <None Include="startup\Install.cmd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\serverentities\ServerEntities.csproj">
@@ -282,6 +283,9 @@
       <Project>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</Project>
       <Name>ServiceHelpers</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="startup\Install.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

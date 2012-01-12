@@ -5,7 +5,7 @@ using System.Web;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class ListType
+    public class ItemType
     {
         public Guid ID { get; set; }
         public string Name { get; set; }

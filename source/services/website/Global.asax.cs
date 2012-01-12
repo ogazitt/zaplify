@@ -29,12 +29,12 @@ namespace Website
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional }, // Parameter defaults
-                new { controller = new NotInValuesConstraint(new[] { "constants", "listtypes", "operations", "speech", "tags", "tasks", "tasklists", "trace", "users" }) }
+                new { controller = new NotInValuesConstraint(new[] { "constants", "itemtypes", "operations", "speech", "tags", "items", "itemlists", "trace", "users" }) }
             );
 
             // map the WCF WebApi service routes
             RouteTable.Routes.MapServiceRoute<ConstantsResource>("constants", null);
-            RouteTable.Routes.MapServiceRoute<ListTypeResource>("listtypes", null);
+            RouteTable.Routes.MapServiceRoute<ItemTypeResource>("itemtypes", null);
             RouteTable.Routes.MapServiceRoute<OperationResource>("operations", null);
             RouteTable.Routes.MapServiceRoute<SpeechResource>("speech",
                 new HttpConfiguration
@@ -43,8 +43,8 @@ namespace Website
                     MaxBufferSize = 1048576, // 1MB == 32seconds of speech
                 });
             RouteTable.Routes.MapServiceRoute<TagResource>("tags", null);
-            RouteTable.Routes.MapServiceRoute<TaskResource>("tasks", null);
-            RouteTable.Routes.MapServiceRoute<TaskListResource>("tasklists", null);
+            RouteTable.Routes.MapServiceRoute<ItemResource>("items", null);
+            RouteTable.Routes.MapServiceRoute<ItemListResource>("itemlists", null);
             RouteTable.Routes.MapServiceRoute<TraceResource>("trace", null);
             RouteTable.Routes.MapServiceRoute<UserResource>("users", null);
         }

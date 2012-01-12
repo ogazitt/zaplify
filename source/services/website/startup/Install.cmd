@@ -4,7 +4,7 @@ if "%EMULATED%"=="true" goto :EOF
 cd startup
 
 echo Getting MSIs
-deployblob.exe /downloadFrom tsinstall /downloadTo .
+deployblob.exe /downloadFrom zaplifyinstall /downloadTo .
 
 echo Installing Speech Platform
 msiexec.exe /qn /l* speech.log /i SpeechPlatformRuntime.msi

@@ -24,7 +24,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
         /// </summary>
         /// <param name="req">HTTP Request</param>
         /// <returns>HTTP status code corresponding to authentication status</returns>
-        public static HttpStatusCode AuthenticateUser(HttpRequestMessage req, TaskStore taskstore)
+        public static HttpStatusCode AuthenticateUser(HttpRequestMessage req, ZaplifyStore zaplifystore)
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
@@ -59,7 +59,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
         /// </summary>
         /// <param name="req">HTTP Request</param>
         /// <returns>HTTP status code corresponding to authentication status</returns>
-        public static HttpStatusCode AuthenticateUserBAK(HttpRequestMessage req, TaskStore taskstore)
+        public static HttpStatusCode AuthenticateUserBAK(HttpRequestMessage req, ZaplifyStore zaplifystore)
         {
             // Log function entrance
             LoggingHelper.TraceFunction(); 
@@ -73,14 +73,14 @@ namespace BuiltSteady.Zaplify.Website.Helpers
             try
             {
                 // look up the user name - if doesn't exist, return 404 Not Found
-                var dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name);
+                var dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name);
                 if (dbUser == null)
                     return HttpStatusCode.NotFound;
 
                 try
                 {
                     // authenticate both username and password - if don't match, return 403 Forbidden
-                    dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+                    dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
                     if (dbUser == null)
                         return HttpStatusCode.Forbidden;
 
@@ -104,10 +104,10 @@ namespace BuiltSteady.Zaplify.Website.Helpers
         /// Create a new user
         /// </summary>
         /// <param name="req">HTTP request</param>
-        /// <param name="taskstore">The TaskStore database context</param>
+        /// <param name="zaplifystore">The ZaplifyStore database context</param>
         /// <param name="user">The new user information</param>
         /// <returns>The HTTP status code to return</returns>
-        public static HttpStatusCode CreateUser(TaskStore taskstore, User user, out MembershipCreateStatus createStatus)
+        public static HttpStatusCode CreateUser(ZaplifyStore zaplifystore, User user, out MembershipCreateStatus createStatus)
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
@@ -119,7 +119,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
 
                 if (createStatus == MembershipCreateStatus.Success)
                 {
-                    // create the user in the TaskStore user table
+                    // create the user in the ZaplifyStore user table
                     User u = new User()
                     {
                         ID = (Guid)mu.ProviderUserKey /*Guid.NewGuid()*/,
@@ -127,8 +127,8 @@ namespace BuiltSteady.Zaplify.Website.Helpers
                         Password = user.Password,
                         Email = user.Email
                     };
-                    taskstore.Users.Add(u);
-                    taskstore.SaveChanges();
+                    zaplifystore.Users.Add(u);
+                    zaplifystore.SaveChanges();
 
                     // Log new user creation
                     LoggingHelper.TraceInfo("Created new user " + user.Name);
@@ -187,7 +187,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
         /// <param name="resp">HTTP response</param>
         /// <param name="t">Type to deserialize</param>
         /// <returns>The deserialized object</returns>
-        public static object ProcessRequestBody(HttpRequestMessage req, TaskStore taskstore, Type t)
+        public static object ProcessRequestBody(HttpRequestMessage req, ZaplifyStore zaplifystore, Type t)
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
@@ -221,7 +221,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
             try
             {
                 User user = ResourceHelper.GetUserPassFromMessage(req);
-                User dbUser = taskstore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
+                User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
                 // initialize the body / oldbody
                 object body = value;
@@ -254,8 +254,8 @@ namespace BuiltSteady.Zaplify.Website.Helpers
                     OldBody = JsonSerialize(oldBody),
                     Timestamp = DateTime.Now
                 };
-                taskstore.Operations.Add(op);
-                int rows = taskstore.SaveChanges();
+                zaplifystore.Operations.Add(op);
+                int rows = zaplifystore.SaveChanges();
                 if (rows < 1)
                 {
                     // Log error condition

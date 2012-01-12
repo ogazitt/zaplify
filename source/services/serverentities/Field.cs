@@ -9,7 +9,9 @@ namespace BuiltSteady.Zaplify.ServerEntities
     {
         public Guid ID { get; set; }
         public int FieldTypeID { get; set; }
-        public Guid ListTypeID { get; set; }
+        public Guid ItemTypeID { get; set; }
+        public string DisplayName { get; set; }
+        public string DisplayType { get; set; }
         public bool IsPrimary { get; set; }
         public int SortOrder { get; set; }
     }

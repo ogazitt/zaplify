@@ -7,7 +7,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
 {
     public class FieldValue
     {
-        public Guid FieldValueID { get; set; }
+        public Guid ID { get; set; }
         public Guid FieldID { get; set; }
         public Guid ItemID { get; set; }
         public string Value { get; set; }

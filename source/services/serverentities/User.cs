@@ -11,8 +11,8 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Name { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
-        public List<ListType> ListTypes { get; set; }  
+        public List<ItemType> ItemTypes { get; set; }  
         public List<Tag> Tags { get; set; }
-        public List<TaskList> TaskLists { get; set; }
+        public List<ItemList> ItemLists { get; set; }
     }
 }

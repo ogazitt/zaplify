@@ -29,17 +29,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
 #endif
         }
 
-        private TaskStore TaskStore
+        private ZaplifyStore ZaplifyStore
         {
             get
             {
                 // if in a debug build, always go to the database
                 if (isDebugEnabled)
-                    return new TaskStore();
+                    return new ZaplifyStore();
                 else // retail build
                 {
                     // use a cached context (to promote serving values out of EF cache) 
-                    return TaskStore.Current;
+                    return ZaplifyStore.Current;
                 }
             }
         }
@@ -53,20 +53,20 @@ namespace BuiltSteady.Zaplify.Website.Resources
         public HttpResponseMessageWrapper<Constants> Get(HttpRequestMessage req)
         {
             // no need to authenticate
-            //HttpStatusCode code = ResourceHelper.AuthenticateUser(req, TaskStore);
+            //HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             //if (code != HttpStatusCode.OK)
             //    return new HttpResponseMessageWrapper<Constants>(req, code);  // user not authenticated
 
-            TaskStore taskstore = TaskStore;
+            ZaplifyStore zaplifystore = ZaplifyStore;
 
             try
             {
-                var actions = taskstore.Actions.OrderBy(a => a.SortOrder).ToList<BuiltSteady.Zaplify.ServerEntities.Action>();
-                var colors = taskstore.Colors.OrderBy(c => c.ColorID).ToList<Color>();
-                var fieldTypes = taskstore.FieldTypes.OrderBy(ft => ft.FieldTypeID).ToList<FieldType>();
-                var listTypes = taskstore.ListTypes.Where(l => l.UserID == null).Include("Fields").ToList<ListType>();  // get the built-in listtypes
-                var priorities = taskstore.Priorities.OrderBy(p => p.PriorityID).ToList<Priority>();
-                var constants = new Constants() { Actions = actions, Colors = colors, FieldTypes = fieldTypes, ListTypes = listTypes, Priorities = priorities };
+                var actions = zaplifystore.Actions.OrderBy(a => a.SortOrder).ToList<BuiltSteady.Zaplify.ServerEntities.Action>();
+                var colors = zaplifystore.Colors.OrderBy(c => c.ColorID).ToList<Color>();
+                var fieldTypes = zaplifystore.FieldTypes.OrderBy(ft => ft.FieldTypeID).ToList<FieldType>();
+                var itemTypes = zaplifystore.ItemTypes.Where(l => l.UserID == null).Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
+                var priorities = zaplifystore.Priorities.OrderBy(p => p.PriorityID).ToList<Priority>();
+                var constants = new Constants() { Actions = actions, Colors = colors, FieldTypes = fieldTypes, ItemTypes = itemTypes, Priorities = priorities };
                 return new HttpResponseMessageWrapper<Constants>(req, constants, HttpStatusCode.OK);
             }
             catch (Exception)
