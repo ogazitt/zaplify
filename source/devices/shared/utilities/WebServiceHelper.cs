@@ -28,7 +28,8 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
         {
             get
             {
-                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:62362" : "http://zaplify.cloudapp.net";
+                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:62362" : "http://zaplify.cloudapp.net";
+                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:32229" : "http://zaplify.cloudapp.net";
                 //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://zaplify.cloudapp.net";
                 //return "http://api.itemstore.net:8080";
                 //return "http://zaplify.cloudapp.net";
