@@ -13,13 +13,13 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class RequestQueue
     {
@@ -97,12 +97,12 @@ namespace TaskStoreWinPhoneUtilities
                     BodyType = this.Body.GetType().AssemblyQualifiedName;
 
                 // if the ID is null, try to create it
-                // this may fail because for update requests, Body is a List<>, not a TaskStoreEntity
+                // this may fail because for update requests, Body is a List<>, not a ZaplifyEntity
                 if (ID == null || ID == Guid.Empty)
                 {
                     try
                     {
-                        TaskStoreEntity entity = (TaskStoreEntity)this.Body;
+                        ZaplifyEntity entity = (ZaplifyEntity)this.Body;
                         ID = entity.ID;
                     }
                     catch (Exception)
@@ -344,24 +344,24 @@ namespace TaskStoreWinPhoneUtilities
                 requests.Add(newRecord);
             }
 
-            // if this is a request to remove a tasklist, need to also remove all the manipulations to tasks inside that list
+            // if this is a request to remove a folder, need to also remove all the manipulations to items inside that folder
             if (newRecord.ReqType == RequestRecord.RequestType.Delete &&
-                newRecord.BodyTypeName == "TaskList")
+                newRecord.BodyTypeName == "Folder")
             {
-                // create a list that holds the task references to delete
+                // create a folder that holds the item references to delete
                 List<RequestRecord> deleteList = new List<RequestRecord>();
-                // deserialize the bodies for all the tasks (need TaskListID for all the tasks)
+                // deserialize the bodies for all the items (need FolderID for all the items)
                 foreach (var r in requests)
                 {
-                    if (r.BodyTypeName == "Task")
+                    if (r.BodyTypeName == "Item")
                     {
                         r.DeserializeBody();
-                        Task t;
+                        Item t;
                         if (r.ReqType == RequestRecord.RequestType.Update)
-                            t = ((List<Task>)r.Body)[0];
+                            t = ((List<Item>)r.Body)[0];
                         else
-                            t = (Task)r.Body;
-                        if (t.TaskListID == newRecord.ID)
+                            t = (Item)r.Body;
+                        if (t.FolderID == newRecord.ID)
                             deleteList.Add(r);
                     }
                 }
@@ -411,13 +411,13 @@ namespace TaskStoreWinPhoneUtilities
                                     List<Tag> newRecordTagList = (List<Tag>)newRecord.Body;
                                     existingRecord.Body = newRecordTagList[1];
                                     break;
-                                case "Task":
-                                    List<Task> newRecordTaskList = (List<Task>)newRecord.Body;
-                                    existingRecord.Body = newRecordTaskList[1];
+                                case "Item":
+                                    List<Item> newRecordFolder = (List<Item>)newRecord.Body;
+                                    existingRecord.Body = newRecordFolder[1];
                                     break;
-                                case "TaskList":
-                                    List<TaskList> newRecordTaskListList = (List<TaskList>)newRecord.Body;
-                                    existingRecord.Body = newRecordTaskListList[1];
+                                case "Folder":
+                                    List<Folder> newRecordFolderList = (List<Folder>)newRecord.Body;
+                                    existingRecord.Body = newRecordFolderList[1];
                                     break;
                             }
                             // reserialize the body
@@ -450,15 +450,15 @@ namespace TaskStoreWinPhoneUtilities
                                     List<Tag> newRecordTagList = (List<Tag>)newRecord.Body;
                                     existingRecordTagList[1] = newRecordTagList[1];
                                     break;
-                                case "Task":
-                                    List<Task> existingRecordTaskList = (List<Task>)existingRecord.Body;
-                                    List<Task> newRecordTaskList = (List<Task>)newRecord.Body;
-                                    existingRecordTaskList[1] = newRecordTaskList[1];
+                                case "Item":
+                                    List<Item> existingRecordFolder = (List<Item>)existingRecord.Body;
+                                    List<Item> newRecordFolder = (List<Item>)newRecord.Body;
+                                    existingRecordFolder[1] = newRecordFolder[1];
                                     break;
-                                case "TaskList":
-                                    List<TaskList> existingRecordTaskListList = (List<TaskList>)existingRecord.Body;
-                                    List<TaskList> newRecordTaskListList = (List<TaskList>)newRecord.Body;
-                                    existingRecordTaskListList[1] = newRecordTaskListList[1];
+                                case "Folder":
+                                    List<Folder> existingRecordFolderList = (List<Folder>)existingRecord.Body;
+                                    List<Folder> newRecordFolderList = (List<Folder>)newRecord.Body;
+                                    existingRecordFolderList[1] = newRecordFolderList[1];
                                     break;
                             }
                             // reserialize the body

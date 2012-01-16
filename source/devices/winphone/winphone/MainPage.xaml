@@ -1,5 +1,5 @@
 ﻿<phone:PhoneApplicationPage 
-    x:Class="TaskStoreWinPhone.MainPage"
+    x:Class="BuiltSteady.Zaplify.Devices.WinPhone.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
@@ -11,7 +11,7 @@
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696" 
-    d:DataContext="{d:DesignData SampleData/TaskListSampleData.xaml}"
+    d:DataContext="{d:DesignData SampleData/FolderSampleData.xaml}"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
@@ -25,23 +25,23 @@
         <toolkit:PerformanceProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
         <!--Pivot Control-->
         <controls:Pivot x:Name="MainPivot" Title="TASKSTORE" SelectionChanged="Pivot_SelectionChanged" >
-            <!--tasks pivot item-->
-            <controls:PivotItem Header="tasks">
+            <!--items pivot item-->
+            <controls:PivotItem Header="items">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="20"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <TextBlock x:Name="SearchHeader" Grid.Row="0" Text="{Binding SearchTerm}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}" Margin="12,-25,0,0" />
-                    <ListBox Grid.Row="1" x:Name="TasksListBox" Margin="0,0,0,0" ItemsSource="{Binding TasksViewSource.View}" SelectionChanged="TasksListBox_SelectionChanged">
+                    <ListBox Grid.Row="1" x:Name="ItemsListBox" Margin="0,0,0,0" ItemsSource="{Binding ItemsViewSource.View}" SelectionChanged="ItemsListBox_SelectionChanged">
                     </ListBox>
                 </Grid>
             </controls:PivotItem>
 
-            <!--lists pivot item-->
-            <controls:PivotItem Header="lists">
+            <!--folders pivot item-->
+            <controls:PivotItem Header="folders">
                 <!--Double line list with text wrapping-->
-                <ListBox x:Name="ListsListBox" Margin="0,0,-12,0" ItemsSource="{Binding TaskLists}" SelectionChanged="ListsListBox_SelectionChanged">
+                <ListBox x:Name="FoldersListBox" Margin="0,0,-12,0" ItemsSource="{Binding Folders}" SelectionChanged="FoldersListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="0,0,0,17" Width="432">
@@ -51,7 +51,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock  Grid.Column="0" Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
-                                    <TextBlock  Grid.Column="1" Text="{Binding Tasks.Count}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
+                                    <TextBlock  Grid.Column="1" Text="{Binding Items.Count}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
                                 </Grid>
                                 <TextBlock Text="{Binding FirstDue}" Foreground="{Binding FirstDueColor}" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>
                             </StackPanel>
@@ -72,7 +72,7 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock  Grid.Column="0" Text="{Binding Name}" Foreground="{Binding Color}" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
-                                    <TextBlock  Grid.Column="1" Text="{Binding TaskCount}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
+                                    <TextBlock  Grid.Column="1" Text="{Binding ItemCount}"  TextAlignment="Right" TextWrapping="Wrap"  Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}" />
                                 </Grid>
                             </StackPanel>
                         </DataTemplate>
@@ -104,7 +104,7 @@
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.feature.settings.rest.png" Text="settings" Click="SettingsButton_Click"/>
             <shell:ApplicationBar.MenuItems>
                 <shell:ApplicationBarMenuItem Text="about" Click="AboutMenuItem_Click"/>
-                <shell:ApplicationBarMenuItem Text="email lists" Click="EmailMenuItem_Click"/>
+                <shell:ApplicationBarMenuItem Text="email data" Click="EmailMenuItem_Click"/>
                 <shell:ApplicationBarMenuItem Text="erase all data" Click="EraseMenuItem_Click"/>
                 <shell:ApplicationBarMenuItem Text="debug information" Click="DebugMenuItem_Click"/>
             </shell:ApplicationBar.MenuItems>

@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Tag : TaskStoreEntity, INotifyPropertyChanged
+    public class Tag : ZaplifyEntity, INotifyPropertyChanged
     {
         public Tag() : base() 
         {

@@ -14,8 +14,8 @@ using System.Reflection;
 using System.Windows.Data;
 using Microsoft.Phone.Shell;
 using System.IO.IsolatedStorage;
-using TaskStoreClientEntities;
-using TaskStoreWinPhoneUtilities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.Utilities;
 using System.Xml.Linq;
 using System.Windows.Resources;
 using System.IO;
@@ -26,14 +26,14 @@ using System.Threading;
 using System.Windows.Navigation;
 using System.Collections.ObjectModel;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class MainPage : PhoneApplicationPage, INotifyPropertyChanged
     {
-        private bool addedTasksPropertyChangedHandler = false;
+        private bool addedItemsPropertyChangedHandler = false;
         private bool initialSync = false;
-        TaskList taskList;
-        TaskListHelper TaskListHelper;
+        Folder folder;
+        FolderHelper FolderHelper;
 
         // Constructor
         public MainPage()
@@ -54,7 +54,7 @@ namespace TaskStoreWinPhone
 
         private string searchTerm;
         /// <summary>
-        /// Search Term to filter task collection on
+        /// Search Term to filter item collection on
         /// </summary>
         /// <returns></returns>
         public string SearchTerm
@@ -108,27 +108,27 @@ namespace TaskStoreWinPhone
         private void EmailMenuItem_Click(object sender, EventArgs e)
         {
             // create email body
-            StringBuilder sb = new StringBuilder("TaskStore Data:\n\n");
-            foreach (TaskList tl in App.ViewModel.TaskLists)
+            StringBuilder sb = new StringBuilder("Zaplify Data:\n\n");
+            foreach (Folder tl in App.ViewModel.Folders)
             {
                 sb.AppendLine(tl.Name);
 
-                ListType listType;
-                // get listType for this list
+                ItemType itemType;
+                // get itemType for this folder
                 try
                 {
-                    listType = App.ViewModel.ListTypes.Single(lt => lt.ID == tl.ListTypeID);
+                    itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == tl.ItemTypeID);
                 }
                 catch (Exception)
                 {
-                    // if can't find the list type, use the first
-                    listType = App.ViewModel.ListTypes[0];
+                    // if can't find the folder type, use the first
+                    itemType = App.ViewModel.ItemTypes[0];
                 }
 
-                foreach (Task task in tl.Tasks)
+                foreach (Item item in tl.Items)
                 {
-                    sb.AppendLine("    " + task.Name);
-                    foreach (Field f in listType.Fields.OrderBy(f => f.SortOrder))
+                    sb.AppendLine("    " + item.Name);
+                    foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
                     {
                         FieldType fieldType;
                         // get the field type for this field
@@ -141,7 +141,7 @@ namespace TaskStoreWinPhone
                             continue;
                         }
 
-                        // already printed out the task name
+                        // already printed out the item name
                         if (fieldType.DisplayName == "Name")
                             continue;
 
@@ -149,7 +149,7 @@ namespace TaskStoreWinPhone
                         // make sure the property exists on the local type
                         try
                         {
-                            pi = task.GetType().GetProperty(fieldType.Name);
+                            pi = item.GetType().GetProperty(fieldType.Name);
                             if (pi == null)
                                 continue;  // see comment below
                         }
@@ -165,13 +165,13 @@ namespace TaskStoreWinPhone
                         if (pi.CanWrite == false ||
                             pi.PropertyType == typeof(Guid) ||
                             pi.PropertyType == typeof(Guid?) || 
-                            pi.Name == "TaskTags" ||
+                            pi.Name == "ItemTags" ||
                             pi.Name == "Created" ||
                             pi.Name == "LastModified")
                             continue;
 
                         // get the value of the property
-                        var val = pi.GetValue(task, null);
+                        var val = pi.GetValue(item, null);
                         if (val != null)
                         {
                             switch (pi.Name)
@@ -180,7 +180,7 @@ namespace TaskStoreWinPhone
                                     sb.AppendFormat("        {0}: {1}\n", pi.Name, ((DateTime)val).ToString("d"));
                                     break;
                                 case "PriorityID":
-                                    sb.AppendFormat("        {0}: {1}\n", "Priority", Task.PriorityNames[(int)val]);
+                                    sb.AppendFormat("        {0}: {1}\n", "Priority", Item.PriorityNames[(int)val]);
                                     break;
                                 default:
                                     sb.AppendFormat("        {0}: {1}\n", pi.Name, val.ToString());
@@ -191,10 +191,10 @@ namespace TaskStoreWinPhone
                 }
             }
 
-            EmailComposeTask emailComposeTask = new EmailComposeTask();
-            emailComposeTask.Subject = "TaskStore Data";
-            emailComposeTask.Body = sb.ToString();
-            emailComposeTask.Show();
+            EmailComposeTask emailComposeItem = new EmailComposeTask();
+            emailComposeItem.Subject = "Zaplify Data";
+            emailComposeItem.Body = sb.ToString();
+            emailComposeItem.Show();
         }
 
         private void EraseMenuItem_Click(object sender, EventArgs e)
@@ -207,45 +207,45 @@ namespace TaskStoreWinPhone
             if (result == MessageBoxResult.Cancel)
                 return;
 
-            foreach (var tl in App.ViewModel.TaskLists)
-                StorageHelper.DeleteList(tl);
+            foreach (var tl in App.ViewModel.Folders)
+                StorageHelper.DeleteFolder(tl);
             StorageHelper.WriteConstants(null);
-            StorageHelper.WriteDefaultTaskListID(null);
-            StorageHelper.WriteListTypes(null);
+            StorageHelper.WriteDefaultFolderID(null);
+            StorageHelper.WriteItemTypes(null);
             StorageHelper.WriteTags(null);
-            StorageHelper.WriteTaskLists(null);
+            StorageHelper.WriteFolders(null);
             StorageHelper.WriteUserCredentials(null);
             RequestQueue.DeleteQueue();
         }
 
         // Handle selection changed on ListBox
-        private void ListsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void FoldersListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // If selected index is -1 (no selection) do nothing
-            if (ListsListBox.SelectedIndex == -1)
+            if (FoldersListBox.SelectedIndex == -1)
                 return;
 
             // trace page navigation
             TraceHelper.StartMessage("Main: Navigate to List");
 
-            TaskList tasklist = App.ViewModel.TaskLists[ListsListBox.SelectedIndex];
+            Folder folder = App.ViewModel.Folders[FoldersListBox.SelectedIndex];
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/TaskListPage.xaml?type=TaskList&ID=" + tasklist.ID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/ListPage.xaml?type=TaskList&ID=" + tasklist.ID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
 
             // Reset selected index to -1 (no selection)
-            ListsListBox.SelectedIndex = -1;
+            FoldersListBox.SelectedIndex = -1;
         }
 
-        // Event handlers for Lists tab
-        private void Lists_AddButton_Click(object sender, EventArgs e)
+        // Event handlers for Folders tab
+        private void Folders_AddButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("Main: Navigate to ListEditor");
+            TraceHelper.StartMessage("Main: Navigate to FolderEditor");
 
-            // Navigate to the ListEditor page
+            // Navigate to the FolderEditor page
             NavigationService.Navigate(
-                new Uri("/TaskListEditor.xaml?ID=new",
+                new Uri("/FolderEditor.xaml?ID=new",
                 UriKind.Relative));
         }
 
@@ -256,7 +256,7 @@ namespace TaskStoreWinPhone
             // if data isn't loaded from storage yet, load the app data
             if (!App.ViewModel.IsDataLoaded)
             {
-                // Load app data from local storage (user creds, about tab data, constants, list types, tasklists, etc)
+                // Load app data from local storage (user creds, about tab data, constants, folder types, folders, etc)
                 App.ViewModel.LoadData();
             }
 
@@ -269,34 +269,34 @@ namespace TaskStoreWinPhone
                 initialSync = true;
             }
 
-            taskList = new TaskList() { Tasks = FilterTasks(App.ViewModel.Tasks) };
+            folder = new Folder() { Items = FilterItems(App.ViewModel.Items) };
 
-            // create the TaskListHelper
-            TaskListHelper = new TaskStoreWinPhone.TaskListHelper(
-                taskList, 
-                new RoutedEventHandler(Tasks_CompleteCheckbox_Click), 
+            // create the FolderHelper
+            FolderHelper = new BuiltSteady.Zaplify.Devices.WinPhone.FolderHelper(
+                folder, 
+                new RoutedEventHandler(Items_CompleteCheckbox_Click), 
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
-            TaskListHelper.ListBox = TasksListBox;
-            TaskListHelper.OrderBy = "due";
+            FolderHelper.ListBox = ItemsListBox;
+            FolderHelper.OrderBy = "due";
 
-            // render the tasks
-            TaskListHelper.RenderList(taskList);
+            // render the items
+            FolderHelper.RenderList(folder);
 
-            // add a property changed handler for the Tasks property
-            if (!addedTasksPropertyChangedHandler)
+            // add a property changed handler for the Items property
+            if (!addedItemsPropertyChangedHandler)
             {
                 App.ViewModel.PropertyChanged += new PropertyChangedEventHandler((s, args) =>
                 {
-                    // if the Tasks property was signaled, re-filter and re-render the tasks list
-                    if (args.PropertyName == "Tasks")
+                    // if the Items property was signaled, re-filter and re-render the items folder
+                    if (args.PropertyName == "Items")
                     {
-                        taskList.Tasks = FilterTasks(App.ViewModel.Tasks);
-                        TaskListHelper.RenderList(taskList);
+                        folder.Items = FilterItems(App.ViewModel.Items);
+                        FolderHelper.RenderList(folder);
                     }
                 });
-                addedTasksPropertyChangedHandler = true;
+                addedItemsPropertyChangedHandler = true;
             }
 
             // set the datacontext
@@ -318,11 +318,11 @@ namespace TaskStoreWinPhone
 
             switch (tabString)
             {
-                case "Tasks":
-                    MainPivot.SelectedIndex = 0;  // switch to tasks tab
+                case "Items":
+                    MainPivot.SelectedIndex = 0;  // switch to items tab
                     break;
-                case "Lists":
-                    MainPivot.SelectedIndex = 1;  // switch to lists tab
+                case "Folders":
+                    MainPivot.SelectedIndex = 1;  // switch to folders tab
                     break;
                 case "Tags":
                     MainPivot.SelectedIndex = 2;  // switch to tags tab
@@ -339,8 +339,8 @@ namespace TaskStoreWinPhone
 
             try
             {
-                AddButton.Click -= new EventHandler(Tasks_AddButton_Click);
-                AddButton.Click -= new EventHandler(Lists_AddButton_Click);
+                AddButton.Click -= new EventHandler(Items_AddButton_Click);
+                AddButton.Click -= new EventHandler(Folders_AddButton_Click);
                 AddButton.Click -= new EventHandler(Tags_AddButton_Click);
 
                 // remove the last button (in case it was added)
@@ -353,18 +353,18 @@ namespace TaskStoreWinPhone
             // do tab-specific processing (e.g. adding the right Add button handler)
             switch (MainPivot.SelectedIndex)
             {
-                case 0: // tasks
-                    AddButton.Click += new EventHandler(Tasks_AddButton_Click);
+                case 0: // items
+                    AddButton.Click += new EventHandler(Items_AddButton_Click);
                     var searchButton = new ApplicationBarIconButton() 
                     { 
                         Text = "filter", 
                         IconUri = new Uri("/Images/appbar.feature.search.rest.png", UriKind.Relative) 
                     };
-                    searchButton.Click += new EventHandler(Tasks_SearchButton_Click);                    
+                    searchButton.Click += new EventHandler(Items_SearchButton_Click);                    
                     ApplicationBar.Buttons.Add(searchButton);
                     break;
-                case 1: // lists
-                    AddButton.Click += new EventHandler(Lists_AddButton_Click);
+                case 1: // folders
+                    AddButton.Click += new EventHandler(Folders_AddButton_Click);
                     break;
                 case 2: // tags
                     AddButton.Click += new EventHandler(Tags_AddButton_Click);
@@ -382,9 +382,9 @@ namespace TaskStoreWinPhone
         {
             SearchTerm = SearchTextBox.Text;
 
-            // reset the tasks collection and render the new list
-            taskList.Tasks = FilterTasks(App.ViewModel.Tasks);
-            TaskListHelper.RenderList(taskList);
+            // reset the items collection and render the new folder
+            folder.Items = FilterItems(App.ViewModel.Items);
+            FolderHelper.RenderList(folder);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -394,9 +394,9 @@ namespace TaskStoreWinPhone
         {
             SearchTerm = null;
 
-            // reset the tasks collection and render the new list
-            taskList.Tasks = FilterTasks(App.ViewModel.Tasks);
-            TaskListHelper.RenderList(taskList);
+            // reset the items collection and render the new folder
+            folder.Items = FilterItems(App.ViewModel.Items);
+            FolderHelper.RenderList(folder);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -418,11 +418,11 @@ namespace TaskStoreWinPhone
             Guid tagID = (Guid)button.Tag;
 
             // trace page navigation
-            TraceHelper.StartMessage("Main: Navigate to TaskList");
+            TraceHelper.StartMessage("Main: Navigate to Folder");
 
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/TaskListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
         }
 
         private void Tags_AddButton_Click(object sender, EventArgs e)
@@ -430,7 +430,7 @@ namespace TaskStoreWinPhone
             // trace page navigation
             TraceHelper.StartMessage("Main: Navigate to TagEditor");
 
-            // Navigate to the ListEditor page
+            // Navigate to the FolderEditor page
             NavigationService.Navigate(
                 new Uri("/TagEditor.xaml?ID=new",
                 UriKind.Relative));
@@ -445,25 +445,25 @@ namespace TaskStoreWinPhone
             Tag tag = App.ViewModel.Tags[TagsListBox.SelectedIndex];
 
             // Trace the navigation and start a new timing
-            TraceHelper.StartMessage("Navigating to TaskList");
+            TraceHelper.StartMessage("Navigating to Folder");
 
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/TaskListPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
 
             // Reset selected index to -1 (no selection)
             TagsListBox.SelectedIndex = -1;
         }
 
-        // Event handlers for tasks tab
-        private void Tasks_AddButton_Click(object sender, EventArgs e)
+        // Event handlers for items tab
+        private void Items_AddButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("Main: Navigate to Task");
+            TraceHelper.StartMessage("Main: Navigate to Item");
 
-            // Navigate to the Task page
+            // Navigate to the Item page
             NavigationService.Navigate(
-                new Uri("/TaskPage.xaml?ID=new",
+                new Uri("/ItemPage.xaml?ID=new",
                 UriKind.Relative));
         }
 
@@ -472,74 +472,74 @@ namespace TaskStoreWinPhone
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Tasks_CompleteCheckbox_Click(object sender, RoutedEventArgs e)
+        private void Items_CompleteCheckbox_Click(object sender, RoutedEventArgs e)
         {
             CheckBox cb = (CheckBox)e.OriginalSource;
-            Guid taskID = (Guid)cb.Tag;
+            Guid itemID = (Guid)cb.Tag;
 
-            // get the task that was just updated, and ensure the Complete flag is in the correct state
-            Task task = App.ViewModel.Tasks.Single<Task>(t => t.ID == taskID);
+            // get the item that was just updated, and ensure the Complete flag is in the correct state
+            Item item = App.ViewModel.Items.Single<Item>(t => t.ID == itemID);
 
-            // get a reference to the base list that this task belongs to
-            TaskList tl = App.ViewModel.LoadList(task.TaskListID);
+            // get a reference to the base folder that this item belongs to
+            Folder tl = App.ViewModel.LoadFolder(item.FolderID);
 
-            // create a copy of that task
-            Task taskCopy = new Task(task);
+            // create a copy of that item
+            Item itemCopy = new Item(item);
 
             // toggle the complete flag to reflect the checkbox click
-            task.Complete = !task.Complete;
+            item.Complete = !item.Complete;
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Task>() { taskCopy, task },
-                    BodyTypeName = "Task",
-                    ID = task.ID
+                    Body = new List<Item>() { itemCopy, item },
+                    BodyTypeName = "Item",
+                    ID = item.ID
                 });
 
-            // remove the task from the tasklist and ListBox (because it will now be complete)
-            TaskListHelper.RemoveTask(taskList, task);
+            // remove the item from the folder and ListBox (because it will now be complete)
+            FolderHelper.RemoveItem(folder, item);
 
             // save the changes to local storage
-            StorageHelper.WriteList(tl);
+            StorageHelper.WriteFolder(tl);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
         }
 
-        private void Tasks_SearchButton_Click(object sender, EventArgs e)
+        private void Items_SearchButton_Click(object sender, EventArgs e)
         {
             SearchPopup.IsOpen = true;
             SearchTextBox.Focus();
         }
 
-        private void TasksListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ItemsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
             // If selected index is -1 (no selection) do nothing
             if (listBox.SelectedIndex == -1)
                 return;
 
-            // get the task associated with this click
-            Task task = null;
+            // get the item associated with this click
+            Item item = null;
 
             // retrieve the current selection
-            ListBoxItem item = listBox.SelectedItem as ListBoxItem;
-            if (item != null)
-                task = item.Tag as Task;
+            ListBoxItem lbi = listBox.SelectedItem as ListBoxItem;
+            if (lbi != null)
+                item = lbi.Tag as Item;
 
-            // if there is no task, return without processing the event
-            if (task == null)
+            // if there is no item, return without processing the event
+            if (item == null)
                 return;
 
             // trace page navigation
-            TraceHelper.StartMessage("Main: Navigate to Task");
+            TraceHelper.StartMessage("Main: Navigate to Item");
 
             // Navigate to the new page
             NavigationService.Navigate(
-                new Uri(String.Format("/TaskPage.xaml?ID={0}&taskListID={1}", task.ID, task.TaskListID),
+                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
                 UriKind.Relative));
 
             // Reset selected index to -1 (no selection)
@@ -550,45 +550,45 @@ namespace TaskStoreWinPhone
 
         #region Helpers
 
-        private ObservableCollection<Task> FilterTasks(ObservableCollection<Task> tasks)
+        private ObservableCollection<Item> FilterItems(ObservableCollection<Item> items)
         {
-            ObservableCollection<Task> filteredTasks = new ObservableCollection<Task>();
-            foreach (Task task in tasks)
+            ObservableCollection<Item> filteredItems = new ObservableCollection<Item>();
+            foreach (Item item in items)
             {
-                // if the task is completed, don't list it
-                if (task.Complete)
+                // if the item is completed, don't folder it
+                if (item.Complete)
                     continue;
                 
-                // get the tasklist - if it's a template, this item doesn't qualify as a match
-                TaskList taskList = App.ViewModel.TaskLists.Single(tl => tl.ID == task.TaskListID);
-                if (taskList.Template == true)
+                // get the folder - if it's a template, this item doesn't qualify as a match
+                Folder folder = App.ViewModel.Folders.Single(tl => tl.ID == item.FolderID);
+                if (folder.Template == true)
                     continue;
 
-                // if there is no search term present, add this task and continue
+                // if there is no search term present, add this item and continue
                 if (searchTerm == null)
                 {
-                    filteredTasks.Add(task);
+                    filteredItems.Add(item);
                     continue;
                 }
 
                 // search for the term in every non-null string field
-                foreach (var pi in task.GetType().GetProperties())
+                foreach (var pi in item.GetType().GetProperties())
                 {
                     if (pi.PropertyType.Name == "String" && pi.CanWrite)
                     {
-                        string stringVal = (string)pi.GetValue(task, null);
+                        string stringVal = (string)pi.GetValue(item, null);
                         // perform case-insensitive comparison
                         if (stringVal != null && stringVal.IndexOf(searchTerm, StringComparison.CurrentCultureIgnoreCase) >= 0)
                         {
-                            filteredTasks.Add(task);
+                            filteredItems.Add(item);
                             break;
                         }
                     }
                 }
             }
 
-            // return the filtered task collection
-            return filteredTasks;
+            // return the filtered item collection
+            return filteredItems;
         }
 
         #endregion

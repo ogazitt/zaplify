@@ -1,0 +1,12 @@
+<local:MainViewModel 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:BuiltSteady.Zaplify.Devices.WinPhone"
+    xmlns:zaplify="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
+
+    <local:MainViewModel.Tags>
+        <zaplify:Tag Name="tag one" Color="Red" />
+        <zaplify:Tag Name="tag two" Color="Yellow" />
+        <zaplify:Tag Name="tag three" />
+     </local:MainViewModel.Tags>
+</local:MainViewModel>

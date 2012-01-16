@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.IO;
 using System.Collections.Generic;
 using NSpeex;
@@ -20,7 +20,7 @@ using System.Windows.Resources;
 using Microsoft.Phone.Net.NetworkInformation;
 using System.Threading;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class SpeechHelper
     {
@@ -145,7 +145,7 @@ namespace TaskStoreWinPhoneUtilities
             byte[] speechChunk = new byte[len];
             Array.Copy(speechBuffer, speechChunk, len);
 
-            // add the last speech buffer to the list
+            // add the last speech buffer to the folder
             speechBufferList.Add(speechChunk);
 
             // if the encode flag is set, encode the chunk before sending it
@@ -205,7 +205,7 @@ namespace TaskStoreWinPhoneUtilities
             byte[] speechChunk = new byte[len];
             Array.Copy(speechBuffer, speechChunk, len);
 
-            // add the chunk to the buffer list
+            // add the chunk to the buffer folder
             speechBufferList.Add(speechChunk);
 
             // send the chunk to the service
@@ -322,7 +322,7 @@ namespace TaskStoreWinPhoneUtilities
             // upon completion it will invoke the StartMic delegate to start the microphone
             NetworkHelper.SendPost(
                 user, 
-                "TaskStore-Speech-Encoding: " + encoding, 
+                "Zaplify-Speech-Encoding: " + encoding, 
                 new StartMicDelegate(StartMic), 
                 new NetworkDelegate(NetworkCallback));
         }

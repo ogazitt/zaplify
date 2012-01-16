@@ -61,12 +61,21 @@ namespace BuiltSteady.Zaplify.Website.Resources
 
             try
             {
-                var actions = zaplifystore.Actions.OrderBy(a => a.SortOrder).ToList<BuiltSteady.Zaplify.ServerEntities.Action>();
+                var actionTypes = zaplifystore.ActionTypes.OrderBy(a => a.SortOrder).ToList<ActionType>();
                 var colors = zaplifystore.Colors.OrderBy(c => c.ColorID).ToList<Color>();
                 var fieldTypes = zaplifystore.FieldTypes.OrderBy(ft => ft.FieldTypeID).ToList<FieldType>();
                 var itemTypes = zaplifystore.ItemTypes.Where(l => l.UserID == null).Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
+                var permissions = zaplifystore.Permissions.OrderBy(p => p.PermissionID).ToList<Permission>();
                 var priorities = zaplifystore.Priorities.OrderBy(p => p.PriorityID).ToList<Priority>();
-                var constants = new Constants() { Actions = actions, Colors = colors, FieldTypes = fieldTypes, ItemTypes = itemTypes, Priorities = priorities };
+                var constants = new Constants() 
+                { 
+                    ActionTypes = actionTypes, 
+                    Colors = colors, 
+                    FieldTypes = fieldTypes, 
+                    ItemTypes = itemTypes, 
+                    Permissions = permissions, 
+                    Priorities = priorities 
+                };
                 return new HttpResponseMessageWrapper<Constants>(req, constants, HttpStatusCode.OK);
             }
             catch (Exception)

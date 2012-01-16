@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Collections.ObjectModel;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class User : TaskStoreEntity, INotifyPropertyChanged
+    public class User : ZaplifyEntity, INotifyPropertyChanged
     {
         public User() : base() { }
 
@@ -114,24 +114,46 @@ namespace TaskStoreClientEntities
             }
         }
 
-        private ObservableCollection<ListType> listTypes;
+        private ObservableCollection<Folder> folders;
         /// <summary>
-        /// ListTypes collection property
+        /// Folders collection property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public ObservableCollection<ListType> ListTypes
+        public ObservableCollection<Folder> Folders
         {
             get
             {
-                return listTypes;
+                return folders;
             }
             set
             {
-                if (value != listTypes)
+                if (value != folders)
                 {
-                    listTypes = value;
-                    NotifyPropertyChanged("ListTypes");
+                    folders = value;
+                    NotifyPropertyChanged("Folders");
+                }
+            }
+        }
+
+        private ObservableCollection<ItemType> itemTypes;
+        /// <summary>
+        /// ItemTypes collection property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public ObservableCollection<ItemType> ItemTypes
+        {
+            get
+            {
+                return itemTypes;
+            }
+            set
+            {
+                if (value != itemTypes)
+                {
+                    itemTypes = value;
+                    NotifyPropertyChanged("ItemTypes");
                 }
             }
         }
@@ -154,28 +176,6 @@ namespace TaskStoreClientEntities
                 {
                     tags = value;
                     NotifyPropertyChanged("Tags");
-                }
-            }
-        }
-
-        private ObservableCollection<TaskList> taskLists;
-        /// <summary>
-        /// TaskLists collection property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public ObservableCollection<TaskList> TaskLists
-        {
-            get
-            {
-                return taskLists;
-            }
-            set
-            {
-                if (value != taskLists)
-                {
-                    taskLists = value;
-                    NotifyPropertyChanged("TaskLists");
                 }
             }
         }

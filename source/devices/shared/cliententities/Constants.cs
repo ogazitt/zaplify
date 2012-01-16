@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     public class Constants
     {
@@ -35,24 +35,24 @@ namespace TaskStoreClientEntities
             }
         }
 
-        private ObservableCollection<Action> actions;
+        private ObservableCollection<ActionType> actionTypes;
         /// <summary>
-        /// Actions collection property
+        /// ActionTypes collection property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public ObservableCollection<Action> Actions
+        public ObservableCollection<ActionType> ActionTypes
         {
             get
             {
-                return actions;
+                return actionTypes;
             }
             set
             {
-                if (value != actions)
+                if (value != actionTypes)
                 {
-                    actions = value;
-                    NotifyPropertyChanged("Actions");
+                    actionTypes = value;
+                    NotifyPropertyChanged("ActionTypes");
                 }
             }
         }
@@ -101,24 +101,46 @@ namespace TaskStoreClientEntities
             }
         }
 
-        private ObservableCollection<ListType> listTypes;
+        private ObservableCollection<ItemType> itemTypes;
         /// <summary>
         /// List Types collection property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public ObservableCollection<ListType> ListTypes
+        public ObservableCollection<ItemType> ItemTypes
         {
             get
             {
-                return listTypes;
+                return itemTypes;
             }
             set
             {
-                if (value != listTypes)
+                if (value != itemTypes)
                 {
-                    listTypes = value;
-                    NotifyPropertyChanged("ListTypes");
+                    itemTypes = value;
+                    NotifyPropertyChanged("ItemTypes");
+                }
+            }
+        }
+
+        private ObservableCollection<Permission> permissions;
+        /// <summary>
+        /// Permissions collection property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public ObservableCollection<Permission> Permissions
+        {
+            get
+            {
+                return permissions;
+            }
+            set
+            {
+                if (value != permissions)
+                {
+                    permissions = value;
+                    NotifyPropertyChanged("Permissions");
                 }
             }
         }

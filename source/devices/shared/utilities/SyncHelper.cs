@@ -9,68 +9,68 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Collections.ObjectModel;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class SyncHelper
     {
-        public static ObservableCollection<TaskList> ResolveTaskLists(ObservableCollection<TaskList> localTaskLists, List<TaskList> remoteTaskLists)
+        public static ObservableCollection<Folder> ResolveFolders(ObservableCollection<Folder> localFolders, List<Folder> remoteFolders)
         {
-            if (remoteTaskLists == null)
-                return localTaskLists;
+            if (remoteFolders == null)
+                return localFolders;
 
-            // create a new collection and copy the remote tasklists into it as a starting point
-            ObservableCollection<TaskList> newTaskLists = new ObservableCollection<TaskList>();
-            foreach (TaskList tl in remoteTaskLists)
-                newTaskLists.Add(new TaskList(tl));
+            // create a new collection and copy the remote folders into it as a starting point
+            ObservableCollection<Folder> newFolders = new ObservableCollection<Folder>();
+            foreach (Folder tl in remoteFolders)
+                newFolders.Add(new Folder(tl));
 
-            // merge any of the local tasklists as approriate
-            foreach (TaskList localTaskList in localTaskLists)
+            // merge any of the local folders as approriate
+            foreach (Folder localFolder in localFolders)
             {
-                bool foundTaskList = false;
-                foreach (TaskList remoteTaskList in newTaskLists)
+                bool foundFolder = false;
+                foreach (Folder remoteFolder in newFolders)
                 {
-                    if (localTaskList.ID == remoteTaskList.ID)
+                    if (localFolder.ID == remoteFolder.ID)
                     {
-                        ResolveTasks(localTaskList, remoteTaskList);
-                        foundTaskList = true;
+                        ResolveItems(localFolder, remoteFolder);
+                        foundFolder = true;
                         break;
                     }
                 }
-                // if didn't find the local task listType in the remote data set, copy it over
-                if (foundTaskList == false)
+                // if didn't find the local item itemType in the remote data set, copy it over
+                if (foundFolder == false)
                 {
-                    newTaskLists.Add(localTaskList);
+                    newFolders.Add(localFolder);
                 }
             }
 
-            return newTaskLists;
+            return newFolders;
         }
 
 
         /// <summary>
-        /// Resolve Task conflicts between a local and remote TaskList
+        /// Resolve Item conflicts between a local and remote Folder
         /// </summary>
-        /// <param name="localTaskList">Local task listType</param>
-        /// <param name="remoteTaskList">Task listType retrieved from the data service</param>
-        private static void ResolveTasks(TaskList localTaskList, TaskList remoteTaskList)
+        /// <param name="localFolder">Local item itemType</param>
+        /// <param name="remoteFolder">Item itemType retrieved from the data service</param>
+        private static void ResolveItems(Folder localFolder, Folder remoteFolder)
         {
-            foreach (Task localTask in localTaskList.Tasks)
+            foreach (Item localItem in localFolder.Items)
             {
-                bool foundTask = false;
-                foreach (Task remoteTask in remoteTaskList.Tasks)
+                bool foundItem = false;
+                foreach (Item remoteItem in remoteFolder.Items)
                 {
-                    if (localTask.ID == remoteTask.ID)
+                    if (localItem.ID == remoteItem.ID)
                     {
-                        foundTask = true;
+                        foundItem = true;
                         break;
                     }
                 }
-                if (foundTask == false)
+                if (foundItem == false)
                 {
-                    remoteTaskList.Tasks.Add(localTask);
+                    remoteFolder.Items.Add(localItem);
                 }
             }
         }

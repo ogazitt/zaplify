@@ -83,17 +83,29 @@ namespace BuiltSteady.Zaplify.Website.Resources
             ZaplifyStore zaplifystore = ZaplifyStore;
             User user = ResourceHelper.GetUserPassFromMessage(req);
 
+            // make sure the auth credentials passed in exactly match the user we need to delete
+            // this disables the (potentially useful) scenario where an authorized user can delete another user if they know the userid/passwd/ID
+            if (clientUser.Name != user.Name || clientUser.Password != user.Password)
+                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
+
             try
             {
+                // check to make sure the ID's match
+                User dbUser = zaplifystore.Users.Single<User>(u => u.Name == clientUser.Name && u.Password == clientUser.Password);
+                if (dbUser.ID != clientUser.ID)
+                    return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Forbidden);
+                
                 // remove the user from the membership service
                 if (Membership.DeleteUser(user.Name) == false)
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
 
                 // remove the user data from the ZaplifyStore database
-                User dbUser = zaplifystore.Users.
+                dbUser = zaplifystore.Users.
                     Include("ItemTypes.Fields").
                     Include("Tags").
                     Include("ItemLists.Items.ItemTags").
+                    Include("Items.ItemTags").
+                    Include("Folders.FolderUsers").
                     Single<User>(u => u.Name == user.Name);
                 zaplifystore.Users.Remove(dbUser);
                 int rows = zaplifystore.SaveChanges();
@@ -150,7 +162,8 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 User dbUser = zaplifystore.Users.
                     Include("ItemTypes.Fields").
                     Include("Tags").
-                    Include("ItemLists.Items.ItemTags").
+                    Include("Folders.Items.ItemTags").
+//                    Include("ItemLists.Items.ItemTags").
                     Single<User>(u => u.Name == user.Name);
                 
                 // make sure the response isn't cached
@@ -199,17 +212,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
         }
 
         /// <summary>
-        /// Get all itemlists for a user
+        /// Get all items that are associated with a user
         /// </summary>
         /// <param name="id">ID for the user</param>
-        /// <returns>List of itemlists for the user</returns>
-        [WebGet(UriTemplate = "{id}/itemlists")]
+        /// <returns>List of folders of items for the user, arranged by folder</returns>
+        [WebGet(UriTemplate = "{id}/folderitems")]
         [LogMessages]
-        public HttpResponseMessageWrapper<List<ItemList>> GetItemListsForUser(HttpRequestMessage req, Guid id)
+        public HttpResponseMessageWrapper<List<Folder>> GetItemListsForUser(HttpRequestMessage req, Guid id)
         {
             HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<List<ItemList>>(req, code);  // user not authenticated
+                return new HttpResponseMessageWrapper<List<Folder>>(req, code);  // user not authenticated
 
             ZaplifyStore zaplifystore = ZaplifyStore;
             User user = ResourceHelper.GetUserPassFromMessage(req);
@@ -221,27 +234,31 @@ namespace BuiltSteady.Zaplify.Website.Resources
 
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
                 if (requestedUser.ID != dbUser.ID)
-                    return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.Forbidden);
+                    return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.Forbidden);
                 else
                 {
                     try
                     {
-                        var itemlists = zaplifystore.ItemLists.Include("User").Include("Items").Where(tl => tl.UserID == id).ToList();
-                        var response = new HttpResponseMessageWrapper<List<ItemList>>(req, itemlists, HttpStatusCode.OK);
+                        var folderitems = zaplifystore.Folders.
+                            Include("FolderUsers").
+                            Include("Items.ItemTags").
+                            Where(f => f.FolderUsers.Any(fu => fu.UserID == id)).
+                            ToList();
+                        var response = new HttpResponseMessageWrapper<List<Folder>>(req, folderitems, HttpStatusCode.OK);
                         response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                         return response;
                     }
                     catch (Exception)
                     {
                         // itemlists not found - return 404 Not Found
-                        return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.NotFound);
+                        return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.NotFound);
                     }
                 }
             }
             catch (Exception)
             {
                 // user not found - return 404 Not Found
-                return new HttpResponseMessageWrapper<List<ItemList>>(req, HttpStatusCode.NotFound);
+                return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.NotFound);
             }
         }
 

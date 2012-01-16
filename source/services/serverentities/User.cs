@@ -14,5 +14,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public List<ItemType> ItemTypes { get; set; }  
         public List<Tag> Tags { get; set; }
         public List<ItemList> ItemLists { get; set; }
+        public List<Item> Items { get; set; }
+        public List<FolderUser> FolderUsers { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using System.Collections.ObjectModel;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
     public class About : INotifyPropertyChanged

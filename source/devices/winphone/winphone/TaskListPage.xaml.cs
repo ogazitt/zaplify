@@ -12,31 +12,31 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Shell;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Collections.ObjectModel;
-using TaskStoreWinPhoneUtilities;
+using BuiltSteady.Zaplify.Devices.Utilities;
 using System.Windows.Data;
 using System.ComponentModel;
 using System.Threading;
 using Microsoft.Xna.Framework.Audio;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
-    public partial class TaskListPage : PhoneApplicationPage, INotifyPropertyChanged
+    public partial class FolderPage : PhoneApplicationPage, INotifyPropertyChanged
     {
-        private TaskList taskList;
-        public TaskList TaskList
+        private Folder folder;
+        public Folder Folder
         {
             get
             {
-                return taskList;
+                return folder;
             }
             set
             {
-                if (value != taskList)
+                if (value != folder)
                 {
-                    taskList = value;
-                    NotifyPropertyChanged("TaskList");
+                    folder = value;
+                    NotifyPropertyChanged("Folder");
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace TaskStoreWinPhone
         private string speechDebugString = null;
         private DateTime speechStart;
 
-        // ViewSource for the TaskList collection for Import Template (used for filtering out non-template lists)
+        // ViewSource for the Folder collection for Import Template (used for filtering out non-template lists)
         public CollectionViewSource ImportTemplateViewSource { get; set; }
 
         // property that controls the sort order for the ListBoxes
@@ -171,12 +171,12 @@ namespace TaskStoreWinPhone
         }
 
         // Constructor
-        public TaskListPage()
+        public FolderPage()
         {
             InitializeComponent();
 
             // trace data
-            TraceHelper.AddMessage("TaskList: constructor");
+            TraceHelper.AddMessage("Folder: constructor");
 
             // set some data context information
             ConnectedIconImage.DataContext = App.ViewModel;
@@ -189,7 +189,7 @@ namespace TaskStoreWinPhone
 
             OrderedSource = new List<CollectionViewSource>();
 
-            // add the name viewsource (which is a sorted view of the tasklist by name)
+            // add the name viewsource (which is a sorted view of the folder by name)
             var nameViewSource = new CollectionViewSource();
             using (nameViewSource.DeferRefresh())
             {
@@ -198,7 +198,7 @@ namespace TaskStoreWinPhone
                 OrderedSource.Add(nameViewSource);
                 ByNameListBox.DataContext = this;
             }
-            // add the due viewsource (which is a sorted view of the tasklist by due date)
+            // add the due viewsource (which is a sorted view of the folder by due date)
             var dueViewSource = new CollectionViewSource();
             using (dueViewSource.DeferRefresh())
             {
@@ -208,7 +208,7 @@ namespace TaskStoreWinPhone
                 OrderedSource.Add(dueViewSource);
                 ByDueListBox.DataContext = this;
             }
-            // add the priority viewsource (which is a sorted view of the tasklist by priority)
+            // add the priority viewsource (which is a sorted view of the folder by priority)
             var priViewSource = new CollectionViewSource();
             using (priViewSource.DeferRefresh())
             {
@@ -221,18 +221,18 @@ namespace TaskStoreWinPhone
             ImportTemplateViewSource = new CollectionViewSource();
             ImportTemplateViewSource.Filter += new FilterEventHandler(ImportTemplate_Filter);
 
-            Loaded += new RoutedEventHandler(TaskListPage_Loaded);
-            BackKeyPress += new EventHandler<CancelEventArgs>(TaskListPage_BackKeyPress);
+            Loaded += new RoutedEventHandler(FolderPage_Loaded);
+            BackKeyPress += new EventHandler<CancelEventArgs>(FolderPage_BackKeyPress);
 
             // trace data
-            TraceHelper.AddMessage("Exiting TaskList constructor");
+            TraceHelper.AddMessage("Exiting Folder constructor");
         }
 
-        // When page is navigated to set data context to selected item in listType
+        // When page is navigated to set data context to selected item in itemType
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // trace data
-            TraceHelper.AddMessage("TaskList: OnNavigatedTo");
+            TraceHelper.AddMessage("Folder: OnNavigatedTo");
 
             string IDString = "";
             string typeString = "";
@@ -241,7 +241,7 @@ namespace TaskStoreWinPhone
             if (NavigationContext.QueryString.TryGetValue("type", out typeString) == false)
             {
                 // trace page navigation
-                TraceHelper.StartMessage("TaskList: Navigate back");
+                TraceHelper.StartMessage("Folder: Navigate back");
 
                 // navigate back
                 NavigationService.GoBack();
@@ -250,11 +250,11 @@ namespace TaskStoreWinPhone
 
             switch (typeString)
             {
-                case "TaskList":
+                case "Folder":
                     if (NavigationContext.QueryString.TryGetValue("ID", out IDString) == false)
                     {
                         // trace page navigation
-                        TraceHelper.StartMessage("TaskList: Navigate back");
+                        TraceHelper.StartMessage("Folder: Navigate back");
 
                         // navigate back
                         NavigationService.GoBack();
@@ -263,20 +263,20 @@ namespace TaskStoreWinPhone
 
                     id = new Guid(IDString);
 
-                    // get the tasklist and make it the datacontext
+                    // get the folder and make it the datacontext
                     try
                     {
-                        taskList = App.ViewModel.TaskLists.Single(tl => tl.ID == id);
-                        SetContext(taskList);
+                        folder = App.ViewModel.Folders.Single(tl => tl.ID == id);
+                        SetContext(folder);
                     }
                     catch (Exception ex)
                     {
                         // the list isn't found - this can happen when the list we were just 
-                        // editing was removed in TaskListEditor, which then goes back to TaskListPage.
+                        // editing was removed in FolderEditor, which then goes back to FolderPage.
                         // this will send us back to the MainPage which is appropriate.
 
                         // trace page navigation
-                        TraceHelper.StartMessage(String.Format("TaskList: Navigate back (exception: {0})", ex.Message));
+                        TraceHelper.StartMessage(String.Format("Folder: Navigate back (exception: {0})", ex.Message));
 
                         // navigate back
                         NavigationService.GoBack();
@@ -287,7 +287,7 @@ namespace TaskStoreWinPhone
                     if (NavigationContext.QueryString.TryGetValue("ID", out IDString) == false)
                     {
                         // trace page navigation
-                        TraceHelper.StartMessage("TaskList: Navigate back");
+                        TraceHelper.StartMessage("Folder: Navigate back");
 
                         // navigate back
                         NavigationService.GoBack();
@@ -300,19 +300,19 @@ namespace TaskStoreWinPhone
                     try
                     {
                         tag = App.ViewModel.Tags.Single(t => t.ID == id);
-                        taskList = new TaskList() { ID = Guid.Empty, Name = String.Format("tasks with {0} tag", tag.Name), Tasks = App.ViewModel.Tasks };
-                        SetContext(taskList);
+                        folder = new Folder() { ID = Guid.Empty, Name = String.Format("items with {0} tag", tag.Name), Items = App.ViewModel.Items };
+                        SetContext(folder);
                         foreach (var source in OrderedSource)
                             source.Filter += new FilterEventHandler(Tag_Filter);
                     }
                     catch (Exception)
                     {
                         // the tag isn't found - this can happen when the tag we were just 
-                        // editing was removed in TagListEditor, which then goes back to TaskListPage.
+                        // editing was removed in TagListEditor, which then goes back to FolderPage.
                         // this will send us back to the MainPage which is appropriate.
 
                         // trace page navigation
-                        TraceHelper.StartMessage("TaskList: Navigate back");
+                        TraceHelper.StartMessage("Folder: Navigate back");
 
                         // navigate back
                         NavigationService.GoBack();
@@ -321,7 +321,7 @@ namespace TaskStoreWinPhone
                     break;
                 default:
                     // trace page navigation
-                    TraceHelper.StartMessage("TaskList: Navigate back");
+                    TraceHelper.StartMessage("Folder: Navigate back");
 
                     // navigate back
                     NavigationService.GoBack();
@@ -338,7 +338,7 @@ namespace TaskStoreWinPhone
             disableListBoxSelectionChanged = false;
 
             // trace data
-            TraceHelper.AddMessage("Exiting TaskList OnNavigatedTo");
+            TraceHelper.AddMessage("Exiting Folder OnNavigatedTo");
         }
 
         #region Event Handlers
@@ -346,11 +346,11 @@ namespace TaskStoreWinPhone
         private void AddButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("TaskList: Navigate to Task");
+            TraceHelper.StartMessage("Folder: Navigate to Item");
 
             // Navigate to the new page
             NavigationService.Navigate(
-                new Uri(String.Format("/TaskPage.xaml?ID={0}&taskListID={1}", "new", taskList.ID),
+                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", "new", folder.ID),
                 UriKind.Relative));
         }
 
@@ -365,35 +365,35 @@ namespace TaskStoreWinPhone
             TraceHelper.StartMessage("CompleteCheckbox Click");
 
             CheckBox cb = (CheckBox)e.OriginalSource;
-            Guid taskID = (Guid)cb.Tag;
+            Guid itemID = (Guid)cb.Tag;
 
-            // get the task that was just updated, and ensure the Complete flag is in the correct state
-            Task task = taskList.Tasks.Single<Task>(t => t.ID == taskID);
+            // get the item that was just updated, and ensure the Complete flag is in the correct state
+            Item item = folder.Items.Single<Item>(t => t.ID == itemID);
 
-            // create a copy of that task
-            Task taskCopy = new Task(task);
+            // create a copy of that item
+            Item itemCopy = new Item(item);
 
-            // toggle the Complete flag on the task copy to reflect the original state 
-            taskCopy.Complete = !taskCopy.Complete;
+            // toggle the Complete flag on the item copy to reflect the original state 
+            itemCopy.Complete = !itemCopy.Complete;
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Task>() { taskCopy, task },
-                    BodyTypeName = "Task",
-                    ID = taskCopy.ID
+                    Body = new List<Item>() { itemCopy, item },
+                    BodyTypeName = "Item",
+                    ID = itemCopy.ID
                 });
 
-            // trigger databinding by creating a new taskList and binding to it
+            // trigger databinding by creating a new folder and binding to it
             SetContext(null);
 
             // save the changes to local storage
-            StorageHelper.WriteTaskLists(App.ViewModel.TaskLists);
+            StorageHelper.WriteFolders(App.ViewModel.Folders);
 
-            // trigger a databinding refresh for tasks
-            App.ViewModel.NotifyPropertyChanged("Tasks");
+            // trigger a databinding refresh for items
+            App.ViewModel.NotifyPropertyChanged("Items");
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -404,41 +404,41 @@ namespace TaskStoreWinPhone
 
         private void DeleteCompletedMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBoxResult result = MessageBox.Show("delete all completed tasks in this list?", "confirm delete", MessageBoxButton.OKCancel);
+            MessageBoxResult result = MessageBox.Show("delete all completed items in this list?", "confirm delete", MessageBoxButton.OKCancel);
             if (result != MessageBoxResult.OK)
                 return;
 
-            // we will be building a new tasklist of only the non-completed items
-            TaskList newTaskList = new TaskList(taskList);
-            newTaskList.Tasks.Clear();
+            // we will be building a new folder of only the non-completed items
+            Folder newFolder = new Folder(folder);
+            newFolder.Items.Clear();
             
-            foreach (var task in taskList.Tasks)
+            foreach (var item in folder.Items)
             {
-                if (task.Complete == true)
+                if (item.Complete == true)
                 {
                     // enqueue the Web Request Record
                     RequestQueue.EnqueueRequestRecord(
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Delete,
-                            Body = task
+                            Body = item
                         });
                 }
                 else
                 {
-                    // add the non-completed task to the new list
-                    newTaskList.Tasks.Add(task);
+                    // add the non-completed item to the new list
+                    newFolder.Items.Add(item);
                 }
             }
 
-            // replace the main tasklist and databind to the new list
-            SetContext(newTaskList);
+            // replace the main folder and databind to the new list
+            SetContext(newFolder);
 
             // save the changes to local storage
-            StorageHelper.WriteTaskLists(App.ViewModel.TaskLists);
+            StorageHelper.WriteFolders(App.ViewModel.Folders);
 
-            // trigger a databinding refresh for tasks
-            App.ViewModel.NotifyPropertyChanged("Tasks");
+            // trigger a databinding refresh for items
+            App.ViewModel.NotifyPropertyChanged("Items");
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -446,20 +446,20 @@ namespace TaskStoreWinPhone
 
         private void EditButton_Click(object sender, EventArgs e)
         {
-            if (taskList.ID != Guid.Empty)
+            if (folder.ID != Guid.Empty)
             {
                 // trace page navigation
-                TraceHelper.StartMessage("TaskList: Navigate to ListEditor");
+                TraceHelper.StartMessage("Folder: Navigate to ListEditor");
 
-                // Navigate to the TaskListEditor page
+                // Navigate to the FolderEditor page
                 NavigationService.Navigate(
-                    new Uri(String.Format("/TaskListEditor.xaml?ID={0}", taskList.ID),
+                    new Uri(String.Format("/FolderEditor.xaml?ID={0}", folder.ID),
                     UriKind.Relative));
             }
             else
             {
                 // trace page navigation
-                TraceHelper.StartMessage("TaskList: Navigate to TagEditor");
+                TraceHelper.StartMessage("Folder: Navigate to TagEditor");
 
                 // Navigate to the TagEditor page
                 NavigationService.Navigate(
@@ -472,15 +472,15 @@ namespace TaskStoreWinPhone
 
         private void ImportTemplate_Filter(object sender, FilterEventArgs e)
         {
-            TaskList tl = e.Item as TaskList;
+            Folder tl = e.Item as Folder;
             e.Accepted = tl.Template;
         }
 
         private void ImportTemplateMenuItem_Click(object sender, EventArgs e)
         {
             // set the collection source for the import template list picker
-            ImportTemplateViewSource.Source = App.ViewModel.TaskLists;
-            ImportTemplatePopupTaskListPicker.DataContext = this;
+            ImportTemplateViewSource.Source = App.ViewModel.Folders;
+            ImportTemplatePopupFolderPicker.DataContext = this;
 
             // open the popup, disable list selection bug
             ImportTemplatePopup.IsOpen = true;
@@ -489,23 +489,23 @@ namespace TaskStoreWinPhone
 
         private void ImportTemplatePopup_ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            TaskList tl = ImportTemplatePopupTaskListPicker.SelectedItem as TaskList;
+            Folder tl = ImportTemplatePopupFolderPicker.SelectedItem as Folder;
             if (tl == null)
                 return;
 
-            // add the task to a new tasklist reference (to trigger databinding)
-            var newTaskList = new TaskList(taskList);
+            // add the item to a new folder reference (to trigger databinding)
+            var newFolder = new Folder(folder);
 
-            foreach (Task t in tl.Tasks)
+            foreach (Item t in tl.Items)
             {
                 DateTime now = DateTime.UtcNow;
 
-                // create the new task
-                Task task = new Task(t) { ID = Guid.NewGuid(), TaskListID = taskList.ID, Created = now, LastModified = now };
-                // recreate the tasktags (they must be unique)
-                if (task.TaskTags != null && task.TaskTags.Count > 0)
+                // create the new item
+                Item item = new Item(t) { ID = Guid.NewGuid(), FolderID = folder.ID, Created = now, LastModified = now };
+                // recreate the itemtags (they must be unique)
+                if (item.ItemTags != null && item.ItemTags.Count > 0)
                 {
-                    foreach (var tt in task.TaskTags)
+                    foreach (var tt in item.ItemTags)
                     {
                         tt.ID = Guid.NewGuid();
                     }
@@ -516,21 +516,21 @@ namespace TaskStoreWinPhone
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                        Body = task
+                        Body = item
                     });
 
-                // add the task to the local collection
-                newTaskList.Tasks.Add(task);
+                // add the item to the local collection
+                newFolder.Items.Add(item);
             }
 
-            // replace the main tasklist and databind to the new list
-            SetContext(newTaskList);
+            // replace the main folder and databind to the new list
+            SetContext(newFolder);
 
             // save the changes to local storage
-            StorageHelper.WriteTaskLists(App.ViewModel.TaskLists);
+            StorageHelper.WriteFolders(App.ViewModel.Folders);
 
-            // trigger a databinding refresh for tasks
-            App.ViewModel.NotifyPropertyChanged("Tasks");
+            // trigger a databinding refresh for items
+            App.ViewModel.NotifyPropertyChanged("Items");
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -550,7 +550,7 @@ namespace TaskStoreWinPhone
         {
             // if listbox is disabled (because we've navigated off this page), return without handling this event.
             // this condition can happen when we've already navigated off this page, and an async network operation
-            // creates a new Tasks collection, which is databound to this ListBox.  Since we have a ViewSourceCollection as 
+            // creates a new Items collection, which is databound to this ListBox.  Since we have a ViewSourceCollection as 
             // the databinding source, and a sort is applied, the Selection will be changed automatically and trigger this
             // event even though we're not on the page anymore.
             if (disableListBoxSelectionChanged == true)
@@ -561,18 +561,18 @@ namespace TaskStoreWinPhone
             if (listBox.SelectedIndex == -1)
                 return;
 
-            // get the task associated with this click
-            Task task = null;
+            // get the item associated with this click
+            Item item = null;
 
             if (listBox.SelectionMode == SelectionMode.Multiple)
             {
                 var selItems = listBox.SelectedItems;
                 var c = selItems.Count;
-                // the last task in the SelectedItems collection is the one we want (the previous one(s) were generated by re-binding 
+                // the last item in the SelectedItems collection is the one we want (the previous one(s) were generated by re-binding 
                 // events and are spurious)
-                foreach (var item in selItems)
+                foreach (var i in selItems)
                 {
-                    task = (Task)item;
+                    item = (Item)i;
                 }
 
                 // reset the selection mode to single (it's now safe to do so)
@@ -582,19 +582,19 @@ namespace TaskStoreWinPhone
             else
             {
                 // this is a single selection mode - just retrieve the current selection
-                task = (Task)listBox.SelectedItem;
+                item = (Item)listBox.SelectedItem;
             }
 
-            // if there is no task, return without processing the event
-            if (task == null)
+            // if there is no item, return without processing the event
+            if (item == null)
                 return;
 
             // trace page navigation
-            TraceHelper.StartMessage("TaskList: Navigate to Task");
+            TraceHelper.StartMessage("Folder: Navigate to Item");
 
             // Navigate to the new page
             NavigationService.Navigate(
-                new Uri(String.Format("/TaskPage.xaml?ID={0}&taskListID={1}", task.ID, task.TaskListID),
+                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
                 UriKind.Relative));
 
             // we need to disable the selection changed event so that we don't get cascading calls to Navigate which will
@@ -609,7 +609,7 @@ namespace TaskStoreWinPhone
         private void ListsButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("TaskList: Navigate to Main");
+            TraceHelper.StartMessage("Folder: Navigate to Main");
 
             // Navigate to the main page
             NavigationService.Navigate(
@@ -621,7 +621,7 @@ namespace TaskStoreWinPhone
             if (OrderedSource[PivotControl.SelectedIndex].Source == null)
             {
                 // set the source for the current tab (doing all three is too expensive)
-                OrderedSource[PivotControl.SelectedIndex].Source = taskList.Tasks;
+                OrderedSource[PivotControl.SelectedIndex].Source = folder.Items;
             }
         }
 
@@ -641,29 +641,29 @@ namespace TaskStoreWinPhone
             if (name == null || name == "")
                 return;
 
-            // create the new task
-            Task task = new Task() { Name = name, TaskListID = taskList.ID, LastModified = DateTime.UtcNow };
+            // create the new item
+            Item item = new Item() { Name = name, FolderID = folder.ID, LastModified = DateTime.UtcNow };
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = task
+                    Body = item
                 });
 
-            // add the task to a new tasklist reference (to trigger databinding)
-            var newTaskList = new TaskList(taskList);
-            newTaskList.Tasks.Add(task);
+            // add the item to a new folder reference (to trigger databinding)
+            var newFolder = new Folder(folder);
+            newFolder.Items.Add(item);
 
-            // replace the main tasklist and databind to the new list
-            SetContext(newTaskList);
+            // replace the main folder and databind to the new list
+            SetContext(newFolder);
 
             // save the changes to local storage
-            StorageHelper.WriteTaskLists(App.ViewModel.TaskLists);
+            StorageHelper.WriteFolders(App.ViewModel.Folders);
 
-            // trigger a databinding refresh for tasks
-            App.ViewModel.NotifyPropertyChanged("Tasks");
+            // trigger a databinding refresh for items
+            App.ViewModel.NotifyPropertyChanged("Items");
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -693,7 +693,7 @@ namespace TaskStoreWinPhone
                     return;
 
                 // trace page navigation
-                TraceHelper.StartMessage("TaskList: Navigate to Settings");
+                TraceHelper.StartMessage("Folder: Navigate to Settings");
 
                 // Navigate to the settings page
                 NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
@@ -894,11 +894,11 @@ namespace TaskStoreWinPhone
         // event handlers related to tags
         private void Tag_Filter(object sender, FilterEventArgs e)
         {
-            Task task = e.Item as Task;
+            Item item = e.Item as Item;
             try
             {
-                TaskTag taskTag = task.TaskTags.Single(tt => tt.TagID == tag.ID);
-                if (taskTag != null)
+                ItemTag itemTag = item.ItemTags.Single(tt => tt.TagID == tag.ID);
+                if (itemTag != null)
                     e.Accepted = true;
                 else
                     e.Accepted = false;
@@ -915,25 +915,25 @@ namespace TaskStoreWinPhone
             Guid tagID = (Guid)button.Tag;
 
             // trace page navigation
-            TraceHelper.StartMessage("TaskList: Navigate to Tag");
+            TraceHelper.StartMessage("Folder: Navigate to Tag");
 
             // Navigate to the new page
-            NavigationService.Navigate(new Uri("/TaskListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
         }
 
-        void TaskListPage_BackKeyPress(object sender, CancelEventArgs e)
+        void FolderPage_BackKeyPress(object sender, CancelEventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("TaskList: Navigate back");
+            TraceHelper.StartMessage("Folder: Navigate back");
 
             // navigate back
             NavigationService.GoBack();
         }
 
-        void TaskListPage_Loaded(object sender, RoutedEventArgs e)
+        void FolderPage_Loaded(object sender, RoutedEventArgs e)
         {
             // trace page navigation
-            TraceHelper.AddMessage("TaskList: Loaded");
+            TraceHelper.AddMessage("Folder: Loaded");
         }
 
         #endregion
@@ -941,17 +941,17 @@ namespace TaskStoreWinPhone
         #region Helpers
 
         /// <summary>
-        /// Find a tasklist by ID and then return its index 
+        /// Find a folder by ID and then return its index 
         /// </summary>
         /// <param name="observableCollection"></param>
-        /// <param name="taskList"></param>
+        /// <param name="folder"></param>
         /// <returns></returns>
-        private int IndexOf(ObservableCollection<TaskList> lists, TaskList taskList)
+        private int IndexOf(ObservableCollection<Folder> lists, Folder folder)
         {
             try
             {
-                TaskList taskListRef = lists.Single(tl => tl.ID == taskList.ID);
-                return lists.IndexOf(taskListRef);
+                Folder folderRef = lists.Single(tl => tl.ID == folder.ID);
+                return lists.IndexOf(folderRef);
             }
             catch (Exception)
             {
@@ -959,36 +959,36 @@ namespace TaskStoreWinPhone
             }
         }
 
-        private void SetContext(TaskList newTaskList)
+        private void SetContext(Folder newFolder)
         {
             // dispatch all this work on the UI thread in order to stop the app from blocking
             //Deployment.Current.Dispatcher.BeginInvoke(() =>
             //{
                 // if a new copy wasn't passed, create a new one now (to facilitate databinding)
-                if (newTaskList == null)
-                    newTaskList = new TaskList(taskList);
+                if (newFolder == null)
+                    newFolder = new Folder(folder);
 
-                // find the current tasklist's index and replace the entry in the viewmodel's TaskLists collection
-                // this call will return -1 if the tasklist's index is not found, because we are filtering by tag or doing a search
+                // find the current folder's index and replace the entry in the viewmodel's Folders collection
+                // this call will return -1 if the folder's index is not found, because we are filtering by tag or doing a search
                 // in that case, we don't need to replace the list
-                int index = IndexOf(App.ViewModel.TaskLists, taskList);
+                int index = IndexOf(App.ViewModel.Folders, folder);
                 if (index >= 0)
                 {
                     // replace the existing list with the new reference
-                    App.ViewModel.TaskLists[index] = newTaskList;
+                    App.ViewModel.Folders[index] = newFolder;
                 }
 
                 // replace the top-level reference
-                taskList = newTaskList;
+                folder = newFolder;
 
                 // reset the contexts for databinding
-                DataContext = newTaskList;
+                DataContext = newFolder;
                 OrderedSource[0].Source = null;
                 OrderedSource[1].Source = null;
                 OrderedSource[2].Source = null;
 
                 // set the source for the current tab (doing all three is too expensive)
-                OrderedSource[PivotControl.SelectedIndex].Source = taskList.Tasks;
+                OrderedSource[PivotControl.SelectedIndex].Source = folder.Items;
             //});
         }
 

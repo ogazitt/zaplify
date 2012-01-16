@@ -11,9 +11,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
-using TaskStoreWinPhoneUtilities;
+using BuiltSteady.Zaplify.Devices.Utilities;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class AboutPage : PhoneApplicationPage
     {
@@ -52,16 +52,16 @@ namespace TaskStoreWinPhone
         // Event handlers for About tab
         private void About_FeedbackButton_Click(object sender, EventArgs e)
         {
-            EmailComposeTask emailComposeTask = new EmailComposeTask();
-            emailComposeTask.To = App.ViewModel.About.FeedbackEmail;
-            emailComposeTask.Subject = "TaskStore Feedback";
-            emailComposeTask.Show();
+            EmailComposeTask emailComposeItem = new EmailComposeTask();
+            emailComposeItem.To = App.ViewModel.About.FeedbackEmail;
+            emailComposeItem.Subject = "Zaplify Feedback";
+            emailComposeItem.Show();
         }
 
         private void About_ReviewButton_Click(object sender, EventArgs e)
         {
-            MarketplaceReviewTask reviewTask = new MarketplaceReviewTask();
-            reviewTask.Show();
+            MarketplaceReviewTask reviewItem = new MarketplaceReviewTask();
+            reviewItem.Show();
         }
 
 

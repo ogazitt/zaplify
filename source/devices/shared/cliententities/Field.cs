@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Field : TaskStoreEntity, INotifyPropertyChanged
+    public class Field : ZaplifyEntity, INotifyPropertyChanged
     {
         public Field() : base() { }
 
@@ -74,24 +74,68 @@ namespace TaskStoreClientEntities
             }
         }
 
-        private Guid listTypeID;
+        private string displayName;
         /// <summary>
-        /// ListTypeID property
+        /// DisplayName property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public Guid ListTypeID
+        public string DisplayName
         {
             get
             {
-                return listTypeID;
+                return displayName;
             }
             set
             {
-                if (value != listTypeID)
+                if (value != displayName)
                 {
-                    listTypeID = value;
-                    NotifyPropertyChanged("ListTypeID");
+                    displayName = value;
+                    NotifyPropertyChanged("DisplayName");
+                }
+            }
+        }
+
+        private string displayType;
+        /// <summary>
+        /// DisplayType property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string DisplayType
+        {
+            get
+            {
+                return displayType;
+            }
+            set
+            {
+                if (value != displayType)
+                {
+                    displayType = value;
+                    NotifyPropertyChanged("DisplayType");
+                }
+            }
+        }
+
+        private Guid itemTypeID;
+        /// <summary>
+        /// ItemTypeID property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public Guid ItemTypeID
+        {
+            get
+            {
+                return itemTypeID;
+            }
+            set
+            {
+                if (value != itemTypeID)
+                {
+                    itemTypeID = value;
+                    NotifyPropertyChanged("ItemTypeID");
                 }
             }
         }

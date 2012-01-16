@@ -43,7 +43,7 @@ namespace ControlTiltEffect
         /// </summary>
         static TiltEffect()
         {
-            // The tiltable items list.
+            // The tiltable items folder.
             TiltableItems = new List<Type>() { typeof(ButtonBase), typeof(ListBoxItem), typeof(TextBox) };
             UseLogarithmicEase = false;
         }
@@ -115,7 +115,7 @@ namespace ControlTiltEffect
         public static bool UseLogarithmicEase { get; set; }
 
         /// <summary>
-        /// Default list of items that are tiltable
+        /// Default folder of items that are tiltable
         /// </summary>
         public static List<Type> TiltableItems { get; private set; }
 

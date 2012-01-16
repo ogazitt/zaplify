@@ -13,24 +13,24 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class TraceHelper
     {
-        // trace message list
+        // trace message folder
         private static List<string> traceMessages = new List<string>();
 
         // start time
         private static DateTime startTime;
 
         /// <summary>
-        /// Add a message to the list
+        /// Add a message to the folder
         /// </summary>
         public static void AddMessage(string msg)
         {

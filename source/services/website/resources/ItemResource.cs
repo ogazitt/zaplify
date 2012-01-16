@@ -114,7 +114,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get the requested item
             try
             {
-                Item requestedItem = zaplifystore.Items.Include("ItemTags").Single<Item>(t => t.ID == id);
+                Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                 // get the itemlist of the requested item
                 try

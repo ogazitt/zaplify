@@ -11,13 +11,13 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
-using TaskStoreWinPhoneUtilities;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Reflection;
 using System.Windows.Data;
 using System.ComponentModel;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class SettingsPage : PhoneApplicationPage, INotifyPropertyChanged
     {
@@ -110,7 +110,7 @@ namespace TaskStoreWinPhone
             if (MergeCheckbox.IsChecked == false)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox unchecked will cause any new tasks you've added to be lost.  " +
+                    "leaving the 'merge' checkbox unchecked will cause any new items you've added to be lost.  " +
                     "click ok to create the account without the local data, or cancel the operation.",
                     "erase local data?",
                     MessageBoxButton.OKCancel);
@@ -146,10 +146,10 @@ namespace TaskStoreWinPhone
             TraceHelper.AddMessage("Settings: Loaded");
 
             // initialize some fields
-            DefaultListPicker.ItemsSource = App.ViewModel.TaskLists;
+            DefaultListPicker.ItemsSource = App.ViewModel.Folders;
             DefaultListPicker.DisplayMemberPath = "Name";
 
-            int index = App.ViewModel.TaskLists.IndexOf(App.ViewModel.DefaultTaskList);
+            int index = App.ViewModel.Folders.IndexOf(App.ViewModel.DefaultFolder);
 
             if (index >= 0)
                 DefaultListPicker.SelectedIndex = index;
@@ -181,8 +181,8 @@ namespace TaskStoreWinPhone
                 App.ViewModel.User = user;
             }
 
-            // save the default tasklist in any case
-            App.ViewModel.DefaultTaskList = DefaultListPicker.SelectedItem as TaskList;
+            // save the default folder in any case
+            App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
 
             // trace page navigation
             TraceHelper.StartMessage("Settings: Navigate back");
@@ -196,7 +196,7 @@ namespace TaskStoreWinPhone
             if (MergeCheckbox.IsChecked == true)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox checked will merge the new lists on the phone with existing data in the account, potentially creating duplicate lists.  " +
+                    "leaving the 'merge' checkbox checked will merge the new data on the phone with existing data in the account, potentially creating duplicate data.  " +
                     "click ok to sync the account and merge the phone data, or cancel the operation.",
                     "merge local data?",
                     MessageBoxButton.OKCancel);
@@ -368,9 +368,9 @@ namespace TaskStoreWinPhone
                 {
                     //case "String":
                     //    PropertyInfo pistr = pi;
-                    //    tb = new TextBox() { DataContext = taskCopy };
+                    //    tb = new TextBox() { DataContext = itemCopy };
                     //    tb.SetBinding(TextBox.TextProperty, new Binding(pistr.Name) { Mode = BindingMode.TwoWay });
-                    //    //tb.LostFocus += new RoutedEventHandler(delegate { pistr.SetValue(taskCopy, tb.Text, null); });
+                    //    //tb.LostFocus += new RoutedEventHandler(delegate { pistr.SetValue(itemCopy, tb.Text, null); });
                     //    EditStackPanel.Children.Add(tb);
                     //    break;
                     case "String":

@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class SettingsHelper
     {

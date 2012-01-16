@@ -11,24 +11,24 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Collections;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public static class CollectionHelper
     {
-        public static ObservableCollection<Task> ToObservableCollection(this IEnumerable<Task> coll)
+        public static ObservableCollection<Item> ToObservableCollection(this IEnumerable<Item> coll)
         {
-            ObservableCollection<Task> ret = new ObservableCollection<Task>();
+            ObservableCollection<Item> ret = new ObservableCollection<Item>();
             foreach (var o in coll)
                 ret.Add(o);
 
             return ret;
         }
 
-        public static ObservableCollection<TaskList> ToObservableCollection(this IEnumerable<TaskList> coll)
+        public static ObservableCollection<Folder> ToObservableCollection(this IEnumerable<Folder> coll)
         {
-            ObservableCollection<TaskList> ret = new ObservableCollection<TaskList>();
+            ObservableCollection<Folder> ret = new ObservableCollection<Folder>();
             foreach (var o in coll)
                 ret.Add(o);
 

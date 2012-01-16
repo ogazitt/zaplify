@@ -23,8 +23,8 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\bin\Debug\</OutputPath>
-    <BaseIntermediateOutputPath>..\..\..\obj\</BaseIntermediateOutputPath>
+    <OutputPath>..\..\..\..\bin\Debug\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\obj\</BaseIntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
@@ -34,8 +34,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\bin\Release\</OutputPath>
-    <BaseIntermediateOutputPath>..\..\..\obj\</BaseIntermediateOutputPath>
+    <OutputPath>..\..\..\..\bin\Release\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\..\obj\</BaseIntermediateOutputPath>
     <DefineConstants>TRACE;SILVERLIGHT;WINDOWS_PHONE</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>

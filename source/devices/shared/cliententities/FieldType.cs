@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
-namespace TaskStoreClientEntities
+namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
     public class FieldType : INotifyPropertyChanged
@@ -28,6 +28,28 @@ namespace TaskStoreClientEntities
                 // get the value of the property
                 var val = pi.GetValue(obj, null);
                 pi.SetValue(this, val, null);
+            }
+        }
+
+        private string dataType;
+        /// <summary>
+        /// DataType property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string DataType
+        {
+            get
+            {
+                return dataType;
+            }
+            set
+            {
+                if (value != dataType)
+                {
+                    dataType = value;
+                    NotifyPropertyChanged("DataType");
+                }
             }
         }
 

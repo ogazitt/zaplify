@@ -11,11 +11,11 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
-using TaskStoreWinPhoneUtilities;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.ComponentModel;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class DebugPage : PhoneApplicationPage
     {
@@ -58,37 +58,37 @@ namespace TaskStoreWinPhone
 
         private void Debug_AddButton_Click(object sender, EventArgs e)
         {
-            Task task;
+            Item item;
 
             // create some debug records
 
-            // create a to-do style task
-            TaskList taskList = App.ViewModel.TaskLists.Single(tl => tl.ListTypeID == ListType.ToDo);
-            taskList.Tasks.Add(task = new Task() { TaskListID = taskList.ID, Name = "Check out TaskStore", Description = "Play with it", Due = DateTime.Today, PriorityID = 1 });
+            // create a to-do style item
+            Folder folder = App.ViewModel.Folders.Single(tl => tl.ItemTypeID == ItemType.ToDo);
+            folder.Items.Add(item = new Item() { FolderID = folder.ID, Name = "Check out Zaplify", Description = "Play with it", Due = DateTime.Today, PriorityID = 1 });
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = task,
-                    ID = task.ID
+                    Body = item,
+                    ID = item.ID
                 });
 
-            // create a shopping list
-            taskList = App.ViewModel.TaskLists.Single(tl => tl.ListTypeID == ListType.Shopping);
+            // create a shopping folder
+            folder = App.ViewModel.Folders.Single(tl => tl.ItemTypeID == ItemType.Shopping);
             string[] names = { "Milk", "OJ", "Cereal", "Coffee", "Bread" };
             foreach (var name in names)
             {
-                taskList.Tasks.Add(task = new Task() { TaskListID = taskList.ID, Name = name });
+                folder.Items.Add(item = new Item() { FolderID = folder.ID, Name = name });
 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                        Body = task,
-                        ID = task.ID
+                        Body = item,
+                        ID = item.ID
                     });
             }
 
@@ -176,13 +176,13 @@ namespace TaskStoreWinPhone
             {
                 case RequestQueue.RequestRecord.RequestType.Delete:
                     reqtype = "Delete";
-                    id = ((TaskStoreEntity)req.Body).ID.ToString();
-                    name = ((TaskStoreEntity)req.Body).Name;
+                    id = ((ZaplifyEntity)req.Body).ID.ToString();
+                    name = ((ZaplifyEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Insert:
                     reqtype = "Insert";
-                    id = ((TaskStoreEntity)req.Body).ID.ToString();
-                    name = ((TaskStoreEntity)req.Body).Name;
+                    id = ((ZaplifyEntity)req.Body).ID.ToString();
+                    name = ((ZaplifyEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Update:
                     reqtype = "Update";
@@ -192,13 +192,13 @@ namespace TaskStoreWinPhone
                             name = ((List<Tag>)req.Body)[0].Name;
                             id = ((List<Tag>)req.Body)[0].ID.ToString();
                             break;
-                        case "Task":
-                            name = ((List<Task>)req.Body)[0].Name;
-                            id = ((List<Task>)req.Body)[0].ID.ToString();
+                        case "Item":
+                            name = ((List<Item>)req.Body)[0].Name;
+                            id = ((List<Item>)req.Body)[0].ID.ToString();
                             break;
-                        case "TaskList":
-                            name = ((List<TaskList>)req.Body)[0].Name;
-                            id = ((List<TaskList>)req.Body)[0].ID.ToString();
+                        case "Folder":
+                            name = ((List<Folder>)req.Body)[0].Name;
+                            id = ((List<Folder>)req.Body)[0].ID.ToString();
                             break;
                         default:
                             name = "(unrecognized entity)";

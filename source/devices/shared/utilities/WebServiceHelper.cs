@@ -13,14 +13,14 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Runtime.Serialization.Json;
 using System.Net.Browser;
 using SharpCompress.Compressor;
 using SharpCompress.Compressor.Deflate;
 using SharpCompress.Writer.GZip;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class WebServiceHelper
     {
@@ -28,9 +28,10 @@ namespace TaskStoreWinPhoneUtilities
         {
             get
             {
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:62362" : "http://api.taskstore.net:8080";
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://api.taskstore.net:8080";
-                return "http://api.taskstore.net:8080";
+                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:62362" : "http://zaplify.cloudapp.net";
+                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://zaplify.cloudapp.net";
+                //return "http://api.itemstore.net:8080";
+                //return "http://zaplify.cloudapp.net";
             }
         }
         public static string BaseUrl { get { return baseUrl; } }
@@ -55,23 +56,23 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Create a new Task
+        /// Create a new Item
         /// </summary>
         /// <param name="user">User credentials to create</param>
         /// <param name="del">Delegate to callback</param>
-        public static void CreateTask(User user, Task task, Delegate del, Delegate netOpInProgressDel)
+        public static void CreateItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tasks", "POST", task, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Task>));
+            InvokeWebServiceRequest(user, baseUrl + "/items", "POST", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         /// <summary>
-        /// Create a new TaskList
+        /// Create a new Folder
         /// </summary>
         /// <param name="user">User credentials to create</param>
         /// <param name="del">Delegate to callback</param>
-        public static void CreateTaskList(User user, TaskList tasklist, Delegate del, Delegate netOpInProgressDel)
+        public static void CreateFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tasklists", "POST", tasklist, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<TaskList>));
+            InvokeWebServiceRequest(user, baseUrl + "/folders", "POST", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
         /// <summary>
@@ -95,23 +96,23 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Delete a Task
+        /// Delete a Item
         /// </summary>
         /// <param name="user">User credentials to invoke the method</param>
         /// <param name="del">Delegate to callback</param>
-        public static void DeleteTask(User user, Task task, Delegate del, Delegate netOpInProgressDel)
+        public static void DeleteItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tasks/" + task.ID, "DELETE", task, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Task>));
+            InvokeWebServiceRequest(user, baseUrl + "/items/" + item.ID, "DELETE", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         /// <summary>
-        /// Delete a TaskList
+        /// Delete a Folder
         /// </summary>
         /// <param name="user">User credentials to invoke the method</param>
         /// <param name="del">Delegate to callback</param>
-        public static void DeleteTaskList(User user, TaskList tasklist, Delegate del, Delegate netOpInProgressDel)
+        public static void DeleteFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tasklists/" + tasklist.ID, "DELETE", tasklist, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<TaskList>));
+            InvokeWebServiceRequest(user, baseUrl + "/folders/" + folder.ID, "DELETE", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
         /// <summary>
@@ -174,7 +175,7 @@ namespace TaskStoreWinPhoneUtilities
         /// Update a Tag
         /// </summary>
         /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="originalAndNewTasks">The original and new tags.  The Service will use original and new values to resolve conflicts</param>
+        /// <param name="originalAndNewItems">The original and new tags.  The Service will use original and new values to resolve conflicts</param>
         /// <param name="del">Delegate to callback</param>
         public static void UpdateTag(User user, List<Tag> originalAndNewTags, Delegate del, Delegate netOpInProgressDel)
         {
@@ -184,29 +185,29 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Update a Task
+        /// Update a Item
         /// </summary>
         /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="originalAndNewTasks">The original and new tasks.  The Service will use original and new values to resolve conflicts</param>
+        /// <param name="originalAndNewItems">The original and new items.  The Service will use original and new values to resolve conflicts</param>
         /// <param name="del">Delegate to callback</param>
-        public static void UpdateTask(User user, List<Task> originalAndNewTasks, Delegate del, Delegate netOpInProgressDel)
+        public static void UpdateItem(User user, List<Item> originalAndNewItems, Delegate del, Delegate netOpInProgressDel)
         {
-            if (originalAndNewTasks == null || originalAndNewTasks.Count != 2)
+            if (originalAndNewItems == null || originalAndNewItems.Count != 2)
                 return;
-            InvokeWebServiceRequest(user, baseUrl + "/tasks/" + originalAndNewTasks[0].ID, "PUT", originalAndNewTasks, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Task>));
+            InvokeWebServiceRequest(user, baseUrl + "/items/" + originalAndNewItems[0].ID, "PUT", originalAndNewItems, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         /// <summary>
-        /// Update a TaskList
+        /// Update a Folder
         /// </summary>
         /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="tasklist">The original and new tasks.  The Service will use original and new values to resolve conflicts</param>
+        /// <param name="folder">The original and new items.  The Service will use original and new values to resolve conflicts</param>
         /// <param name="del">Delegate to callback</param>
-        public static void UpdateTaskList(User user, List<TaskList> originalAndNewTaskLists, Delegate del, Delegate netOpInProgressDel)
+        public static void UpdateFolder(User user, List<Folder> originalAndNewFolders, Delegate del, Delegate netOpInProgressDel)
         {
-            if (originalAndNewTaskLists == null || originalAndNewTaskLists.Count != 2)
+            if (originalAndNewFolders == null || originalAndNewFolders.Count != 2)
                 return;
-            InvokeWebServiceRequest(user, baseUrl + "/tasklists/" + originalAndNewTaskLists[0].ID, "PUT", originalAndNewTaskLists, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<TaskList>));
+            InvokeWebServiceRequest(user, baseUrl + "/folders/" + originalAndNewFolders[0].ID, "PUT", originalAndNewFolders, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
         
         /// <summary>
@@ -280,12 +281,12 @@ namespace TaskStoreWinPhoneUtilities
 
             request = WebRequest.CreateHttp(url);
             request.Accept = "application/json";
-            request.UserAgent = "TaskStore-WinPhone";
+            request.UserAgent = "Zaplify-WinPhone";
             request.Method = verb == null ? "GET" : verb;
             if (user != null)
             {
-                request.Headers["TaskStore-Username"] = user.Name;
-                request.Headers["TaskStore-Password"] = user.Password;
+                request.Headers["Zaplify-Username"] = user.Name;
+                request.Headers["Zaplify-Password"] = user.Password;
             }
 
             // if this is a GET request, we can execute from here
@@ -356,7 +357,7 @@ namespace TaskStoreWinPhoneUtilities
             // serialize a request body if one was passed in (and the verb will take it)
             if (state.RequestBody != null && request.Method != "GET")
             {
-                request.UserAgent = "TaskStore-WinPhone";
+                request.UserAgent = "Zaplify-WinPhone";
 
                 // a null request body means that the caller wants to get the stream back and write to it directly
                 if (state.RequestBody as Delegate != null)

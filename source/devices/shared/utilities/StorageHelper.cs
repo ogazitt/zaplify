@@ -13,23 +13,23 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Threading;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class StorageHelper
     {
         static private Dictionary<string, object> fileLocks = new Dictionary<string, object>()
         {
             { "Constants", new object() },
-            { "Lists",     new object() },
-            { "ListTypes", new object() },
+            { "Folders",   new object() },
+            { "ItemTypes", new object() },
             { "Tags",      new object() },
-            { "TaskStore", new object() },
+            { "Zaplify",   new object() },
         };
         
         // alias for Application Settings
@@ -62,14 +62,14 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Get the Default TaskList ID from isolated storage
+        /// Get the Default Folder ID from isolated storage
         /// </summary>
-        /// <returns>TaskList ID if saved, otherwise null</returns>
-        public static Guid ReadDefaultTaskListID()
+        /// <returns>Folder ID if saved, otherwise null</returns>
+        public static Guid ReadDefaultFolderID()
         {
             try
             {
-                Guid guid = new Guid((string)AppSettings["DefaultTaskListID"]);
+                Guid guid = new Guid((string)AppSettings["DefaultFolderID"]);
                 return guid;
             }
             catch (Exception)
@@ -79,17 +79,17 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Write Default TaskList ID to isolated storage
+        /// Write Default Folder ID to isolated storage
         /// </summary>
-        /// <param name="user">TaskList ID to write</param>
-        public static void WriteDefaultTaskListID(Guid? defaultTaskListID)
+        /// <param name="user">Folder ID to write</param>
+        public static void WriteDefaultFolderID(Guid? defaultFolderID)
         {
             try
             {
-                if (defaultTaskListID == null)
-                    AppSettings["DefaultTaskListID"] = null;
+                if (defaultFolderID == null)
+                    AppSettings["DefaultFolderID"] = null;
                 else
-                    AppSettings["DefaultTaskListID"] = (string)defaultTaskListID.ToString();
+                    AppSettings["DefaultFolderID"] = (string)defaultFolderID.ToString();
                 AppSettings.Save();
             }
             catch (Exception)
@@ -98,71 +98,71 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Delete the list from isolated storage
+        /// Delete the folder from isolated storage
         /// </summary>
-        public static void DeleteList(TaskList list)
+        public static void DeleteFolder(Folder folder)
         {
-            // construct the list name
-            string name = String.Format("{0}-{1}", list.Name, list.ID.ToString());
+            // construct the folder name
+            string name = String.Format("{0}-{1}", folder.Name, folder.ID.ToString());
 
-            // remove the list file using the internal function logic
-            InternalWriteFile<TaskList>(null, name);
+            // remove the folder file using the internal function logic
+            InternalWriteFile<Folder>(null, name);
         }
 
         /// <summary>
-        /// Read the contents of the List XML file from isolated storage
+        /// Read the contents of the Folder XML file from isolated storage
         /// </summary>
-        /// <returns>retrieved list</returns>
-        public static TaskList ReadList(string name)
+        /// <returns>retrieved folder</returns>
+        public static Folder ReadFolder(string name)
         {
-            return InternalReadFile<TaskList>(name);
+            return InternalReadFile<Folder>(name);
         }
 
         /// <summary>
-        /// Write the List XML to isolated storage
+        /// Write the Folder XML to isolated storage
         /// </summary>
-        public static void WriteList(TaskList list)
+        public static void WriteFolder(Folder folder)
         {
-            // construct the list name
-            string name = String.Format("{0}-{1}", list.Name, list.ID.ToString());
+            // construct the folder name
+            string name = String.Format("{0}-{1}", folder.Name, folder.ID.ToString());
 
             // make a copy and do the write on the background thread
-            var copy = new TaskList(list);
-            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<TaskList>(copy, name); });
+            var copy = new Folder(folder);
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, name); });
         }
 
         /// <summary>
-        /// Read the contents of the ListTypes XML file from isolated storage
+        /// Read the contents of the ItemTypes XML file from isolated storage
         /// </summary>
-        /// <returns>retrieved list of ListTypes</returns>
-        public static ObservableCollection<ListType> ReadListTypes()
+        /// <returns>retrieved folder of ItemTypes</returns>
+        public static ObservableCollection<ItemType> ReadItemTypes()
         {
-            return InternalReadFile<ObservableCollection<ListType>>("ListTypes");
+            return InternalReadFile<ObservableCollection<ItemType>>("ItemTypes");
         }
 
         /// <summary>
-        /// Write the ListTypes XML to isolated storage
+        /// Write the ItemTypes XML to isolated storage
         /// </summary>
-        public static void WriteListTypes(ObservableCollection<ListType> listTypes)
+        public static void WriteItemTypes(ObservableCollection<ItemType> itemTypes)
         {
             // if the data passed in is null, remove the corresponding file on the foreground thread
-            if (listTypes == null)
+            if (itemTypes == null)
             {
-                InternalWriteFile<ObservableCollection<ListType>>(null, "ListTypes");
+                InternalWriteFile<ObservableCollection<ItemType>>(null, "ItemTypes");
                 return;
             }
 
             // make a copy and do the write on the background thread
-            var copy = new ObservableCollection<ListType>();
-            foreach (var item in listTypes)
-                copy.Add(new ListType(item));
-            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<ObservableCollection<ListType>>(copy, "ListTypes"); });
+            var copy = new ObservableCollection<ItemType>();
+            foreach (var item in itemTypes)
+                copy.Add(new ItemType(item));
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<ObservableCollection<ItemType>>(copy, "ItemTypes"); });
         }
 
         /// <summary>
         /// Read the contents of the Tags XML file from isolated storage
         /// </summary>
-        /// <returns>retrieved list of Tags</returns>
+        /// <returns>retrieved folder of Tags</returns>
         public static ObservableCollection<Tag> ReadTags()
         {
             return InternalReadFile<ObservableCollection<Tag>>("Tags");
@@ -188,31 +188,31 @@ namespace TaskStoreWinPhoneUtilities
         }
 
         /// <summary>
-        /// Read the contents of the TaskStore XML file from isolated storage
+        /// Read the contents of the Zaplify XML file from isolated storage
         /// </summary>
-        /// <returns>retrieved list of TaskLists</returns>
-        public static ObservableCollection<TaskList> ReadTaskLists()
+        /// <returns>retrieved folder of Folders</returns>
+        public static ObservableCollection<Folder> ReadFolders()
         {
-            return InternalReadFile<ObservableCollection<TaskList>>("TaskLists");
+            return InternalReadFile<ObservableCollection<Folder>>("Folders");
         }
 
         /// <summary>
-        /// Write the TaskStore XML to isolated storage
+        /// Write the Zaplify XML to isolated storage
         /// </summary>
-        public static void WriteTaskLists(ObservableCollection<TaskList> taskLists)
+        public static void WriteFolders(ObservableCollection<Folder> folders)
         {
             // if the data passed in is null, remove the corresponding file on the foreground thread
-            if (taskLists == null)
+            if (folders == null)
             {
-                InternalWriteFile<ObservableCollection<TaskList>>(null, "TaskLists");
+                InternalWriteFile<ObservableCollection<Folder>>(null, "Folders");
                 return;
             }
 
             // make a copy and do the write on the background thread
-            var copy = new ObservableCollection<TaskList>();
-            foreach (var item in taskLists)
-                copy.Add(new TaskList(item, false));  // do a shallow copy
-            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<ObservableCollection<TaskList>>(copy, "TaskLists"); });
+            var copy = new ObservableCollection<Folder>();
+            foreach (var item in folders)
+                copy.Add(new Folder(item, false));  // do a shallow copy
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<ObservableCollection<Folder>>(copy, "Folders"); });
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace TaskStoreWinPhoneUtilities
             TraceHelper.AddMessage(String.Format("Reading {0}", elementName));
 
             T type;
-            // use the app's isolated storage to retrieve the tasks
+            // use the app's isolated storage to retrieve the items
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 // use a DCS to de/serialize the xml file
@@ -347,8 +347,8 @@ namespace TaskStoreWinPhoneUtilities
         /// <summary>
         /// Generic WriteFile method
         /// </summary>
-        /// <typeparam name="T">Type of the items in the list passed in</typeparam>
-        /// <param name="obj">List to serialize</param>
+        /// <typeparam name="T">Type of the items in the folder passed in</typeparam>
+        /// <param name="obj">Object to serialize</param>
         /// <param name="elementName">Name of the element (as well as the prefix of the filename)</param>
         private static void InternalWriteFile<T>(T obj, string elementName)
         {
@@ -363,12 +363,12 @@ namespace TaskStoreWinPhoneUtilities
                 fileLocks[elementName] = fileLock; 
             }
 
-            // This method is only thread-safe IF the list parameter that is passed in is locked as well.
-            // this is because the DCS below will enumerate through the list and if the list is modified while
+            // This method is only thread-safe IF the folder parameter that is passed in is locked as well.
+            // this is because the DCS below will enumerate through the folder and if the folder is modified while
             // this enumeration is taking place, DCS will throw.
             lock (fileLock)
             {
-                // use the app's isolated storage to write the tasks
+                // use the app's isolated storage to write the items
                 using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
                 {
                     try

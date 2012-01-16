@@ -10,10 +10,14 @@ namespace BuiltSteady.Zaplify.ServerEntities
     {
         public Guid ID { get; set; }
         public string Name { get; set; }
+        public Guid FolderID { get; set; }
         public Guid ItemListID { get; set; }
         public Guid ItemTypeID { get; set; }
+        public Guid ParentID { get; set; }
+        public Guid UserID { get; set; }
         public List<ItemTag> ItemTags { get; set; }
         public List<FieldValue> FieldValues { get; set; }
+        public List<Item> Items { get; set; }        
 
         // these will go away
         public bool Complete { get; set; }

@@ -14,13 +14,13 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Runtime.Serialization.Json;
 using System.Net.Browser;
 using System.Text;
 using Microsoft.Phone.Net.NetworkInformation;
 
-namespace TaskStoreWinPhoneUtilities
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     public class NetworkHelper
     {
@@ -134,9 +134,9 @@ namespace TaskStoreWinPhoneUtilities
             // construct the HTTP POST buffer
             string request = String.Format(
                 "{0} {1} HTTP/1.1\r\n" +
-                "User-Agent: TaskStore-WinPhone\r\n" +
-                "TaskStore-Username: {2}\r\n" +
-                "TaskStore-Password: {3}\r\n" +
+                "User-Agent: Zaplify-WinPhone\r\n" +
+                "Zaplify-Username: {2}\r\n" +
+                "Zaplify-Password: {3}\r\n" +
                 "Host: {4}\r\n" +
                 "Content-Type: application/json\r\n" +
                 "{5}\r\n" +

@@ -132,6 +132,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
 
                     // Log new user creation
                     LoggingHelper.TraceInfo("Created new user " + user.Name);
+
                     return HttpStatusCode.Created;
                 }
                 else

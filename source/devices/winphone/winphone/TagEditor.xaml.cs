@@ -10,12 +10,12 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
-using TaskStoreClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using Microsoft.Phone.Shell;
-using TaskStoreWinPhoneUtilities;
+using BuiltSteady.Zaplify.Devices.Utilities;
 using System.ComponentModel;
 
-namespace TaskStoreWinPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class TagEditor : PhoneApplicationPage
     {
@@ -86,7 +86,7 @@ namespace TaskStoreWinPhone
             ColorListPicker.DisplayMemberPath = "Name";
             try
             {
-                TaskStoreClientEntities.Color color = App.ViewModel.Constants.Colors.Single(c => c.Name == tagCopy.Color);
+                BuiltSteady.Zaplify.Devices.ClientEntities.Color color = App.ViewModel.Constants.Colors.Single(c => c.Name == tagCopy.Color);
                 ColorListPicker.SelectedIndex = App.ViewModel.Constants.Colors.IndexOf(color);
             }
             catch (Exception)
@@ -160,7 +160,7 @@ namespace TaskStoreWinPhone
             if (tag == null)
             {
                 // enqueue the Web Request Record (with a new copy of the tag)
-                // need to create a copy because otherwise other tasks may be added to it
+                // need to create a copy because otherwise other items may be added to it
                 // and we want the record to have exactly one operation in it (create the tag)
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
@@ -169,7 +169,7 @@ namespace TaskStoreWinPhone
                         Body = new Tag(tagCopy)
                     });
 
-                // add the tag to the tag list
+                // add the tag to the tag folder
                 App.ViewModel.Tags.Add(tagCopy);
             }
             else // this is an update
