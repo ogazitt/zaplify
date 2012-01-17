@@ -246,7 +246,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             {
                 Tag requestedTag = zaplifystore.Tags.Single<Tag>(t => t.ID == id);
 
-                // if the ItemList does not belong to the authenticated user, return 403 Forbidden
+                // if the Tag does not belong to the authenticated user, return 403 Forbidden
                 if (requestedTag.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user

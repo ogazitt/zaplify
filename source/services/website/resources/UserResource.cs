@@ -103,7 +103,6 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 dbUser = zaplifystore.Users.
                     Include("ItemTypes.Fields").
                     Include("Tags").
-                    Include("ItemLists.Items.ItemTags").
                     Include("Items.ItemTags").
                     Include("Folders.FolderUsers").
                     Single<User>(u => u.Name == user.Name);
@@ -158,14 +157,22 @@ namespace BuiltSteady.Zaplify.Website.Resources
 
             try
             {
+                // get the user in order to retrieve the UserID
+                User dbUser = zaplifystore.Users.Include("Folders").Single<User>(u => u.Name == user.Name);
+
                 // get the user and all of their top-level objects
-                User dbUser = zaplifystore.Users.
-                    Include("ItemTypes.Fields").
-                    Include("Tags").
-                    Include("Folders.Items.ItemTags").
-//                    Include("ItemLists.Items.ItemTags").
-                    Single<User>(u => u.Name == user.Name);
-                
+                if (dbUser.Folders != null && dbUser.Folders.Count > 0)
+                {
+                    dbUser = zaplifystore.Users.
+                        Include("ItemTypes.Fields").
+                        Include("Tags").
+                        Include("Folders.FolderUsers").
+                        Include("Folders.Items.ItemTags").
+                        Single<User>(u => u.ID == dbUser.ID && u.Folders.Any(f => f.FolderUsers.Any(fu => fu.UserID == dbUser.ID)));
+                    // since Items are already serialized under Folders, don't serialize another copy of all the items under Items
+                    dbUser.Items = null;
+                }
+
                 // make sure the response isn't cached
                 var response = new HttpResponseMessageWrapper<User>(req, dbUser, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
@@ -218,7 +225,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
         /// <returns>List of folders of items for the user, arranged by folder</returns>
         [WebGet(UriTemplate = "{id}/folderitems")]
         [LogMessages]
-        public HttpResponseMessageWrapper<List<Folder>> GetItemListsForUser(HttpRequestMessage req, Guid id)
+        public HttpResponseMessageWrapper<List<Folder>> GetFoldersForUser(HttpRequestMessage req, Guid id)
         {
             HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
             if (code != HttpStatusCode.OK)

@@ -29,14 +29,13 @@ namespace Website
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Home", action = "Index", id = UrlParameter.Optional }, // Parameter defaults
-                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemlists", "itemtypes", "operations", "speech", "tags", "trace", "users" }) }
+                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "tags", "trace", "users" }) }
             );
 
             // map the WCF WebApi service routes
             RouteTable.Routes.MapServiceRoute<ConstantsResource>("constants", null);
             RouteTable.Routes.MapServiceRoute<FolderResource>("folders", null);
             RouteTable.Routes.MapServiceRoute<ItemResource>("items", null);
-            RouteTable.Routes.MapServiceRoute<ItemListResource>("itemlists", null);
             RouteTable.Routes.MapServiceRoute<ItemTypeResource>("itemtypes", null);
             RouteTable.Routes.MapServiceRoute<OperationResource>("operations", null);
             RouteTable.Routes.MapServiceRoute<SpeechResource>("speech",

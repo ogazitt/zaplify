@@ -97,7 +97,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // retrieve and set the stream to recognize
                 Stream stream = req.Content.ReadAsStreamAsync().Result;
                 IEnumerable<string> values = new List<string>();
-                if (req.Headers.Contains("TaskStore-Speech-Encoding") == true)
+                if (req.Headers.Contains("Zaplify-Speech-Encoding") == true)
                     stream = GetStream(req);
                 sre.SetInputToAudioStream(stream, formatInfo);
 
@@ -271,7 +271,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
 
             // get the content type
             IEnumerable<string> values = new List<string>();
-            if (req.Headers.TryGetValues("TaskStore-Speech-Encoding", out values) == true)
+            if (req.Headers.TryGetValues("Zaplify-Speech-Encoding", out values) == true)
                 contentType = values.ToArray<string>()[0];
             else
                 return stream;

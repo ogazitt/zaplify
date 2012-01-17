@@ -32,8 +32,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
     {
         private bool addedItemsPropertyChangedHandler = false;
         private bool initialSync = false;
-        Folder folder;
-        FolderHelper FolderHelper;
+        Item list;
+        ListHelper ListHelper;
 
         // Constructor
         public MainPage()
@@ -109,24 +109,24 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // create email body
             StringBuilder sb = new StringBuilder("Zaplify Data:\n\n");
-            foreach (Folder tl in App.ViewModel.Folders)
+            foreach (Folder folder in App.ViewModel.Folders)
             {
-                sb.AppendLine(tl.Name);
+                sb.AppendLine(folder.Name);
 
-                ItemType itemType;
-                // get itemType for this folder
-                try
+                foreach (Item item in folder.Items)
                 {
-                    itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == tl.ItemTypeID);
-                }
-                catch (Exception)
-                {
-                    // if can't find the folder type, use the first
-                    itemType = App.ViewModel.ItemTypes[0];
-                }
+                    ItemType itemType;
+                    // get itemType for this item
+                    try
+                    {
+                        itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == item.ItemTypeID);
+                    }
+                    catch (Exception)
+                    {
+                        // if can't find the item type, use the first
+                        itemType = App.ViewModel.ItemTypes[0];
+                    }
 
-                foreach (Item item in tl.Items)
-                {
                     sb.AppendLine("    " + item.Name);
                     foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
                     {
@@ -230,8 +230,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             Folder folder = App.ViewModel.Folders[FoldersListBox.SelectedIndex];
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri(
+                String.Format(
+                    "/ListPage.xaml?type=Folder&ID={0}&ParentID={1}",
+                    folder.ID.ToString(),
+                    Guid.Empty.ToString()),
+                UriKind.Relative));
 
             // Reset selected index to -1 (no selection)
             FoldersListBox.SelectedIndex = -1;
@@ -260,6 +265,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 App.ViewModel.LoadData();
             }
 
+            // load the contents of each folder (this happens after the initial UI is rendered)
+            List<Guid> guidList = App.ViewModel.Folders.Select(f => f.ID).ToList<Guid>();
+            foreach (Guid guid in guidList)
+                App.ViewModel.LoadFolder(guid);
+            
+            // notify the UI that the folders / items collections have changed
+            App.ViewModel.NotifyPropertyChanged("Folders");
+            App.ViewModel.NotifyPropertyChanged("Items");
+
             // if haven't synced with web service yet, try now
             if (initialSync == false)
             {
@@ -269,20 +283,21 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 initialSync = true;
             }
 
-            folder = new Folder() { Items = FilterItems(App.ViewModel.Items) };
+            // create a list of items to render 
+            list = new Item() { Items = FilterItems(App.ViewModel.Items) };
 
-            // create the FolderHelper
-            FolderHelper = new BuiltSteady.Zaplify.Devices.WinPhone.FolderHelper(
-                folder, 
+            // create the ListHelper
+            ListHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ListHelper(
+                list,
                 new RoutedEventHandler(Items_CompleteCheckbox_Click), 
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
-            FolderHelper.ListBox = ItemsListBox;
-            FolderHelper.OrderBy = "due";
+            ListHelper.ListBox = ItemsListBox;
+            ListHelper.OrderBy = "due";
 
             // render the items
-            FolderHelper.RenderList(folder);
+            ListHelper.RenderList(list);
 
             // add a property changed handler for the Items property
             if (!addedItemsPropertyChangedHandler)
@@ -292,8 +307,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // if the Items property was signaled, re-filter and re-render the items folder
                     if (args.PropertyName == "Items")
                     {
-                        folder.Items = FilterItems(App.ViewModel.Items);
-                        FolderHelper.RenderList(folder);
+                        list.Items = FilterItems(App.ViewModel.Items);
+                        ListHelper.RenderList(list);
                     }
                 });
                 addedItemsPropertyChangedHandler = true;
@@ -383,8 +398,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             SearchTerm = SearchTextBox.Text;
 
             // reset the items collection and render the new folder
-            folder.Items = FilterItems(App.ViewModel.Items);
-            FolderHelper.RenderList(folder);
+            list.Items = FilterItems(App.ViewModel.Items);
+            ListHelper.RenderList(list);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -395,8 +410,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             SearchTerm = null;
 
             // reset the items collection and render the new folder
-            folder.Items = FilterItems(App.ViewModel.Items);
-            FolderHelper.RenderList(folder);
+            list.Items = FilterItems(App.ViewModel.Items);
+            ListHelper.RenderList(list);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -421,8 +436,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.StartMessage("Main: Navigate to Folder");
 
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
         }
 
         private void Tags_AddButton_Click(object sender, EventArgs e)
@@ -448,8 +463,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.StartMessage("Navigating to Folder");
 
             // Navigate to the new page
-            //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
-            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
+            //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tag.ID.ToString(), UriKind.Relative));
 
             // Reset selected index to -1 (no selection)
             TagsListBox.SelectedIndex = -1;
@@ -481,7 +496,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Item item = App.ViewModel.Items.Single<Item>(t => t.ID == itemID);
 
             // get a reference to the base folder that this item belongs to
-            Folder tl = App.ViewModel.LoadFolder(item.FolderID);
+            Folder f = App.ViewModel.LoadFolder(item.FolderID);
 
             // create a copy of that item
             Item itemCopy = new Item(item);
@@ -499,11 +514,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ID = item.ID
                 });
 
-            // remove the item from the folder and ListBox (because it will now be complete)
-            FolderHelper.RemoveItem(folder, item);
+            // remove the item from the list and ListBox (because it will now be complete)
+            ListHelper.RemoveItem(list, item);
 
             // save the changes to local storage
-            StorageHelper.WriteFolder(tl);
+            StorageHelper.WriteFolder(f);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -537,10 +552,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // trace page navigation
             TraceHelper.StartMessage("Main: Navigate to Item");
 
-            // Navigate to the new page
-            NavigationService.Navigate(
-                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
-                UriKind.Relative));
+            if (item.IsList == true)
+            {
+                // Navigate to the list page
+                NavigationService.Navigate(new Uri(
+                    String.Format(
+                        "/ListPage.xaml?type=Folder&ID={0}&ParentID={1}",
+                        item.FolderID,
+                        item.ID),
+                    UriKind.Relative));
+            }
+            else
+            {
+                // Navigate to the item page
+                NavigationService.Navigate(
+                    new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
+                    UriKind.Relative));
+            }
 
             // Reset selected index to -1 (no selection)
             listBox.SelectedIndex = -1;
@@ -555,13 +583,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ObservableCollection<Item> filteredItems = new ObservableCollection<Item>();
             foreach (Item item in items)
             {
-                // if the item is completed, don't folder it
+                // if the item is completed, don't list it
                 if (item.Complete)
                     continue;
-                
-                // get the folder - if it's a template, this item doesn't qualify as a match
-                Folder folder = App.ViewModel.Folders.Single(tl => tl.ID == item.FolderID);
-                if (folder.Template == true)
+
+                // if the item is a list, don't list it
+                if (item.IsList)
                     continue;
 
                 // if there is no search term present, add this item and continue

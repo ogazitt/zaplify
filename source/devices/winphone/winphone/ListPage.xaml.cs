@@ -24,20 +24,21 @@ using Microsoft.Phone.Net.NetworkInformation;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
-    public partial class FolderPage : PhoneApplicationPage, INotifyPropertyChanged
+    public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         private const int rendersize = 10;  // limit of elements to render immediately
         private bool constructorCalled = false;
         private Folder folder;
-        private FolderHelper FolderHelper;
+        private Item list;
+        private ListHelper ListHelper;
         private Tag tag;
 
         private SpeechHelper.SpeechState speechState;
         private string speechDebugString = null;
         private DateTime speechStart;
 
-        // ViewSource for the Folder collection for Import Template (used for filtering out non-template folders)
-        public CollectionViewSource ImportTemplateViewSource { get; set; }
+        // ViewSource for the Folder collection for Import List (used for filtering out non-template folders)
+        public CollectionViewSource ImportListViewSource { get; set; }
 
         private Visibility networkOperationInProgress = Visibility.Collapsed;
         /// <summary>
@@ -157,71 +158,75 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         }
 
         // Constructor
-        public FolderPage()
+        public ListPage()
         {
             InitializeComponent();
 
             // trace data
-            TraceHelper.AddMessage("Folder: constructor");
+            TraceHelper.AddMessage("ListPage: constructor");
 
             // set some data context information
             ConnectedIconImage.DataContext = App.ViewModel;
             SpeechProgressBar.DataContext = App.ViewModel;
+            QuickAddPopup.DataContext = App.ViewModel;
 
             // set some data context information for the speech UI
             SpeechPopup_SpeakButton.DataContext = this;
             SpeechPopup_CancelButton.DataContext = this;
             SpeechLabel.DataContext = this;
 
-            ImportTemplateViewSource = new CollectionViewSource();
-            ImportTemplateViewSource.Filter += new FilterEventHandler(ImportTemplate_Filter);
+            ImportListViewSource = new CollectionViewSource();
+            ImportListViewSource.Filter += new FilterEventHandler(ImportList_Filter);
 
             // add some event handlers
-            Loaded += new RoutedEventHandler(FolderPage_Loaded);
-            BackKeyPress += new EventHandler<CancelEventArgs>(FolderPage_BackKeyPress);
+            Loaded += new RoutedEventHandler(ListPage_Loaded);
+            BackKeyPress += new EventHandler<CancelEventArgs>(ListPage_BackKeyPress);
 
             // set the constructor called flag
             constructorCalled = true;
 
             // trace data
-            TraceHelper.AddMessage("Exiting Folder constructor");
+            TraceHelper.AddMessage("Exiting ListPage constructor");
         }
 
         // When page is navigated to set data context to selected item in itemType
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // trace data
-            TraceHelper.AddMessage("Folder: OnNavigatedTo");
+            TraceHelper.AddMessage("ListPage: OnNavigatedTo");
 
             string IDString = "";
             string typeString = "";
             Guid id;
 
+            // get the type of list to display
             if (NavigationContext.QueryString.TryGetValue("type", out typeString) == false)
             {
                 // trace page navigation
-                TraceHelper.StartMessage("Folder: Navigate back");
+                TraceHelper.StartMessage("ListPage: Navigate back");
 
                 // navigate back
                 NavigationService.GoBack();
                 return;
             }
 
+            // get the ID of the object to display
+            if (NavigationContext.QueryString.TryGetValue("ID", out IDString) == false)
+            {
+                // trace page navigation
+                TraceHelper.StartMessage("ListPage: Navigate back");
+
+                // navigate back
+                NavigationService.GoBack();
+                return;
+            }
+
+            // get the ID
+            id = new Guid(IDString);
+
             switch (typeString)
             {
                 case "Folder":
-                    if (NavigationContext.QueryString.TryGetValue("ID", out IDString) == false)
-                    {
-                        // trace page navigation
-                        TraceHelper.StartMessage("Folder: Navigate back");
-
-                        // navigate back
-                        NavigationService.GoBack();
-                        return;
-                    }
-
-                    id = new Guid(IDString);
-
                     // get the folder and make it the datacontext
                     try
                     {
@@ -231,25 +236,58 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         if (folder == null)
                         {
                             // the folder isn't found - this can happen when the folder we were just 
-                            // editing was removed in FolderEditor, which then goes back to FolderPage.
+                            // editing was removed in FolderEditor, which then goes back to ListPage.
                             // this will send us back to the MainPage which is appropriate.
 
                             // trace page navigation
-                            TraceHelper.StartMessage("Folder: Navigate back");
+                            TraceHelper.StartMessage("ListPage: Navigate back");
 
                             // navigate back
                             NavigationService.GoBack();
                             return;
                         }
+
+                        // get the ID of the list to display
+                        if (NavigationContext.QueryString.TryGetValue("ParentID", out IDString) == false)
+                        {
+                            // trace page navigation
+                            TraceHelper.StartMessage("ListPage: Navigate back");
+
+                            // navigate back
+                            NavigationService.GoBack();
+                            return;
+                        }
+
+                        // get the ID
+                        id = new Guid(IDString);
+
+                        // get the current list name
+                        string listName = null;
+                        if (id == Guid.Empty)
+                            listName = folder.Name;
+                        else
+                            listName = folder.Items.Single(i => i.ID == id).Name;
+
+                        // construct a synthetic item that represents the list of items for which the 
+                        // ParentID is the parent.  this also works for the root list in a folder, which
+                        // is represented with a ParentID of Guid.Empty.
+                        list = new Item()
+                        {
+                            ID = id,
+                            Name = listName,
+                            FolderID = folder.ID,
+                            IsList = true,
+                            Items = folder.Items.Where(i => i.ParentID == id).ToObservableCollection()
+                        };
                     }
                     catch (Exception ex)
                     {
                         // the folder isn't found - this can happen when the folder we were just 
-                        // editing was removed in FolderEditor, which then goes back to FolderPage.
+                        // editing was removed in FolderEditor, which then goes back to ListPage.
                         // this will send us back to the MainPage which is appropriate.
 
                         // trace page navigation
-                        TraceHelper.StartMessage(String.Format("Folder: Navigate back (exception: {0})", ex.Message));
+                        TraceHelper.StartMessage(String.Format("ListPage: Navigate back (exception: {0})", ex.Message));
 
                         // navigate back
                         NavigationService.GoBack();
@@ -257,24 +295,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     }
                     break;
                 case "Tag":
-                    if (NavigationContext.QueryString.TryGetValue("ID", out IDString) == false)
-                    {
-                        // trace page navigation
-                        TraceHelper.StartMessage("Folder: Navigate back");
-
-                        // navigate back
-                        NavigationService.GoBack();
-                        return;
-                    }
-
-                    id = new Guid(IDString);
-
                     // create a filter 
                     try
                     {
                         tag = App.ViewModel.Tags.Single(t => t.ID == id);
-                        folder = new Folder() 
-                        { 
+                        
+                        // construct a synthetic item that represents the list of items which 
+                        // have this tag.  
+                        list = new Item()
+                        {
                             ID = Guid.Empty, 
                             Name = String.Format("items with {0} tag", tag.Name), 
                             Items = App.ViewModel.Items.Where(t => t.ItemTags.Any(tg => tg.TagID == tag.ID)).ToObservableCollection()
@@ -283,11 +312,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     catch (Exception)
                     {
                         // the tag isn't found - this can happen when the tag we were just 
-                        // editing was removed in TagEditor, which then goes back to FolderPage.
+                        // editing was removed in TagEditor, which then goes back to ListPage.
                         // this will send us back to the MainPage which is appropriate.
 
                         // trace page navigation
-                        TraceHelper.StartMessage("Folder: Navigate back");
+                        TraceHelper.StartMessage("ListPage: Navigate back");
 
                         // navigate back
                         NavigationService.GoBack();
@@ -296,7 +325,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     break;
                 default:
                     // trace page navigation
-                    TraceHelper.StartMessage("Folder: Navigate back");
+                    TraceHelper.StartMessage("ListPage: Navigate back");
 
                     // navigate back
                     NavigationService.GoBack();
@@ -304,21 +333,21 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // set datacontext 
-            DataContext = folder;
+            DataContext = list;
 
-            // create the FolderHelper
-            FolderHelper = new BuiltSteady.Zaplify.Devices.WinPhone.FolderHelper(
-                folder, 
+            // create the ListHelper
+            ListHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ListHelper(
+                list, 
                 new RoutedEventHandler(CompleteCheckbox_Click), 
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
             PivotItem item = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
-            FolderHelper.ListBox = (ListBox)((Grid)item.Content).Children[1];
-            FolderHelper.OrderBy = (string)item.Header;
+            ListHelper.ListBox = (ListBox)((Grid)item.Content).Children[1];
+            ListHelper.OrderBy = (string)item.Header;
 
             // trace data
-            TraceHelper.AddMessage("Exiting Folder OnNavigatedTo");
+            TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");
         }
 
         #region Event Handlers
@@ -326,7 +355,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void AddButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("Folder: Navigate to Item");
+            TraceHelper.StartMessage("ListPage: Navigate to Item");
 
             // Navigate to the new page
             NavigationService.Navigate(
@@ -367,7 +396,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 });
             
             // reorder the item in the folder and the ListBox
-            FolderHelper.ReOrderItem(folder, item);
+            ListHelper.ReOrderItem(list, item);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -385,17 +414,17 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (result != MessageBoxResult.OK)
                 return;
 
-            // create a copy of the folder to foreach over.  this is because we can't delete
+            // create a copy of the list to foreach over.  this is because we can't delete
             // from the original collection while it's being enumerated.  the copy we make is shallow 
             // so as not to create brand new Item objects, but then we add all the item references to 
             // an new Items collection that won't interfere with the existing one.
-            Folder tl = new Folder(folder, false);
-            tl.Items = new ObservableCollection<Item>();
-            foreach (Item t in folder.Items)
-                tl.Items.Add(t);
+            Item itemlist = new Item(list, false);
+            itemlist.Items = new ObservableCollection<Item>();
+            foreach (Item t in list.Items)
+                itemlist.Items.Add(t);
 
-            // remove any completed items from the original folder
-            foreach (var item in tl.Items)
+            // remove any completed items from the original list
+            foreach (var item in itemlist.Items)
             {
                 if (item.Complete == true)
                 {
@@ -408,7 +437,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         });
 
                     // remove the item from the original collection and from ListBox
-                    FolderHelper.RemoveItem(folder, item);
+                    ListHelper.RemoveItem(list, item);
+
+                    // remove the item from the folder
+                    folder.Items.Remove(item);
                 }
             }
 
@@ -424,7 +456,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (folder.ID != Guid.Empty)
             {
                 // trace page navigation
-                TraceHelper.StartMessage("Folder: Navigate to FolderEditor");
+                TraceHelper.StartMessage("ListPage: Navigate to FolderEditor");
 
                 // Navigate to the FolderEditor page
                 NavigationService.Navigate(
@@ -434,7 +466,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             else
             {
                 // trace page navigation
-                TraceHelper.StartMessage("Folder: Navigate to TagEditor");
+                TraceHelper.StartMessage("ListPage: Navigate to TagEditor");
 
                 // Navigate to the TagEditor page
                 NavigationService.Navigate(
@@ -443,27 +475,27 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
         }
 
-        // handle events associated with Import Template 
+        // handle events associated with Import List
 
-        private void ImportTemplate_Filter(object sender, FilterEventArgs e)
+        private void ImportList_Filter(object sender, FilterEventArgs e)
         {
-            Folder tl = e.Item as Folder;
-            e.Accepted = tl.Template;
+            Item i = e.Item as Item;
+            e.Accepted = i.IsList;
         }
 
-        private void ImportTemplateMenuItem_Click(object sender, EventArgs e)
+        private void ImportListMenuItem_Click(object sender, EventArgs e)
         {
             // set the collection source for the import template folder picker
-            ImportTemplateViewSource.Source = App.ViewModel.Folders;
-            ImportTemplatePopupFolderPicker.DataContext = this;
+            ImportListViewSource.Source = App.ViewModel.Items;
+            ImportListPopupListPicker.DataContext = this;
 
             // open the popup, disable folder selection bug
-            ImportTemplatePopup.IsOpen = true;
+            ImportListPopup.IsOpen = true;
         }
 
-        private void ImportTemplatePopup_ImportButton_Click(object sender, RoutedEventArgs e)
+        private void ImportListPopup_ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            Folder tl = ImportTemplatePopupFolderPicker.SelectedItem as Folder;
+            Folder tl = ImportListPopupListPicker.SelectedItem as Folder;
             if (tl == null)
                 return;
 
@@ -492,14 +524,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
 
                 // add the item to the local collection
-                // note that we don't use FolderHelper.AddItem() here because it is typically more efficient
+                // note that we don't use ListHelper.AddItem() here because it is typically more efficient
                 // to add all the items and then re-render the entire folder.  This is because 
                 // the typical use case is to import a template into an empty (or nearly empty) folder.
                 folder.Items.Add(item);
             }
 
             // render the new folder 
-            FolderHelper.RenderList(folder);
+            ListHelper.RenderList(list);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -508,13 +540,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             App.ViewModel.SyncWithService();
 
             // close the popup 
-            ImportTemplatePopup.IsOpen = false;
+            ImportListPopup.IsOpen = false;
         }
 
-        private void ImportTemplatePopup_CancelButton_Click(object sender, RoutedEventArgs e)
+        private void ImportListPopup_CancelButton_Click(object sender, RoutedEventArgs e)
         {
             // close the popup 
-            ImportTemplatePopup.IsOpen = false;
+            ImportListPopup.IsOpen = false;
         }
 
         // Handle selection changed on ListBox
@@ -538,47 +570,60 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return;
 
             // trace page navigation
-            TraceHelper.StartMessage("Folder: Navigate to Item");
+            TraceHelper.StartMessage("ListPage: Navigate to Item");
 
-            // Navigate to the new page
-            NavigationService.Navigate(
-                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
-                UriKind.Relative));
+            if (item.IsList == true)
+            {
+                // Navigate to the list page
+                NavigationService.Navigate(new Uri(
+                    String.Format(
+                        "/ListPage.xaml?type=Folder&ID={0}&ParentID={1}",
+                        item.FolderID,
+                        item.ID),
+                    UriKind.Relative));
+            }
+            else
+            {
+                // Navigate to the item page
+                NavigationService.Navigate(
+                    new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),
+                    UriKind.Relative));
+            }
 
             // Reset selected index to -1 (no selection)
             listBox.SelectedIndex = -1;
         }
 
-        // handle FolderPage events
-        void FolderPage_BackKeyPress(object sender, CancelEventArgs e)
+        // handle ListPage events
+        void ListPage_BackKeyPress(object sender, CancelEventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("Folder: Navigate back");
+            TraceHelper.StartMessage("ListPage: Navigate back");
 
             // navigate back
             NavigationService.GoBack();
         }
 
-        void FolderPage_Loaded(object sender, RoutedEventArgs e)
+        void ListPage_Loaded(object sender, RoutedEventArgs e)
         {
             // trace page navigation
-            TraceHelper.AddMessage("Folder: Loaded");
+            TraceHelper.AddMessage("ListPage: Loaded");
 
             // reset the constructor flag
             constructorCalled = false;
 
             // create the control tree and render the folder
-            FolderHelper.RenderList(folder);
+            ListHelper.RenderList(list);
 
             // trace page navigation
-            TraceHelper.AddMessage("Finished Folder Loaded");
+            TraceHelper.AddMessage("Finished ListPage Loaded");
         }
 
         // handle events associated with the Folders button
         private void FoldersButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("Folder: Navigate to Main");
+            TraceHelper.StartMessage("ListPage: Navigate to Main");
 
             // Navigate to the main page
             NavigationService.Navigate(
@@ -588,35 +633,55 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void PivotControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // store the current listbox
-            FolderHelper.ListBox = (ListBox)((Grid)((PivotItem)PivotControl.SelectedItem).Content).Children[1];
-            FolderHelper.OrderBy = (string)((PivotItem)PivotControl.SelectedItem).Header;
+            ListHelper.ListBox = (ListBox)((Grid)((PivotItem)PivotControl.SelectedItem).Content).Children[1];
+            ListHelper.OrderBy = (string)((PivotItem)PivotControl.SelectedItem).Header;
 
             // the pivot control's selection changed event gets called during the initialization of a new
             // page.  since we do rendering in the Loaded event handler, we need to skip rendering here
             // so that we don't do it twice and slow down the loading of the page.
             if (constructorCalled == false)
             {
-                FolderHelper.RenderList(folder);
+                ListHelper.RenderList(list);
             }
         }
 
         // handle events associated with the Quick Add Popup
         private void QuickAddButton_Click(object sender, EventArgs e)
         {
+            RenderItemTypes();
+
             // open the popup, disable folder selection bug, and transfer focus to the popup text box
             QuickAddPopup.IsOpen = true;
-            PopupTextBox.Focus();
+            QuickAddPopupTextBox.Focus();
         }
 
         private void QuickAddPopup_AddButton_Click(object sender, RoutedEventArgs e)
         {
-            string name = PopupTextBox.Text;
+            string name = QuickAddPopupTextBox.Text;
             // don't add empty items
             if (name == null || name == "")
                 return;
 
+            int itemTypeIndex = QuickAddPopupItemTypePicker.SelectedIndex;
+            if (itemTypeIndex < 0)
+            {
+                MessageBox.Show("item type must be set");
+                return;
+            }
+
+            // get the value of the IsList checkbox
+            bool isChecked = (QuickAddPopupIsListCheckbox.IsChecked == null) ? false : (bool) QuickAddPopupIsListCheckbox.IsChecked;
+
             // create the new item
-            Item item = new Item() { Name = name, FolderID = folder.ID, LastModified = DateTime.UtcNow };
+            Item item = new Item()
+            {
+                Name = name,
+                FolderID = folder.ID,
+                ItemTypeID = App.ViewModel.ItemTypes[itemTypeIndex].ID,
+                ParentID = list.ID,
+                IsList = isChecked,
+                LastModified = DateTime.UtcNow
+            };
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
@@ -626,8 +691,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     Body = item
                 });
 
-            // add the new item
-            FolderHelper.AddItem(folder, item);
+            // add the new item to the list
+            ListHelper.AddItem(list, item);
+
+            // add the item to the folder
+            folder.Items.Add(item);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -636,8 +704,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             App.ViewModel.SyncWithService();
 
             // clear the textbox and focus back to it
-            PopupTextBox.Text = "";
-            PopupTextBox.Focus();
+            QuickAddPopupTextBox.Text = "";
+            QuickAddPopupTextBox.Focus();
         }
 
         private void QuickAddPopup_DoneButton_Click(object sender, RoutedEventArgs e)
@@ -668,7 +736,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     return;
 
                 // trace page navigation
-                TraceHelper.StartMessage("Folder: Navigate to Settings");
+                TraceHelper.StartMessage("ListPage: Navigate to Settings");
 
                 // Navigate to the settings page
                 NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
@@ -714,13 +782,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
 
                     // reset the text in the textbox
-                    PopupTextBox.Text = "";
+                    QuickAddPopupTextBox.Text = "";
                     break;
                 case SpeechHelper.SpeechState.Finished:
                     // user tapped the OK button
 
                     // set the text in the popup textbox
-                    PopupTextBox.Text = SpeechLabelText.Trim('\'');
+                    QuickAddPopupTextBox.Text = SpeechLabelText.Trim('\'');
                     break;
             }
  
@@ -865,7 +933,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                 // set the speech label text as well as the popup text
                 SpeechLabelText = textString == null ? "recognition failed" : String.Format("'{0}'", textString);
-                PopupTextBox.Text = textString;
+                QuickAddPopupTextBox.Text = textString;
 
 #if DEBUG && KILL
                 MessageBox.Show(speechDebugString);
@@ -881,15 +949,35 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Guid tagID = (Guid)button.Tag;
 
             // trace page navigation
-            TraceHelper.StartMessage("Folder: Navigate to Tag");
+            TraceHelper.StartMessage("ListPage: Navigate to Tag");
 
             // Navigate to the new page
-            NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
+            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
         }
 
         #endregion
 
         #region Helpers
+
+        private void RenderItemTypes()
+        {
+            QuickAddPopupItemTypePicker.ItemsSource = App.ViewModel.ItemTypes;
+            QuickAddPopupItemTypePicker.DisplayMemberPath = "Name";
+
+            // set the selected index 
+            if (list.ItemTypeID != null && list.ItemTypeID != Guid.Empty)
+            {
+                try
+                {
+                    ItemType itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == list.ItemTypeID);
+                    int index = App.ViewModel.ItemTypes.IndexOf(itemType);
+                    QuickAddPopupItemTypePicker.SelectedIndex = index;
+                }
+                catch (Exception)
+                {
+                }
+            }
+        }
 
         /// <summary>
         /// Set the UI based on the current state of the speech state machine

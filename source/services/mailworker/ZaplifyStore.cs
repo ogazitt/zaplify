@@ -48,7 +48,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public DbSet<Folder> Folders { get; set; }
         public DbSet<FolderUser> FolderUsers { get; set; }
         public DbSet<Item> Items { get; set; }
-        public DbSet<ItemList> ItemLists { get; set; }
         public DbSet<ItemTag> ItemTags { get; set; }
         public DbSet<ItemType> ItemTypes { get; set; }
         public DbSet<Operation> Operations { get; set; }

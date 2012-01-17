@@ -87,7 +87,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 {
                     try
                     {
-                        //folder = App.ViewModel.Folders.Single(tl => tl.ID == folderID);
+                        //folder = App.ViewModel.Folders.Single(folder => folder.ID == folderID);
                         folder = App.ViewModel.LoadFolder(folderID);
                     }
                     catch (Exception)
@@ -134,7 +134,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // editing an existing item
                 Guid id = new Guid(itemIDString);
                 //thisItem = App.ViewModel.Items.Single(t => t.ID == id);
-                //folder = App.ViewModel.Folders.Single(tl => tl.ID == thisItem.FolderID);
+                //folder = App.ViewModel.Folders.Single(folder => folder.ID == thisItem.FolderID);
                 thisItem = folder.Items.Single(t => t.ID == id);
 
                 // make a deep copy of the item for local binding
@@ -373,10 +373,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void RenderEditItem(Item item, bool renderFolderField)
         {
-            // get itemType for this folder
+            // get itemType for this item
             try
             {
-                itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == folder.ItemTypeID);
+                itemType = App.ViewModel.ItemTypes.Single(it => it.ID == item.ItemTypeID);
             }
             catch (Exception)
             {
@@ -898,8 +898,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                     TraceHelper.StartMessage("Item: Navigate to Folder");
 
                                     // Navigate to the new page
-                                    //NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + tl.ID.ToString(), UriKind.Relative));
-                                    NavigationService.Navigate(new Uri("/FolderPage.xaml?type=Folder&ID=" + tl.ID.ToString(), UriKind.Relative));
+                                    //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
+                                    NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + tl.ID.ToString(), UriKind.Relative));
                                 });
                             }
                             catch (Exception)

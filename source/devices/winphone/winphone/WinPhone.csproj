@@ -73,8 +73,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FolderPage.xaml.cs">
-      <DependentUpon>FolderPage.xaml</DependentUpon>
+    <Compile Include="ListPage.xaml.cs">
+      <DependentUpon>ListPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="DebugPage.xaml.cs">
       <DependentUpon>DebugPage.xaml</DependentUpon>
@@ -92,7 +92,7 @@
     <Compile Include="FolderEditor.xaml.cs">
       <DependentUpon>FolderEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FolderHelper.cs" />
+    <Compile Include="ListHelper.cs" />
     <Compile Include="ItemPage.xaml.cs">
       <DependentUpon>ItemPage.xaml</DependentUpon>
     </Compile>
@@ -116,7 +116,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FolderPage.xaml">
+    <Page Include="ListPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

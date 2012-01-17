@@ -5,18 +5,18 @@
     xmlns:zaplify="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
 
     <local:MainViewModel.Folders>
-        <zaplify:Folder Name="list one" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Template="True" >
+        <zaplify:Folder Name="list one">
             <zaplify:Folder.Items>
-                <zaplify:Item Name="item one" Complete="true" Due="2011-07-17" PriorityID="1" Description="do item one" />
-                <zaplify:Item Name="item two" Complete="false" PriorityID="2" />
-                <zaplify:Item Name="item three" PriorityID="3" Due="2011-07-31" Description="do item three" />
+                <zaplify:Item Name="item one" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="true" Due="2011-07-17" PriorityID="1" Description="do item one" />
+                <zaplify:Item Name="item two" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="false" PriorityID="2" />
+                <zaplify:Item Name="item three" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" PriorityID="3" Due="2011-07-31" Description="do item three" />
             </zaplify:Folder.Items>
         </zaplify:Folder>
-        <zaplify:Folder Name="list two" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259">
+        <zaplify:Folder Name="list two">
             <zaplify:Folder.Items>
-                <zaplify:Item Name="l2 item one" PriorityID="1" Description="do l2 item one" />
-                <zaplify:Item Name="l2 item two" PriorityID="2" Description="do l2 item two" />
-                <zaplify:Item Name="l2 item three" PriorityID="3" Description="do l2 item three" />
+                <zaplify:Item Name="l2 item one" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="1" Description="do l2 item one" />
+                <zaplify:Item Name="l2 item two" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="2" Description="do l2 item two" />
+                <zaplify:Item Name="l2 item three" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="3" Description="do l2 item three" />
             </zaplify:Folder.Items>
         </zaplify:Folder>        
      </local:MainViewModel.Folders>

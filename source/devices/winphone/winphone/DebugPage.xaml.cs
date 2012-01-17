@@ -59,12 +59,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void Debug_AddButton_Click(object sender, EventArgs e)
         {
             Item item;
+            Item todoList, shoppingList;
 
             // create some debug records
 
             // create a to-do style item
-            Folder folder = App.ViewModel.Folders.Single(tl => tl.ItemTypeID == ItemType.ToDo);
-            folder.Items.Add(item = new Item() { FolderID = folder.ID, Name = "Check out Zaplify", Description = "Play with it", Due = DateTime.Today, PriorityID = 1 });
+            Folder folder = App.ViewModel.Folders.Single(f => f.Name == "Personal");
+            todoList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.ToDoItem && i.IsList == true);
+            shoppingList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.ShoppingItem && i.IsList == true);
+            folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = todoList.ID, ItemTypeID = ItemType.ToDoItem, Name = "Check out Zaplify", Description = "Play with it", Due = DateTime.Today, PriorityID = 1 });
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
@@ -75,12 +78,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ID = item.ID
                 });
 
-            // create a shopping folder
-            folder = App.ViewModel.Folders.Single(tl => tl.ItemTypeID == ItemType.Shopping);
+            // create a shopping item
             string[] names = { "Milk", "OJ", "Cereal", "Coffee", "Bread" };
             foreach (var name in names)
             {
-                folder.Items.Add(item = new Item() { FolderID = folder.ID, Name = name });
+                folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = shoppingList.ID, ItemTypeID = ItemType.ShoppingItem, Name = name });
 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(

@@ -52,13 +52,19 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // get the itemlist of the item to be deleted
+            // check to make sure the userid in the new item is the same userid for the current user
+            if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
+                clientItem.UserID = dbUser.ID;
+            if (clientItem.UserID != dbUser.ID)
+                return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+
+            // get the folder of the item to be deleted
             try
             {
-                ItemList itemlist = zaplifystore.ItemLists.Single<ItemList>(tl => tl.ID == clientItem.ItemListID);
+                Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
 
                 // if the requested item does not belong to the authenticated user, return 403 Forbidden
-                if (itemlist.UserID != dbUser.ID)
+                if (folder.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
 
                 // get the item to be deleted
@@ -88,7 +94,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             catch (Exception)
             {
-                // itemlist not found - return 404 Not Found
+                // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
@@ -116,13 +122,13 @@ namespace BuiltSteady.Zaplify.Website.Resources
             {
                 Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
-                // get the itemlist of the requested item
+                // get the folder of the requested item
                 try
                 {
-                    ItemList itemlist = zaplifystore.ItemLists.Single<ItemList>(tl => tl.ID == requestedItem.ItemListID);
+                    Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == requestedItem.FolderID);
 
                     // if the requested item does not belong to the authenticated user, return 403 Forbidden, otherwise return the item
-                    if (itemlist.UserID != dbUser.ID)
+                    if (folder.UserID != dbUser.ID || requestedItem.UserID != dbUser.ID)
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                     else
                         return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.OK);
@@ -160,14 +166,23 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
+            // check to make sure the userid in the new item is the same userid for the current user
+            if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
+                clientItem.UserID = dbUser.ID;
+            if (clientItem.UserID != dbUser.ID)
+                return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
 
-            // get the itemlist into which to insert the new item
+            // if the parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
+            if (clientItem.ParentID == Guid.Empty)
+                clientItem.ParentID = null;
+
+            // get the folder into which to insert the new item
             try
             {
-                ItemList itemlist = zaplifystore.ItemLists.Single<ItemList>(tl => tl.ID == clientItem.ItemListID);
+                Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
 
-                // if the requested item does not belong to the authenticated user, return 403 Forbidden
-                if (itemlist.UserID != dbUser.ID)
+                // if the requested folder does not belong to the authenticated user, return 403 Forbidden
+                if (folder.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
 
                 // fill out the ID if it's not set (e.g. from a javascript client)
@@ -181,9 +196,9 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                // make sure the LinkedItemList is null if it's empty
-                if (clientItem.LinkedItemListID == Guid.Empty)
-                    clientItem.LinkedItemListID = null;
+                // make sure the LinkedFolder is null if it's empty
+                if (clientItem.LinkedFolderID == Guid.Empty)
+                    clientItem.LinkedFolderID = null;
 
                 // add the new item to the database
                 try
@@ -197,7 +212,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 }
                 catch (Exception)
                 {
-                    // check for the condition where the itemlist is already in the database
+                    // check for the condition where the folder is already in the database
                     // in that case, return 202 Accepted; otherwise, return 409 Conflict
                     try
                     {
@@ -209,14 +224,14 @@ namespace BuiltSteady.Zaplify.Website.Resources
                     }
                     catch (Exception)
                     {
-                        // itemlist not inserted - return 409 Conflict
+                        // folder not inserted - return 409 Conflict
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
                     }
                 }
             }
             catch (Exception)
             {
-                // itemlist not found - return 404 Not Found
+                // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
@@ -248,25 +263,39 @@ namespace BuiltSteady.Zaplify.Website.Resources
             if (originalItem.ID != id)
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
 
+            // if the parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
+            if (originalItem.ParentID == Guid.Empty)
+                originalItem.ParentID = null;
+            if (newItem.ParentID == Guid.Empty)
+                newItem.ParentID = null;
+
             ZaplifyStore zaplifystore = ZaplifyStore;
 
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // get the itemlist for the item
+            // get the folder for the item
             try
             {
-                ItemList oldItemList = zaplifystore.ItemLists.Single<ItemList>(tl => tl.ID == originalItem.ItemListID);
-                ItemList newItemList = zaplifystore.ItemLists.Single<ItemList>(tl => tl.ID == newItem.ItemListID);
+                Item requestedItem = zaplifystore.Items.Include("ItemTags").Single<Item>(t => t.ID == id);
 
-                // if the itemlist does not belong to the authenticated user, return 403 Forbidden
-                if (oldItemList.UserID != dbUser.ID || newItemList.UserID != dbUser.ID)
+                // if the Folder does not belong to the authenticated user, return 403 Forbidden
+                if (requestedItem.UserID != dbUser.ID)
+                    return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+                // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
+                originalItem.UserID = requestedItem.UserID;
+                newItem.UserID = requestedItem.UserID;
+                
+                Folder originalFolder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == originalItem.FolderID);
+                Folder newFolder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == newItem.FolderID);
+
+                // if the folder does not belong to the authenticated user, return 403 Forbidden
+                if (originalFolder.UserID != dbUser.ID || newFolder.UserID != dbUser.ID ||
+                    originalItem.UserID != dbUser.ID || newItem.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
 
                 try
                 {
-                    Item requestedItem = zaplifystore.Items.Include("ItemTags").Single<Item>(t => t.ID == id);
-
                     bool changed = false;
 
                     // delete all the itemtags associated with this item
@@ -298,7 +327,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             catch (Exception)
             {
-                // itemlist not found - return 404 Not Found
+                // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }

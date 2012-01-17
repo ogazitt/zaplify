@@ -107,50 +107,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid itemTypeID;
-        /// <summary>
-        /// ItemType property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public Guid ItemTypeID
-        {
-            get
-            {
-                return itemTypeID;
-            }
-            set
-            {
-                if (value != itemTypeID)
-                {
-                    itemTypeID = value;
-                    NotifyPropertyChanged("ItemTypeID");
-                }
-            }
-        }
-
-        private bool template;
-        /// <summary>
-        /// Template property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public bool Template
-        {
-            get
-            {
-                return template;
-            }
-            set
-            {
-                if (value != template)
-                {
-                    template = value;
-                    NotifyPropertyChanged("Template");
-                }
-            }
-        }
-
         private ObservableCollection<Item> items;
         /// <summary>
         /// Items collection property

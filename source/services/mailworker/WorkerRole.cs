@@ -21,6 +21,7 @@ namespace BuiltSteady.Zaplify.MailWorker
 {
     public class WorkerRole : RoleEntryPoint
     {
+        static string FolderMarker = @"#folder:";
         static string ListMarker = @"#list:";
 
         static ZaplifyStore ZaplifyStore
@@ -38,7 +39,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (toDoItemType == Guid.Empty)
-                    toDoItemType = ZaplifyStore.ItemTypes.Single(lt => lt.Name == "To Do List" && lt.UserID == null).ID;
+                    toDoItemType = ZaplifyStore.ItemTypes.Single(lt => lt.Name == "To Do" && lt.UserID == null).ID;
                 return toDoItemType;
             }
         }
@@ -113,9 +114,38 @@ namespace BuiltSteady.Zaplify.MailWorker
 
         #region Helpers
 
+        static Guid? GetFolder(User u, string body, bool html)
+        {
+            Folder folder = null;
+
+            // a hash indicates a list name to add the new item to
+            int index = body.IndexOf(FolderMarker);
+            if (index >= 0)
+            {
+                string folderName = body.Substring(index + FolderMarker.Length);
+                int folderNameEnd = folderName.IndexOf('\n');
+                if (html == true)
+                    folderNameEnd = folderName.IndexOf("</div>");
+                if (folderNameEnd > 0)
+                {
+                    folderName = folderName.Substring(0, folderNameEnd);
+                    folderName = folderName.Trim();
+                    folder = ZaplifyStore.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
+                    if (folder != null)
+                        return folder.ID;
+                }
+            }
+
+            folder = ZaplifyStore.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
+            if (folder != null)
+                return folder.ID;
+            else
+                return null;
+        }
+
         static Guid? GetList(User u, string body, bool html)
         {
-            ItemList itemlist = null;
+            Item list = null;
 
             // a hash indicates a list name to add the new item to
             int index = body.IndexOf(ListMarker);
@@ -129,15 +159,15 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     listName = listName.Substring(0, listNameEnd);
                     listName = listName.Trim();
-                    itemlist = ZaplifyStore.ItemLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.Name == listName);
-                    if (itemlist != null)
-                        return itemlist.ID;
+                    list = ZaplifyStore.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
+                    if (list != null)
+                        return list.ID;
                 }
             }
 
-            itemlist = ZaplifyStore.ItemLists.FirstOrDefault(tl => tl.UserID == u.ID && tl.DefaultItemTypeID == ToDoItemType);
-            if (itemlist != null)
-                return itemlist.ID;
+            list = ZaplifyStore.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == ToDoItemType);
+            if (list != null)
+                return list.ID;
             else
                 return null;
         }
@@ -221,8 +251,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             bool comma = false;
             try
             {
-                ItemList list = ZaplifyStore.ItemLists.Single(tl => tl.ID == item.ItemListID);
-                ItemType itemType = ZaplifyStore.ItemTypes.Include("Fields").Single(lt => lt.ID == list.DefaultItemTypeID);
+                ItemType itemType = ZaplifyStore.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
 
                 foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
@@ -283,7 +312,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
             catch (Exception ex)
             {
-                TraceLine("Exception white Printing Item: " + ex.Message, "Error");
+                TraceLine("Exception while Printing Item: " + ex.Message, "Error");
                 return "no fields parsed";
             }
         }
@@ -307,15 +336,18 @@ namespace BuiltSteady.Zaplify.MailWorker
             var users = ZaplifyStore.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)
             {
+                Guid? folder = GetFolder(u, body, html);
                 Guid? list = GetList(u, body, html);
-                if (list != null)
+                if (folder != null && list != null)
                 {
                     DateTime now = DateTime.Now;
                     Item t = new Item()
                     {
                         ID = Guid.NewGuid(),
+                        FolderID = (Guid)folder,
+                        ItemTypeID = ToDoItemType,
                         Name = itemName,
-                        ItemListID = (Guid) list,
+                        ParentID = (Guid)list,
                         Created = now,
                         LastModified = now,
                     };

@@ -35,9 +35,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             return this.Name;
         }
 
-        public static Guid ToDo = new Guid("14CDA248-4116-4E51-AC13-00096B43418C");
-        public static Guid Shopping = new Guid("1788A0C4-96E8-4B95-911A-75E1519D7259");
-        public static Guid Freeform = new Guid("dc1c6243-e510-4297-9df8-75babd237fbe");
+        // built-in items
+        public static Guid ToDoItem = new Guid("14CDA248-4116-4E51-AC13-00096B43418C");
+        public static Guid ShoppingItem = new Guid("1788A0C4-96E8-4B95-911A-75E1519D7259");
+        public static Guid FreeformItem = new Guid("dc1c6243-e510-4297-9df8-75babd237fbe");
+        //public static Guid ToDoItem = new Guid("00000000-0000-0000-0000-000000000001");
+        //public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000002");
+        //public static Guid FreeformItem = new Guid("00000000-0000-0000-0000-000000000003");
 
         private Guid id;
         /// <summary>

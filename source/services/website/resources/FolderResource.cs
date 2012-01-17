@@ -213,13 +213,16 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             if (addFolderUser)
             {
-                FolderUser gu = new FolderUser() 
+                FolderUser fu = new FolderUser() 
                 { 
                     ID = Guid.NewGuid(), 
                     UserID = clientFolder.UserID, 
                     FolderID = clientFolder.ID, 
                     PermissionID = 3 /* full */ 
                 };
+                if (clientFolder.FolderUsers == null)
+                    clientFolder.FolderUsers = new List<FolderUser>();
+                clientFolder.FolderUsers.Add(fu);
             }
 
             // add the new folder

@@ -164,7 +164,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
 
             string username = null;
             IEnumerable<string> values = new List<string>();
-            if (req.Headers.TryGetValues("TaskStore-Username", out values) == true)
+            if (req.Headers.TryGetValues("Zaplify-Username", out values) == true)
             {
                 username = values.ToArray<string>()[0];
             }
@@ -172,7 +172,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
                 return null;
 
             string password = null;
-            if (req.Headers.TryGetValues("TaskStore-Password", out values) == true)
+            if (req.Headers.TryGetValues("Zaplify-Password", out values) == true)
             {
                 password = values.ToArray<string>()[0];
             }

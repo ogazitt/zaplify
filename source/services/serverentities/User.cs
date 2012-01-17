@@ -13,8 +13,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Email { get; set; }
         public List<ItemType> ItemTypes { get; set; }  
         public List<Tag> Tags { get; set; }
-        public List<ItemList> ItemLists { get; set; }
         public List<Item> Items { get; set; }
-        public List<FolderUser> FolderUsers { get; set; }
+        public List<Folder> Folders { get; set; }
     }
 }

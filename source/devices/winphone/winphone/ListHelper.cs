@@ -18,18 +18,18 @@ using BuiltSteady.Zaplify.Devices.Utilities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
-    public class FolderHelper
+    public class ListHelper
     {
         private const int rendersize = 10;  // limit of elements to render immediately
 
         // local state initialized by constructor
-        private Folder folder;
+        private Item list;
         private RoutedEventHandler checkBoxClickEvent;
         private RoutedEventHandler tagClickEvent;
 
-        public FolderHelper(Folder folder, RoutedEventHandler checkBoxClickEvent, RoutedEventHandler tagClickEvent)
+        public ListHelper(Item list, RoutedEventHandler checkBoxClickEvent, RoutedEventHandler tagClickEvent)
         {
-            this.folder = folder;
+            this.list = list;
             this.checkBoxClickEvent = checkBoxClickEvent;
             this.tagClickEvent = tagClickEvent;
         }
@@ -41,37 +41,37 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <summary>
         /// Add a new item to the Items collection and the ListBox
         /// </summary>
-        /// <param name="tl">Folder to add to</param>
+        /// <param name="itemlist">List to add to</param>
         /// <param name="item">Item to add</param>
-        public void AddItem(Folder tl, Item item)
+        public void AddItem(Item itemlist, Item item)
         {
-            // add the item
-            tl.Items.Add(item);
+            // add the item to the list
+            itemlist.Items.Add(item);
 
-            tl.Items = OrderItems(tl.Items);
+            itemlist.Items = OrderItems(itemlist.Items);
 
             // get the correct index based on the current sort
-            int newIndex = tl.Items.IndexOf(item);
+            int newIndex = itemlist.Items.IndexOf(item);
 
             // reinsert it at the correct place
             ListBox.Items.Insert(newIndex, RenderItem(item));
         }
 
         /// <summary>
-        /// Render a folder (in lieu of databinding)
+        /// Render a list (in lieu of databinding)
         /// </summary>
-        /// <param name="tl">Folder to render</param>
-        public void RenderList(Folder tl)
+        /// <param name="itemlist">Item list to render</param>
+        public void RenderList(Item itemlist)
         {
-            // if the folder is null, nothing to do
-            if (tl == null)
+            // if the list is null, nothing to do
+            if (itemlist == null)
                 return;
 
             // trace the event
             TraceHelper.AddMessage("List: RenderList");
 
             // order by correct fields
-            tl.Items = OrderItems(tl.Items);
+            itemlist.Items = OrderItems(itemlist.Items);
 
             /*
             // create the top-level grid
@@ -81,7 +81,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Star) });
             grid.Children.Add(element = new TextBlock() 
             { 
-                Text = tl.Name, 
+                Text = folder.Name, 
                 Margin = new Thickness(10, -28, 0, 10),
                 Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
                 FontSize = (double)App.Current.Resources["PhoneFontSizeExtraLarge"],
@@ -98,22 +98,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ListBox.Items.Clear();
 
             // if the number of items is smaller than 10, render them all immediately
-            if (tl.Items.Count <= rendersize)
+            if (itemlist.Items.Count <= rendersize)
             {
                 // render the items
-                foreach (Item t in tl.Items)
+                foreach (Item t in itemlist.Items)
                     ListBox.Items.Add(RenderItem(t));
             }
             else
             {
                 // render the first 10 items immediately
-                foreach (Item t in tl.Items.Take(rendersize))
+                foreach (Item t in itemlist.Items.Take(rendersize))
                     ListBox.Items.Add(RenderItem(t));
 
                 // schedule the rendering of the rest of the items on the UI thread
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    foreach (Item t in tl.Items.Skip(rendersize))
+                    foreach (Item t in itemlist.Items.Skip(rendersize))
                         ListBox.Items.Add(RenderItem(t));
                 });
             }
@@ -126,37 +126,37 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         }
 
         /// <summary>
-        /// Remove a item in the folder and the ListBox
+        /// Remove a item in the list and the ListBox
         /// </summary>
-        /// <param name="tl">Folder that the item belongs to</param>
+        /// <param name="itemlist">List that the item belongs to</param>
         /// <param name="item">Item to remove</param>
-        public void RemoveItem(Folder tl, Item item)
+        public void RemoveItem(Item itemlist, Item item)
         {
             // get the current index based on the current sort
-            int currentIndex = tl.Items.IndexOf(item);
+            int currentIndex = itemlist.Items.IndexOf(item);
 
-            // remove the item from the folder
-            tl.Items.Remove(item);
+            // remove the item from the list
+            itemlist.Items.Remove(item);
 
             // remove the item's ListBoxItem from the current place
             ListBox.Items.RemoveAt(currentIndex);
         }
 
         /// <summary>
-        /// ReOrder a item in the folder and the ListBox
+        /// ReOrder a item in the list and the ListBox
         /// </summary>
-        /// <param name="tl">Folder that the item belongs to</param>
+        /// <param name="itemlist">List that the item belongs to</param>
         /// <param name="item">Item to reorder</param>
-        public void ReOrderItem(Folder tl, Item item)
+        public void ReOrderItem(Item itemlist, Item item)
         {
             // get the current index based on the current sort
-            int currentIndex = tl.Items.IndexOf(item);
+            int currentIndex = itemlist.Items.IndexOf(item);
 
-            // order the folder by the correct fields
-            tl.Items = OrderItems(tl.Items);
+            // order the list by the correct fields
+            itemlist.Items = OrderItems(itemlist.Items);
 
             // get the correct index based on the current sort
-            int newIndex = tl.Items.IndexOf(item);
+            int newIndex = itemlist.Items.IndexOf(item);
 
             // remove the item's ListBoxItem from the current place
             ListBox.Items.RemoveAt(currentIndex);
@@ -196,25 +196,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     return Colors.Gray;
             }
             return Colors.White;
-        }
-
-        /// <summary>
-        /// Find a folder by ID and then return its index 
-        /// </summary>
-        /// <param name="observableCollection"></param>
-        /// <param name="folder"></param>
-        /// <returns></returns>
-        private int IndexOf(ObservableCollection<Folder> folders, Folder folder)
-        {
-            try
-            {
-                Folder folderRef = folders.Single(tl => tl.ID == folder.ID);
-                return folders.IndexOf(folderRef);
-            }
-            catch (Exception)
-            {
-                return -1;
-            }
         }
 
         /// <summary>

@@ -90,16 +90,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            int itemTypeIndex = ItemTypePicker.SelectedIndex;
-            if (itemTypeIndex < 0)
-            {
-                MessageBox.Show("folder type must be set");
-                return;
-            }
-
-            // set the appropriate folder type ID
-            folderCopy.ItemTypeID = App.ViewModel.ItemTypes[itemTypeIndex].ID;
-
             // get the name of the tag
             folderCopy.Name = ListName.Text;
 
@@ -194,32 +184,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                     // insert after the save button but before the cancel button
                     ApplicationBar.Buttons.Add(button);
-                }
-
-                RenderItemTypes();
-            }
-        }
-
-        #endregion
-
-        #region Helpers
-
-        private void RenderItemTypes()
-        {
-            ItemTypePicker.ItemsSource = App.ViewModel.ItemTypes;
-            ItemTypePicker.DisplayMemberPath = "Name";
-
-            // set the selected index 
-            if (folderCopy.ItemTypeID != null && folderCopy.ItemTypeID != Guid.Empty)
-            {
-                try
-                {
-                    ItemType itemType = App.ViewModel.ItemTypes.Single(lt => lt.ID == folderCopy.ItemTypeID);
-                    int index = App.ViewModel.ItemTypes.IndexOf(itemType);
-                    ItemTypePicker.SelectedIndex = index;
-                }
-                catch (Exception)
-                {
                 }
             }
         }

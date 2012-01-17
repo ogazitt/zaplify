@@ -30,10 +30,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
     {
         public MainViewModel()
         {
-            // retrieve the network type asynchronously since the property takes 20sec to retrieve
-            //ThreadPool.QueueUserWorkItem(delegate { NetworkType = NetworkInterface.NetworkInterfaceType; });
-            //NetworkInterfaceType type = new NetworkInterfaceList().Current.InterfaceType;
-            //NetworkInterfaceSubType subtype = new NetworkInterfaceList().Current.InterfaceSubtype;
         }
 
         public bool retrievedConstants = false;
@@ -110,9 +106,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // reset the ItemType static constants inside the ItemType type
                     try
                     {
-                        ItemType.ToDo = constants.ItemTypes.Single(lt => lt.Name == "To Do List").ID;
-                        ItemType.Shopping = constants.ItemTypes.Single(lt => lt.Name == "Shopping List").ID;
-                        ItemType.Freeform = constants.ItemTypes.Single(lt => lt.Name == "Freeform List").ID;
+                        ItemType.ToDoItem = constants.ItemTypes.Single(lt => lt.Name == "To Do").ID;
+                        ItemType.ShoppingItem = constants.ItemTypes.Single(lt => lt.Name == "Shopping Item").ID;
+                        ItemType.FreeformItem = constants.ItemTypes.Single(lt => lt.Name == "Freeform Item").ID;
                     }
                     catch (Exception)
                     {
@@ -197,6 +193,100 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
         }
 
+        private ObservableCollection<Folder> folders;
+        /// <summary>
+        /// Folders property for the MainViewModel, which is a collection of Folder objects
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<Folder> Folders
+        {
+            get
+            {
+                return folders;
+            }
+            set
+            {
+                if (value != folders)
+                {
+                    folders = value;
+
+                    // do not allow a situation where there are no folders
+                    if (folders == null || folders.Count == 0)
+                    {
+                        folders = new ObservableCollection<Folder>();
+                        folders.Add(new Folder() { Name = "Personal" });
+
+                        // save the new folder collection
+                        StorageHelper.WriteFolders(folders);
+
+                        // enqueue the Web Request Record (with a new copy of the folder)
+                        // need to create a copy because otherwise other items may be added to it
+                        // and we want the record to have exactly one operation in it (create the folder)
+                        RequestQueue.EnqueueRequestRecord(
+                            new RequestQueue.RequestRecord()
+                            {
+                                ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                                Body = new Folder(folders[0])
+                            });
+                    }
+                    else
+                    {
+                        // save the new folder collection
+                        StorageHelper.WriteFolders(folders);
+                    }
+
+                    // try to find and refresh the default item folder
+                    try
+                    {
+                        // try to obtain the default folder ID
+                        Guid tlID;
+                        if (defaultFolder != null)
+                            tlID = defaultFolder.ID;
+                        else
+                            tlID = StorageHelper.ReadDefaultFolderID();
+
+                        // try to find the default folder by ID
+                        var defaulttl = Folders.Single(tl => tl.ID == tlID);
+                        if (defaulttl != null)
+                            DefaultFolder = defaulttl;
+                        else
+                            DefaultFolder = Folders[0];
+                    }
+                    catch (Exception)
+                    {
+                        // just default to the first folder (which always exists)
+                        DefaultFolder = Folders[0];
+                    }
+
+                    NotifyPropertyChanged("Folders");
+                    NotifyPropertyChanged("Items");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Items property for the MainViewModel, which is a collection of Item objects
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<Item> Items
+        {
+            get
+            {
+                // create a concatenated folder of items. This will be used for items and tags views
+                var newItems = new ObservableCollection<Item>();
+                if (folders != null)
+                {
+                    foreach (Folder tl in folders)
+                    {
+                        if (tl.Items != null)
+                            foreach (Item t in tl.Items)
+                                newItems.Add(t);
+                    }
+                }
+                return newItems;
+            }
+        }
+
         private ObservableCollection<ItemType> itemTypes;
         /// <summary>
         /// A collection of List Types
@@ -268,100 +358,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
         }
 
-        /// <summary>
-        /// Items property for the MainViewModel, which is a collection of Item objects
-        /// </summary>
-        /// <returns></returns>
-        public ObservableCollection<Item> Items
-        {
-            get
-            {
-                // create a concatenated folder of items. This will be used for items and tags views
-                var newItems = new ObservableCollection<Item>();
-                if (folders != null)
-                {
-                    foreach (Folder tl in folders)
-                    {
-                        if (tl.Items != null)
-                            foreach (Item t in tl.Items)
-                                newItems.Add(t);
-                    }
-                }
-                return newItems;
-            }
-        }
-
-        private ObservableCollection<Folder> folders;
-        /// <summary>
-        /// Folders property for the MainViewModel, which is a collection of Folder objects
-        /// </summary>
-        /// <returns></returns>
-        public ObservableCollection<Folder> Folders
-        {
-            get
-            {
-                return folders;
-            }
-            set
-            {
-                if (value != folders)
-                {
-                    folders = value;
-
-                    // do not allow a situation where there are no folders
-                    if (folders == null || folders.Count == 0)
-                    {
-                        folders = new ObservableCollection<Folder>();
-                        folders.Add(new Folder() { Name = "To Do", ItemTypeID = ItemType.ToDo });
-
-                        // save the new folder collection
-                        StorageHelper.WriteFolders(folders);
-
-                        // enqueue the Web Request Record (with a new copy of the folder)
-                        // need to create a copy because otherwise other items may be added to it
-                        // and we want the record to have exactly one operation in it (create the folder)
-                        RequestQueue.EnqueueRequestRecord(
-                            new RequestQueue.RequestRecord()
-                            {
-                                ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                                Body = new Folder(folders[0])
-                            });
-                    }
-                    else
-                    {
-                        // save the new folder collection
-                        StorageHelper.WriteFolders(folders);
-                    }
-
-                    // try to find and refresh the default item folder
-                    try
-                    {
-                        // try to obtain the default folder ID
-                        Guid tlID;
-                        if (defaultFolder != null)
-                            tlID = defaultFolder.ID;
-                        else
-                            tlID = StorageHelper.ReadDefaultFolderID();
-                        
-                        // try to find the default folder by ID
-                        var defaulttl = Folders.Single(tl => tl.ID == tlID);
-                        if (defaulttl != null)
-                            DefaultFolder = defaulttl;
-                        else
-                            DefaultFolder = Folders[0];
-                    }
-                    catch (Exception)
-                    {
-                        // just default to the first folder (which always exists)
-                        DefaultFolder = Folders[0];
-                    }
-
-                    NotifyPropertyChanged("Folders");
-                    NotifyPropertyChanged("Items");
-                }
-            }
-        }
-
         private ObservableCollection<string> traceMessages;
         /// <summary>
         /// List of trace messages
@@ -424,7 +420,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 {
                     userItemTypes = value;
 
-                    // reset the folder types collection to be the concatenation of the built-in and user-defined itemtypes
+                    // reset the item types collection to be the concatenation of the built-in and user-defined itemtypes
                     var itemtypes = new ObservableCollection<ItemType>();
                     foreach (ItemType l in Constants.ItemTypes)
                         itemtypes.Add(new ItemType(l));
@@ -434,6 +430,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // trigger setter for ItemTypes
                     ItemTypes = itemtypes;
 
+                    NotifyPropertyChanged("ItemTypes");
                     NotifyPropertyChanged("UserItemTypes");
                 }
             }
@@ -580,18 +577,24 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// </summary>
         public Folder LoadFolder(Guid id)
         {
-            Folder tl;
-            if (this.FolderDictionary.TryGetValue(id, out tl))
-                return tl;
+            Folder f;
+            if (this.FolderDictionary.TryGetValue(id, out f))
+                return f;
             else
             {
                 Folder folder = App.ViewModel.Folders.Single(l => l.ID == id);
                 string name = String.Format("{0}-{1}", folder.Name, id.ToString());
-                tl = StorageHelper.ReadFolder(name);
-                if (tl != null)
-                    this.FolderDictionary[id] = tl;
+                f = StorageHelper.ReadFolder(name);
+                if (f != null)
+                {
+                    this.FolderDictionary[id] = f;
+                    int index = Folders.IndexOf(folder);
+                    Folders[index] = f;
+                    //NotifyPropertyChanged("Folders");
+                    //NotifyPropertyChanged("Items");
+                }
             }
-            return tl;
+            return f;
         }
 
         /// <summary>
@@ -770,7 +773,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 user.Synced = true;
                 User = user;
 
-                // reset the user's folder types
+                // reset the user's item types
                 UserItemTypes = user.ItemTypes;
 
                 // reset and save the user's tags
@@ -779,9 +782,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // reset and save the user's folders
                 Folders = user.Folders;
 
+                // remove existing folders
+                foreach (Folder f in FolderDictionary.Values)
+                    StorageHelper.DeleteFolder(f);
+                FolderDictionary.Clear();
+
                 // store the folders individually
                 foreach (Folder tl in folders)
-                {
+                {                    
                     // store the folder in the dictionary
                     FolderDictionary[tl.ID] = tl;
 
@@ -905,38 +913,38 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             ItemType itemType;
 
-            // create the To Do folder type
-            itemTypes.Add(itemType = new ItemType() { ID = ItemType.ToDo, Name = "To Do List", Fields = new List<Field>() });
-            itemType.Fields.Add(new Field() { ID = new Guid("3F6F8964-FCCD-47C6-8595-FBB0D5CAB5C2"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.ToDo, IsPrimary = true, SortOrder = 1 });
-            itemType.Fields.Add(new Field() { ID = new Guid("5B934DC3-983C-4F05-AA48-C26B43464BBF"), FieldTypeID = 2 /* Description */, ItemTypeID = ItemType.ToDo, IsPrimary = true, SortOrder = 2 });
-            itemType.Fields.Add(new Field() { ID = new Guid("8F96E751-417F-489E-8BE2-B9A2BABF05D1"), FieldTypeID = 3 /* PriorityID  */, ItemTypeID = ItemType.ToDo, IsPrimary = true, SortOrder = 3 });
-            itemType.Fields.Add(new Field() { ID = new Guid("5F33C018-F0ED-4C8D-AF96-5B5C4B78C843"), FieldTypeID = 4 /* Due */, ItemTypeID = ItemType.ToDo, IsPrimary = true, SortOrder = 4 });
-            itemType.Fields.Add(new Field() { ID = new Guid("ea7a11ad-e842-40ea-8a50-987427e69845"), FieldTypeID = 5 /* Tags */, ItemTypeID = ItemType.ToDo, IsPrimary = true, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("F5391480-1675-4D5C-9F4B-0887227AFDA5"), FieldTypeID = 6 /* Location */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 6 });
-            itemType.Fields.Add(new Field() { ID = new Guid("DA356E6E-A484-47A3-9C95-7618BCBB39EF"), FieldTypeID = 7 /* Phone */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 7 });
-            itemType.Fields.Add(new Field() { ID = new Guid("82957B93-67D9-4E4A-A522-08D18B4B5A1F"), FieldTypeID = 8 /* Website */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 8 });
-            itemType.Fields.Add(new Field() { ID = new Guid("261950F7-7FDA-4432-A280-D0373CC8CADF"), FieldTypeID = 9 /* Email */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 9 });
-            itemType.Fields.Add(new Field() { ID = new Guid("1448b7e7-f876-46ec-8e5b-0b9a1de7ea74"), FieldTypeID = 12 /* LinkedFolderID */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 10 });
-            itemType.Fields.Add(new Field() { ID = new Guid("32EE3561-226A-4DAD-922A-9ED93099C457"), FieldTypeID = 10 /* Complete */, ItemTypeID = ItemType.ToDo, IsPrimary = false, SortOrder = 11 });
+            // create the To Do item type
+            itemTypes.Add(itemType = new ItemType() { ID = ItemType.ToDoItem, Name = "To Do", Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("3F6F8964-FCCD-47C6-8595-FBB0D5CAB5C2"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.ToDoItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("5B934DC3-983C-4F05-AA48-C26B43464BBF"), FieldTypeID = 2 /* Description */, ItemTypeID = ItemType.ToDoItem, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("8F96E751-417F-489E-8BE2-B9A2BABF05D1"), FieldTypeID = 3 /* PriorityID  */, ItemTypeID = ItemType.ToDoItem, IsPrimary = true, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("5F33C018-F0ED-4C8D-AF96-5B5C4B78C843"), FieldTypeID = 4 /* Due */, ItemTypeID = ItemType.ToDoItem, IsPrimary = true, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("ea7a11ad-e842-40ea-8a50-987427e69845"), FieldTypeID = 5 /* Tags */, ItemTypeID = ItemType.ToDoItem, IsPrimary = true, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("F5391480-1675-4D5C-9F4B-0887227AFDA5"), FieldTypeID = 6 /* Location */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("DA356E6E-A484-47A3-9C95-7618BCBB39EF"), FieldTypeID = 7 /* Phone */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("82957B93-67D9-4E4A-A522-08D18B4B5A1F"), FieldTypeID = 8 /* Website */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("261950F7-7FDA-4432-A280-D0373CC8CADF"), FieldTypeID = 9 /* Email */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 9 });
+            itemType.Fields.Add(new Field() { ID = new Guid("1448b7e7-f876-46ec-8e5b-0b9a1de7ea74"), FieldTypeID = 12 /* LinkedFolderID */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 10 });
+            itemType.Fields.Add(new Field() { ID = new Guid("32EE3561-226A-4DAD-922A-9ED93099C457"), FieldTypeID = 10 /* Complete */, ItemTypeID = ItemType.ToDoItem, IsPrimary = false, SortOrder = 11 });
 
-            // create the Shopping folder type
-            itemTypes.Add(itemType = new ItemType() { ID = ItemType.Shopping, Name = "Shopping List", Fields = new List<Field>() });
-            itemType.Fields.Add(new Field() { ID = new Guid("DEA2ECAD-1E53-4616-8EE9-C399D4223FFB"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.Shopping, IsPrimary = true, SortOrder = 1 });
-            itemType.Fields.Add(new Field() { ID = new Guid("7E7EAEB4-562B-481C-9A38-AEE216B8B4A0"), FieldTypeID = 9 /* Complete */, ItemTypeID = ItemType.Shopping, IsPrimary = true, SortOrder = 2 });
+            // create the Shopping item type
+            itemTypes.Add(itemType = new ItemType() { ID = ItemType.ShoppingItem, Name = "Shopping Item", Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("DEA2ECAD-1E53-4616-8EE9-C399D4223FFB"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.ShoppingItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("7E7EAEB4-562B-481C-9A38-AEE216B8B4A0"), FieldTypeID = 10 /* Complete */, ItemTypeID = ItemType.ShoppingItem, IsPrimary = true, SortOrder = 2 });
 
-            // create the Freeform folder type
-            itemTypes.Add(itemType = new ItemType() { ID = ItemType.Freeform, Name = "Freeform List", Fields = new List<Field>() });
-            itemType.Fields.Add(new Field() { ID = new Guid("1C01E1B0-C14A-4CE9-81B9-868A13AAE045"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.Freeform, IsPrimary = true, SortOrder = 1 });
-            itemType.Fields.Add(new Field() { ID = new Guid("7FFD95DB-FE46-49B4-B5EE-2863938CD687"), FieldTypeID = 11 /* Details */, ItemTypeID = ItemType.Freeform, IsPrimary = true, SortOrder = 2 });
-            itemType.Fields.Add(new Field() { ID = new Guid("6B3E6603-3BAB-4994-A69C-DF0F4310FA95"), FieldTypeID = 3 /* PriorityID */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 3 });
-            itemType.Fields.Add(new Field() { ID = new Guid("2848AF68-26F7-4ABB-8B9E-1DA74EE4EC73"), FieldTypeID = 4 /* Due */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 4 });
-            itemType.Fields.Add(new Field() { ID = new Guid("9ebb9cba-277a-4462-b205-959520eb88c5"), FieldTypeID = 5 /* Tags */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("4054F093-3F7F-4894-A2C2-5924098DBB29"), FieldTypeID = 6 /* Location */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 6 });
-            itemType.Fields.Add(new Field() { ID = new Guid("8F0915DE-E77F-4B63-8B22-A4FF4AFC99FF"), FieldTypeID = 7 /* Phone  */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 7 });
-            itemType.Fields.Add(new Field() { ID = new Guid("9F9B9FDB-3403-4DCD-A139-A28487C1832C"), FieldTypeID = 8 /* Website */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 8 });
-            itemType.Fields.Add(new Field() { ID = new Guid("4E304CCA-561F-4CB3-889B-1F5D022C4364"), FieldTypeID = 9 /* Email */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 9 });
-            itemType.Fields.Add(new Field() { ID = new Guid("7715234d-a60e-4336-9af1-f05c36add1c8"), FieldTypeID = 12 /* LinkedFolderID */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 10 });
-            itemType.Fields.Add(new Field() { ID = new Guid("FE0CFC57-0A1C-4E3E-ADD3-225E2C062DE0"), FieldTypeID = 10 /* Complete */, ItemTypeID = ItemType.Freeform, IsPrimary = false, SortOrder = 11 });
+            // create the Freeform item type
+            itemTypes.Add(itemType = new ItemType() { ID = ItemType.FreeformItem, Name = "Freeform Item", Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("1C01E1B0-C14A-4CE9-81B9-868A13AAE045"), FieldTypeID = 1 /* Name */, ItemTypeID = ItemType.FreeformItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("7FFD95DB-FE46-49B4-B5EE-2863938CD687"), FieldTypeID = 11 /* Details */, ItemTypeID = ItemType.FreeformItem, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("6B3E6603-3BAB-4994-A69C-DF0F4310FA95"), FieldTypeID = 3 /* PriorityID */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("2848AF68-26F7-4ABB-8B9E-1DA74EE4EC73"), FieldTypeID = 4 /* Due */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("9ebb9cba-277a-4462-b205-959520eb88c5"), FieldTypeID = 5 /* Tags */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("4054F093-3F7F-4894-A2C2-5924098DBB29"), FieldTypeID = 6 /* Location */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("8F0915DE-E77F-4B63-8B22-A4FF4AFC99FF"), FieldTypeID = 7 /* Phone  */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("9F9B9FDB-3403-4DCD-A139-A28487C1832C"), FieldTypeID = 8 /* Website */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("4E304CCA-561F-4CB3-889B-1F5D022C4364"), FieldTypeID = 9 /* Email */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 9 });
+            itemType.Fields.Add(new Field() { ID = new Guid("7715234d-a60e-4336-9af1-f05c36add1c8"), FieldTypeID = 12 /* LinkedFolderID */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 10 });
+            itemType.Fields.Add(new Field() { ID = new Guid("FE0CFC57-0A1C-4E3E-ADD3-225E2C062DE0"), FieldTypeID = 10 /* Complete */, ItemTypeID = ItemType.FreeformItem, IsPrimary = false, SortOrder = 11 });
 
             return itemTypes;
         }
@@ -965,7 +973,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Item item;
 
             // create a To Do folder
-            folders.Add(folder = new Folder() { Name = "To Do", ItemTypeID = ItemType.ToDo, Items = new ObservableCollection<Item>() });
+            folders.Add(folder = new Folder() { Name = "Personal", Items = new ObservableCollection<Item>() });
 
             // add to the dictionary
             FolderDictionary.Add(folder.ID, folder);
@@ -979,12 +987,33 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ID = folder.ID
                 });
 
+            // create the To Do list
+            folder.Items.Add(item = new Item()
+            {
+                Name = "To Do List",
+                FolderID = folder.ID,
+                IsList = true,
+                ItemTypeID = ItemType.ToDoItem,
+                ParentID = Guid.Empty
+            });
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = item,
+                    ID = item.ID
+                });
+
             // create the Welcome item
             folder.Items.Add(item = new Item() 
             { 
                 Name = "Welcome to Zaplify!", 
                 Description="Tap the browse button below to discover more about the Zaplify application.", 
                 FolderID = folder.ID, 
+                ItemTypeID = ItemType.ToDoItem,
+                ParentID = item.ID, /* parent is the ToDo list we just added */
                 Due = DateTime.Today.Date,
                 PriorityID = 0,
                 Website = WebServiceHelper.BaseUrl + "/Home/WelcomeWP7" /*"/Content/Welcome.html"*/ 
@@ -999,27 +1028,28 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ID = item.ID
                 });
 
-            // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+            // create the To Do list
+            folder.Items.Add(item = new Item()
+            {
+                Name = "Shopping List",
+                FolderID = folder.ID,
+                IsList = true,
+                ItemTypeID = ItemType.ShoppingItem,
+                ParentID = Guid.Empty
+            });
 
-            // create a shopping folder
-            folders.Add(folder = new Folder() { Name = "Shopping", ItemTypeID = ItemType.Shopping, Items = new ObservableCollection<Item>() });
-
-            // add to the dictionary
-            FolderDictionary.Add(folder.ID, folder);
-
-            // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
-            
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = folder,
+                    Body = item,
                     ID = folder.ID
                 });
 
+            // save the changes to local storage
+            StorageHelper.WriteFolder(folder);
+            
             return folders;
         }
 

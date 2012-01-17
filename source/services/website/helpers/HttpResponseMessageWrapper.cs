@@ -55,7 +55,7 @@ namespace BuiltSteady.Zaplify.Website.Helpers
             try
             {
                 if (msg.Headers.UserAgent != null)
-                    winPhone = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product.Name == "TaskStore-WinPhone");
+                    winPhone = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product.Name == "Zaplify-WinPhone");
             }
             catch (Exception)
             {

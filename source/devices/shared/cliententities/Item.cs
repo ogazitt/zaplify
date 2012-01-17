@@ -18,14 +18,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             lastModified = DateTime.UtcNow;
             itemTags = new ObservableCollection<ItemTag>();
             tags = new ObservableCollection<Tag>();
+            items = new ObservableCollection<Item>();
         }
 
         public Item(Item item)
         {
-            Copy(item);
+            Copy(item, true);
         }
 
-        public void Copy(Item obj)
+        public Item(Item item, bool deepCopy)
+        {
+            Copy(item, deepCopy);
+        }
+
+        public void Copy(Item obj, bool deepCopy)
         {
             if (obj == null)
                 return;
@@ -39,6 +45,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     pi.SetValue(this, val, null);
                 }
             }
+
+            if (deepCopy)
+            {
+                // reinitialize the Tasks collection
+                this.items = new ObservableCollection<Item>();
+                if (obj.items != null)
+                    foreach (Item i in obj.items)
+                        this.items.Add(new Item(i));
+            }
+            else
+            {
+                this.items = new ObservableCollection<Item>();
+            }
+
+            NotifyPropertyChanged("Items");
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
         }
 
         public void CreateTags(ObservableCollection<Tag> tagList)
@@ -250,24 +276,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private ObservableCollection<Item> items;
+        private bool isList;
         /// <summary>
-        /// Items collection
+        /// IsList property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public ObservableCollection<Item> Items
+        public bool IsList
         {
             get
             {
-                return items;
+                return isList;
             }
             set
             {
-                if (value != items)
+                if (value != isList)
                 {
-                    items = value;
-                    NotifyPropertyChanged("Items");
+                    isList = value;
+                    NotifyPropertyChanged("IsList");
                 }
             }
         }
@@ -472,6 +498,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        private Guid userID;
+        /// <summary>
+        /// UserID property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public Guid UserID
+        {
+            get
+            {
+                return userID;
+            }
+            set
+            {
+                if (value != userID)
+                {
+                    userID = value;
+                    NotifyPropertyChanged("UserID");
+                }
+            }
+        }
+
         private string website;
         /// <summary>
         /// Website property
@@ -542,6 +590,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 
         // sort property for Due
         public DateTime DueSort { get { return Due == null ? DateTime.MaxValue : (DateTime)Due; } }
+
+        private ObservableCollection<Item> items;
+        /// <summary>
+        /// Items collection
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<Item> Items
+        {
+            get
+            {
+                return items;
+            }
+            set
+            {
+                if (value != items)
+                {
+                    items = value;
+                    NotifyPropertyChanged("Items");
+                }
+            }
+        }
 
         // boolean property for LinkedFolderID
         public bool LinkedFolderIDBool { get { return linkedFolderID == null ? false : true; } }
