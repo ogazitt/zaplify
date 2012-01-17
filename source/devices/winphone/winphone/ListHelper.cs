@@ -219,14 +219,80 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         }
 
         /// <summary>
-        /// Render a item into a ListBoxItem
+        /// Render an item into a ListBoxItem
         /// </summary>
-        /// <param name="t">Item to render</param>
+        /// <param name="i">Item to render</param>
         /// <returns>ListBoxItem corresponding to the Item</returns>
-        private ListBoxItem RenderItem(Item t)
+        private ListBoxItem RenderItem(Item i)
+        {
+            if (i.IsList)
+                return RenderItemAsList(i);
+            else
+                return RenderItemAsSingleton(i);
+        }
+
+        /// <summary>
+        /// Render a item which is itself a list into a ListBoxItem
+        /// </summary>
+        /// <param name="item">Item to render</param>
+        /// <returns>ListBoxItem corresponding to the Item</returns>
+        private ListBoxItem RenderItemAsList(Item item)
         {
             FrameworkElement element;
-            ListBoxItem listBoxItem = new ListBoxItem() { Tag = t };
+            ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
+            StackPanel sp = new StackPanel() { Margin = new Thickness(20, -5, 0, 0), Width = 432d };
+            listBoxItem.Content = sp;
+
+            // first line (name, item count)
+            Grid itemLineOne = new Grid();
+            itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+            itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            itemLineOne.Children.Add(element = new TextBlock()
+            {
+                Text = item.Name,
+                Style = (Style)App.Current.Resources["PhoneTextLargeStyle"],
+                Foreground = new SolidColorBrush(GetDisplayColor(item.NameDisplayColor)),
+                Margin = new Thickness(0, 12, 0, 0)
+            });
+            element.SetValue(Grid.ColumnProperty, 0);
+            itemLineOne.Children.Add(element = new TextBlock()
+            {
+                Text = "List",
+                Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
+                FontSize = (double)App.Current.Resources["PhoneFontSizeLarge"],
+                FontFamily = (FontFamily)App.Current.Resources["PhoneFontFamilyLight"],
+                Foreground = new SolidColorBrush(GetDisplayColor(item.NameDisplayColor)),
+                TextAlignment = TextAlignment.Right,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 12, 0, 0)
+            });
+            element.SetValue(Grid.ColumnProperty, 1);
+            sp.Children.Add(itemLineOne);   
+            
+            // second line (first item due)
+            element = new TextBlock()
+            {
+                Text = item.DueDisplay, /* FirstDue */
+                Style = (Style)App.Current.Resources["PhoneTextSubtleStyle"],
+                FontSize = (double)App.Current.Resources["PhoneFontSizeNormal"],
+                Foreground = new SolidColorBrush(GetDisplayColor(item.DueDisplayColor)), /* FirstDueColor */
+                Margin = new Thickness(12, -6, 12, 0)
+            };
+            sp.Children.Add(element);
+
+            // return the new ListBoxItem
+            return listBoxItem;
+        }
+
+        /// <summary>
+        /// Render a singleton item into a ListBoxItem
+        /// </summary>
+        /// <param name="item">Item to render</param>
+        /// <returns>ListBoxItem corresponding to the Item</returns>
+        private ListBoxItem RenderItemAsSingleton(Item item)
+        {
+            FrameworkElement element;
+            ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
             StackPanel sp = new StackPanel() { Margin = new Thickness(0, -5, 0, 0), Width = 432d };
             listBoxItem.Content = sp;
 
@@ -235,16 +301,16 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(t.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
+            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
             element.SetValue(Grid.ColumnProperty, 0);
-            itemLineOne.Children.Add(element = new CheckBox() { IsChecked = t.Complete, Tag = t.ID });
+            itemLineOne.Children.Add(element = new CheckBox() { IsChecked = item.Complete, Tag = item.ID });
             element.SetValue(Grid.ColumnProperty, 1);
             ((CheckBox)element).Click += new RoutedEventHandler(checkBoxClickEvent);
             itemLineOne.Children.Add(element = new TextBlock()
             {
-                Text = t.Name,
+                Text = item.Name,
                 Style = (Style)App.Current.Resources["PhoneTextLargeStyle"],
-                Foreground = new SolidColorBrush(GetDisplayColor(t.NameDisplayColor)),
+                Foreground = new SolidColorBrush(GetDisplayColor(item.NameDisplayColor)),
                 Margin = new Thickness(0, 12, 0, 0)
             });
             element.SetValue(Grid.ColumnProperty, 2);
@@ -256,15 +322,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             itemLineTwo.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
             itemLineTwo.Children.Add(element = new TextBlock()
             {
-                Text = t.DueDisplay,
+                Text = item.DueDisplay,
                 FontSize = (double)App.Current.Resources["PhoneFontSizeNormal"],
-                Foreground = new SolidColorBrush(GetDisplayColor(t.DueDisplayColor)),
+                Foreground = new SolidColorBrush(GetDisplayColor(item.DueDisplayColor)),
                 Margin = new Thickness(32, -17, 0, 0)
             });
             element.SetValue(Grid.ColumnProperty, 0);
 
             // render tag panel
-            if (t.Tags != null)
+            if (item.Tags != null)
             {
                 StackPanel tagStackPanel = new StackPanel()
                 {
@@ -273,7 +339,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Right
                 };
                 tagStackPanel.SetValue(Grid.ColumnProperty, 1);
-                foreach (var tag in t.Tags)
+                foreach (var tag in item.Tags)
                 {
                     HyperlinkButton button;
                     tagStackPanel.Children.Add(button = new HyperlinkButton()
