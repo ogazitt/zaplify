@@ -168,6 +168,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                         Include("Tags").
                         Include("Folders.FolderUsers").
                         Include("Folders.Items.ItemTags").
+                        Include("Folders.Items.FieldValues").
                         Single<User>(u => u.ID == dbUser.ID && u.Folders.Any(f => f.FolderUsers.Any(fu => fu.UserID == dbUser.ID)));
                     // since Items are already serialized under Folders, don't serialize another copy of all the items under Items
                     dbUser.Items = null;
@@ -249,6 +250,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                         var folderitems = zaplifystore.Folders.
                             Include("FolderUsers").
                             Include("Items.ItemTags").
+                            Include("Items.FieldValues").
                             Where(f => f.FolderUsers.Any(fu => fu.UserID == id)).
                             ToList();
                         var response = new HttpResponseMessageWrapper<List<Folder>>(req, folderitems, HttpStatusCode.OK);

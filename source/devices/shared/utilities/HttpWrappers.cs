@@ -88,8 +88,12 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
                         return null;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                TraceHelper.AddMessage("Exception in DeserializeResponseBody: " + ex.Message);
+                stream.Position = 0;
+                StreamReader sr = new StreamReader(stream);
+                string str = sr.ReadToEnd();
                 return null;
             }
         }

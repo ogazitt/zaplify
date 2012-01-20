@@ -385,6 +385,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // toggle the complete flag to reflect the checkbox click
             item.Complete = !item.Complete;
 
+            // bump the last modified timestamp
+            item.LastModified = DateTime.UtcNow;
+
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
@@ -495,17 +498,21 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void ImportListPopup_ImportButton_Click(object sender, RoutedEventArgs e)
         {
-            Folder tl = ImportListPopupListPicker.SelectedItem as Folder;
-            if (tl == null)
+            Item target = ImportListPopupListPicker.SelectedItem as Item;
+            if (target == null)
                 return;
 
+            // create a copy of the item and attach all the non-list children to its Items collection 
+            Item targetList = new Item(target, false);
+            targetList.Items = App.ViewModel.Items.Where(i => i.ParentID == target.ID && i.IsList != true).ToObservableCollection();
+
             // add the items in the template to the existing folder
-            foreach (Item t in tl.Items)
+            foreach (Item i in targetList.Items)
             {
                 DateTime now = DateTime.UtcNow;
 
                 // create the new item
-                Item item = new Item(t) { ID = Guid.NewGuid(), FolderID = folder.ID, Created = now, LastModified = now };
+                Item item = new Item(i) { ID = Guid.NewGuid(), FolderID = folder.ID, ParentID = list.ID, Created = now, LastModified = now };
                 // recreate the itemtags (they must be unique)
                 if (item.ItemTags != null && item.ItemTags.Count > 0)
                 {
@@ -524,13 +531,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
 
                 // add the item to the local collection
-                // note that we don't use ListHelper.AddItem() here because it is typically more efficient
-                // to add all the items and then re-render the entire folder.  This is because 
-                // the typical use case is to import a template into an empty (or nearly empty) folder.
+                ListHelper.AddItem(list, item);
+
+                // add the item to the folder
                 folder.Items.Add(item);
             }
 
-            // render the new folder 
+            // render the list
             ListHelper.RenderList(list);
 
             // save the changes to local storage
@@ -680,7 +687,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 ItemTypeID = App.ViewModel.ItemTypes[itemTypeIndex].ID,
                 ParentID = list.ID,
                 IsList = isChecked,
-                LastModified = DateTime.UtcNow
             };
 
             // enqueue the Web Request Record

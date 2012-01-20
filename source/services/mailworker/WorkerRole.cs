@@ -44,6 +44,61 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
         }
 
+        static Guid completeField;
+        static Guid CompleteField
+        {
+            get
+            {
+                if (completeField == Guid.Empty)
+                    completeField = ZaplifyStore.Fields.Single(f => f.Name == "Complete" && f.ItemTypeID == ToDoItemType).ID;
+                return completeField;
+            }
+        }
+
+        static Guid phoneField;
+        static Guid PhoneField
+        {
+            get
+            {
+                if (phoneField == Guid.Empty)
+                    phoneField = ZaplifyStore.Fields.Single(f => f.Name == "Phone" && f.ItemTypeID == ToDoItemType).ID;
+                return phoneField;
+            }
+        }
+
+        static Guid emailField;
+        static Guid EmailField
+        {
+            get
+            {
+                if (emailField == Guid.Empty)
+                    emailField = ZaplifyStore.Fields.Single(f => f.Name == "Email" && f.ItemTypeID == ToDoItemType).ID;
+                return phoneField;
+            }
+        }
+
+        static Guid websiteField;
+        static Guid WebsiteField
+        {
+            get
+            {
+                if (websiteField == Guid.Empty)
+                    websiteField = ZaplifyStore.Fields.Single(f => f.Name == "Website" && f.ItemTypeID == ToDoItemType).ID;
+                return websiteField;
+            }
+        }
+
+        static Guid dueDateField;
+        static Guid DueDateField
+        {
+            get
+            {
+                if (dueDateField == Guid.Empty)
+                    dueDateField = ZaplifyStore.Fields.Single(f => f.Name == "DueDate" && f.ItemTypeID == ToDoItemType).ID;
+                return dueDateField;
+            }
+        }
+
         public override bool OnStart()
         {
             // Log function entrance
@@ -224,24 +279,48 @@ namespace BuiltSteady.Zaplify.MailWorker
             // parse the text for a phone number
             m = Regex.Match(text, @"(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                item.Phone = m.Value;
+                item.FieldValues.Add(new FieldValue()
+                {
+                    ID = Guid.NewGuid(),
+                    ItemID = item.ID,
+                    FieldID = PhoneField,
+                    Value = m.Value
+                });
 
             // parse the text for an email address
             m = Regex.Match(text, @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                item.Email = m.Value;
+                item.FieldValues.Add(new FieldValue()
+                {
+                    ID = Guid.NewGuid(),
+                    ItemID = item.ID,
+                    FieldID = EmailField,
+                    Value = m.Value
+                });
 
             // parse the text for a website
             m = Regex.Match(text, @"((http|https)(:\/\/))?([a-zA-Z0-9]+[.]{1}){2}[a-zA-z0-9]+(\/{1}[a-zA-Z0-9]+)*\/?", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
-                item.Website = m.Value;
+                item.FieldValues.Add(new FieldValue()
+                {
+                    ID = Guid.NewGuid(),
+                    ItemID = item.ID,
+                    FieldID = WebsiteField,
+                    Value = m.Value
+                });
 
             // parse the text for a date
             m = Regex.Match(text, @"(0?[1-9]|1[012])([- /.])(0?[1-9]|[12][0-9]|3[01])\2(20|19)?\d\d", RegexOptions.IgnoreCase);
             if (m != null && m.Value != null && m.Value != "")
             {
                 // convert to datetime, then back to string.  this is to canonicalize all dates into yyyy/MM/dd.
-                item.DueDate = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd");
+                item.FieldValues.Add(new FieldValue()
+                {
+                    ID = Guid.NewGuid(),
+                    ItemID = item.ID,
+                    FieldID = DueDateField,
+                    Value = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd")
+                });
             }
         }
 
@@ -290,6 +369,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                     if (pi.CanWrite == false ||
                         pi.PropertyType == typeof(Guid) ||
                         pi.PropertyType == typeof(Guid?) ||
+                        pi.Name == "FieldValues" ||
                         pi.Name == "ItemTags" ||
                         pi.Name == "Created" ||
                         pi.Name == "LastModified")
@@ -341,7 +421,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 if (folder != null && list != null)
                 {
                     DateTime now = DateTime.Now;
-                    Item t = new Item()
+                    Item item = new Item()
                     {
                         ID = Guid.NewGuid(),
                         FolderID = (Guid)folder,
@@ -351,15 +431,24 @@ namespace BuiltSteady.Zaplify.MailWorker
                         Created = now,
                         LastModified = now,
                     };
+
+                    FieldValue fv = new FieldValue()
+                    {
+                        ID = Guid.NewGuid(),
+                        ItemID = item.ID,
+                        FieldID = CompleteField,
+                        Value = "False"
+                    };
+                    item.FieldValues.Add(fv);
                     
                     // extract structured fields such as due date, e-mail, website, phone number
-                    ParseFields(t, body);
+                    ParseFields(item, body);
 
-                    var item = ZaplifyStore.Items.Add(t);
+                    var newItem = ZaplifyStore.Items.Add(item);
                     int rows = ZaplifyStore.SaveChanges();
 
                     if (rows > 0)
-                        TraceLine(String.Format("Added Item: {0} ({1})", t.Name, PrintItem(t)), "Information");
+                        TraceLine(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)), "Information");
                 }
             }
         }

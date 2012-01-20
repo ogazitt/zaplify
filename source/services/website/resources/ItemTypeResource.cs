@@ -28,9 +28,9 @@ namespace BuiltSteady.Zaplify.Website.Resources
         }
 
         /// <summary>
-        /// Delete the listType 
+        /// Delete the itemType 
         /// </summary>
-        /// <param name="id">id for the listType to delete</param>
+        /// <param name="id">id for the itemType to delete</param>
         /// <returns></returns>
         [WebInvoke(UriTemplate = "{id}", Method = "DELETE")]
         [LogMessages]
@@ -40,10 +40,10 @@ namespace BuiltSteady.Zaplify.Website.Resources
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<ItemType>(req, code);  // user not authenticated
 
-            // get the new listType from the message body
+            // get the new itemType from the message body
             ItemType clientItemType = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(ItemType)) as ItemType;
 
-            // make sure the listType ID's match
+            // make sure the itemType ID's match
             if (clientItemType.ID != id)
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
 
@@ -52,12 +52,12 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // get the listType to be deleted
+            // get the itemType to be deleted
             try
             {
                 ItemType requestedItemType = zaplifystore.ItemTypes.Single<ItemType>(t => t.ID == id);
 
-                // if the requested listType does not belong to the authenticated user, return 403 Forbidden
+                // if the requested itemType does not belong to the authenticated user, return 403 Forbidden
                 if (requestedItemType.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
 
@@ -70,7 +70,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             catch (Exception)
             {
-                // listType not found - return 404 Not Found
+                // itemType not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.NotFound);
             }
         }
@@ -95,25 +95,25 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get all ItemTypes
             try
             {
-                var listTypes = zaplifystore.ItemTypes.
+                var itemTypes = zaplifystore.ItemTypes.
                     Include("Fields").
                     Where(lt => lt.UserID == null || lt.UserID == dbUser.ID).
                     OrderBy(lt => lt.Name).
                     ToList<ItemType>();
-                return new HttpResponseMessageWrapper<List<ItemType>>(req, listTypes, HttpStatusCode.OK);
+                return new HttpResponseMessageWrapper<List<ItemType>>(req, itemTypes, HttpStatusCode.OK);
             }
             catch (Exception)
             {
-                // listType not found - return 404 Not Found
+                // itemType not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<List<ItemType>>(req, HttpStatusCode.NotFound);
             }
         }
 
         /// <summary>
-        /// Get the listType for a listType id
+        /// Get the itemType for a itemType id
         /// </summary>
-        /// <param name="id">id for the listType to return</param>
-        /// <returns>listType information</returns>
+        /// <param name="id">id for the itemType to return</param>
+        /// <returns>itemType information</returns>
         [WebGet(UriTemplate = "{id}")]
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> GetItemType(HttpRequestMessage req, Guid id)
@@ -127,13 +127,13 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // get the requested listType
+            // get the requested itemType
             try
             {
                 ItemType requestedItemType = zaplifystore.ItemTypes.Include("Fields").Single<ItemType>(t => t.ID == id);
 
-                // if the requested listType is not generic (i.e. UserID == 0), 
-                // and does not belong to the authenticated user, return 403 Forbidden, otherwise return the listType
+                // if the requested itemType is not generic (i.e. UserID == 0), 
+                // and does not belong to the authenticated user, return 403 Forbidden, otherwise return the itemType
                 if (requestedItemType.UserID != null && requestedItemType.UserID != dbUser.ID)
                     return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
                 else
@@ -141,15 +141,15 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             catch (Exception)
             {
-                // listType not found - return 404 Not Found
+                // itemType not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.NotFound);
             }
         }
 
         /// <summary>
-        /// Insert a new listType
+        /// Insert a new itemType
         /// </summary>
-        /// <returns>New listType</returns>
+        /// <returns>New itemType</returns>
         [WebInvoke(UriTemplate = "", Method = "POST")]
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> InsertItemType(HttpRequestMessage req)
@@ -158,7 +158,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             if (code != HttpStatusCode.OK)
                 return new HttpResponseMessageWrapper<ItemType>(req, code);  // user not authenticated
 
-            // get the new listType from the message body
+            // get the new itemType from the message body
             ItemType clientItemType = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(ItemType)) as ItemType;
 
             ZaplifyStore zaplifystore = ZaplifyStore;
@@ -166,21 +166,21 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // if the requested listType does not belong to the authenticated user, return 403 Forbidden, otherwise return the listType
+            // if the requested itemType does not belong to the authenticated user, return 403 Forbidden, otherwise return the itemType
             if (clientItemType.UserID == null || clientItemType.UserID == Guid.Empty)
                 clientItemType.UserID = dbUser.ID;
             if (clientItemType.UserID != dbUser.ID)
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
 
-            // add the new listType to the database
+            // add the new itemType to the database
             try
             {
-                var listType = zaplifystore.ItemTypes.Add(clientItemType);
+                var itemType = zaplifystore.ItemTypes.Add(clientItemType);
                 int rows = zaplifystore.SaveChanges();
-                if (listType == null || rows != 1)
+                if (itemType == null || rows < 1)
                     return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Conflict);
                 else
-                    return new HttpResponseMessageWrapper<ItemType>(req, listType, HttpStatusCode.Created);
+                    return new HttpResponseMessageWrapper<ItemType>(req, itemType, HttpStatusCode.Created);
             }
             catch (Exception)
             {
@@ -203,9 +203,9 @@ namespace BuiltSteady.Zaplify.Website.Resources
         }
     
         /// <summary>
-        /// Update a listType
+        /// Update a itemType
         /// </summary>
-        /// <returns>Updated listType<returns>
+        /// <returns>Updated itemType<returns>
         [WebInvoke(UriTemplate = "{id}", Method = "PUT")]
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> UpdateItemType(HttpRequestMessage req, Guid id)
@@ -223,7 +223,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             ItemType originalItemType = clientItemTypes[0];
             ItemType newItemType = clientItemTypes[1];
 
-            // make sure the listType ID's match
+            // make sure the itemType ID's match
             if (originalItemType.ID != newItemType.ID)
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
             if (originalItemType.ID != id)
@@ -234,11 +234,11 @@ namespace BuiltSteady.Zaplify.Website.Resources
             User user = ResourceHelper.GetUserPassFromMessage(req);
             User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
 
-            // if the listType does not belong to the authenticated user, return 403 Forbidden
+            // if the itemType does not belong to the authenticated user, return 403 Forbidden
             if (originalItemType.UserID != dbUser.ID || newItemType.UserID != dbUser.ID)
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
 
-            // update the listType
+            // update the itemType
             try
             {
                 ItemType requestedItemType = zaplifystore.ItemTypes.Single<ItemType>(t => t.ID == id);
@@ -246,7 +246,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (changed == true)
                 {
                     int rows = zaplifystore.SaveChanges();
-                    if (rows != 1)
+                    if (rows < 1)
                         return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.InternalServerError);
                     else
                         return new HttpResponseMessageWrapper<ItemType>(req, requestedItemType, HttpStatusCode.Accepted);
@@ -256,7 +256,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             }
             catch (Exception)
             {
-                // listType not found - return 404 Not Found
+                // itemType not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.NotFound);
             }
         }

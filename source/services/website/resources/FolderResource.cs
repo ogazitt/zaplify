@@ -57,7 +57,11 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get the Folder to be deleted
             try
             {
-                Folder requestedFolder = zaplifystore.Folders.Include("FolderUsers").Include("Items.ItemTags").Single<Folder>(g => g.ID == id);
+                Folder requestedFolder = zaplifystore.
+                    Folders.
+                    Include("FolderUsers").
+                    Include("Items.ItemTags").
+                    Include("Items.FieldValues").Single<Folder>(g => g.ID == id);
 
                 // if the requested Folder does not belong to the authenticated user, return 403 Forbidden
                 if (requestedFolder.UserID != dbUser.ID)
@@ -66,20 +70,26 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // remove the itemtags associated with each of the items in this folder
                 if (requestedFolder.Items != null && requestedFolder.Items.Count > 0)
                 {
-                    foreach (Item t in requestedFolder.Items)
+                    foreach (Item i in requestedFolder.Items)
                     {
                         // delete all the itemtags associated with this item
-                        if (t.ItemTags != null && t.ItemTags.Count > 0)
+                        if (i.ItemTags != null && i.ItemTags.Count > 0)
                         {
-                            foreach (var tt in t.ItemTags.ToList())
+                            foreach (var tt in i.ItemTags.ToList())
                                 zaplifystore.ItemTags.Remove(tt);
+                        }
+                        // delete all the fieldvalues associated with this item
+                        if (i.FieldValues != null && i.FieldValues.Count > 0)
+                        {
+                            foreach (var fv in i.FieldValues.ToList())
+                                zaplifystore.FieldValues.Remove(fv);
                         }
                     }
                 }
 
                 // remove the folderusers associated with this folder
-                foreach (FolderUser gu in requestedFolder.FolderUsers)
-                    zaplifystore.FolderUsers.Remove(gu);
+                foreach (FolderUser fu in requestedFolder.FolderUsers)
+                    zaplifystore.FolderUsers.Remove(fu);
 
                 // remove the current folder 
                 zaplifystore.Folders.Remove(requestedFolder);
@@ -119,7 +129,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             try
             {
                 Guid id = dbUser.ID;
-                var folders = zaplifystore.Folders.Include("FolderUsers").Include("Items.ItemTags").Where(g => g.UserID == id).ToList();
+                var folders = zaplifystore.Folders.Include("FolderUsers").Include("Items.ItemTags").Include("Items.FieldValues").Where(f => f.UserID == id).ToList();
                 var response = new HttpResponseMessageWrapper<List<Folder>>(req, folders, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                 return response;
@@ -152,7 +162,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get the requested folder
             try
             {
-                Folder requestedFolder = zaplifystore.Folders.Include("FolderUsers").Include("Items.ItemTags").Single<Folder>(g => g.ID == id);
+                Folder requestedFolder = zaplifystore.Folders.Include("FolderUsers").Include("Items.ItemTags").Include("Items.FieldValues").Single<Folder>(f => f.ID == id);
 
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
                 if (requestedFolder.UserID != dbUser.ID)
@@ -230,7 +240,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             {
                 var folder = zaplifystore.Folders.Add(clientFolder);
                 int rows = zaplifystore.SaveChanges();
-                if (folder == null || rows != 1)
+                if (folder == null || rows < 1)
                     return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Conflict);
                 else
                     return new HttpResponseMessageWrapper<Folder>(req, folder, HttpStatusCode.Created);
@@ -304,7 +314,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (changed == true)
                 {
                     int rows = zaplifystore.SaveChanges();
-                    if (rows != 1)
+                    if (rows < 1)
                         return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.InternalServerError);
                     else
                         return new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.Accepted);

@@ -52,6 +52,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        private string name;
+        /// <summary>
+        /// Name property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public override string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                if (value != name)
+                {
+                    name = value;
+                    NotifyPropertyChanged("Name");
+                }
+            }
+        }
+
         private int fieldTypeID;
         /// <summary>
         /// FieldTypeID property

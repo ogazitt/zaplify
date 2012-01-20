@@ -14,11 +14,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
     {
         public Item() : base()
         {
-            created = DateTime.UtcNow;
-            lastModified = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow;
+            created = now;
+            lastModified = now;
+            fieldValues = new ObservableCollection<FieldValue>();
+            items = new ObservableCollection<Item>();
             itemTags = new ObservableCollection<ItemTag>();
             tags = new ObservableCollection<Tag>();
-            items = new ObservableCollection<Item>();
         }
 
         public Item(Item item)
@@ -39,7 +41,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             // copy all of the properties
             foreach (PropertyInfo pi in this.GetType().GetProperties())
             {
-                if (pi.CanWrite)
+                // only copy [DataMember] properties (which also must be writable)
+                object[] attr = pi.GetCustomAttributes(false);
+                if (attr != null && attr.Length > 0 && attr[0].GetType() == typeof(DataMemberAttribute) && 
+                    pi.CanWrite)
                 {
                     var val = pi.GetValue(obj, null);
                     pi.SetValue(this, val, null);
@@ -48,11 +53,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 
             if (deepCopy)
             {
-                // reinitialize the Tasks collection
+                // reinitialize the Items collection
                 this.items = new ObservableCollection<Item>();
                 if (obj.items != null)
                     foreach (Item i in obj.items)
                         this.items.Add(new Item(i));
+
+                // reinitialize the FieldValues collection
+                this.fieldValues = new ObservableCollection<FieldValue>();
+                if (obj.fieldValues != null)
+                    foreach (FieldValue fv in obj.fieldValues)
+                        this.fieldValues.Add(new FieldValue(fv));
             }
             else
             {
@@ -117,29 +128,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private bool complete;
-        /// <summary>
-        /// Complete property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public bool Complete
-        {
-            get
-            {
-                return complete;
-            }
-            set
-            {
-                if (value != complete)
-                {
-                    complete = value;
-                    NotifyPropertyChanged("Complete");
-                    NotifyPropertyChanged("NameDisplayColor");
-                }
-            }
-        }
-
         private DateTime created;
         /// <summary>
         /// Created property
@@ -162,77 +150,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private string description;
-        /// <summary>
-        /// Description property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Description
-        {
-            get
-            {
-                return description;
-            }
-            set
-            {
-                if (value != description)
-                {
-                    description = value;
-                    NotifyPropertyChanged("Description");
-                }
-            }
-        }
-
-        private string dueDate;
-        /// <summary>
-        /// DueDate property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string DueDate
-        {
-            get
-            {
-                return dueDate;
-            }
-            set
-            {
-                if (value != dueDate)
-                {
-                    dueDate = value;
-                    NotifyPropertyChanged("DueDate");
-                    NotifyPropertyChanged("Due");
-                    NotifyPropertyChanged("DueDisplay");
-                    NotifyPropertyChanged("DueDisplayColor");
-                    NotifyPropertyChanged("DueSort");
-                }
-            }
-        }
-
-        private string email;
-        /// <summary>
-        /// Email property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Email
-        {
-            get
-            {
-                return email;
-            }
-            set
-            {
-                if (value != email)
-                {
-                    email = value;
-                    NotifyPropertyChanged("Email");
-                }
-            }
-        }
-
-        private ObservableCollection<FieldValue> fieldValues;
+         private ObservableCollection<FieldValue> fieldValues;
         /// <summary>
         /// FieldValues collection
         /// </summary>
@@ -364,50 +282,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid? linkedFolderID;
-        /// <summary>
-        /// LinkedFolderID property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public Guid? LinkedFolderID
-        {
-            get
-            {
-                return linkedFolderID;
-            }
-            set
-            {
-                if (value != linkedFolderID)
-                {
-                    linkedFolderID = value;
-                    NotifyPropertyChanged("LinkedFolderID");
-                }
-            }
-        }
-
-        private string location;
-        /// <summary>
-        /// Location property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Location
-        {
-            get
-            {
-                return location;
-            }
-            set
-            {
-                if (value != location)
-                {
-                    location = value;
-                    NotifyPropertyChanged("Location");
-                }
-            }
-        }
-
         private string name;
         /// <summary>
         /// Name property
@@ -448,6 +322,166 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 {
                     parentID = value;
                     NotifyPropertyChanged("ParentID");
+                }
+            }
+        }
+
+        private Guid userID;
+        /// <summary>
+        /// UserID property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public Guid UserID
+        {
+            get
+            {
+                return userID;
+            }
+            set
+            {
+                if (value != userID)
+                {
+                    userID = value;
+                    NotifyPropertyChanged("UserID");
+                }
+            }
+        }
+
+/*
+        private bool complete;
+        /// <summary>
+        /// Complete property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public bool Complete
+        {
+            get
+            {
+                return complete;
+            }
+            set
+            {
+                if (value != complete)
+                {
+                    complete = value;
+                    NotifyPropertyChanged("Complete");
+                    NotifyPropertyChanged("NameDisplayColor");
+                }
+            }
+        }
+
+        private string description;
+        /// <summary>
+        /// Description property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string Description
+        {
+            get
+            {
+                return description;
+            }
+            set
+            {
+                if (value != description)
+                {
+                    description = value;
+                    NotifyPropertyChanged("Description");
+                }
+            }
+        }
+
+        private string dueDate;
+        /// <summary>
+        /// DueDate property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string DueDate
+        {
+            get
+            {
+                return dueDate;
+            }
+            set
+            {
+                if (value != dueDate)
+                {
+                    dueDate = value;
+                    NotifyPropertyChanged("DueDate");
+                    NotifyPropertyChanged("Due");
+                    NotifyPropertyChanged("DueDisplay");
+                    NotifyPropertyChanged("DueDisplayColor");
+                    NotifyPropertyChanged("DueSort");
+                }
+            }
+        }
+
+        private string email;
+        /// <summary>
+        /// Email property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string Email
+        {
+            get
+            {
+                return email;
+            }
+            set
+            {
+                if (value != email)
+                {
+                    email = value;
+                    NotifyPropertyChanged("Email");
+                }
+            }
+        }
+
+        private Guid? linkedFolderID;
+        /// <summary>
+        /// LinkedFolderID property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public Guid? LinkedFolderID
+        {
+            get
+            {
+                return linkedFolderID;
+            }
+            set
+            {
+                if (value != linkedFolderID)
+                {
+                    linkedFolderID = value;
+                    NotifyPropertyChanged("LinkedFolderID");
+                }
+            }
+        }
+
+        private string location;
+        /// <summary>
+        /// Location property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string Location
+        {
+            get
+            {
+                return location;
+            }
+            set
+            {
+                if (value != location)
+                {
+                    location = value;
+                    NotifyPropertyChanged("Location");
                 }
             }
         }
@@ -498,28 +532,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid userID;
-        /// <summary>
-        /// UserID property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public Guid UserID
-        {
-            get
-            {
-                return userID;
-            }
-            set
-            {
-                if (value != userID)
-                {
-                    userID = value;
-                    NotifyPropertyChanged("UserID");
-                }
-            }
-        }
-
         private string website;
         /// <summary>
         /// Website property
@@ -542,24 +554,159 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+ */
         #region DataBinding Properties
 
+        // dictionary to hold all the aliases to FieldValues
+        private Dictionary<string, FieldValue> fieldValueDict = new Dictionary<string, FieldValue>();
+
+        /// <summary>
+        /// Retrieve a FieldValue from the dictionary (or store a new one)
+        /// </summary>
+        /// <param name="fieldName">field name to retrieve a FieldValue for</param>
+        /// <param name="create">create the FieldValue if it doesn't exist?</param>
+        /// <returns></returns>
+        private FieldValue GetFieldValue(string fieldName, bool create)
+        {
+            FieldValue fieldValue = null;
+
+            // initialize the dictionary if necessary
+            if (fieldValueDict == null)
+                fieldValueDict = new Dictionary<string, FieldValue>();
+
+            // try to get the FieldValue out of the dictionary (if it was already retrieved)
+            if (fieldValueDict.TryGetValue(fieldName, out fieldValue) == true)
+                return fieldValue;
+
+            // try to find the current item's itemtype (this should succeed)
+            ItemType it;
+            if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
+                return null;
+
+            // try to find the fieldName among the "supported" fields of the itemtype 
+            // this may fail if this itemtype doesn't support this field name
+            try
+            {
+                Field field = it.Fields.Single(f => f.Name == fieldName);
+                // get the fieldvalue associated with this field
+                // this may fail if this item doesn't have this field set yet
+                try
+                {
+                    fieldValue = fieldValues.Single(fv => fv.FieldID == field.ID);
+                }
+                catch (Exception)
+                {
+                    // if the caller wishes to create a new FieldValue, do so now
+                    if (create)
+                    {
+                        fieldValue = new FieldValue()
+                        {
+                            FieldID = field.ID,
+                            ItemID = this.ID
+                        };
+
+                        // store the new FieldValue in the dictionary
+                        fieldValueDict[fieldName] = fieldValue;
+
+                        if (fieldValues == null)
+                            fieldValues = new ObservableCollection<FieldValue>();
+
+                        // add the new FieldValue in the FieldValues collection
+                        fieldValues.Add(fieldValue);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            return fieldValue;
+        }
+
         // local-only properties used for databinding
+
+        public bool? Complete
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Complete", false);
+                if (fv != null)
+                    return (bool?)Convert.ToBoolean(fv.Value);
+                else
+                    return null;
+                //return dueDate == null ? null : (DateTime?) Convert.ToDateTime(dueDate);
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Complete", true);
+                if (fv != null)
+                {
+                    fv.Value = (value == null) ? null : ((bool)value).ToString();
+                    NotifyPropertyChanged("Complete");
+                }
+            }
+        }
+
+        public string Description
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Description", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Description", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("Description");
+                }
+            }
+        }
 
         public DateTime? Due
         {
             get
             {
-                return dueDate == null ? null : (DateTime?) Convert.ToDateTime(dueDate);
+                return DueDate == null ? null : (DateTime?) Convert.ToDateTime(DueDate);
             }
             set
             {
-                dueDate = (value == null) ? null : ((DateTime)value).ToString("yyyy/MM/dd");
+                DueDate = (value == null) ? null : ((DateTime)value).ToString("yyyy/MM/dd");
                 NotifyPropertyChanged("DueDate");
                 NotifyPropertyChanged("Due");
                 NotifyPropertyChanged("DueDisplay");
                 NotifyPropertyChanged("DueDisplayColor");
                 NotifyPropertyChanged("DueSort");
+            }
+        }
+
+        public string DueDate
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("DueDate", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("DueDate", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("DueDate");
+                    NotifyPropertyChanged("Due");
+                    NotifyPropertyChanged("DueDisplay");
+                    NotifyPropertyChanged("DueDisplayColor");
+                    NotifyPropertyChanged("DueSort");
+                }
             }
         }
 
@@ -575,7 +722,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     return null;
                 
                 // if the item is already completed, no need to alert past-due items
-                if (complete == true)
+                if (Complete == true)
                     return "#ffa0a0a0";
 
                 // return red for past-due items, yellow for items due today, gray for items due in future
@@ -591,6 +738,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         // sort property for Due
         public DateTime DueSort { get { return Due == null ? DateTime.MaxValue : (DateTime)Due; } }
 
+        public string Email
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Email", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Email", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("Email");
+                }
+            }
+        }
+        
         private ObservableCollection<Item> items;
         /// <summary>
         /// Items collection
@@ -610,22 +778,85 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     NotifyPropertyChanged("Items");
                 }
             }
-        }
+        } 
 
         // boolean property for LinkedFolderID
-        public bool LinkedFolderIDBool { get { return linkedFolderID == null ? false : true; } }
+        //public bool LinkedFolderIDBool { get { return linkedFolderID == null ? false : true; } }
+
+        public string Location
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Location", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Location", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("Location");
+                }
+            }
+        }
 
         // display color property for Name
-        public string NameDisplayColor { get { return complete == true ? "Gray" : "White"; } }
+        public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
+
+        public int? PriorityID
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("PriorityID", false);
+                if (fv != null)
+                    return (int?)Convert.ToInt32(fv.Value);
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("PriorityID", true);
+                if (fv != null)
+                {
+                    fv.Value = (value == null) ? null : ((int)value).ToString();
+                    NotifyPropertyChanged("PriorityID");
+                }
+            }
+        }
+
+        public string Phone
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Phone", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Phone", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("Phone");
+                }
+            }
+        }
 
         // display image for PriorityID
         public string PriorityIDIcon
         {
             get
             {
-                if (priorityId == null)
+                if (PriorityID == null)
                     return "/Images/priority.none.png";
-                string priString = PriorityNames[(int)priorityId];
+                string priString = PriorityNames[(int)PriorityID];
                 switch (priString)
                 {
                     case "Low":
@@ -641,7 +872,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         // sort property for PriorityID
-        public int PriorityIDSort { get { return priorityId == null ? 1 : (int)priorityId; } }
+        public int PriorityIDSort { get { return PriorityID == null ? 1 : (int)PriorityID; } }
 
         // hardcode some names and colors for priority values
         public static string[] PriorityNames = new string[] { "Low", "Normal", "High" };
@@ -663,7 +894,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     NotifyPropertyChanged("Tags");
                 }
             }
-        }       
+        }
+
+        public string Website
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue("Website", false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue("Website", true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged("Website");
+                }
+            }
+        }
 
         #endregion
 

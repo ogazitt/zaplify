@@ -24,7 +24,7 @@
         <!--<ProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>-->
         <toolkit:PerformanceProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
         <!--Pivot Control-->
-        <controls:Pivot x:Name="MainPivot" Title="TASKSTORE" SelectionChanged="Pivot_SelectionChanged" >
+        <controls:Pivot x:Name="MainPivot" Title="ZAPLIFY" SelectionChanged="Pivot_SelectionChanged" >
             <!--items pivot item-->
             <controls:PivotItem Header="items">
                 <Grid>

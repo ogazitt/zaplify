@@ -82,7 +82,7 @@
         <!--quick add popup panel-->
         <Popup x:Name="QuickAddPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
             <Grid>
-                <Border Background="#FF1F1F1F" Height="250"/>
+                <Border Background="#FF1F1F1F" Height="350"/>
                 <StackPanel Width="480">
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,15,0,0">
                         <CheckBox x:Name="QuickAddPopupIsListCheckbox" Content="list" />

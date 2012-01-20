@@ -143,7 +143,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 DateTime dt = DateTime.MinValue;
                 foreach (var item in items)
                 {
-                    if (item.Complete == false && item.Due != null)
+                    if (item.Complete != true && item.Due != null)
                     {
                         if (dt == DateTime.MinValue)
                         {
@@ -185,9 +185,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             get
             {
                 int i = 0;
-                foreach (var t in Items)
+                foreach (var item in Items)
                 {
-                    if (t.Complete == false)
+                    if (item.Complete == false)
                         i++;
                 }
                 return i;

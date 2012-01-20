@@ -8,9 +8,9 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class FieldValue : INotifyPropertyChanged
+    public class FieldValue : ZaplifyEntity, INotifyPropertyChanged
     {
-        public FieldValue() { }
+        public FieldValue() : base() { }
 
         public FieldValue(FieldValue fieldValue)
         {
@@ -31,13 +31,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private int id;
+        private Guid id;
         /// <summary>
         /// ID property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public int ID
+        public override Guid ID
         {
             get
             {
@@ -53,13 +53,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private int fieldID;
+        private Guid fieldID;
         /// <summary>
         /// FieldID property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public int FieldID
+        public Guid FieldID
         {
             get
             {
@@ -75,13 +75,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private int itemID;
+        private Guid itemID;
         /// <summary>
         /// ItemID property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public int ItemID
+        public Guid ItemID
         {
             get
             {

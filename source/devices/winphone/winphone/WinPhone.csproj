@@ -185,6 +185,9 @@
     </Content>
     <Content Include="Images\button.mic.png" />
     <Resource Include="Images\mic-icon.png" />
+    <Content Include="Images\contact.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\priority.high.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

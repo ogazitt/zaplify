@@ -67,7 +67,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Folder folder = App.ViewModel.Folders.Single(f => f.Name == "Personal");
             todoList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.ToDoItem && i.IsList == true);
             shoppingList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.ShoppingItem && i.IsList == true);
-            folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = todoList.ID, ItemTypeID = ItemType.ToDoItem, Name = "Check out Zaplify", Description = "Play with it", Due = DateTime.Today, PriorityID = 1 });
+            folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = todoList.ID, ItemTypeID = ItemType.ToDoItem, Name = "Check out Zaplify", Due = DateTime.Today, PriorityID = 1 });
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(

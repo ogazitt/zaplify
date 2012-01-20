@@ -130,60 +130,60 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     sb.AppendLine("    " + item.Name);
                     foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
                     {
-                        FieldType fieldType;
-                        // get the field type for this field
+                        PropertyInfo pi = null;
+                        object currentValue = null;
+
+                        // get the current field value.
+                        // the value can either be in a strongly-typed property on the item (e.g. Name),
+                        // or in one of the FieldValues 
                         try
                         {
-                            fieldType = App.ViewModel.Constants.FieldTypes.Single(ft => ft.FieldTypeID == f.FieldTypeID);
+                            // get the strongly typed property
+                            pi = item.GetType().GetProperty(f.Name);
+                            if (pi != null)
+                                currentValue = pi.GetValue(item, null);
                         }
                         catch (Exception)
                         {
-                            continue;
                         }
+
+                        // if couldn't find a strongly typed property, this property is stored as a 
+                        // FieldValue on the item
+                        if (pi == null)
+                        {
+                            FieldValue fieldValue = null;
+                            // get current item's value for this field
+                            try
+                            {
+                                fieldValue = item.FieldValues.Single(fv => fv.FieldID == f.ID);
+                                currentValue = fieldValue.Value;
+                            }
+                            catch (Exception)
+                            {
+                            }
+                        }
+
+                        // if this property wasn't found or is null, no need to print anything
+                        if (currentValue == null)
+                            continue;
 
                         // already printed out the item name
-                        if (fieldType.DisplayName == "Name")
+                        if (f.DisplayName == "Name")
                             continue;
 
-                        PropertyInfo pi;
-                        // make sure the property exists on the local type
-                        try
+                        // format the field value properly
+                        if (currentValue != null)
                         {
-                            pi = item.GetType().GetProperty(fieldType.Name);
-                            if (pi == null)
-                                continue;  // see comment below
-                        }
-                        catch (Exception)
-                        {
-                            // we can't do anything with this property since we don't have it on the local type
-                            // this indicates that the phone software isn't caught up with the service version
-                            // but that's ok - we can keep going
-                            continue;
-                        }
-
-                        // skip the uninteresting fields
-                        if (pi.CanWrite == false ||
-                            pi.PropertyType == typeof(Guid) ||
-                            pi.PropertyType == typeof(Guid?) || 
-                            pi.Name == "ItemTags" ||
-                            pi.Name == "Created" ||
-                            pi.Name == "LastModified")
-                            continue;
-
-                        // get the value of the property
-                        var val = pi.GetValue(item, null);
-                        if (val != null)
-                        {
-                            switch (pi.Name)
+                            switch (f.DisplayType)
                             {
-                                case "Due":
-                                    sb.AppendFormat("        {0}: {1}\n", pi.Name, ((DateTime)val).ToString("d"));
+                                case "Date":
+                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, ((DateTime)currentValue).ToString("d"));
                                     break;
-                                case "PriorityID":
-                                    sb.AppendFormat("        {0}: {1}\n", "Priority", Item.PriorityNames[(int)val]);
+                                case "Priority":
+                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, Item.PriorityNames[(int)currentValue]);
                                     break;
                                 default:
-                                    sb.AppendFormat("        {0}: {1}\n", pi.Name, val.ToString());
+                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, currentValue.ToString());
                                     break;
                             }
                         }
@@ -261,18 +261,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // if data isn't loaded from storage yet, load the app data
             if (!App.ViewModel.IsDataLoaded)
             {
-                // Load app data from local storage (user creds, about tab data, constants, folder types, folders, etc)
+                // Load app data from local storage (user creds, about tab data, constants, item types, folders, etc)
                 App.ViewModel.LoadData();
             }
-
-            // load the contents of each folder (this happens after the initial UI is rendered)
-            List<Guid> guidList = App.ViewModel.Folders.Select(f => f.ID).ToList<Guid>();
-            foreach (Guid guid in guidList)
-                App.ViewModel.LoadFolder(guid);
-            
-            // notify the UI that the folders / items collections have changed
-            App.ViewModel.NotifyPropertyChanged("Folders");
-            App.ViewModel.NotifyPropertyChanged("Items");
 
             // if haven't synced with web service yet, try now
             if (initialSync == false)
@@ -504,6 +495,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // toggle the complete flag to reflect the checkbox click
             item.Complete = !item.Complete;
 
+            // bump the last modified timestamp
+            item.LastModified = DateTime.UtcNow;
+
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
@@ -584,7 +578,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             foreach (Item item in items)
             {
                 // if the item is completed, don't list it
-                if (item.Complete)
+                if (item.Complete == null || item.Complete == true)
                     continue;
 
                 // if the item is a list, don't list it

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Collections.ObjectModel;
 
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
@@ -36,12 +37,41 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         // built-in items
-        public static Guid ToDoItem = new Guid("14CDA248-4116-4E51-AC13-00096B43418C");
-        public static Guid ShoppingItem = new Guid("1788A0C4-96E8-4B95-911A-75E1519D7259");
-        public static Guid FreeformItem = new Guid("dc1c6243-e510-4297-9df8-75babd237fbe");
-        //public static Guid ToDoItem = new Guid("00000000-0000-0000-0000-000000000001");
-        //public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000002");
-        //public static Guid FreeformItem = new Guid("00000000-0000-0000-0000-000000000003");
+        public static Guid ToDoItem = new Guid("00000000-0000-0000-0000-000000000001");
+        public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000002");
+        public static Guid FreeformItem = new Guid("00000000-0000-0000-0000-000000000003");
+        public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000004");
+        public static List<Guid> BuiltInTypes = new List<Guid>() { ToDoItem, ShoppingItem, FreeformItem, Contact };
+
+        // static dictionary of current item types
+        public static Dictionary<Guid, ItemType> ItemTypes { get; set; }
+        public static void CreateDictionary(ObservableCollection<ItemType> itemTypes)
+        {
+            if (ItemTypes == null)
+                ItemTypes = new Dictionary<Guid,ItemType>();
+            ItemTypes.Clear();
+            foreach (var it in itemTypes)
+                ItemTypes.Add(it.ID, it);
+        }
+
+        public static string ItemTypeName(Guid itemTypeID)
+        {
+            if (ItemTypes != null)
+            {
+                ItemType itemType = null;
+                if (ItemTypes.TryGetValue(itemTypeID, out itemType))
+                    return itemType.Name;
+            }
+
+            // last resort
+            if (itemTypeID == ToDoItem)
+                return "ToDo";
+            if (itemTypeID == ShoppingItem)
+                return "Shopping Item";
+            if (itemTypeID == FreeformItem)
+                return "Freeform Item";
+            return null;
+        }
 
         private Guid id;
         /// <summary>
@@ -105,6 +135,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 {
                     fields = value;
                     NotifyPropertyChanged("Fields");
+                }
+            }
+        }
+
+        private string icon;
+        /// <summary>
+        /// Icon property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public string Icon
+        {
+            get
+            {
+                return icon;
+            }
+            set
+            {
+                if (value != icon)
+                {
+                    icon = value;
+                    NotifyPropertyChanged("Icon");
                 }
             }
         }

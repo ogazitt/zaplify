@@ -37,7 +37,7 @@
         </i:Interaction.Behaviors>
         <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
         <ProgressBar IsIndeterminate="True" Margin="0,-590,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
-        <controls:Pivot x:Name="MainPivot" Title="TASKSTORE">
+        <controls:Pivot x:Name="MainPivot" Title="ZAPLIFY">
             <!--account pivot item-->
             <controls:PivotItem Header="account">
                 <ScrollViewer BorderThickness="0">

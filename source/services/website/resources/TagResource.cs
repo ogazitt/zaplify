@@ -184,7 +184,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             {
                 var tag = zaplifystore.Tags.Add(clientTag);
                 int rows = zaplifystore.SaveChanges();
-                if (tag == null || rows != 1)
+                if (tag == null || rows < 1)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Conflict);
                 else
                     return new HttpResponseMessageWrapper<Tag>(req, tag, HttpStatusCode.Created);
@@ -257,7 +257,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (changed == true)
                 {
                     int rows = zaplifystore.SaveChanges();
-                    if (rows != 1)
+                    if (rows < 1)
                         return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
                     else
                         return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.Accepted);

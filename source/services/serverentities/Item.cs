@@ -18,6 +18,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public List<ItemTag> ItemTags { get; set; }
         public List<FieldValue> FieldValues { get; set; }
 
+        /*
         // these will go away
         public bool Complete { get; set; }
         public string Description { get; set; }
@@ -28,6 +29,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Website { get; set; }
         public string Email { get; set; }
         public Guid? LinkedFolderID { get; set; }
+         */
 
         // these are first-class attributes of each item
         public DateTime Created { get; set; }

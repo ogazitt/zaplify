@@ -70,14 +70,17 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 // get the item to be deleted
                 try
                 {
-                    Item requestedItem = zaplifystore.Items.Include("ItemTags").Single<Item>(t => t.ID == id);
+                    Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                     // delete all the itemtags associated with this item
                     if (requestedItem.ItemTags != null && requestedItem.ItemTags.Count > 0)
-                    {
                         foreach (var tt in requestedItem.ItemTags.ToList())
                             zaplifystore.ItemTags.Remove(tt);
-                    }
+
+                    // delete all the fieldvalues associated with this item
+                    if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
+                        foreach (var fv in requestedItem.FieldValues.ToList())
+                            zaplifystore.FieldValues.Remove(fv);
 
                     zaplifystore.Items.Remove(requestedItem);
                     int rows = zaplifystore.SaveChanges();
@@ -196,10 +199,6 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                // make sure the LinkedFolder is null if it's empty
-                if (clientItem.LinkedFolderID == Guid.Empty)
-                    clientItem.LinkedFolderID = null;
-
                 // add the new item to the database
                 try
                 {
@@ -277,7 +276,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             // get the folder for the item
             try
             {
-                Item requestedItem = zaplifystore.Items.Include("ItemTags").Single<Item>(t => t.ID == id);
+                Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                 // if the Folder does not belong to the authenticated user, return 403 Forbidden
                 if (requestedItem.UserID != dbUser.ID)
@@ -303,6 +302,14 @@ namespace BuiltSteady.Zaplify.Website.Resources
                     {
                         foreach (var tt in requestedItem.ItemTags.ToList())
                             zaplifystore.ItemTags.Remove(tt);
+                        changed = true;
+                    }
+
+                    // delete all the fieldvalues associated with this item
+                    if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
+                    {
+                        foreach (var fv in requestedItem.FieldValues.ToList())
+                            zaplifystore.FieldValues.Remove(fv);
                         changed = true;
                     }
 
@@ -335,7 +342,6 @@ namespace BuiltSteady.Zaplify.Website.Resources
         private bool Update(Item requestedItem, Item originalItem, Item newItem)
         {
             bool updated = false;
-            // timestamps!!
             Type t = requestedItem.GetType();
             foreach (PropertyInfo pi in t.GetProperties())
             {
@@ -343,8 +349,21 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 object origValue = pi.GetValue(originalItem, null);
                 object newValue = pi.GetValue(newItem, null);
 
-                // if this is the TasgTags field make it simple - if this update is the last one, it wins
+                // if this is the ItemTags field make it simple - if this update is the last one, it wins
                 if (pi.Name == "ItemTags")
+                {
+                    if (newItem.LastModified > requestedItem.LastModified)
+                    {
+                        pi.SetValue(requestedItem, newValue, null);
+                        updated = true;
+                    }
+                    continue;
+                }
+
+                // if this is the FieldValues field make it simple - if this update is the last one, it wins
+                // BUGBUG: this is too simplistic - we should be iterating through the fieldvalue collection and
+                // doing finer-grained conflict management
+                if (pi.Name == "FieldValues")
                 {
                     if (newItem.LastModified > requestedItem.LastModified)
                     {

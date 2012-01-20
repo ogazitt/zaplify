@@ -75,8 +75,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // reset the tab index
             tabIndex = 0;
 
-            // don't render the folder field by default
-            bool renderFolderField = false;
+            // render the folder field by default
+            bool renderFolderField = true;
 
             // find the itemist that this item would belong to
             string folderIDString = "";
@@ -141,7 +141,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 itemCopy = new Item(thisItem);
                 DataContext = itemCopy;
                 RenderViewItem(itemCopy);
-                RenderEditItem(itemCopy, false);
+                RenderEditItem(itemCopy, true /* render the list field */);
             }
                     
             // set the initialized flag
@@ -393,11 +393,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             EditListBox.Items.Add(moreButton);
         }
 
-        private void RenderEditItemField(Item item, FieldType fieldType)
+        private void RenderEditItemField(Item item, Field field)
         {
-            PropertyInfo pi;
+            // get the field type for this field
+            FieldType fieldType;
+            try
+            {
+                fieldType = App.ViewModel.Constants.FieldTypes.Single(ft => ft.FieldTypeID == field.FieldTypeID);
+            }
+            catch (Exception)
+            {
+                // we can't do anything with this field because we don't know its FieldType
+                return;
+            }
 
             // make sure the property exists on the local type
+            PropertyInfo pi;
             try
             {
                 pi = item.GetType().GetProperty(fieldType.Name);
@@ -465,7 +476,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         chooser.Completed += new EventHandler<PhoneNumberResult>((sender, e) =>
                         {
                             if (e.TaskResult == TaskResult.OK && e.PhoneNumber != null && e.PhoneNumber != "")
-                                pi.SetValue(item, e.PhoneNumber, null);
+                                pi.SetValue(itemCopy, e.PhoneNumber, null);
                         });
                         chooser.Show();
                     });
@@ -491,7 +502,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         chooser.Completed += new EventHandler<EmailResult>((sender, e) =>
                         {
                             if (e.TaskResult == TaskResult.OK && e.Email != null && e.Email != "")
-                                pi.SetValue(item, e.Email, null);
+                                pi.SetValue(itemCopy, e.Email, null);
                         });
                         chooser.Show();
                     });
@@ -562,6 +573,27 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     folderPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(folderPicker);
                     break;
+                case "List":
+                    ListPicker listPicker = new ListPicker() 
+                    { 
+                        MinWidth = minWidth,
+                        FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
+                        IsTabStop = true 
+                    };
+                    var lists = App.ViewModel.Items.Where(i => i.FolderID == item.FolderID && i.IsList == true).OrderBy(i => i.Name).ToObservableCollection();
+                    lists.Insert(0, new Item()
+                    {
+                        ID = Guid.Empty,
+                        Name = folder.Name
+                    });
+                    listPicker.ItemsSource = lists;
+                    listPicker.DisplayMemberPath = "Name";
+                    Item thisItem = lists.FirstOrDefault(i => i.ID == item.ParentID);
+                    listPicker.SelectedIndex = lists.IndexOf(thisItem);
+                    listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(itemCopy, lists[listPicker.SelectedIndex].ID, null); });
+                    listPicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(listPicker);
+                    break;
                 case "Integer":
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(itemCopy, Convert.ToInt32(tb.Text), null); });
@@ -594,10 +626,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     RenderEditItemTagList(taglist, itemCopy, pi);
                     EditStackPanel.Children.Add(taglist);
                     break;
+                    /*
                 case "ListPointer":
                     innerPanel = RenderEditFolderPointer(pi, minWidth);
                     EditStackPanel.Children.Add(innerPanel);
                     break;
+                     */
                 default:
                     notMatched = true;
                     break;
@@ -650,31 +684,345 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             EditListBox.Items.Add(listBoxItem);
         }
 
-        private void RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderFolderField)
+        private void RenderEditItemField2(Item item, Field field)
         {
-            if (renderFolderField == true)
+            PropertyInfo pi = null;
+            object currentValue = null;
+            object container = null;
+
+            // get the current field value.
+            // the value can either be in a strongly-typed property on the item (e.g. Name),
+            // or in one of the FieldValues 
+            try
             {
-                FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = "Folder" };
-                RenderEditItemField(item, fieldType);
+                // get the strongly typed property
+                pi = item.GetType().GetProperty(field.Name);
+                if (pi != null)
+                {
+                    // store current item's value for this field
+                    currentValue = pi.GetValue(item, null);
+
+                    // set the container - this will be the object that will be passed 
+                    // to pi.SetValue() below to poke new values into
+                    container = itemCopy;
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            // if couldn't find a strongly typed property, this property is stored as a 
+            // FieldValue on the item
+            if (pi == null)
+            {
+                FieldValue fieldValue = null;
+                // get current item's value for this field
+                try
+                {
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                    currentValue = fieldValue.Value;
+                }
+                catch (Exception)
+                {
+                }
+
+                // get the item copy's fieldvalue for this field
+                // we use this to write changes to the field's value
+                try
+                {
+                    fieldValue = itemCopy.FieldValues.Single(fv => fv.FieldID == field.ID);
+                }
+                catch (Exception)
+                {
+                    fieldValue = new FieldValue()
+                    {
+                        FieldID = field.ID,
+                        ItemID = item.ID,
+                    };
+                }
+
+                // get the value property of the current fieldvalue
+                pi = fieldValue.GetType().GetProperty("Value");
+                if (pi == null)
+                    return;
+
+                // set the container - this will be the object that will be passed 
+                // to pi.SetValue() below to poke new values into
+                container = fieldValue;
+            }
+
+            ListBoxItem listBoxItem = new ListBoxItem();
+            StackPanel EditStackPanel = new StackPanel();
+            listBoxItem.Content = EditStackPanel;
+            EditStackPanel.Children.Add(
+                new TextBlock()
+                {
+                    Text = field.DisplayName,
+                    Style = (Style)App.Current.Resources["PhoneTextNormalStyle"]
+                });
+
+            // create a textbox (will be used by the majority of field types)
+            double minWidth = App.Current.RootVisual.RenderSize.Width;
+            if ((int)minWidth == 0)
+                minWidth = ((this.Orientation & PageOrientation.Portrait) == PageOrientation.Portrait) ? 480.0 : 800.0;
+
+            TextBox tb = new TextBox() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+            tb.SetBinding(TextBox.TextProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+
+            bool notMatched = false;
+            // render the right control based on the type 
+            switch (field.DisplayType)
+            {
+                case "String":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    tb.TabIndex = tabIndex++;
+                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    EditStackPanel.Children.Add(tb);
+                    break;
+                case "TextBox":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
+                    tb.AcceptsReturn = true;
+                    tb.TextWrapping = TextWrapping.Wrap;
+                    tb.Height = 300;
+                    tb.TabIndex = tabIndex++;
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    EditStackPanel.Children.Add(tb);
+                    break;
+                case "Phone":
+                case "PhoneNumber":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.TelephoneNumber } } };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    tb.TabIndex = tabIndex++;
+                    StackPanel innerPanel = RenderEditItemImageButtonPanel(tb);
+                    ImageButton imageButton = (ImageButton)innerPanel.Children[1];
+                    imageButton.Click += new RoutedEventHandler(delegate
+                    {
+                        PhoneNumberChooserTask chooser = new PhoneNumberChooserTask();
+                        chooser.Completed += new EventHandler<PhoneNumberResult>((sender, e) =>
+                        {
+                            if (e.TaskResult == TaskResult.OK && e.PhoneNumber != null && e.PhoneNumber != "")
+                                pi.SetValue(container, e.PhoneNumber, null);
+                        });
+                        chooser.Show();
+                    });
+                    EditStackPanel.Children.Add(innerPanel);
+                    break;
+                case "Website":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Url } } };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    tb.TabIndex = tabIndex++;
+                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    EditStackPanel.Children.Add(tb);
+                    break;
+                case "Email":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.EmailSmtpAddress } } };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    tb.TabIndex = tabIndex++;
+                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    innerPanel = RenderEditItemImageButtonPanel(tb);
+                    imageButton = (ImageButton)innerPanel.Children[1];
+                    imageButton.Click += new RoutedEventHandler(delegate
+                    {
+                        EmailAddressChooserTask chooser = new EmailAddressChooserTask();
+                        chooser.Completed += new EventHandler<EmailResult>((sender, e) =>
+                        {
+                            if (e.TaskResult == TaskResult.OK && e.Email != null && e.Email != "")
+                                pi.SetValue(container, e.Email, null);
+                        });
+                        chooser.Show();
+                    });
+                    EditStackPanel.Children.Add(innerPanel);
+                    break;
+                case "Location":
+                case "Address":
+                    tb.InputScope = new InputScope()
+                    {
+                        Names = 
+                            { 
+                                new InputScopeName() { NameValue = InputScopeNameValue.AddressStreet },
+                                new InputScopeName() { NameValue = InputScopeNameValue.AddressCity },
+                                new InputScopeName() { NameValue = InputScopeNameValue.AddressStateOrProvince },
+                                new InputScopeName() { NameValue = InputScopeNameValue.AddressCountryName },
+                            }
+                    };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                    tb.TabIndex = tabIndex++;
+                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    innerPanel = RenderEditItemImageButtonPanel(tb);
+                    imageButton = (ImageButton)innerPanel.Children[1];
+                    imageButton.Click += new RoutedEventHandler(delegate
+                    {
+                        // start the location service
+                        GeoCoordinateWatcher watcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
+                        watcher.MovementThreshold = 20; // Use MovementThreshold to ignore noise in the signal.
+                        watcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>((sender, e) =>
+                        {
+                            if (e.Status == GeoPositionStatus.Ready)
+                            {
+                                // Use the Position property of the GeoCoordinateWatcher object to get the current location.
+                                GeoCoordinate co = watcher.Position.Location;
+                                tb.Text = co.Latitude.ToString("0.000") + "," + co.Longitude.ToString("0.000");
+                                //Stop the Location Service to conserve battery power.
+                                watcher.Stop();
+                            }
+                        });
+                        watcher.Start();
+                    });
+                    EditStackPanel.Children.Add(innerPanel);
+                    break;
+                case "Priority":
+                    ListPicker lp = new ListPicker()
+                    {
+                        MinWidth = minWidth,
+                        FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
+                        IsTabStop = true
+                    };
+                    lp.ItemsSource = App.ViewModel.Constants.Priorities;
+                    lp.DisplayMemberPath = "Name";
+                    int? lpval = (int?)pi.GetValue(container, null);
+                    if (lpval != null)
+                        lp.SelectedIndex = (int)lpval;
+                    else
+                        lp.SelectedIndex = 1;  // HACK: hardcode to "Normal" priority.  this should come from a table.
+                    lp.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lp.SelectedIndex == 1 ? (int?)null : lp.SelectedIndex, null); });
+                    lp.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(lp);
+                    break;
+                case "Folder":
+                    ListPicker folderPicker = new ListPicker() { MinWidth = minWidth, IsTabStop = true };
+                    folderPicker.ItemsSource = App.ViewModel.Folders;
+                    folderPicker.DisplayMemberPath = "Name";
+                    Folder tl = App.ViewModel.Folders.FirstOrDefault(list => list.ID == folder.ID);
+                    folderPicker.SelectedIndex = App.ViewModel.Folders.IndexOf(tl);
+                    folderPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, App.ViewModel.Folders[folderPicker.SelectedIndex].ID, null); });
+                    folderPicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(folderPicker);
+                    break;
+                case "List":
+                    ListPicker listPicker = new ListPicker()
+                    {
+                        MinWidth = minWidth,
+                        FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
+                        IsTabStop = true
+                    };
+                    var lists = App.ViewModel.Items.Where(i => i.FolderID == item.FolderID && i.IsList == true).OrderBy(i => i.Name).ToObservableCollection();
+                    lists.Insert(0, new Item()
+                    {
+                        ID = Guid.Empty,
+                        Name = folder.Name
+                    });
+                    listPicker.ItemsSource = lists;
+                    listPicker.DisplayMemberPath = "Name";
+                    Item thisItem = lists.FirstOrDefault(i => i.ID == item.ParentID);
+                    listPicker.SelectedIndex = lists.IndexOf(thisItem);
+                    listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lists[listPicker.SelectedIndex].ID, null); });
+                    listPicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(listPicker);
+                    break;
+                case "Integer":
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
+                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, Convert.ToInt32(tb.Text), null); });
+                    tb.TabIndex = tabIndex++;
+                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    EditStackPanel.Children.Add(tb);
+                    break;
+                case "Date":
+                    DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+                    dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                    dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                    {
+                        //pi.SetValue(container, dp.Value, null);
+                        pi.SetValue(container, dp.Value == null ? null : ((DateTime)dp.Value).ToString("d"), null);
+                        folder.NotifyPropertyChanged("FirstDue");
+                        folder.NotifyPropertyChanged("FirstDueColor");
+                    });
+                    dp.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(dp);
+                    break;
+                case "Boolean":
+                    CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
+                    cb.SetBinding(CheckBox.IsCheckedProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                    cb.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(cb);
+                    break;
+                case "TagList":
+                    TextBox taglist = new TextBox() { MinWidth = minWidth, IsTabStop = true };
+                    taglist.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                    taglist.TabIndex = tabIndex++;
+                    RenderEditItemTagList(taglist, (Item) container, pi);
+                    EditStackPanel.Children.Add(taglist);
+                    break;
+                    /*
+                case "ListPointer":
+                    innerPanel = RenderEditFolderPointer(pi, minWidth);
+                    EditStackPanel.Children.Add(innerPanel);
+                    break;
+                     */
+                default:
+                    notMatched = true;
+                    break;
+            }
+
+            // if wasn't able to match field type by display type, try matching by CLR type
+            if (notMatched == true)
+            {
+                string typename = GetTypeName(pi);
+                switch (typename)
+                {
+                    case "String":
+                        tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
+                        tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
+                        tb.TabIndex = tabIndex++;
+                        tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                        EditStackPanel.Children.Add(tb);
+                        break;
+                    case "Int32":
+                        tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
+                        tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, Convert.ToInt32(tb.Text), null); });
+                        tb.TabIndex = tabIndex++;
+                        tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
+                        EditStackPanel.Children.Add(tb);
+                        break;
+                    case "DateTime":
+                        DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+                        dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                        dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                        {
+                            pi.SetValue(container, dp.Value, null);
+                            folder.NotifyPropertyChanged("FirstDue");
+                            folder.NotifyPropertyChanged("FirstDueColor");
+                        });
+                        dp.TabIndex = tabIndex++;
+                        EditStackPanel.Children.Add(dp);
+                        break;
+                    case "Boolean":
+                        CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
+                        cb.SetBinding(CheckBox.IsEnabledProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                        cb.TabIndex = tabIndex++;
+                        EditStackPanel.Children.Add(cb);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // add the listboxitem to the listbox
+            EditListBox.Items.Add(listBoxItem);
+        }
+        
+        private void RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderListField)
+        {
+            if (renderListField == true)
+            {
+                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = "Folder" };
+                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = "List" };
+                RenderEditItemField2(item, field);
             }
 
             // render fields
             foreach (Field f in itemtype.Fields.Where(f => f.IsPrimary == primary).OrderBy(f => f.SortOrder))
-            {
-                FieldType fieldType;
-                // get the field type for this field
-                try
-                {
-                    fieldType = App.ViewModel.Constants.FieldTypes.Single(ft => ft.FieldTypeID == f.FieldTypeID);
-                }
-                catch (Exception)
-                {
-                    continue;
-                }
-
-                // render this field
-                RenderEditItemField(item, fieldType);
-            }
+                RenderEditItemField2(item, f);
 
             // refresh the keyboard tabstops
             keyboardHelper.RefreshTabbedControls(null);
@@ -697,6 +1045,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             return innerPanel;
         }
 
+        /*
         private StackPanel RenderEditFolderPointer(PropertyInfo pi, double minWidth)
         {
             StackPanel innerPanel;
@@ -744,6 +1093,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             innerPanel.Children.Add(listPicker);
             return innerPanel;
         }
+         */
 
         private void RenderEditItemTagList(TextBox taglist, Item item, PropertyInfo pi)
         {
@@ -813,51 +1163,53 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void RenderViewItem(Item item)
         {
+            // get the item type
+            ItemType itemType = null;
+            if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType) == false)
+                return;
+
             int row = 0;
+
             // render fields
             foreach (ActionType action in App.ViewModel.Constants.ActionTypes.OrderBy(a => a.SortOrder))
             {
-                PropertyInfo pi;
-                // make sure the property exists on the local type
+                FieldValue fieldValue = null;
+                
+                // find out if the property exists on the current item
                 try
                 {
-                    pi = item.GetType().GetProperty(action.FieldName);
-                    if (pi == null)
-                        continue;  // see comment below
+                    Field field = itemType.Fields.Single(f => f.Name == action.FieldName);
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
                 }
                 catch (Exception)
                 {
-                    // we can't do anything with this property since we don't have it on the local type
-                    // this indicates that the phone software isn't caught up with the service version
+                    // we can't do anything with this field since we don't have it on the local type
                     // but that's ok - we can keep going
                     continue;
                 }
 
                 // get the value of the property
-                var val = pi.GetValue(item, null);
+                string currentValue = fieldValue.Value;
 
                 // for our purposes, an empty value is the same as null
-                if (val != null && val.GetType() == typeof(String))
-                    if ((string)val == "")
-                        val = null;
+                if (currentValue == "")
+                    currentValue = null;
 
                 // render this property if it's not null/empty
-                if (val != null)
+                if (currentValue != null)
                 {
                     // first make sure that we do want to render (type-specific logic goes here)
                     switch (action.ActionName)
                     {
                         case "Postpone":
                             // if the date is already further in the future than today, omit adding this action
-                            if (((DateTime)val).Date > DateTime.Today.Date)
+                            if (Convert.ToDateTime(currentValue).Date > DateTime.Today.Date)
                                 continue;
                             break;
                     }
 
                     // add a new row
                     ViewGrid.RowDefinitions.Add(new RowDefinition() { MaxHeight = 72 });
-
-                    string valueString = val.ToString();
                     Thickness margin = new Thickness(12, 20, 0, 0);  // bounding rectangle of padding
 
                     // create a new buton for the action (verb)
@@ -874,7 +1226,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // usually extracted from the item field's contents
                     var valueTextBlock = new TextBlock()
                     {
-                        DataContext = item,
+                        DataContext = fieldValue,
                         Style = (Style)App.Current.Resources["PhoneTextNormalStyle"],
                         Margin = margin,
                     };
@@ -890,16 +1242,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         case "Navigate":
                             try
                             {
-                                Folder tl = App.ViewModel.Folders.Single(t => t.ID == (Guid)val);
-                                valueTextBlock.Text = String.Format("to {0}", tl.Name);
+                                Folder f = App.ViewModel.Folders.Single(t => t.ID == Guid.Parse(currentValue));
+                                valueTextBlock.Text = String.Format("to {0}", f.Name);
                                 button.Click += new RoutedEventHandler(delegate
                                 {
                                     // trace page navigation
                                     TraceHelper.StartMessage("Item: Navigate to Folder");
 
                                     // Navigate to the new page
-                                    //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + folder.ID.ToString(), UriKind.Relative));
-                                    NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + tl.ID.ToString(), UriKind.Relative));
+                                    NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + f.ID.ToString(), UriKind.Relative));
                                 });
                             }
                             catch (Exception)
@@ -911,12 +1262,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             valueTextBlock.Text = "to tomorrow";
                             button.Click += new RoutedEventHandler(delegate
                             {
-                                pi.SetValue(item, DateTime.Today.Date.AddDays(1.0), null);
+                                item.DueDate = DateTime.Today.Date.AddDays(1.0).ToString("yyyy-MM-dd");
                                 folder.NotifyPropertyChanged("FirstDue");
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             });
                             break;
                         case "AddToCalendar":
+                            valueTextBlock.DataContext = item;
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("DueDisplay"));
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -925,7 +1277,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             });
                             break;
                         case "Map":
-                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding(pi.Name));
+                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
 #if WINPHONE7 // Pre-MANGO
@@ -940,33 +1292,32 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 }
                                 WebBrowserItem mapItem = new WebBrowserItem() { Uri = new Uri(mapUrl) };
 #else // MANGO
-                                BingMapsTask mapItem = new BingMapsTask() { SearchTerm = valueString };
+                                BingMapsTask mapItem = new BingMapsTask() { SearchTerm = currentValue };
 #endif
                                 mapItem.Show();
                             });
                             break;
                         case "Phone":
-                            // format as phone number
-                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding(pi.Name));
+                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
-                                PhoneCallTask phoneCallTask = new PhoneCallTask() { PhoneNumber = (string)val };
+                                PhoneCallTask phoneCallTask = new PhoneCallTask() { PhoneNumber = (string)currentValue };
                                 phoneCallTask.Show();
                             });
                             break;
                         case "TextMessage":
-                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding(pi.Name));
+                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
-                                SmsComposeTask smsTask = new SmsComposeTask() { To = (string)val };
+                                SmsComposeTask smsTask = new SmsComposeTask() { To = (string)currentValue };
                                 smsTask.Show();
                             });
                             break;
                         case "Browse":
-                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding(pi.Name));
+                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
-                                string url = (string)val;
+                                string url = (string)currentValue;
                                 if (url.Substring(1, 4) != "http")
                                     url = String.Format("http://{0}", url);
                                 WebBrowserTask browserTask = new WebBrowserTask() { Uri = new Uri(url) };
@@ -974,10 +1325,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             });
                             break;
                         case "Email":
-                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding(pi.Name));
+                            valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
-                                EmailComposeTask emailItem = new EmailComposeTask() { To = (string)val };
+                                EmailComposeTask emailItem = new EmailComposeTask() { To = (string)currentValue };
                                 emailItem.Show();
                             });
                             break;

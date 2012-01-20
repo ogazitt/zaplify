@@ -240,33 +240,42 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             FrameworkElement element;
             ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
-            StackPanel sp = new StackPanel() { Margin = new Thickness(20, -5, 0, 0), Width = 432d };
+            StackPanel sp = new StackPanel() { Margin = new Thickness(0, -5, 0, 0), Width = 432d };
             listBoxItem.Content = sp;
 
             // first line (name, item count)
             Grid itemLineOne = new Grid();
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+            itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
+            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
+            element.SetValue(Grid.ColumnProperty, 0);  // this is a dummy element - will always be a blank png - added here to get the spacing right
+            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri("/Images/appbar.folder.rest.png", UriKind.Relative)), Width = 64, Height = 64, Margin = new Thickness(-3, 3, 0, 0) });
+            element.SetValue(Grid.ColumnProperty, 1);
             itemLineOne.Children.Add(element = new TextBlock()
             {
                 Text = item.Name,
                 Style = (Style)App.Current.Resources["PhoneTextLargeStyle"],
                 Foreground = new SolidColorBrush(GetDisplayColor(item.NameDisplayColor)),
-                Margin = new Thickness(0, 12, 0, 0)
+                Margin = new Thickness(6, 10, 0, 0)
             });
-            element.SetValue(Grid.ColumnProperty, 0);
+            element.SetValue(Grid.ColumnProperty, 2);
+            
+            // number of items in the list
+            Folder f = App.ViewModel.LoadFolder(item.FolderID);
+            int count = f.Items.Where(i => i.ParentID == item.ID).Count();
             itemLineOne.Children.Add(element = new TextBlock()
             {
-                Text = "List",
+                Text = count.ToString(),
                 Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
                 FontSize = (double)App.Current.Resources["PhoneFontSizeLarge"],
                 FontFamily = (FontFamily)App.Current.Resources["PhoneFontFamilyLight"],
-                Foreground = new SolidColorBrush(GetDisplayColor(item.NameDisplayColor)),
                 TextAlignment = TextAlignment.Right,
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 12, 0, 0)
+                Margin = new Thickness(0, 10, 0, 0)
             });
-            element.SetValue(Grid.ColumnProperty, 1);
+            element.SetValue(Grid.ColumnProperty, 2);
+            
             sp.Children.Add(itemLineOne);   
             
             // second line (first item due)
@@ -291,21 +300,38 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <returns>ListBoxItem corresponding to the Item</returns>
         private ListBoxItem RenderItemAsSingleton(Item item)
         {
+            // get the icon for the itemtype 
+            ItemType itemType = null;
+            string icon = null;
+            if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType))
+                icon = itemType.Icon;
+           
             FrameworkElement element;
             ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
             StackPanel sp = new StackPanel() { Margin = new Thickness(0, -5, 0, 0), Width = 432d };
             listBoxItem.Content = sp;
 
-            // first line (priority icon, checkbox, name)
+            // first line (priority icon, checkbox / icon, name)
             Grid itemLineOne = new Grid();
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
             itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
             element.SetValue(Grid.ColumnProperty, 0);
-            itemLineOne.Children.Add(element = new CheckBox() { IsChecked = item.Complete, Tag = item.ID });
-            element.SetValue(Grid.ColumnProperty, 1);
-            ((CheckBox)element).Click += new RoutedEventHandler(checkBoxClickEvent);
+            // if the icon string is empty, render a checkbox
+            if (icon == null)
+            {
+                itemLineOne.Children.Add(element = new CheckBox() { IsChecked = (item.Complete == null ? false : item.Complete), Tag = item.ID });
+                element.SetValue(Grid.ColumnProperty, 1);
+                ((CheckBox)element).Click += new RoutedEventHandler(checkBoxClickEvent);
+            }
+            else
+            {
+                if (icon.StartsWith("/Images/") == false)
+                    icon = "/Images/" + icon;
+                itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.Relative)), Width = 64, Height = 64, Margin = new Thickness(-3, 3, 0, 0) });
+                element.SetValue(Grid.ColumnProperty, 1);
+            }
             itemLineOne.Children.Add(element = new TextBlock()
             {
                 Text = item.Name,
