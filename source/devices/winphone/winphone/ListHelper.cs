@@ -327,9 +327,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
             else
             {
-                if (icon.StartsWith("/Images/") == false)
+                if (icon.StartsWith("/Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
                     icon = "/Images/" + icon;
-                itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.Relative)), Width = 64, Height = 64, Margin = new Thickness(-3, 3, 0, 0) });
+                //var margin = new Thickness(5, 11, 16, 8);
+                //var sz = 48;
+                itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = 48, Height = 48, Margin = new Thickness(5, 11, 16, 8) });
+                //itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = sz, Height = sz, Margin = margin });
                 element.SetValue(Grid.ColumnProperty, 1);
             }
             itemLineOne.Children.Add(element = new TextBlock()

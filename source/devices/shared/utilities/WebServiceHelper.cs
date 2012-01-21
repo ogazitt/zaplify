@@ -28,11 +28,9 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
         {
             get
             {
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:62362" : "http://zaplify.cloudapp.net";
-                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:19372" : "http://zaplify.cloudapp.net";
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://zaplify.cloudapp.net";
-                //return "http://api.itemstore.net:8080";
-                //return "http://zaplify.cloudapp.net";
+                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:19372" : "http://api.zaplify.com";
+                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://api.zaplify.com";
+                //return "http://api.zaplify.com";
             }
         }
         public static string BaseUrl { get { return baseUrl; } }

@@ -332,30 +332,22 @@ namespace BuiltSteady.Zaplify.MailWorker
             {
                 ItemType itemType = ZaplifyStore.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
 
-                foreach (Field f in itemType.Fields.OrderBy(f => f.SortOrder))
+                foreach (Field field in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
-                    FieldType fieldType;
-                    // get the field type for this field
-                    try
-                    {
-                        fieldType = ZaplifyStore.FieldTypes.Single(ft => ft.FieldTypeID == f.FieldTypeID);
-                    }
-                    catch (Exception)
-                    {
-                        continue;
-                    }
-
                     // already printed out the item name
-                    if (fieldType.DisplayName == "Name")
+                    if (field.DisplayName == "Name")
                         continue;
 
-                    PropertyInfo pi;
-                    // make sure the property exists on the local type
+                    // get the current field value.
+                    // the value can either be in a strongly-typed property on the item (e.g. Name),
+                    // or in one of the FieldValues 
+                    string currentValue;
+                    FieldValue fieldValue = null;
+                    // get current item's value for this field
                     try
                     {
-                        pi = item.GetType().GetProperty(fieldType.Name);
-                        if (pi == null)
-                            continue;  // see comment below
+                        fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                        currentValue = fieldValue.Value;
                     }
                     catch (Exception)
                     {
@@ -365,25 +357,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                         continue;
                     }
 
-                    // skip the uninteresting fields
-                    if (pi.CanWrite == false ||
-                        pi.PropertyType == typeof(Guid) ||
-                        pi.PropertyType == typeof(Guid?) ||
-                        pi.Name == "FieldValues" ||
-                        pi.Name == "ItemTags" ||
-                        pi.Name == "Created" ||
-                        pi.Name == "LastModified")
-                        continue;
-
-                    // get the value of the property
-                    var val = pi.GetValue(item, null);
-                    if (val != null)
+                    if (currentValue != null)
                     {
                         if (comma)
                             sb.Append(",");
                         else
                             comma = true;
-                        sb.AppendFormat("{0}: {1}", pi.Name, val.ToString());
+                        sb.AppendFormat("{0}: {1}", field.Name, currentValue.ToString());
                     }
                 }
                 

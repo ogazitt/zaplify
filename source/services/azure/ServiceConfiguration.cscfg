@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
   <Role name="mailworker">
-    <Instances count="2" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -15,7 +15,7 @@
     </Certificates>
   </Role>
   <Role name="Website">
-    <Instances count="2" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />

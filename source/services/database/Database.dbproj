@@ -21,7 +21,7 @@
     <DeployToDatabaseAddToServerExplorer>False</DeployToDatabaseAddToServerExplorer>
     <DeployToScript>True</DeployToScript>
     <CatalogPropertiesFile>Properties\Database.sqlsettings</CatalogPropertiesFile>
-    <DacApplicationName>Bar</DacApplicationName>
+    <DacApplicationName>Zaplify</DacApplicationName>
     <DacVersionString>1.0.0.0</DacVersionString>
     <DacDescription>
     </DacDescription>
@@ -48,10 +48,8 @@
     <OutputPath>..\..\..\bin\database\debug\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TargetConnectionString>
-    </TargetConnectionString>
-    <TargetDatabase>
-    </TargetDatabase>
+    <TargetConnectionString>Data Source=raobsl4g40.database.windows.net;User ID=builtsteady;Pooling=False;MultipleActiveResultSets=False;Packet Size=4096;Application Name=".Net SqlClient Data Provider"</TargetConnectionString>
+    <TargetDatabase>Zaplify</TargetDatabase>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <SuppressWarnings>
     </SuppressWarnings>
