@@ -17,7 +17,6 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Threading;
 using System.Runtime.Serialization.Json;
-using Newtonsoft.Json;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -307,7 +306,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 // use a DCS to de/serialize the xml file
                 DataContractJsonSerializer dc = new DataContractJsonSerializer(typeof(T));
-                JsonSerializer js = new JsonSerializer();
                 IsolatedStorageFileStream stream = null;
 
                 // try to open the file
@@ -318,17 +316,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         // if the file opens, read the contents and replace the generated data
                         try
                         {
-                            DateTime one = DateTime.Now;
-#if JSONNET
-                            StreamReader reader = new StreamReader(stream);
-                            JsonReader jsonReader = new JsonTextReader(reader);
-                            type = js.Deserialize<T>(jsonReader);
-#else
                             type = (T)dc.ReadObject(stream);
-#endif
-                            DateTime two = DateTime.Now;
-                            TimeSpan delta = two - one;
-                            TraceHelper.AddMessage(String.Format("JNET: {0}: {1}", elementName.Substring(0, Math.Min(10, elementName.Length)), delta.TotalMilliseconds.ToString()));
                         }
                         catch (Exception ex)
                         {

@@ -45,9 +45,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Xna.Framework" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="NSpeex.Silverlight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\NSpeex.1.1\lib\NSpeex.Silverlight.dll</HintPath>
     </Reference>
