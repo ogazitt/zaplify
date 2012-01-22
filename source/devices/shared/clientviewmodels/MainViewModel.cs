@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Net;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 #if IOS
 namespace System.Windows

@@ -244,13 +244,13 @@
       <Project>{2BD03228-793E-4A41-A89E-1C1987753A81}</Project>
       <Name>ClientEntities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\shared\clienthelpers\ClientHelpers.csproj">
+      <Project>{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}</Project>
+      <Name>ClientHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\shared\clientviewmodels\ClientViewModels.csproj">
       <Project>{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}</Project>
       <Name>ClientViewModels</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\shared\utilities\Utilities.csproj">
-      <Project>{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}</Project>
-      <Name>Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\keyboardhelper\WPKeyboardHelper.csproj">
       <Project>{408673A0-8507-4032-9E5C-530DBC71E85D}</Project>

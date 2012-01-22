@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public static class AppResourcesHelper
     {

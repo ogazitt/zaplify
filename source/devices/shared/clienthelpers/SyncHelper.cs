@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Collections.ObjectModel;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class SyncHelper
     {

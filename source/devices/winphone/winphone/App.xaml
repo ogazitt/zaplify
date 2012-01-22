@@ -5,7 +5,7 @@
     xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:local="clr-namespace:BuiltSteady.Zaplify.Devices.WinPhone"
-    xmlns:util="clr-namespace:BuiltSteady.Zaplify.Devices.Utilities;assembly=BuiltSteady.Zaplify.Devices.Utilities">
+    xmlns:util="clr-namespace:BuiltSteady.Zaplify.Devices.ClientHelpers;assembly=BuiltSteady.Zaplify.Devices.ClientHelpers">
 
     <!--Application Resources-->
     <Application.Resources>

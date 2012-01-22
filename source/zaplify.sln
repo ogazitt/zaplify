@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Website", "services\website
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientEntities", "devices\shared\cliententities\ClientEntities.csproj", "{2BD03228-793E-4A41-A89E-1C1987753A81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "devices\shared\utilities\Utilities.csproj", "{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPKeyboardHelper", "devices\winphone\keyboardhelper\WPKeyboardHelper.csproj", "{408673A0-8507-4032-9E5C-530DBC71E85D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPhone", "devices\winphone\winphone\WinPhone.csproj", "{23442708-F7D3-449C-B572-42EF4D44AD0B}"
@@ -22,6 +20,8 @@ EndProject
 Project("{C8D11400-126E-41CD-887F-60BD40844F9E}") = "Database", "services\database\Database.dbproj", "{67CBC824-A49E-4E9B-A947-360F3DFE65C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViewModels", "devices\shared\clientviewmodels\ClientViewModels.csproj", "{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers", "devices\shared\clienthelpers\ClientHelpers.csproj", "{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -56,10 +56,6 @@ Global
 		{2BD03228-793E-4A41-A89E-1C1987753A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BD03228-793E-4A41-A89E-1C1987753A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BD03228-793E-4A41-A89E-1C1987753A81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{408673A0-8507-4032-9E5C-530DBC71E85D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{408673A0-8507-4032-9E5C-530DBC71E85D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{408673A0-8507-4032-9E5C-530DBC71E85D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -80,6 +76,10 @@ Global
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

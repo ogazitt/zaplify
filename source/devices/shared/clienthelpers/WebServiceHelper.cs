@@ -20,7 +20,7 @@ using SharpCompress.Compressor;
 using SharpCompress.Compressor.Deflate;
 using SharpCompress.Writer.GZip;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class WebServiceHelper
     {

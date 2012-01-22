@@ -19,7 +19,7 @@ using System.Threading;
 using System.Runtime.Serialization.Json;
 using Newtonsoft.Json;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class StorageHelper
     {

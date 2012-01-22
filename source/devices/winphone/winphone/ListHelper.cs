@@ -14,7 +14,7 @@ using System.Collections;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Windows.Media.Imaging;
 using System.Linq;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {

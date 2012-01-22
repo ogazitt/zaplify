@@ -19,7 +19,7 @@ using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class RequestQueue
     {

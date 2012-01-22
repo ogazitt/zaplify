@@ -15,7 +15,7 @@ using System.Windows.Data;
 using Microsoft.Phone.Shell;
 using System.IO.IsolatedStorage;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using System.Xml.Linq;
 using System.Windows.Resources;
 using System.IO;

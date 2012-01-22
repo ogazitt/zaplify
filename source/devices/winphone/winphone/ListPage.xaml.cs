@@ -21,7 +21,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Phone.Net.NetworkInformation;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {

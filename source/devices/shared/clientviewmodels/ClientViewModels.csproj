@@ -59,9 +59,9 @@
       <Project>{2BD03228-793E-4A41-A89E-1C1987753A81}</Project>
       <Name>ClientEntities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\utilities\Utilities.csproj">
+    <ProjectReference Include="..\clienthelpers\ClientHelpers.csproj">
       <Project>{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}</Project>
-      <Name>Utilities</Name>
+      <Name>ClientHelpers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />

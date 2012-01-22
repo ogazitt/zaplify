@@ -17,7 +17,7 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Runtime.Serialization.Json;
 using System.Net.Browser;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     // some classes which assist in faking out an HttpWebResponse that can extract the StatusCode from the message body
     // this is to overcome limitations in the WP7 HttpWebResponse which can't handle StatusCodes outside of the 200 family

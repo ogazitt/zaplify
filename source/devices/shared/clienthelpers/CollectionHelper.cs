@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Collections;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public static class CollectionHelper
     {
