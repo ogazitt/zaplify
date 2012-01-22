@@ -12,7 +12,7 @@ using System.Net.Browser;
 using System.Text;
 using Microsoft.Phone.Net.NetworkInformation;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class NetworkHelper
     {

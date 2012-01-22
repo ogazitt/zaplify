@@ -3,19 +3,24 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization;
-using System.IO.IsolatedStorage;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Net;
 using System.Linq;
-using BuiltSteady.Zaplify.Devices.Utilities;
-using System.Threading;
-using System.Windows.Resources;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
-namespace BuiltSteady.Zaplify.Devices.WinPhone
+#if IOS
+namespace System.Windows
+{
+    public enum Visibility { Visible = 0, Collapsed = 1 };
+}
+#else
+using System.Windows;
+#endif
+
+namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
@@ -453,9 +458,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("Get About Data");
 
             // get a stream to the about XML file 
-            StreamResourceInfo aboutFile =
-              Application.GetResourceStream(new Uri("/BuiltSteady.Zaplify.Devices.WinPhone;component/About.xml", UriKind.Relative));
-            Stream stream = aboutFile.Stream;
+            Stream stream = AppResourcesHelper.GetResourceStream("About.xml");
 
             // deserialize the file
             DataContractSerializer dc = new DataContractSerializer(typeof(About));
@@ -553,9 +556,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // load the contents of each folder 
-            List<Guid> guidList = App.ViewModel.Folders.Select(f => f.ID).ToList<Guid>();
+            List<Guid> guidList = Folders.Select(f => f.ID).ToList<Guid>();
             foreach (Guid guid in guidList)
-                App.ViewModel.LoadFolder(guid);
+                LoadFolder(guid);
 
             // create the tags and values collections (client-only properties)
             if (folders != null)
@@ -584,7 +587,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return f;
             else
             {
-                Folder folder = App.ViewModel.Folders.Single(l => l.ID == id);
+                Folder folder = Folders.Single(l => l.ID == id);
                 string name = String.Format("{0}-{1}", folder.Name, id.ToString());
                 f = StorageHelper.ReadFolder(name);
                 if (f != null)

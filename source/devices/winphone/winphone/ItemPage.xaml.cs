@@ -16,7 +16,7 @@ using System.Reflection;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Windows.Data;
 using System.Runtime.Serialization;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using System.Text.RegularExpressions;
 using Microsoft.Phone.Tasks;
 using System.Windows.Media.Imaging;

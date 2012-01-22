@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using Microsoft.Phone.Shell;
-using BuiltSteady.Zaplify.Devices.Utilities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using System.ComponentModel;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone

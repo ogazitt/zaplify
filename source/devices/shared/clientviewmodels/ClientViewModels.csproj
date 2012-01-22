@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}</ProjectGuid>
+    <ProjectGuid>{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}</ProjectGuid>
     <ProjectTypeGuids>{C089C8C0-30E0-4E22-80C0-CE093F111A43};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BuiltSteady.Zaplify.Devices.Utilities</RootNamespace>
-    <AssemblyName>BuiltSteady.Zaplify.Devices.Utilities</AssemblyName>
+    <RootNamespace>BuiltSteady.Zaplify.Devices.ClientViewModels</RootNamespace>
+    <AssemblyName>BuiltSteady.Zaplify.Devices.ClientViewModels</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
     <TargetFrameworkProfile>WindowsPhone71</TargetFrameworkProfile>
@@ -43,19 +43,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Phone" />
-    <Reference Include="Microsoft.Xna.Framework" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="NSpeex.Silverlight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\packages\NSpeex.1.1\lib\NSpeex.Silverlight.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpCompress.WP7">
-      <HintPath>..\..\..\packages\sharpcompress.0.6\lib\sl3-wp\SharpCompress.WP7.dll</HintPath>
-    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Servicemodel.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="system" />
     <Reference Include="System.Core" />
@@ -63,25 +51,17 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionHelper.cs" />
-    <Compile Include="RequestQueue.cs" />
-    <Compile Include="HttpWrappers.cs" />
-    <Compile Include="NetworkHelper.cs" />
+    <Compile Include="MainViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TraceHelper.cs" />
-    <Compile Include="SettingsHelper.cs" />
-    <Compile Include="SpeechHelper.cs" />
-    <Compile Include="StorageHelper.cs" />
-    <Compile Include="SyncHelper.cs" />
-    <Compile Include="WebServiceHelper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cliententities\ClientEntities.csproj">
       <Project>{2BD03228-793E-4A41-A89E-1C1987753A81}</Project>
       <Name>ClientEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\clienthelpers\ClientHelpers.csproj">
+      <Project>{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}</Project>
+      <Name>ClientHelpers</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />

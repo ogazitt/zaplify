@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class SettingsHelper
     {
