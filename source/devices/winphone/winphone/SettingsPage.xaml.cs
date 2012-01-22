@@ -11,11 +11,12 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
-using BuiltSteady.Zaplify.Devices.Utilities;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Reflection;
 using System.Windows.Data;
 using System.ComponentModel;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientViewModels;
+using BuiltSteady.Zaplify.Devices.Utilities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {

@@ -12,15 +12,16 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Shell;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Collections.ObjectModel;
-using BuiltSteady.Zaplify.Devices.Utilities;
 using System.Windows.Data;
 using System.ComponentModel;
 using System.Threading;
 using Microsoft.Xna.Framework.Audio;
 using System.Windows.Media.Imaging;
 using Microsoft.Phone.Net.NetworkInformation;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientViewModels;
+using BuiltSteady.Zaplify.Devices.Utilities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
