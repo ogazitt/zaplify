@@ -1,13 +1,5 @@
 using System;
 using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
@@ -15,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Runtime.Serialization.Json;
-using System.Net.Browser;
+//using System.Net.Browser;
 using SharpCompress.Compressor;
 using SharpCompress.Compressor.Deflate;
 using SharpCompress.Writer.GZip;
@@ -28,9 +20,9 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
         {
             get
             {
-                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:19372" : "http://api.zaplify.com";
+                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:19372" : "http://api.zaplify.com";
                 //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://api.zaplify.com";
-                //return "http://api.zaplify.com";
+                return "http://api.zaplify.com";
             }
         }
         public static string BaseUrl { get { return baseUrl; } }
@@ -277,8 +269,11 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
                 netOpInProgressDel.DynamicInvoke(true, null);
 
             //bool registerResult = WebRequest.RegisterPrefix("http://", WebRequestCreator.ClientHttp);
-
-            request = WebRequest.CreateHttp(url);
+#if IOS
+			request = (HttpWebRequest) WebRequest.Create(url);
+#else
+			request = WebRequest.CreateHttp(url);
+#endif
             request.Accept = "application/json";
             request.UserAgent = "Zaplify-WinPhone";
             request.Method = verb == null ? "GET" : verb;
