@@ -7,9 +7,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Runtime.Serialization.Json;
-using System.Net.Browser;
 
-namespace BuiltSteady.Zaplify.Devices.ClientHelpers
+namespace BuiltSteady.Zaplify.Devices.Utilities
 {
     // some classes which assist in faking out an HttpWebResponse that can extract the StatusCode from the message body
     // this is to overcome limitations in the WP7 HttpWebResponse which can't handle StatusCodes outside of the 200 family
@@ -24,7 +23,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public T Value { get; set; }
     }
 
-    public class HttpWebResponseWrapper<T> : HttpWebResponse
+//    public class HttpWebResponseWrapper<T> : HttpWebResponse
+    public class HttpWebResponseWrapper<T> 
     {
         public HttpWebResponseWrapper(HttpWebResponse resp)
         {
@@ -47,7 +47,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         private HttpWebResponse innerResponse;
 
         // delegate this property (and this property only) to the Wrapper implementation
-        public override HttpStatusCode StatusCode
+        public HttpStatusCode StatusCode
         {
             get
             {
@@ -115,6 +115,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return DeserializeResponseBody(resp.GetResponseStream(), contentType, t);
         }
 
+		/*
         // delegate all other overridable public methods or properties to the inner object
         public override void Close()
         {
@@ -137,14 +138,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        public override CookieCollection Cookies
-        {
-            get
-            {
-                return innerResponse.Cookies;
-            }
-        }
-
         public override bool Equals(object obj)
         {
             return innerResponse.Equals(obj);
@@ -154,7 +147,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             return innerResponse.GetHashCode();
         }
-
+		 
         public override Stream GetResponseStream()
         {
             return innerResponse.GetResponseStream();
@@ -168,14 +161,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        public override string Method
-        {
-            get
-            {
-                return innerResponse.Method;
-            }
-        }
-
         public override Uri ResponseUri
         {
             get
@@ -184,25 +169,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        public override string StatusDescription
-        {
-            get
-            {
-                return innerResponse.StatusDescription;
-            }
-        }
-
-        public override bool SupportsHeaders
-        {
-            get
-            {
-                return innerResponse.SupportsHeaders;
-            }
-        }
-
         public override string ToString()
         {
             return innerResponse.ToString();
         }
+        */
     }
 }
