@@ -18,19 +18,15 @@ namespace System.Runtime.Serialization.Json
 		
 		public object ReadObject(Stream stream)
 		{
-			// close the generic Serialize<T> method with the type 
-			MethodInfo method = typeof(JsonSerializer).GetMethod("Deserialize"); 
-			MethodInfo generic = method.MakeGenericMethod(type);
-			
-			// get a stream reader and pass it to the generic method
-			StreamReader reader = new StreamReader(stream);			
-			return generic.Invoke(js, new object[] { reader });
+			StreamReader reader = new StreamReader(stream);		
+			return js.Deserialize(reader, type);
 		}
 		
 		public void WriteObject(Stream stream, object o)
 		{
 			StreamWriter writer = new StreamWriter(stream);
 			js.Serialize(writer, o);	
+			writer.Flush ();
 		}
 	}
 }

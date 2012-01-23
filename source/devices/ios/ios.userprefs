@@ -1,0 +1,34 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../shared/clientviewmodels/MainViewModel.cs">
+    <Files>
+      <File FileName="iphone/FirstViewController.cs" Line="53" Column="29" />
+      <File FileName="../shared/cliententities/ZaplifyEntity.cs" Line="22" Column="1" />
+      <File FileName="../shared/cliententities/About.cs" Line="1" Column="1" />
+      <File FileName="../shared/cliententities/User.cs" Line="14" Column="1" />
+      <File FileName="../shared/clienthelpers/WebServiceHelper.cs" Line="223" Column="24" />
+      <File FileName="../shared/clienthelpers/HttpWrappers-ios.cs" Line="11" Column="52" />
+      <File FileName="../shared/clienthelpers/DataContractJsonSerializer-ios.cs" Line="25" Column="16" />
+      <File FileName="../shared/clienthelpers/IsolatedStorageSettings-ios.cs" Line="1" Column="1" />
+      <File FileName="../shared/clienthelpers/StorageHelper.cs" Line="302" Column="57" />
+      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="20" Column="14" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="ClientEntities-ios" expanded="True" />
+          <Node name="ClientHelpers-ios" expanded="True" />
+          <Node name="ClientViewModels-ios" expanded="True" selected="True" />
+          <Node name="iphone" expanded="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/FirstViewController.cs" line="38" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/FirstViewController.cs" line="55" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

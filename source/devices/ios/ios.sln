@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "iphone", "iphone\iphone.csproj", "{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientEntities-ios", "..\shared\cliententities\ClientEntities-ios.csproj", "{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers-ios", "..\shared\clienthelpers\ClientHelpers-ios.csproj", "{18117044-3C87-4D61-9F1D-5014A2B24189}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViewModels-ios", "..\shared\clientviewmodels\ClientViewModels-ios.csproj", "{484B23D7-99FA-456B-B3E6-756EA9843E86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Debug|iPhone = Debug|iPhone
+		Release|iPhone = Release|iPhone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.Build.0 = Debug|iPhone
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Release|iPhone.ActiveCfg = Release|iPhone
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Release|iPhone.Build.0 = Release|iPhone
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{18117044-3C87-4D61-9F1D-5014A2B24189}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Debug|iPhone.Build.0 = Debug|iPhone
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Release|iPhone.ActiveCfg = Release|iPhone
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Release|iPhone.Build.0 = Release|iPhone
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{347D8BC3-CF6A-4329-84F3-ACF5F129AA0E}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Debug|iPhone.Build.0 = Debug|iPhone
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Release|iPhone.ActiveCfg = Release|iPhone
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Release|iPhone.Build.0 = Release|iPhone
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{484B23D7-99FA-456B-B3E6-756EA9843E86}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Debug|iPhone.Build.0 = Debug|iPhone
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Release|iPhone.ActiveCfg = Release|iPhone
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Release|iPhone.Build.0 = Release|iPhone
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = iphone\iphone.csproj
+	EndGlobalSection
+EndGlobal

@@ -10,6 +10,7 @@ using System.Net;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using System.Windows;
 
 #if IOS
 namespace System.Windows
@@ -439,9 +440,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             PropertyChangedEventHandler handler = PropertyChanged;
             if (null != handler)
             {
-                //handler(this, new PropertyChangedEventArgs(propertyName));
+#if IOS
+                handler(this, new PropertyChangedEventArgs(propertyName));
+#else
                 // do the below instead to avoid Invalid cross-thread access exception
                 Deployment.Current.Dispatcher.BeginInvoke(() => { handler(this, new PropertyChangedEventArgs(propertyName)); });
+#endif
             }
         }
 
@@ -746,6 +750,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             if (constants != null)
             {
                 retrievedConstants = true;
+				
+#if IOS
+                // no requests pending - we can use the Service constants as the authoritative ones
+                Constants = constants;
+
+                // reset priority names and colors inside the Item static arrays
+                // these static arrays are the most convenient way to make databinding work
+                int i = 0;
+                foreach (var pri in constants.Priorities)
+                {
+                    Item.PriorityNames[i] = pri.Name;
+                    Item.PriorityColors[i++] = pri.Color;
+                }
+
+                // initialize the static ItemTypes dictionary
+                ItemType.CreateDictionary(itemTypes);
+
+                // Chain the PlayQueue call to drain the queue and retrieve the user data
+                PlayQueue();
+#else
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
                     // no requests pending - we can use the Service constants as the authoritative ones
@@ -766,6 +790,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     // Chain the PlayQueue call to drain the queue and retrieve the user data
                     PlayQueue();
                 });
+#endif
             }
         }
 
