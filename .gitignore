@@ -6,3 +6,7 @@ service/website/bin/
 XapCacheFile.xml
 source/devices/winphone/winphone/PerformanceLogs/
 ~$*.*
+*.pidb
+*.mdb
+*.exe
+*~
