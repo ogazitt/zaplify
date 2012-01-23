@@ -17,8 +17,6 @@ namespace System.Windows
 {
     public enum Visibility { Visible = 0, Collapsed = 1 };
 }
-#else
-using System.Windows;
 #endif
 
 namespace BuiltSteady.Zaplify.Devices.ClientViewModels

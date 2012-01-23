@@ -9,7 +9,6 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Threading;
 using System.Runtime.Serialization.Json;
-//using Newtonsoft.Json;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
