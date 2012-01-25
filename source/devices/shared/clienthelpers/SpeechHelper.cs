@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows;
@@ -20,7 +20,7 @@ using System.Windows.Resources;
 using Microsoft.Phone.Net.NetworkInformation;
 using System.Threading;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class SpeechHelper
     {

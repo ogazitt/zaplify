@@ -4,13 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization;
@@ -19,10 +12,8 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Net;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.Utilities;
-using System.Windows.Resources;
 using System.Threading;
-using Microsoft.Phone.Net.NetworkInformation;
-
+using System.Windows.Resources;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -39,8 +30,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             get;
             private set;
         }
-
-        public NetworkInterfaceType NetworkType { get; set; }
 
         #region Databound Properties
 

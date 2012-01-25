@@ -1,13 +1,5 @@
-﻿using System;
+using System;
 using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
@@ -17,9 +9,8 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Threading;
 using System.Runtime.Serialization.Json;
-using Newtonsoft.Json;
 
-namespace BuiltSteady.Zaplify.Devices.Utilities
+namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class StorageHelper
     {
@@ -317,7 +308,6 @@ namespace BuiltSteady.Zaplify.Devices.Utilities
                         // if the file opens, read the contents and replace the generated data
                         try
                         {
-                            DateTime one = DateTime.Now;
                             type = (T)dc.ReadObject(stream);
                         }
                         catch (Exception ex)

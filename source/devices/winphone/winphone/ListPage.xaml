@@ -118,8 +118,8 @@
     <!-- ApplicationBar-->
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add item" Click="AddButton_Click"/>
-            <shell:ApplicationBarIconButton IconUri="/Images/appbar.multiadd.rest.png" Text="quick add" Click="QuickAddButton_Click"/>
+            <!--<shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add item" Click="AddButton_Click"/>-->
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="quick add" Click="QuickAddButton_Click"/>
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.edit.rest.png" Text="edit folder" Click="EditButton_Click" />
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.folder.rest.png" Text="view folders" Click="FoldersButton_Click" />
 

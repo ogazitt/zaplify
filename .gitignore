@@ -2,9 +2,13 @@ bin/
 obj/
 service/website/bin/
 source/devices/winphone/winphone/PerformanceLogs/
+XapCacheFile.xml
 *.suo
 *.user
 *.dbmdl
 *.schemaview
-XapCacheFile.xml
+*.pidb
+*.mdb
+*.exe
 ~$*.*
+*~

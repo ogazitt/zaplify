@@ -76,13 +76,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\servicehelpers\servicehelpers.csproj">
+    <ProjectReference Include="..\servicehelpers\ServiceHelpers.csproj">
       <Project>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</Project>
-      <Name>BuiltSteady.Zaplify.ServiceHelpers</Name>
+      <Name>ServiceHelpers</Name>
     </ProjectReference>
-    <ProjectReference Include="..\serverentities\serverentities.csproj">
+    <ProjectReference Include="..\serverentities\ServerEntities.csproj">
       <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
-      <Name>BuiltSteady.Zaplify.ServerEntities</Name>
+      <Name>ServerEntities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
