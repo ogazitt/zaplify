@@ -1,8 +1,10 @@
 bin/
 obj/
 service/website/bin/
+source/devices/winphone/winphone/PerformanceLogs/
 *.suo
 *.user
+*.dbmdl
+*.schemaview
 XapCacheFile.xml
-source/devices/winphone/winphone/PerformanceLogs/
 ~$*.*
