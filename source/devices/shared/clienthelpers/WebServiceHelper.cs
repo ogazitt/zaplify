@@ -20,9 +20,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             get
             {
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:19372" : "http://api.zaplify.com";
+                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8888" : "http://api.zaplify.com";
                 //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://api.zaplify.com";
-                return "http://api.zaplify.com";
+                //return "http://api.zaplify.com";
             }
         }
         public static string BaseUrl { get { return baseUrl; } }

@@ -1,31 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using Microsoft.ApplicationServer.Http;
-using System.Net.Http;
-using System.Net;
-using System.Reflection;
-using BuiltSteady.Zaplify.Website.Helpers;
-using BuiltSteady.Zaplify.Website.Models;
-using System.Data.Entity;
-using Microsoft.Speech.Recognition;
-using Microsoft.Speech.AudioFormat;
-using System.IO;
-using System.Net.Http.Headers;
-using BuiltSteady.Zaplify.ServerEntities;
-using System.Threading;
-using BuiltSteady.Zaplify.ServiceHelpers;
-using System.IO.Compression;
-using System.Text;
-
-namespace BuiltSteady.Zaplify.Website.Resources
+﻿namespace BuiltSteady.Zaplify.Website.Resources
 {
+    using System;
+    using System.IO;
+    using System.IO.Compression;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.ServiceModel;
+    using System.ServiceModel.Web;
+    using System.Text;
+    using System.Web;
+
+    using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Website.Models;
+    using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHelpers;
+
     // singleton service, which manages thread-safety on its own
     [ServiceContract]
-    public class TraceResource
+    public class TraceResource : BaseResource
     {
         public TraceResource()
         {
@@ -33,10 +26,6 @@ namespace BuiltSteady.Zaplify.Website.Resources
             LoggingHelper.TraceFunction();
         }
 
-        /// <summary>
-        /// Store a client trace
-        /// </summary>
-        /// <returns>speech-to-text string</returns>
         [WebInvoke(UriTemplate = "", Method = "POST")]
         public HttpResponseMessageWrapper<string> Trace(HttpRequestMessage req)
         {
@@ -44,7 +33,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             LoggingHelper.TraceFunction();
 
             // get the user credentials
-            User user = ResourceHelper.GetUserPassFromMessage(req);
+            User user = GetUserFromMessageHeaders(req);
 
             try
             {

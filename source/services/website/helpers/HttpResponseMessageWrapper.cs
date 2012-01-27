@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Net;
-using System.Net.Http;
-using Microsoft.ApplicationServer.Http;
-using System.Net.Http.Headers;
+﻿namespace BuiltSteady.Zaplify.Website.Helpers
+{ 
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
 
-namespace BuiltSteady.Zaplify.Website.Helpers
-{
     // wrapper around the type which contains the status code
     public class MessageWrapper<T>
     {

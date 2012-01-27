@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ServiceModel.Dispatcher;
-using System.ServiceModel.Channels;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.Diagnostics;
-using System.Net.Http;
-using Microsoft.ApplicationServer.Http.Channels;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using BuiltSteady.Zaplify.ServiceHelpers;
-
-namespace BuiltSteady.Zaplify.Website.Helpers
+﻿namespace BuiltSteady.Zaplify.Website.Helpers
 {
+    using System;
+    using System.Net.Http;
+    using System.ServiceModel.Dispatcher;
+    using System.ServiceModel.Channels;
+    using System.ServiceModel;
+    using System.ServiceModel.Description;
+    using Microsoft.ApplicationServer.Http.Channels;
+    //using Microsoft.WindowsAzure.ServiceRuntime;
+
+    using BuiltSteady.Zaplify.ServiceHelpers;
+
     public class LoggingMessageTracer : IDispatchMessageInspector,
         IClientMessageInspector
     {

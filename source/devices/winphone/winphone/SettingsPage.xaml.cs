@@ -126,8 +126,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 }
             }
 
+            User user = new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text };
+            App.ViewModel.User = user;
+
             WebServiceHelper.CreateUser(
-                new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text },
+                user,
                 new CreateUserCallbackDelegate(CreateUserCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
         }
@@ -215,6 +218,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             User user = new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text };
+            App.ViewModel.User = user;
 
             WebServiceHelper.VerifyUserCredentials(
                 user,
@@ -283,6 +287,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                 }
+                //if (!accountOperationSuccessful)
+                //    App.ViewModel.User = null;
+
             });
         }
 
@@ -323,6 +330,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                 }
+
+                //if (!accountOperationSuccessful)
+                //    App.ViewModel.User = null;
             });
         }
 

@@ -1,38 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using Microsoft.ApplicationServer.Http;
-using System.Net.Http;
-using System.Net;
-using System.Reflection;
-using BuiltSteady.Zaplify.Website.Helpers;
-using BuiltSteady.Zaplify.Website.Models;
-using System.Data.Entity;
-using Microsoft.Speech.Recognition;
-using Microsoft.Speech.AudioFormat;
-using System.IO;
-using System.Net.Http.Headers;
-using BuiltSteady.Zaplify.ServerEntities;
-using System.Threading;
-using BuiltSteady.Zaplify.ServiceHelpers;
-using NSpeex;
-
-namespace BuiltSteady.Zaplify.Website.Resources
+﻿namespace BuiltSteady.Zaplify.Website.Resources
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.ServiceModel;
+    using System.ServiceModel.Web;
+    using System.Threading;
+    using System.Web;
+
+    using NSpeex;
+    using Microsoft.Speech.Recognition;
+    using Microsoft.Speech.AudioFormat;
+
+    using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Website.Models;
+    using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHelpers;
+
     // singleton service, which manages thread-safety on its own
     [ServiceContract]
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, InstanceContextMode = InstanceContextMode.Single)]
-    public class SpeechResource
+    public class SpeechResource : BaseResource
     {
         private const int engines = 3;  // number of speech recognition engines to cache
         private static SpeechRecognitionEngine[] sreArray = new SpeechRecognitionEngine[engines];
         private static bool[] sreInUseArray = new bool[engines];
 
         private static SpeechAudioFormatInfo formatInfo = null;
-        private static bool isDebugEnabled = false;
         private static object sreLock = new Object();
         private static SpeexDecoder speexDecoder = new SpeexDecoder(BandMode.Wide);
 
@@ -45,26 +43,6 @@ namespace BuiltSteady.Zaplify.Website.Resources
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
-
-            // enable debug flag if this is a debug build
-#if DEBUG
-            isDebugEnabled = true;
-#endif
-        }
-
-        private ZaplifyStore ZaplifyStore
-        {
-            get
-            {
-                // if in a debug build, always go to the database
-                if (isDebugEnabled)
-                    return new ZaplifyStore();
-                else // retail build
-                {
-                    // use a cached context (to promote serving values out of EF cache) 
-                    return ZaplifyStore.Current;
-                }
-            }
         }
 
         /// <summary>
@@ -74,12 +52,13 @@ namespace BuiltSteady.Zaplify.Website.Resources
         [WebInvoke(UriTemplate = "", Method = "POST")]
         public HttpResponseMessageWrapper<string> SpeechToText(HttpRequestMessage req)
         {
-            // Log function entrance
             LoggingHelper.TraceFunction();
 
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
+            HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<string>(req, code);  // user not authenticated
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<string>(req, code);    
+            }
 
             // get a free instance of the speech recognition engine
             SpeechRecognitionEngine sre = null;
@@ -102,8 +81,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 sre.SetInputToAudioStream(stream, formatInfo);
 
 #if WRITEFILE || DEBUG
-                User user = ResourceHelper.GetUserPassFromMessage(req);
-                string msg = WriteSpeechFile(user, stream);
+                string msg = WriteSpeechFile(CurrentUserName, stream);
                 if (msg != null)
                     return new HttpResponseMessageWrapper<string>(req, msg, HttpStatusCode.OK);
 #endif
@@ -438,7 +416,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
             ReleaseSpeechEngine(sre);
         }
 
-        string WriteSpeechFile(User user, Stream stream)
+        string WriteSpeechFile(string username, Stream stream)
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
@@ -449,7 +427,7 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 DateTime tod = DateTime.Now;
                 string filename = String.Format("{0}{1}-{2}.wav",
                     HttpContext.Current.Server.MapPath("~/files/"),
-                    user.Name,
+                    username,
                     tod.Ticks);
                 FileStream fs = File.Create(filename);
                 if (fs == null)

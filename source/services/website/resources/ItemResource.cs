@@ -1,196 +1,168 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using Microsoft.ApplicationServer.Http;
-using System.Net.Http;
-using System.Net;
-using System.Reflection;
-using BuiltSteady.Zaplify.Website.Helpers;
-using BuiltSteady.Zaplify.Website.Models;
-using System.Web.Configuration;
-using BuiltSteady.Zaplify.ServerEntities;
-
-namespace BuiltSteady.Zaplify.Website.Resources
+﻿namespace BuiltSteady.Zaplify.Website.Resources
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Reflection;
+    using System.ServiceModel;
+    using System.ServiceModel.Web;
+
+    using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Website.Models;
+    using BuiltSteady.Zaplify.ServerEntities;
+
     [ServiceContract]
     [LogMessages]
-    public class ItemResource
+    public class ItemResource : BaseResource
     {
-        private ZaplifyStore ZaplifyStore
-        {
-            get
-            {
-                return new ZaplifyStore();
-            }
-        }
 
-        /// <summary>
-        /// Delete the Item 
-        /// </summary>
-        /// <param name="id">id for the item to delete</param>
-        /// <returns></returns>
         [WebInvoke(UriTemplate = "{id}", Method = "DELETE")]
         [LogMessages]
         public HttpResponseMessageWrapper<Item> DeleteItem(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
+            HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Item>(req, code);  // user not authenticated
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<Item>(req, code);
+            }
 
             // get the new item from the message body
-            Item clientItem = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Item)) as Item;
-
-            // make sure the item ID's match
+            Item clientItem = ProcessRequestBody(req, typeof(Item)) as Item;
             if (clientItem.ID != id)
+            {   // IDs must match
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
+            }
 
-            ZaplifyStore zaplifystore = ZaplifyStore;
-
-            User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
-
-            // check to make sure the userid in the new item is the same userid for the current user
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
-                clientItem.UserID = dbUser.ID;
-            if (clientItem.UserID != dbUser.ID)
+            {   // changing a system Item to a user Item
+                clientItem.UserID = CurrentUserID;
+            }
+            if (clientItem.UserID != CurrentUserID)
+            {   // requested Item does not belong to authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+            }
 
-            // get the folder of the item to be deleted
             try
             {
-                Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
-
-                // if the requested item does not belong to the authenticated user, return 403 Forbidden
-                if (folder.UserID != dbUser.ID)
+                Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
+                if (folder.UserID != CurrentUserID)
+                {   // requested item does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+                }
 
-                // get the item to be deleted
                 try
                 {
-                    Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
+                    Item requestedItem = this.StorageContext.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                     // delete all the itemtags associated with this item
                     if (requestedItem.ItemTags != null && requestedItem.ItemTags.Count > 0)
+                    {
                         foreach (var tt in requestedItem.ItemTags.ToList())
-                            zaplifystore.ItemTags.Remove(tt);
+                            this.StorageContext.ItemTags.Remove(tt);
+                    }
 
                     // delete all the fieldvalues associated with this item
                     if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
+                    {
                         foreach (var fv in requestedItem.FieldValues.ToList())
-                            zaplifystore.FieldValues.Remove(fv);
+                            this.StorageContext.FieldValues.Remove(fv);
+                    }
 
-                    zaplifystore.Items.Remove(requestedItem);
-                    int rows = zaplifystore.SaveChanges();
-                    if (rows < 1)
+                    this.StorageContext.Items.Remove(requestedItem);
+                    if (this.StorageContext.SaveChanges() < 1)
+                    {
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.InternalServerError);
-                    else
-                        return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.Accepted);
+                    }
+                    return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.Accepted);
                 }
                 catch (Exception)
-                {
-                    // item not found - it may have been deleted by someone else.  Return 200 OK.
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.OK);
                 }
             }
             catch (Exception)
-            {
-                // folder not found - return 404 Not Found
+            {   // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
 
-        /// <summary>
-        /// Get the Item for a item id
-        /// </summary>
-        /// <param name="id">id for the item to return</param>
-        /// <returns>Item information</returns>
         [WebGet(UriTemplate = "{id}")]
         [LogMessages]
         public HttpResponseMessageWrapper<Item> GetItem(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
+            HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Item>(req, code);  // user not authenticated
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<Item>(req, code);
+            }
 
-            ZaplifyStore zaplifystore = ZaplifyStore;
-
-            User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
-
-            // get the requested item
             try
             {
-                Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
+                Item requestedItem = this.StorageContext.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                 // get the folder of the requested item
                 try
                 {
-                    Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == requestedItem.FolderID);
-
-                    // if the requested item does not belong to the authenticated user, return 403 Forbidden, otherwise return the item
-                    if (folder.UserID != dbUser.ID || requestedItem.UserID != dbUser.ID)
+                    Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == requestedItem.FolderID);
+                    if (folder.UserID != CurrentUserID || requestedItem.UserID != CurrentUserID)
+                    {   // requested item does not belong to the authenticated user, return 403 Forbidden
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
-                    else
-                        return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.OK);
+                    }
+                    return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.OK);
                 }
                 catch (Exception)
-                {
-                    // user not found - return 404 Not Found
+                {   // folder not found - return 404 Not Found
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception)
-            {
-                // item not found - return 404 Not Found
+            {   // item not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
 
-        /// <summary>
-        /// Insert a new Item
-        /// </summary>
-        /// <returns>New Item</returns>
         [WebInvoke(UriTemplate = "", Method = "POST")]
         [LogMessages]
         public HttpResponseMessageWrapper<Item> InsertItem(HttpRequestMessage req)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
+            HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Item>(req, code);  // user not authenticated
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<Item>(req, code);
+            }
 
             // get the new item from the message body
-            Item clientItem = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(Item)) as Item;
+            Item clientItem = ProcessRequestBody(req, typeof(Item)) as Item;
 
-            ZaplifyStore zaplifystore = ZaplifyStore;
-
-            User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
-
-            // check to make sure the userid in the new item is the same userid for the current user
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
-                clientItem.UserID = dbUser.ID;
-            if (clientItem.UserID != dbUser.ID)
+            {   // changing a system Item to a user Item
+                clientItem.UserID = CurrentUserID;
+            }
+            if (clientItem.UserID != CurrentUserID)
+            {   // requested Item does not belong to authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+            }
 
-            // if the parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
             if (clientItem.ParentID == Guid.Empty)
+            {   // parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
                 clientItem.ParentID = null;
+            }
 
-            // get the folder into which to insert the new item
             try
             {
-                Folder folder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
-
-                // if the requested folder does not belong to the authenticated user, return 403 Forbidden
-                if (folder.UserID != dbUser.ID)
+                Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
+                if (folder.UserID != CurrentUserID)
+                {   // requested folder does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+                }
 
                 // fill out the ID if it's not set (e.g. from a javascript client)
                 if (clientItem.ID == null || clientItem.ID == Guid.Empty)
+                {
                     clientItem.ID = Guid.NewGuid();
+                }
 
                 // fill out the timestamps if they aren't set (null, or MinValue.Date, allowing for DST and timezone issues)
                 DateTime now = DateTime.UtcNow;
@@ -199,117 +171,107 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                // add the new item to the database
                 try
-                {
-                    var item = zaplifystore.Items.Add(clientItem);
-                    int rows = zaplifystore.SaveChanges();
-                    if (item == null || rows < 1)
-                        return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);  // return 409 Conflict
-                    else
-                        return new HttpResponseMessageWrapper<Item>(req, item, HttpStatusCode.Created);  // return 201 Created
+                {   // add the new item to the database
+                    var item = this.StorageContext.Items.Add(clientItem);
+                    if (this.StorageContext.SaveChanges() < 1 || item == null)
+                    {
+                        return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);      // return 409 Conflict
+                    }
+                    return new HttpResponseMessageWrapper<Item>(req, item, HttpStatusCode.Created);     // return 201 Created
                 }
                 catch (Exception)
-                {
-                    // check for the condition where the folder is already in the database
+                {   // check for the condition where the folder is already in the database
                     // in that case, return 202 Accepted; otherwise, return 409 Conflict
                     try
                     {
-                        var dbItem = zaplifystore.Items.Single(t => t.ID == clientItem.ID);
+                        var dbItem = this.StorageContext.Items.Single(t => t.ID == clientItem.ID);
                         if (dbItem.Name == clientItem.Name)
+                        {
                             return new HttpResponseMessageWrapper<Item>(req, dbItem, HttpStatusCode.Accepted);
-                        else
-                            return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
+                        }
+                        return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
                     }
                     catch (Exception)
-                    {
-                        // folder not inserted - return 409 Conflict
+                    {   // folder not inserted - return 409 Conflict
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
                     }
                 }
             }
             catch (Exception)
-            {
-                // folder not found - return 404 Not Found
+            {   // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
     
-        /// <summary>
-        /// Update a Item
-        /// </summary>
-        /// <returns>Updated Item<returns>
         [WebInvoke(UriTemplate = "{id}", Method = "PUT")]
         [LogMessages]
         public HttpResponseMessageWrapper<Item> UpdateItem(HttpRequestMessage req, Guid id)
         {
-            HttpStatusCode code = ResourceHelper.AuthenticateUser(req, ZaplifyStore);
+            HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Item>(req, code);  // user not authenticated
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<Item>(req, code);
+            }
 
-            // the body will be two Items - the original and the new values.  Verify this
-            List<Item> clientItems = ResourceHelper.ProcessRequestBody(req, ZaplifyStore, typeof(List<Item>)) as List<Item>;
+            List<Item> clientItems = ProcessRequestBody(req, typeof(List<Item>)) as List<Item>;
             if (clientItems.Count != 2)
+            {   // body should contain two items, the orginal and new values
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
+            }
 
-            // get the original and new items out of the message body
             Item originalItem = clientItems[0];
             Item newItem = clientItems[1];
 
             // make sure the item ID's match
-            if (originalItem.ID != newItem.ID)
+            if (originalItem.ID != newItem.ID || originalItem.ID != id)
+            {
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
-            if (originalItem.ID != id)
-                return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
+            }
 
-            // if the parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
+            // if parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
             if (originalItem.ParentID == Guid.Empty)
                 originalItem.ParentID = null;
             if (newItem.ParentID == Guid.Empty)
                 newItem.ParentID = null;
 
-            ZaplifyStore zaplifystore = ZaplifyStore;
-
-            User user = ResourceHelper.GetUserPassFromMessage(req);
-            User dbUser = zaplifystore.Users.Single<User>(u => u.Name == user.Name && u.Password == user.Password);
-
             // get the folder for the item
             try
             {
-                Item requestedItem = zaplifystore.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
+                Item requestedItem = this.StorageContext.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                 // if the Folder does not belong to the authenticated user, return 403 Forbidden
-                if (requestedItem.UserID != dbUser.ID)
+                if (requestedItem.UserID != CurrentUserID)
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
                 originalItem.UserID = requestedItem.UserID;
                 newItem.UserID = requestedItem.UserID;
-                
-                Folder originalFolder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == originalItem.FolderID);
-                Folder newFolder = zaplifystore.Folders.Single<Folder>(tl => tl.ID == newItem.FolderID);
 
-                // if the folder does not belong to the authenticated user, return 403 Forbidden
-                if (originalFolder.UserID != dbUser.ID || newFolder.UserID != dbUser.ID ||
-                    originalItem.UserID != dbUser.ID || newItem.UserID != dbUser.ID)
+                Folder originalFolder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == originalItem.FolderID);
+                Folder newFolder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == newItem.FolderID);
+
+                if (originalFolder.UserID != CurrentUserID || newFolder.UserID != CurrentUserID ||
+                    originalItem.UserID != CurrentUserID || newItem.UserID != CurrentUserID)
+                {   // folder or item does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
+                }
 
                 try
                 {
                     bool changed = false;
-
-                    // delete all the itemtags associated with this item
+                    
                     if (requestedItem.ItemTags != null && requestedItem.ItemTags.Count > 0)
-                    {
+                    {   // delete all the itemtags associated with this item
                         foreach (var tt in requestedItem.ItemTags.ToList())
-                            zaplifystore.ItemTags.Remove(tt);
+                            this.StorageContext.ItemTags.Remove(tt);
                         changed = true;
                     }
 
-                    // delete all the fieldvalues associated with this item
+                    
                     if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
-                    {
+                    {   // delete all the fieldvalues associated with this item
                         foreach (var fv in requestedItem.FieldValues.ToList())
-                            zaplifystore.FieldValues.Remove(fv);
+                            this.StorageContext.FieldValues.Remove(fv);
                         changed = true;
                     }
 
@@ -317,24 +279,21 @@ namespace BuiltSteady.Zaplify.Website.Resources
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
                     if (changed == true)
                     {
-                        int rows = zaplifystore.SaveChanges();
-                        if (rows < 1)
+                        if (this.StorageContext.SaveChanges() < 1)
+                        {
                             return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.InternalServerError);
-                        else
-                            return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.Accepted);
+                        }
                     }
-                    else
-                        return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.Accepted);
+
+                    return new HttpResponseMessageWrapper<Item>(req, requestedItem, HttpStatusCode.Accepted);
                 }
                 catch (Exception)
-                {
-                    // item not found - return 404 Not Found
+                {   // item not found - return 404 Not Found
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception)
-            {
-                // folder not found - return 404 Not Found
+            {   // folder not found - return 404 Not Found
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.NotFound);
             }
         }
@@ -349,9 +308,8 @@ namespace BuiltSteady.Zaplify.Website.Resources
                 object origValue = pi.GetValue(originalItem, null);
                 object newValue = pi.GetValue(newItem, null);
 
-                // if this is the ItemTags field make it simple - if this update is the last one, it wins
                 if (pi.Name == "ItemTags")
-                {
+                {   // if this is the ItemTags field make it simple - if this update is the last one, it wins
                     if (newItem.LastModified > requestedItem.LastModified)
                     {
                         pi.SetValue(requestedItem, newValue, null);
@@ -360,11 +318,9 @@ namespace BuiltSteady.Zaplify.Website.Resources
                     continue;
                 }
 
-                // if this is the FieldValues field make it simple - if this update is the last one, it wins
-                // BUGBUG: this is too simplistic - we should be iterating through the fieldvalue collection and
-                // doing finer-grained conflict management
+                // BUGBUG: this is too simplistic - should iterate thru fieldvalue collection and do finer-grained conflict management
                 if (pi.Name == "FieldValues")
-                {
+                {   // if this is the FieldValues field make it simple - if this update is the last one, it wins
                     if (newItem.LastModified > requestedItem.LastModified)
                     {
                         pi.SetValue(requestedItem, newValue, null);
@@ -373,12 +329,10 @@ namespace BuiltSteady.Zaplify.Website.Resources
                     continue;
                 }
 
-                // if the value has changed, process further 
-                if (!Object.Equals(origValue, newValue))
-                {
-                    // if the server has the original value, or the new item has a later timestamp than the server, then make the update
-                    if (Object.Equals(serverValue, origValue) || newItem.LastModified > requestedItem.LastModified)
-                    {
+                if (!object.Equals(origValue, newValue))
+                {   // value has changed, process further
+                    if (object.Equals(serverValue, origValue) || newItem.LastModified > requestedItem.LastModified)
+                    {   // server has the original value, or the new item has a later timestamp than the server, make the update
                         pi.SetValue(requestedItem, newValue, null);
                         updated = true;
                     }

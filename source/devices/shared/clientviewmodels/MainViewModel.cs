@@ -386,14 +386,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 return user;
             }
             set
-            {
+            {   // the server does NOT send password back, so it will likely be null
+                bool changed = false;
                 if (value != user)
                 {
+                    changed = true;
+                    if (user != null && value != null)
+                    {
+                        if (value.Name == user.Name && value.Email == user.Email && value.Password == null)
+                        {   // for comparison purposes, a null password is NOT considered a change
+                            changed = false;
+                        }
+                        if (value.Password == null)
+                        {   // preserve local client password, as password is NOT sent back from server
+                            value.Password = user.Password;
+                        }
+                    }
+                }
+
+                if (changed)
+                {   // store changes locally and notify
                     user = value;
-
-                    // save the new User credentiaions
                     StorageHelper.WriteUserCredentials(user);
-
                     NotifyPropertyChanged("User");
                 }
             }
