@@ -304,13 +304,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid parentID;
+        private Guid? parentID;
         /// <summary>
         /// ParentID property
         /// </summary>
         /// <returns></returns>
         [DataMember]
-        public Guid ParentID
+        public Guid? ParentID
         {
             get
             {
@@ -320,7 +320,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             {
                 if (value != parentID)
                 {
-                    parentID = value;
+                    if (value == null)
+                        parentID = Guid.Empty;
+                    else
+                        parentID = value;
                     NotifyPropertyChanged("ParentID");
                 }
             }
