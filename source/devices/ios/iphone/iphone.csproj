@@ -8,7 +8,7 @@
     <ProjectGuid>{64BE8F17-CD48-48FC-92CA-ECCE1A4769B4}</ProjectGuid>
     <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Builtsteady.Zaplify.Devices.IPhone</RootNamespace>
+    <RootNamespace>BuiltSteady.Zaplify.Devices.IPhone</RootNamespace>
     <AssemblyName>zaplifyiphone</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
@@ -16,7 +16,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\bin\iPhoneSimulator\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>IOS;DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchLink>None</MtouchLink>
+    <DefineConstants>IOS;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -66,33 +67,53 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="MonoTouch.Dialog">
+      <HintPath>..\..\..\packages\MonoTouch.Dialog.0.1\lib\mono\MonoTouch.Dialog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
-    <Compile Include="AppDelegate.cs" />
-    <Compile Include="FirstViewController.cs" />
-    <Compile Include="SecondViewController.cs" />
-    <Compile Include="FirstViewController.designer.cs">
-      <DependentUpon>FirstViewController.cs</DependentUpon>
+    <Compile Include="FoldersViewController.cs" />
+    <Compile Include="FoldersViewController.designer.cs">
+      <DependentUpon>FoldersViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="SecondViewController.designer.cs">
-      <DependentUpon>SecondViewController.cs</DependentUpon>
+    <Compile Include="ListViewController.cs" />
+    <Compile Include="ListViewController.designer.cs">
+      <DependentUpon>ListViewController.cs</DependentUpon>
     </Compile>
+    <Compile Include="MoreViewController.cs" />
+    <Compile Include="MoreViewController.designer.cs">
+      <DependentUpon>MoreViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsViewController.cs" />
+    <Compile Include="SettingsViewController.designer.cs">
+      <DependentUpon>SettingsViewController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MessageBox.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="DebugPage.cs" />
+    <Compile Include="ItemPage.cs" />
+    <Compile Include="controls\RadioEventElement.cs" />
+    <Compile Include="controls\StyledHtmlElement.cs" />
+    <Compile Include="controls\ButtonListElement.cs" />
+    <Compile Include="controls\DateEventElement.cs" />
   </ItemGroup>
   <ItemGroup>
-    <InterfaceDefinition Include="FirstViewController_iPhone.xib" />
-    <InterfaceDefinition Include="FirstViewController_iPad.xib" />
-    <InterfaceDefinition Include="SecondViewController_iPhone.xib" />
-    <InterfaceDefinition Include="SecondViewController_iPad.xib" />
+    <InterfaceDefinition Include="SettingsViewController_iPad.xib" />
+    <InterfaceDefinition Include="SettingsViewController_iPhone.xib" />
+    <InterfaceDefinition Include="FoldersViewController_iPad.xib" />
+    <InterfaceDefinition Include="FoldersViewController_iPhone.xib" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Images\first.png" />
     <Content Include="Images\first%402x.png" />
     <Content Include="Images\second.png" />
     <Content Include="Images\second%402x.png" />
+    <Content Include="Images\20-gear2.png" />
+    <Content Include="Images\33-cabinet.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -103,6 +124,10 @@
     <ProjectReference Include="..\..\shared\clienthelpers\ClientHelpers-ios.csproj">
       <Project>{18117044-3C87-4D61-9F1D-5014A2B24189}</Project>
       <Name>ClientHelpers-ios</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\shared\clientviewmodels\ClientViewModels-ios.csproj">
+      <Project>{484B23D7-99FA-456B-B3E6-756EA9843E86}</Project>
+      <Name>ClientViewModels-ios</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

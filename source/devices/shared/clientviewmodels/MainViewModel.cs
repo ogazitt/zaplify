@@ -565,11 +565,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             // we do this to initialize Items and DefaultFolder
             // we don't do it for other properties because assigning to the property also triggers a StorageHelper.Write call
             this.Folders = StorageHelper.ReadFolders();
-            if (this.folders == null && (this.User == null || this.User.Synced == false))
-            {
-                // we don't want to create the "starter" data if we already have a sync relationship with the service
-                this.Folders = InitializeFolders();
-            }
+            if (this.folders == null)
+			{
+				if (this.User == null || this.User.Synced == false)
+	            {
+	                // we don't want to create the "starter" data if we already have a sync relationship with the service
+	                this.Folders = InitializeFolders();
+	            }
+				else
+					this.folders = new ObservableCollection<Folder>();
+			}
 
             // load the contents of each folder 
             List<Guid> guidList = Folders.Select(f => f.ID).ToList<Guid>();

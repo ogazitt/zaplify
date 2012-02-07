@@ -69,7 +69,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 {
                     case "application/json":
                         DataContractJsonSerializer dcjs = new DataContractJsonSerializer(t);
-                        return dcjs.ReadObject(stream);
+						bool debug = false;
+						if (debug)
+						{
+							StreamReader sr = new StreamReader(stream);
+							string str = sr.ReadToEnd ();
+							return null;
+						}
+						else
+                        	return dcjs.ReadObject(stream);
                     case "text/xml":
                     case "application/xml":
                         DataContractSerializer dc = new DataContractSerializer(t);
@@ -83,9 +91,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             catch (Exception ex)
             {
                 TraceHelper.AddMessage("Exception in DeserializeResponseBody: " + ex.Message);
+#if !IOS		// MonoTouch does not support resetting the response stream
                 stream.Position = 0;
                 StreamReader sr = new StreamReader(stream);
                 string str = sr.ReadToEnd();
+#endif
                 return null;
             }
         }
