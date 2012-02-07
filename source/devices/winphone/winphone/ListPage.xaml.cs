@@ -272,13 +272,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         // construct a synthetic item that represents the list of items for which the 
                         // ParentID is the parent.  this also works for the root list in a folder, which
                         // is represented with a ParentID of Guid.Empty.
+                        Guid? listID = (id == Guid.Empty) ? (Guid?) null : (Guid?) id;
                         list = new Item()
                         {
                             ID = id,
                             Name = listName,
                             FolderID = folder.ID,
                             IsList = true,
-                            Items = folder.Items.Where(i => i.ParentID == id).ToObservableCollection()
+                            Items = folder.Items.Where(i => i.ParentID == listID).ToObservableCollection()
                         };
                     }
                     catch (Exception ex)
@@ -689,6 +690,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 ParentID = list.ID,
                 IsList = isChecked,
             };
+
+            // hack: special-case processing for To Do item types
+            // set the complete field to false 
+            if (item.ItemTypeID == ItemType.ToDoItem)
+                item.Complete = false;
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
