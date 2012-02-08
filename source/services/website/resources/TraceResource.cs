@@ -33,7 +33,7 @@
             LoggingHelper.TraceFunction();
 
             // get the user credentials
-            User user = GetUserFromMessageHeaders(req);
+            //UserCredential user = GetUserFromMessageHeaders(req);
 
             try
             {
@@ -43,7 +43,7 @@
                 else
                     stream = req.Content.ReadAsStreamAsync().Result;
 
-                string error = WriteFile(user, stream);
+                string error = WriteFile(this.CurrentUserName, stream);
                 var response = new HttpResponseMessageWrapper<string>(req, error != null ? error : "OK", HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
 
@@ -58,7 +58,7 @@
             }
         }
 
-        string WriteFile(User user, Stream traceStream)
+        string WriteFile(string username, Stream traceStream)
         {
             // Log function entrance
             LoggingHelper.TraceFunction();
@@ -72,7 +72,7 @@
 
                 DateTime tod = DateTime.Now;
                 string filename = String.Format("{0}-{1}.txt",
-                    user.Name,
+                    username,
                     tod.Ticks);
                 string path = Path.Combine(dir, filename);
                 FileStream fs = File.Create(path);

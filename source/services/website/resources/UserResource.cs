@@ -30,23 +30,25 @@
         {
             HttpStatusCode status = HttpStatusCode.BadRequest;
             // get the new user from the message body (password is not deserialized)
-            User user = ProcessRequestBody(req, typeof(User)) as User;
+            UserCredential newUser = ProcessRequestBody(req, typeof(UserCredential)) as UserCredential;
             // get password from message headers
-            User userCreds = GetUserFromMessageHeaders(req);
+            UserCredential userCreds = GetUserFromMessageHeaders(req);
 
-            if (user.Name == userCreds.Name)
+            if (newUser.Name == userCreds.Name)
             {   // verify same name in both body and header
-                user.Password = userCreds.Password;
-                status = CreateUser(user);
+                newUser.Password = userCreds.Password;
+                status = CreateUser(newUser);
             }
 
             if (status == HttpStatusCode.Created)
-                return new HttpResponseMessageWrapper<User>(req, user, HttpStatusCode.Created);
+            {
+                return new HttpResponseMessageWrapper<User>(req, newUser.AsUser(), HttpStatusCode.Created);
+            }
             else
                 return new HttpResponseMessageWrapper<User>(req, status);
         }
 
-        private HttpStatusCode CreateUser(User user)
+        private HttpStatusCode CreateUser(UserCredential user)
         {
             MembershipCreateStatus createStatus;
             LoggingHelper.TraceFunction();  // log function entrance
@@ -168,12 +170,6 @@
             try
             {
                 User requestedUser = this.StorageContext.Users.Single<User>(u => u.ID == id);
-                // if requested user is not the same as the current user, blank out password fields
-                if (requestedUser.ID != CurrentUserID)
-                {
-                    requestedUser.Password = null;
-                    requestedUser.PasswordSalt = null;
-                }
                 return new HttpResponseMessageWrapper<User>(req, requestedUser, code);
             }
             catch (Exception)
@@ -237,15 +233,15 @@
             }
 
             // verify body contains two sets of user data - the original values and the new values
-            List<User> userData = ProcessRequestBody(req, typeof(List<User>)) as List<User>;
+            List<UserCredential> userData = ProcessRequestBody(req, typeof(List<UserCredential>)) as List<UserCredential>;
             if (userData.Count != 2)
             {
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
             }
 
             // get the original and new items out of the message body
-            User originalUserData = userData[0];
-            User newUserData = userData[1];
+            UserCredential originalUserData = userData[0];
+            UserCredential newUserData = userData[1];
 
             // make sure the item ID's match
             if (originalUserData.ID != newUserData.ID || originalUserData.ID != id)

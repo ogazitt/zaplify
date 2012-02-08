@@ -1,65 +1,39 @@
-using System;
-using System.Net;
-using System.Net.Sockets;
-using System.IO;
-using System.IO.IsolatedStorage;
-using System.Runtime.Serialization;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using System.Runtime.Serialization.Json;
-using System.Net.Browser;
-using System.Text;
-using Microsoft.Phone.Net.NetworkInformation;
-
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.IO;
+    using System.IO.IsolatedStorage;
+    using System.Net;
+    using System.Net.Browser;
+    using System.Net.Sockets;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
+    using System.Text;
+
+    using Microsoft.Phone.Net.NetworkInformation;
+    using BuiltSteady.Zaplify.Devices.ClientEntities;
+
     public class NetworkHelper
     {
-        private static string baseUrl
-        {
-            get
-            {
-                return WebServiceHelper.BaseUrl;
-            }
-        }
-
         static Socket socket = null;
         static EndPoint endPoint = null;
+        static bool isRequestInProgress = false;    // only one network operation at a time
 
-        // only one network operation at a time
-        static bool isRequestInProgress = false;
+#region // Network calls
 
-        #region Network calls
-
-        /// <summary>
-        /// Begin the process of sending a speech file to the service
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="encoding">Encoding string</param>
-        /// <param name="del">Delegate to call when the network setup is complete</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         public static void BeginSpeech(Delegate del, Delegate netOpInProgressDel)
         {
             InvokeNetworkRequest(del, netOpInProgressDel);
         }
 
-        /// <summary>
-        /// Cancel the current operation
-        /// </summary>
         public static void CancelSpeech()
         {
             // clean up the socket
             CleanupSocket();
         }
 
-        /// <summary>
-        /// Finish sending the last chunk of the speech file and get the response
-        /// </summary>
-        /// <param name="buffer">Last speech chunk to send to service</param>
-        /// <param name="len">Length of speech buffer</param>
-        /// <param name="del">Delegate to call with the actual response from the speech service</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         public static void EndSpeech(byte[] buffer, int len, Delegate del, Delegate netOpInProgressDel)
         {
             // send the last chunk of the speech file
@@ -71,7 +45,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     if (e.SocketError != SocketError.Success)
                     {
                         // signal that a network operation is done and unsuccessful
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                         // clean up the socket
                         CleanupSocket();
@@ -88,7 +62,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                             if (ea.SocketError != SocketError.Success)
                             {
                                 // signal that a network operation is done and unsuccessful
-                                netOpInProgressDel.DynamicInvoke(false, false);
+                                netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                                 // clean up the socket
                                 CleanupSocket();
@@ -104,16 +78,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 netOpInProgressDel);
         }
 
-        /// <summary>
-        /// Send an HTTP POST to start a new speech recognition transaction
-        /// </summary>
-        /// <param name="user">User to authenticate</param>
-        /// <param name="encoding">Encoding string</param>
-        /// <param name="del">Delegate to invoke when the request completes</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
+
+        // Send an HTTP POST to start a new speech recognition transaction
         public static void SendPost(User user, string encoding, Delegate del, Delegate netOpInProgressDel)
         {
-            string url = baseUrl + "/speech";
+            string url = WebServiceHelper.BaseUrl + "/speech";
             string verb = "POST";
 
             // get a Uri for the service - this will be used to decode the host / port
@@ -151,7 +120,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     if (e.SocketError != SocketError.Success)
                     {
                         // signal that a network operation is done and unsuccessful
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                         // clean up the socket
                         CleanupSocket();
@@ -166,13 +135,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 netOpInProgressDel);
         }
 
-        /// <summary>
-        /// Send a chunk of the speech file
-        /// </summary>
-        /// <param name="buffer">Buffer to send</param>
-        /// <param name="len">Number of bytes in the buffer to send</param>
-        /// <param name="callback">Delegate to call when the send is complete</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         public static void SendSpeech(byte[] buffer, int len, Delegate callback, Delegate netOpInProgressDel)
         {
             EventHandler<SocketAsyncEventArgs> eh = null;
@@ -190,13 +152,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 netOpInProgressDel);
         }
 
-        #endregion
+#endregion
 
-        #region Helper methods
+#region // Helper methods
 
-        /// <summary>
-        /// Clean up the socket after we are done
-        /// </summary>
         private static void CleanupSocket()
         {
             isRequestInProgress = false;
@@ -213,12 +172,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        /// <summary>
-        /// Create a buffer with a length prefix and a terminating CRLF
-        /// </summary>
-        /// <param name="buffer">Buffer to wrap</param>
-        /// <param name="len">Length of data in buffer</param>
-        /// <returns>New wrapped buffer</returns>
         private static byte[] CreateBuffer(byte[] buffer, int len)
         {
             // buffer will be formatted as:
@@ -236,12 +189,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return sendbuf;
         }
 
-        /// <summary>
-        /// Encode a string in text/plain (ASCII) format 
-        /// (unused at this time)
-        /// </summary>
-        /// <param name="str">String to encode</param>
-        /// <returns>byte array with ASCII encoding</returns>
         private static byte[] EncodeString(string str)
         {
             char[] unicode = str.ToCharArray();
@@ -252,11 +199,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return buffer;
         }
 
-        /// <summary>
-        /// Invoke the network request by setting up the socket
-        /// </summary>
-        /// <param name="del">Delegate to call when the setup is complete</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         private static void InvokeNetworkRequest(Delegate del, Delegate netOpInProgressDel)
         {
             // this code is non-reentrant
@@ -267,10 +209,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             isRequestInProgress = true;
 
             // signal that a network operation is starting
-            netOpInProgressDel.DynamicInvoke(true, null);
+            netOpInProgressDel.DynamicInvoke(true, OperationStatus.Started);
 
             // get a Uri for the service - this will be used to decode the host / port
-            Uri uri = new Uri(baseUrl);
+            Uri uri = new Uri(WebServiceHelper.BaseUrl);
 
             // create the socket
             if (socket == null)
@@ -291,7 +233,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 if (e.SocketError != SocketError.Success)
                 {
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -316,7 +258,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     if (ret == false)
                     {
                         // signal that a network operation is done and unsuccessful
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                         // clean up the socket
                         CleanupSocket();
@@ -328,7 +270,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     TraceHelper.AddMessage("InvokeNetworkRequest: ex: " + ex.Message);
 
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -346,11 +288,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        /// <summary>
-        /// Receive and process a response from the service
-        /// </summary>
-        /// <param name="del">Delegate to invoke at the end of the operation</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         private static void ProcessNetworkResponse(Delegate del, Delegate netOpInProgressDel)
         {
             if (isRequestInProgress == false)
@@ -363,7 +300,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 if (e.SocketError != SocketError.Success)
                 {
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -384,14 +321,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         lines[0] != "HTTP/1.1 200 OK")
                     {
                         // signal that a network operation is done and unsuccessful
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                         // clean up the socket
                         CleanupSocket();
                     }
 
                     // signal that a network operation is done and successful
-                    netOpInProgressDel.DynamicInvoke(false, true);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Success);
 
                     // discover the content type (default to json)
                     string contentType = "application/json";
@@ -414,7 +351,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         stream, contentType, typeof(HttpMessageBodyWrapper<string>));
 
                     // signal that a network operation is done and successful
-                    netOpInProgressDel.DynamicInvoke(false, true);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Success);
 
                     // reset the request in progress flag
                     isRequestInProgress = false;
@@ -428,7 +365,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 else
                 {
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -446,7 +383,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 if (ret == false)
                 {
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -458,20 +395,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 TraceHelper.AddMessage("ProcessNetworkResponse: ex: " + ex.Message);
 
                 // signal that a network operation is done and unsuccessful
-                netOpInProgressDel.DynamicInvoke(false, false);
+                netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                 // clean up the socket
                 CleanupSocket();
             }
         }
 
-        /// <summary>
-        /// Send a buffer on the socket
-        /// </summary>
-        /// <param name="buffer">Data buffer to send</param>
-        /// <param name="len">Length of data: -1 means don't prefix the length; 0 means buffer.Length; positive means actual length</param>
-        /// <param name="eh">Event handler to invoke at the end of the operation</param>
-        /// <param name="netOpInProgressDel">Delegate to signal the network status</param>
         private static void SendData(byte[] buffer, int len, EventHandler<SocketAsyncEventArgs> eh, Delegate netOpInProgressDel)
         {
             // a request must be in progress
@@ -516,7 +446,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 if (ret == false)
                 {
                     // signal that a network operation is done and unsuccessful
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                     // clean up the socket
                     CleanupSocket();
@@ -528,13 +458,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 TraceHelper.AddMessage("SendData: ex: " + ex.Message);
 
                 // signal that a network operation is done and unsuccessful
-                netOpInProgressDel.DynamicInvoke(false, false);
+                netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
 
                 // clean up the socket
                 CleanupSocket();
             }
         }
 
-        #endregion
+#endregion
     }
 }
