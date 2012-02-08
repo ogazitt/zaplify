@@ -619,12 +619,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     lists.Insert(0, new Item()
                     {
                         ID = Guid.Empty,
-                        Name = folder.Name
+                        Name = folder.Name + "(folder)"
                     });
                     listPicker.ItemsSource = lists;
                     listPicker.DisplayMemberPath = "Name";
                     Item thisItem = lists.FirstOrDefault(i => i.ID == item.ParentID);
-                    listPicker.SelectedIndex = lists.IndexOf(thisItem);
+                    // if the list isn't found (e.g. ParentID == null), SelectedIndex will default to the Folder scope (which is correct for that case)
+                    listPicker.SelectedIndex = Math.Max(lists.IndexOf(thisItem), 0);  
                     listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lists[listPicker.SelectedIndex].ID, null); });
                     listPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(listPicker);
