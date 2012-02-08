@@ -1,3 +1,4 @@
+// WARNING
 //
 // This file has been generated automatically by MonoDevelop to store outlets and
 // actions made in the Xcode designer. If it is removed, they will be lost.
@@ -5,10 +6,14 @@
 //
 using MonoTouch.Foundation;
 
-namespace builtsteady.zaplify.devices.iphone
+namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	[Register ("SecondViewController")]
-	partial class SecondViewController
+	[Register ("MoreViewController")]
+	partial class MoreViewController
 	{
+		
+		void ReleaseDesignerOutlets ()
+		{
+		}
 	}
 }

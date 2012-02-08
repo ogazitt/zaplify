@@ -4,16 +4,16 @@ using System.Linq;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
-namespace builtsteady.zaplify.devices.iphone
+namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public class Application
 	{
 		// This is the main entry point of the application.
 		static void Main (string[] args)
 		{
-			// if you want to use a different Application Delegate class from "AppDelegate"
+			// if you want to use a different Application Delegate class from "App"
 			// you can specify it here.
-			UIApplication.Main (args, null, "AppDelegate");
+			UIApplication.Main (args, null, "App");
 		}
 	}
 }

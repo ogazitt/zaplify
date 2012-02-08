@@ -69,6 +69,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                 try
                 {
+					stream.Position = 0;
                     DataContractJsonSerializer ser = new DataContractJsonSerializer(t);
                     this.Body = ser.ReadObject(stream);
                 }
