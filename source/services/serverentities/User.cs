@@ -6,7 +6,21 @@ using System.Web;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
+
     public class User
+    {
+        public Guid ID { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public DateTime CreateDate { get; set; }
+
+        public List<ItemType> ItemTypes { get; set; }  
+        public List<Tag> Tags { get; set; }
+        public List<Item> Items { get; set; }
+        public List<Folder> Folders { get; set; }
+    }
+
+    public class UserCredential
     {
         public Guid ID { get; set; }
         public string Name { get; set; }
@@ -19,9 +33,16 @@ namespace BuiltSteady.Zaplify.ServerEntities
         [IgnoreDataMember]
         public string PasswordSalt { get; set; }
 
-        public List<ItemType> ItemTypes { get; set; }  
-        public List<Tag> Tags { get; set; }
-        public List<Item> Items { get; set; }
-        public List<Folder> Folders { get; set; }
+        public User AsUser()
+        {
+            return new User()
+            {
+                Name = this.Name,
+                ID = this.ID,
+                Email = this.Email,
+                CreateDate = this.CreateDate
+            };
+        }
+
     }
 }

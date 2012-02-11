@@ -74,6 +74,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 						{
 							StreamReader sr = new StreamReader(stream);
 							string str = sr.ReadToEnd ();
+							TraceHelper.AddMessage("Debug path taken; message to deserialize: " + str);
 							return null;
 						}
 						else
@@ -85,6 +86,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     default:  // unknown format (some debugging code below)
                         StreamReader sr = new StreamReader(stream);
                         string str = sr.ReadToEnd();
+						TraceHelper.AddMessage(String.Format("Unrecognized Content-Type: {0}; message: {1}", contentType, str));
                         return null;
                 }
             }
@@ -121,8 +123,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // get the first component of the content-type header
             // string contentType = resp.Headers["Content-Type"].Split(';')[0];
             string contentType = resp.ContentType.Split(';')[0];
-
-            return DeserializeResponseBody(resp.GetResponseStream(), contentType, t);
+			return DeserializeResponseBody(resp.GetResponseStream(), contentType, t);
         }
 
 		/*

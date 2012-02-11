@@ -1,30 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using Microsoft.Phone.Controls;
-using System.Windows.Navigation;
-using Microsoft.Phone.Shell;
-using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.ComponentModel;
-using System.Threading;
-using Microsoft.Xna.Framework.Audio;
-using System.Windows.Media.Imaging;
-using Microsoft.Phone.Net.NetworkInformation;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using BuiltSteady.Zaplify.Devices.ClientViewModels;
-using BuiltSteady.Zaplify.Devices.ClientHelpers;
-
-namespace BuiltSteady.Zaplify.Devices.WinPhone
+﻿namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Linq;
+    using System.Net;
+    using System.Threading;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Data;
+    using System.Windows.Documents;
+    using System.Windows.Input;
+    using System.Windows.Media;
+    using System.Windows.Media.Animation;
+    using System.Windows.Media.Imaging;
+    using System.Windows.Navigation;
+    using System.Windows.Shapes;
+
+    using Microsoft.Phone.Controls;
+    using Microsoft.Phone.Net.NetworkInformation;
+    using Microsoft.Phone.Shell;
+    using Microsoft.Xna.Framework.Audio;
+    using BuiltSteady.Zaplify.Devices.ClientEntities;
+    using BuiltSteady.Zaplify.Devices.ClientViewModels;
+    using BuiltSteady.Zaplify.Devices.ClientHelpers;
+
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         private const int rendersize = 10;  // limit of elements to render immediately
@@ -814,23 +815,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             SpeechPopup.IsOpen = false;
         }
 
-        private void SpeechPopup_NetworkOperationInProgressCallBack(bool operationInProgress, bool? operationSuccessful)
+        private void SpeechPopup_NetworkOperationInProgressCallBack(bool operationInProgress, OperationStatus status)
         {
             // call the MainViewModel's routine to make sure global network status is reset
-            App.ViewModel.NetworkOperationInProgressCallback(operationInProgress, operationSuccessful);
+            App.ViewModel.NetworkOperationInProgressCallback(operationInProgress, status);
 
             // signal whether the net operation is in progress or not
             NetworkOperationInProgress = (operationInProgress == true ? Visibility.Visible : Visibility.Collapsed);
 
             // if the operationSuccessful flag is null, no new data; otherwise, it signals the status of the last operation
-            if (operationSuccessful != null)
+            if (status != OperationStatus.Started)
             {
-                if ((bool)operationSuccessful == false)
-                {
-                    // the server wasn't reachable
+                if (status != OperationStatus.Success)
+                {   // the server wasn't reachable
                     Deployment.Current.Dispatcher.BeginInvoke(() =>
                     {
-                        MessageBox.Show("apologies - cannot reach the speech service at this time.");
+                        MessageBox.Show("Unable to access the speech service at this time.");
                         SpeechPopup_Close();
                     });
                 }

@@ -8,19 +8,22 @@
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Runtime.Serialization;
+    using System.Web;
     using System.Web.Security;
 
     using Newtonsoft.Json;
-    using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHelpers;
+    using BuiltSteady.Zaplify.Website.Models;
+    using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
     public class BaseResource
     {
-        StorageContext storageContext = null;
+        const string authRequestHeader = "Cookie";
+        protected StorageContext storageContext = null;
         User currentUser = null;
 
-        protected StorageContext StorageContext
+        virtual protected StorageContext StorageContext
         {
             get
             {
@@ -38,7 +41,7 @@
             {
                 if (currentUser != null && !string.IsNullOrEmpty(currentUser.Name))
                 {
-                    if ((currentUser.ID == null || currentUser.ID == Guid.Empty))
+                    if (currentUser.ID == Guid.Empty)
                     {   // retrieve ID from storage
                         if (this.StorageContext.Users.Any<User>(u => u.Name == currentUser.Name))
                         {
@@ -68,29 +71,41 @@
         {
             LoggingHelper.TraceFunction();
 
-            // TODO: get cookie auth working for all clients
-            // this should work if auth cookie has been issued
+            // this should work if auth cookie has been provided
             MembershipUser mu = Membership.GetUser();
-            if (mu != null)
-            {
-                this.currentUser = new User() { Name = mu.UserName.ToLower(), ID = (Guid)mu.ProviderUserKey };
-                return HttpStatusCode.OK;
+            if (mu != null && Membership.Provider is UserMembershipProvider)
+            {   // get user id from authenticated identity (cookie)
+                this.currentUser = UserMembershipProvider.AsUser(mu);
+                return HttpStatusCode.OK;                
             }
 
-            User user = GetUserFromMessageHeaders(req);
-            if (user == null)
-            {   // auth headers not found, return 400 Bad Request
+            UserCredential credentials = GetUserFromMessageHeaders(req);
+            if (credentials == null)
+            {
+                if (HttpContext.Current.Request.Headers[authRequestHeader] != null)
+                {   // cookie is no longer valid, return 401 Unauthorized
+                    LoggingHelper.TraceError("Unauthorized: cookie is expired or invalid");
+                    return HttpStatusCode.Unauthorized;
+                }
+                
+                // auth headers not found, return 400 Bad Request
                 LoggingHelper.TraceError("Bad request: no user information found");
                 return HttpStatusCode.BadRequest;
             }
 
             try
             {   // authenticate the user
-                if (Membership.ValidateUser(user.Name, user.Password) == false)
+                if (Membership.ValidateUser(credentials.Name, credentials.Password) == false)
                     return HttpStatusCode.Forbidden;
 
-                this.currentUser = user;
-                this.currentUser.Password = null;   // remove password after it is validated
+                this.currentUser = credentials.AsUser();
+
+                if (Membership.Provider is UserMembershipProvider)
+                {   // add auth cookie to response (cookie includes user id)
+                    HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(credentials);
+                    HttpContext.Current.Response.Cookies.Add(authCookie);
+                }
+
                 return HttpStatusCode.OK;
             }
             catch (Exception)
@@ -101,7 +116,7 @@
 
         // extract username and password from message headers (passed by devices)
         // TODO: figure out how to use auth cookie from devices
-        protected User GetUserFromMessageHeaders(HttpRequestMessage req)
+        protected UserCredential GetUserFromMessageHeaders(HttpRequestMessage req)
         {
             LoggingHelper.TraceFunction();
 
@@ -118,7 +133,7 @@
             }
             string password = values.ToArray<string>()[0];
 
-            return new User() { Name = username.ToLower(), Password = password };
+            return new UserCredential() { Name = username.ToLower(), Password = password };
         }
 
         // base code to process message and deserialize body to expected type

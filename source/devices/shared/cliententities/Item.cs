@@ -320,8 +320,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             {
                 if (value != parentID)
                 {
-                    if (value == null)
-                        parentID = Guid.Empty;
+                    if (value == Guid.Empty)
+                        parentID = null;
                     else
                         parentID = value;
                     NotifyPropertyChanged("ParentID");

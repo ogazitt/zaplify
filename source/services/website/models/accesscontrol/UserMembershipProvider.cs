@@ -3,13 +3,16 @@
     using System;
     using System.Linq;
     using System.Security.Cryptography;
+    using System.Security.Principal;
     using System.Web.Security;
+    using System.Web;
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHelpers;
 
     public class UserMembershipProvider : MembershipProvider
     {
+        const int authTicketLifetime = 1;      // minutes
 
         public override string ApplicationName
         {
@@ -21,8 +24,8 @@
         {
             try
             {
-                StorageContext storage = Storage.NewContext;
-                User user = storage.Users.Single<User>(u => u.Name == username.ToLower());
+                CredentialStorageContext storage = Storage.NewCredentialContext;
+                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == username.ToLower());
                 // verify old password
                 if (IsValidPassword(user, oldPassword))
                 {   // TODO: verify new password meets requirements
@@ -43,9 +46,9 @@
         public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
             status = MembershipCreateStatus.Success;
-            StorageContext storage = Storage.NewContext;
+            CredentialStorageContext storage = Storage.NewCredentialContext;
 
-            if (storage.Users.Any<User>(u => u.Name == username))
+            if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
                 // Log failure to create duplicate user account
@@ -56,10 +59,11 @@
             // create salt for each user and store hash of password
             string salt = CreateSalt(64);
             password = HashPassword(password, salt);
+            Guid userID = (providerUserKey != null && providerUserKey is Guid) ? (Guid)providerUserKey : Guid.NewGuid();
             
-            User user = new User()
+            UserCredential user = new UserCredential()
             {
-                ID = (Guid)providerUserKey,
+                ID = userID,
                 Name = username.ToLower(),        
                 Password = password,    
                 PasswordSalt = salt,
@@ -67,9 +71,9 @@
                 CreateDate = DateTime.UtcNow
             };
 
-            storage.Users.Add(user);
+            storage.Credentials.Add(user);
             storage.SaveChanges();
-            user = storage.Users.Single<User>(u => u.Name == username);
+            user = storage.Credentials.Single<UserCredential>(u => u.Name == username);
             status = MembershipCreateStatus.Success;
 
             // Log creation of new user account
@@ -143,6 +147,14 @@
 
         public override MembershipUser GetUser(string username, bool userIsOnline)
         {
+            if (userIsOnline && HttpContext.Current.User != null)
+            {   // check auth ticket first
+                UserCredential user = ExtractUserFromTicket(HttpContext.Current.User);
+                if (user != null)
+                {
+                    return AsMembershipUser(user);
+                }
+            }
             return AsMembershipUser(LookupUserByName(username));
         }
 
@@ -153,7 +165,7 @@
 
         public override string GetUserNameByEmail(string email)
         {
-            User user = LookupUserByEmail(email);
+            UserCredential user = LookupUserByEmail(email);
             return user.Name;
         }
 
@@ -169,7 +181,7 @@
 
         public override int MinRequiredPasswordLength
         {
-            get { throw new NotImplementedException(); }
+            get { return 6; }
         }
 
         public override int PasswordAttemptWindow
@@ -208,61 +220,111 @@
         }
 
         public override void UpdateUser(MembershipUser mu)
-        {   // TODO: allow update of username or more than just email?
-            StorageContext storage = Storage.NewContext;
-            User user = storage.Users.Single<User>(u => u.Name == mu.UserName);
+        {   // TODO: allow update of more than just email?
+            CredentialStorageContext storage = Storage.NewCredentialContext;
+            UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == mu.UserName);
             user.Email = mu.Email;
             storage.SaveChanges();
         }
 
         public override bool ValidateUser(string username, string password)
         {
-            User user = LookupUserByName(username);
+            UserCredential user = LookupUserByName(username);
             return ((user != null) && IsValidPassword(user, password));
         }
 
-        static bool IsValidPassword(User user, string password)
+        public static User AsUser(MembershipUser mu)
+        {
+            return new User()
+            {
+                Name = mu.UserName,
+                ID = (Guid)mu.ProviderUserKey,
+                Email = mu.Email
+            };
+        }
+
+        public static HttpCookie CreateAuthCookie(UserCredential user)
+        {
+            if (user.ID == Guid.Empty)
+            {   // get id from storage to attach to cookie 
+                user = LookupUserByName(user.Name);
+            }
+
+            string userData = user.ID.ToString();
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                userData += "|" + user.Email;
+            }
+            FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(1, user.Name, 
+                DateTime.Now, DateTime.Now.AddMinutes(authTicketLifetime), true, userData);
+
+            HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(authTicket));
+            authCookie.Expires = DateTime.Now.AddMinutes(authTicketLifetime);
+            return authCookie;
+        }
+
+        static bool IsValidPassword(UserCredential user, string password)
         {   // hash of given password should match stored hash  
             string hash = HashPassword(password, user.PasswordSalt);
             return user.Password.Equals(hash, StringComparison.Ordinal);
         }
 
-        static User LookupUserByName(string username)
+        static UserCredential LookupUserByName(string username)
         {
             username = username.ToLower();
-            StorageContext storage = Storage.NewContext;
-            if (storage.Users.Any<User>(u => u.Name == username))
+            CredentialStorageContext storage = Storage.NewCredentialContext;
+            if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
             {
-                User user = storage.Users.Single<User>(u => u.Name == username);
+                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == username);
                 return user;
             }
             return null;
         }
 
-        static User LookupUserByEmail(string email)
+        static UserCredential LookupUserByEmail(string email)
         {
             email = email.ToLower();
-            StorageContext storage = Storage.NewContext;
-            if (storage.Users.Any<User>(u => u.Email == email))
+            CredentialStorageContext storage = Storage.NewCredentialContext;
+            if (storage.Credentials.Any<UserCredential>(u => u.Email == email))
             {
-                User user = storage.Users.Single<User>(u => u.Email == email);
+                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Email == email);
                 return user;
             }
             return null;
         }
 
-        static User LookupUserByID(Guid id)
+        static UserCredential LookupUserByID(Guid id)
         {
-            StorageContext storage = Storage.NewContext;
-            if (storage.Users.Any<User>(u => u.ID == id))
+            CredentialStorageContext storage = Storage.NewCredentialContext;
+            if (storage.Credentials.Any<UserCredential>(u => u.ID == id))
             {
-                User user = storage.Users.Single<User>(u => u.ID == id);
+                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.ID == id);
                 return user;
             }
             return null;
         }
 
-        static MembershipUser AsMembershipUser(User user)
+        static UserCredential ExtractUserFromTicket(IPrincipal principal)
+        {
+            if (principal.Identity != null && principal.Identity.IsAuthenticated)
+            {
+                FormsIdentity identity = (FormsIdentity)principal.Identity;
+                FormsAuthenticationTicket ticket = identity.Ticket;
+                if (ticket != null && !string.IsNullOrEmpty(ticket.UserData))
+                {
+                    string[] userData = ticket.UserData.Split('|');
+                    Guid userID;
+                    if (Guid.TryParse(userData[0], out userID))
+                    {
+                        string email = (userData.Length > 1) ? userData[1] : string.Empty;
+                        return new UserCredential() { Name = identity.Name, ID = userID, Email = email };
+                    }
+                }
+            }
+            return null;
+        }
+
+        static MembershipUser AsMembershipUser(UserCredential user)
         {
             MembershipUser member = null;
             if (user != null)

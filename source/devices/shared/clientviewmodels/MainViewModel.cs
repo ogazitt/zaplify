@@ -1,16 +1,17 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Net;
 using System.Linq;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Windows;
+
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using System.Windows;
 
 #if IOS
 namespace System.Windows
@@ -35,14 +36,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             private set;
         }
 
-        #region Databound Properties
+#region // Databound Properties
 
         private About about;
-        /// <summary>
-        /// About info for the app.  This comes from a resource file (About.xml) that is packaged
-        /// with the app.
-        /// </summary>
-        /// <returns></returns>
         public About About
         {
             get
@@ -59,19 +55,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        /// <summary>
-        /// Databinding property for displaying whether we are connected or not
-        /// </summary>
-        public string ConnectedText { get { return LastNetworkOperationStatus == true ? "Connected" : "Not Connected"; } }
 
-        public string ConnectedIcon { get { return LastNetworkOperationStatus == true ? "/Images/connected.true.png" : "/Images/connected.false.png"; } }
+        // Databinding property for displaying whether we are connected or not
+        public string ConnectedText 
+        { 
+            get { return LastNetworkOperationStatus == true ? "Connected" : "Not Connected"; } 
+        }
+
+        public string ConnectedIcon 
+        { 
+            get { return LastNetworkOperationStatus == true ? "/Images/connected.true.png" : "/Images/connected.false.png"; } 
+        }
 
         private Constants constants;
-        /// <summary>
-        /// Constants for the application.  These have default values in the client app, but 
-        /// these defaults are overridden by the service
-        /// </summary>
-        /// <returns></returns>
         public Constants Constants
         {
             get
@@ -113,10 +109,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private Folder defaultFolder;
-        /// <summary>
-        /// Default item folder to add new items to
-        /// </summary>
-        /// <returns></returns>
         public Folder DefaultFolder
         {
             get
@@ -144,10 +136,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private bool lastNetworkOperationStatus;
-        /// <summary>
-        /// Status of last network operation (true == succeeded)
-        /// </summary>
-        /// <returns></returns>
         public bool LastNetworkOperationStatus
         {
             get
@@ -167,9 +155,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private Dictionary<Guid, Folder> folderDictionary;
-        /// <summary>
-        /// A dictionary of Folders
-        /// </summary>
         public Dictionary<Guid, Folder> FolderDictionary
         {
             get
@@ -187,10 +172,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private ObservableCollection<Folder> folders;
-        /// <summary>
-        /// Folders property for the MainViewModel, which is a collection of Folder objects
-        /// </summary>
-        /// <returns></returns>
         public ObservableCollection<Folder> Folders
         {
             get
@@ -257,10 +238,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        /// <summary>
-        /// Items property for the MainViewModel, which is a collection of Item objects
-        /// </summary>
-        /// <returns></returns>
         public ObservableCollection<Item> Items
         {
             get
@@ -281,10 +258,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private ObservableCollection<ItemType> itemTypes;
-        /// <summary>
-        /// A collection of List Types
-        /// </summary>
-        /// <returns></returns>
         public ObservableCollection<ItemType> ItemTypes
         {
             get
@@ -309,10 +282,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private Visibility networkOperationInProgress = Visibility.Collapsed;
-        /// <summary>
-        /// Whether a network operation is in progress (yes == Visible / no == Collapsed)
-        /// </summary>
-        /// <returns></returns>
         public Visibility NetworkOperationInProgress
         {
             get
@@ -330,10 +299,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private ObservableCollection<Tag> tags;
-        /// <summary>
-        /// A collection of Tags
-        /// </summary>
-        /// <returns></returns>
         public ObservableCollection<Tag> Tags
         {
             get
@@ -355,9 +320,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private ObservableCollection<string> traceMessages;
-        /// <summary>
-        /// List of trace messages
-        /// </summary>
         public ObservableCollection<string> TraceMessages
         {
             get
@@ -375,10 +337,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private User user;
-        /// <summary>
-        /// User object corresponding to the authenticated user
-        /// </summary>
-        /// <returns></returns>
         public User User
         {
             get
@@ -414,10 +372,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         private ObservableCollection<ItemType> userItemTypes;
-        /// <summary>
-        /// A collection of User-defined List Types
-        /// </summary>
-        /// <returns></returns>
         public ObservableCollection<ItemType> UserItemTypes
         {
             get
@@ -461,13 +415,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        #endregion
+#endregion
 
-        #region Public Methods
+#region // Public Methods
 
-        /// <summary>
-        /// Get About data from the local resource
-        /// </summary>
         public About GetAboutData()
         {
             // trace getting data
@@ -481,9 +432,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return (About) dc.ReadObject(stream);
         }
 
-        /// <summary>
-        /// Get Constants data from the Web Service
-        /// </summary>
         public void GetConstants()
         {
             if (retrievedConstants == false)
@@ -498,9 +446,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        /// <summary>
-        /// Get User data from the Web Service
-        /// </summary>
         public void GetUserData()
         {
             if (retrievedConstants == true)
@@ -515,9 +460,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        /// <summary>
-        /// Read application data from isolated storage
-        /// </summary>
         public void LoadData()
         {
             // check if the data has already been loaded
@@ -598,9 +540,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             TraceHelper.AddMessage("Finished Load Data");
         }
 
-        /// <summary>
-        /// Read folder from isolated storage
-        /// </summary>
         public Folder LoadFolder(Guid id)
         {
             Folder f;
@@ -623,9 +562,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return f;
         }
 
-        /// <summary>
-        /// Play the Request Queue
-        /// </summary>
         public void PlayQueue()
         {
             // if user hasn't been set, we cannot sync with the service
@@ -736,12 +672,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        /// <summary>
-        /// Main routine for performing a sync with the Service.  It will chain the following operations:
-        ///     1.  Get Constants
-        ///     2.  Play the record queue (which will daisy chain on itself)
-        ///     3.  Retrieve the user data (itemtypes, folders, tags...)
-        /// </summary>
+
+        // Main routine for performing a sync with the Service.  It will chain the following operations:
+        //     1.  Get Constants
+        //     2.  Play the record queue (which will daisy chain on itself)
+        //     3.  Retrieve the user data (itemtypes, folders, tags...)
         public void SyncWithService()
         {
             if (retrievedConstants == false)
@@ -754,9 +689,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        #endregion
+#endregion
 
-        #region Callbacks 
+#region // Callbacks 
 
         public delegate void GetConstantsCallbackDelegate(Constants constants);
         private void GetConstantsCallback(Constants constants)
@@ -853,18 +788,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        public delegate void NetworkOperationInProgressCallbackDelegate(bool operationInProgress, bool? operationSuccessful);
-        public void NetworkOperationInProgressCallback(bool operationInProgress, bool? operationSuccessful)
+        public delegate void NetworkOperationInProgressCallbackDelegate(bool operationInProgress, OperationStatus status);
+        public void NetworkOperationInProgressCallback(bool operationInProgress, OperationStatus status)
         {
             // signal whether the net operation is in progress or not
             NetworkOperationInProgress = (operationInProgress == true ? Visibility.Visible : Visibility.Collapsed);
 
-            // if the operationSuccessful flag is null, no new data; otherwise, it signals the status of the last operation
-            if (operationSuccessful != null)
-                LastNetworkOperationStatus = (bool)operationSuccessful;
+            if (status != OperationStatus.Started)
+            {
+                LastNetworkOperationStatus = (status == OperationStatus.Success);
+            }
+            
+            if (status == OperationStatus.Retry)
+            {   // allows failed network operations to try again
+                this.SyncWithService();
+            }
         }
 
-        public void NetworkOperationInProgressForGetConstantsCallback(bool operationInProgress, bool? operationSuccessful)
+        public void NetworkOperationInProgressForGetConstantsCallback(bool operationInProgress, OperationStatus status)
         {
             // signal whether the net operation is in progress or not
             NetworkOperationInProgress = (operationInProgress == true ? Visibility.Visible : Visibility.Collapsed);
@@ -874,11 +815,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         private void PlayQueueCallback(object obj)
         {
             // trace callback
-            TraceHelper.AddMessage(String.Format("Finished Play Queue: {0}", obj == null ? "null" : "success"));
+            TraceHelper.AddMessage(String.Format("Play Queue Callback: {0}", obj == null ? "null" : "success"));
 
             // dequeue the current record (which removes it from the queue)
             RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-
+			
+			// parse out request record info and trace the details 
+            string typename;
+            string reqtype;
+            string id;
+            string name;
+            RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
+			TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
+			
             // don't need to process the object since the folder will be refreshed at the end 
             // of the cycle anyway
 
@@ -886,14 +835,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             PlayQueue();
         }
 
-        #endregion
+#endregion
 
-        #region Helpers
+#region // Helpers
 
-        /// <summary>
-        /// Initialize application constants
-        /// </summary>
-        /// <returns></returns>
         private Constants InitializeConstants()
         {
             Constants constants = new Constants()
@@ -952,10 +897,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return constants;
         }
 
-        /// <summary>
-        /// Initialize default itemtypes 
-        /// </summary>
-        /// <returns></returns>
         private ObservableCollection<ItemType> InitializeItemTypes()
         {
             ObservableCollection<ItemType> itemTypes = new ObservableCollection<ItemType>();
@@ -1005,10 +946,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return itemTypes;
         }
 
-        /// <summary>
-        /// Initialize default tags 
-        /// </summary>
-        /// <returns></returns>
         private ObservableCollection<Tag> InitializeTags()
         {
             ObservableCollection<Tag> tags = new ObservableCollection<Tag>();
@@ -1017,10 +954,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return tags;
         }
 
-        /// <summary>
-        /// Initialize default folders
-        /// </summary>
-        /// <returns></returns>
         private ObservableCollection<Folder> InitializeFolders()
         {
             ObservableCollection<Folder> folders = new ObservableCollection<Folder>();
@@ -1110,6 +1043,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return folders;
         }
 
-        #endregion
+#endregion
     }
 }

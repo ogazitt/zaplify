@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
-using System.Web.Security;
-using BuiltSteady.Zaplify.Website.Models;
-
-namespace BuiltSteady.Zaplify.Website.Controllers
+﻿namespace BuiltSteady.Zaplify.Website.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web;
+    using System.Web.Mvc;
+    using System.Web.Routing;
+    using System.Web.Security;
+
+    using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.Website.Models;
+    using BuiltSteady.Zaplify.Website.Models.AccessControl;
+
     public class AccountController : Controller
     {
-
-        //
-        // GET: /Account/LogOn
 
         public ActionResult LogOn()
         {
             return View();
         }
-
-        //
-        // POST: /Account/LogOn
 
         [HttpPost]
         public ActionResult LogOn(LogOnModel model, string returnUrl)
@@ -30,7 +27,8 @@ namespace BuiltSteady.Zaplify.Website.Controllers
             {
                 if (Membership.ValidateUser(model.UserName, model.Password))
                 {
-                    FormsAuthentication.SetAuthCookie(model.UserName, model.RememberMe);
+                    SetAuthCookie(model.UserName, model.RememberMe);
+
                     if (Url.IsLocalUrl(returnUrl) && returnUrl.Length > 1 && returnUrl.StartsWith("/")
                         && !returnUrl.StartsWith("//") && !returnUrl.StartsWith("/\\"))
                     {
@@ -51,9 +49,6 @@ namespace BuiltSteady.Zaplify.Website.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/LogOff
-
         public ActionResult LogOff()
         {
             FormsAuthentication.SignOut();
@@ -61,16 +56,10 @@ namespace BuiltSteady.Zaplify.Website.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        //
-        // GET: /Account/Register
-
         public ActionResult Register()
         {
             return View();
         }
-
-        //
-        // POST: /Account/Register
 
         [HttpPost]
         public ActionResult Register(RegisterModel model)
@@ -83,7 +72,7 @@ namespace BuiltSteady.Zaplify.Website.Controllers
 
                 if (createStatus == MembershipCreateStatus.Success)
                 {
-                    FormsAuthentication.SetAuthCookie(model.UserName, false /* createPersistentCookie */);
+                    SetAuthCookie(model.UserName, false);
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -96,17 +85,11 @@ namespace BuiltSteady.Zaplify.Website.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/ChangePassword
-
         [Authorize]
         public ActionResult ChangePassword()
         {
             return View();
         }
-
-        //
-        // POST: /Account/ChangePassword
 
         [Authorize]
         [HttpPost]
@@ -142,15 +125,28 @@ namespace BuiltSteady.Zaplify.Website.Controllers
             return View(model);
         }
 
-        //
-        // GET: /Account/ChangePasswordSuccess
-
         public ActionResult ChangePasswordSuccess()
         {
             return View();
         }
 
-        #region Status Codes
+
+#region // Private Methods
+
+        private void SetAuthCookie(string username, bool persistent)
+        {
+            if (Membership.Provider is UserMembershipProvider)
+            {
+                UserCredential user = new UserCredential { Name = username };
+                HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(user);
+                this.Response.Cookies.Add(authCookie);
+            }
+            else
+            {
+                FormsAuthentication.SetAuthCookie(username, persistent);
+            }
+        }
+
         private static string ErrorCodeToString(MembershipCreateStatus createStatus)
         {
             // See http://go.microsoft.com/fwlink/?LinkID=177550 for
@@ -188,6 +184,7 @@ namespace BuiltSteady.Zaplify.Website.Controllers
                     return "An unknown error occurred. Please verify your entry and try again. If the problem persists, please contact your system administrator.";
             }
         }
-        #endregion
+#endregion
+
     }
 }

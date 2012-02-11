@@ -34,6 +34,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				nsUrl = new NSUrl (value);
 			}
 		}
+		
+		protected override NSString CellKey {
+			get {
+				return hkey;
+			}
+		}
 
 		public override UITableViewCell GetCell (UITableView tv)
 		{

@@ -73,10 +73,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     DataContractJsonSerializer ser = new DataContractJsonSerializer(t);
                     this.Body = ser.ReadObject(stream);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     stream.Position = 0;
                     string s = new StreamReader(stream).ReadToEnd();
+					TraceHelper.AddMessage(String.Format("Exception in deserializing body: {0}; record: {1}", ex.Message, s));
                 }
             }
 
@@ -91,7 +92,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                 // if the ID is null, try to create it
                 // this may fail because for update requests, Body is a List<>, not a ZaplifyEntity
-                if (ID == null || ID == Guid.Empty)
+                if (ID == Guid.Empty)
                 {
                     try
                     {
@@ -162,10 +163,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                             else
                                 return null;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             stream.Position = 0;
                             string s = new StreamReader(stream).ReadToEnd();
+							TraceHelper.AddMessage(String.Format("Exception in deserializing RequestRecord: {0}; record: {1}", ex.Message, s));
                             return null;
                         }
                     }
@@ -200,10 +202,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                             if (requests == null)
                                 requests = new List<RequestRecord>();
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             stream.Position = 0;
                             string s = new StreamReader(stream).ReadToEnd();
+							TraceHelper.AddMessage(String.Format("Exception in deserializing RequestRQueue: {0}; record: {1}", ex.Message, s));
                         }
 
                         if (enableQueueOptimization == true)
@@ -300,10 +303,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                                 else
                                     return null;
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
                                 stream.Position = 0;
                                 string s = new StreamReader(stream).ReadToEnd();
+								TraceHelper.AddMessage(String.Format("Exception in deserializing RequestRecord: {0}; record: {1}", ex.Message, s));
                                 return null;
                             }
                         }
@@ -314,6 +318,69 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         return null;
                     }
                 }
+            }
+        }
+		
+		/// <summary>
+		/// Parse out the type name, request type, ID, and Name of the record 
+		/// </summary>
+		/// <param name='req'>
+		/// Request record.
+		/// </param>
+		/// <param name='typename'>
+		/// Type name output parameter
+		/// </param>
+		/// <param name='reqtype'>
+		/// Request type output parameter
+		/// </param>
+		/// <param name='id'>
+		/// ID of the entity
+		/// </param>
+		/// <param name='name'>
+		/// Name of the entity
+		/// </param>
+		public static void RetrieveRequestInfo(RequestQueue.RequestRecord req, out string typename, out string reqtype, out string id, out string name)
+        {
+            typename = req.BodyTypeName;
+            reqtype = "";
+            id = "";
+            name = "";
+            switch (req.ReqType)
+            {
+                case RequestQueue.RequestRecord.RequestType.Delete:
+                    reqtype = "Delete";
+                    id = ((ZaplifyEntity)req.Body).ID.ToString();
+                    name = ((ZaplifyEntity)req.Body).Name;
+                    break;
+                case RequestQueue.RequestRecord.RequestType.Insert:
+                    reqtype = "Insert";
+                    id = ((ZaplifyEntity)req.Body).ID.ToString();
+                    name = ((ZaplifyEntity)req.Body).Name;
+                    break;
+                case RequestQueue.RequestRecord.RequestType.Update:
+                    reqtype = "Update";
+                    switch (req.BodyTypeName)
+                    {
+                        case "Tag":
+                            name = ((List<Tag>)req.Body)[0].Name;
+                            id = ((List<Tag>)req.Body)[0].ID.ToString();
+                            break;
+                        case "Item":
+                            name = ((List<Item>)req.Body)[0].Name;
+                            id = ((List<Item>)req.Body)[0].ID.ToString();
+                            break;
+                        case "Folder":
+                            name = ((List<Folder>)req.Body)[0].Name;
+                            id = ((List<Folder>)req.Body)[0].ID.ToString();
+                            break;
+                        default:
+                            name = "(unrecognized entity)";
+                            break;
+                    }
+                    break;
+                default:
+                    reqtype = "Unrecognized";
+                    break;
             }
         }
 
@@ -362,7 +429,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     requests.Remove(r);
             }
         }
-
+		
         /// <summary>
         /// Helper method to update an existing queue record with new information
         /// </summary>

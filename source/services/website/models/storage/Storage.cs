@@ -13,6 +13,11 @@
             get { return new StorageContext(); }
         }
 
+        public static CredentialStorageContext NewCredentialContext
+        {
+            get { return new CredentialStorageContext(); }
+        }
+
         public static StorageContext StaticContext
         {   // use a static context to access static data (serving values out of EF cache)
             get
@@ -31,7 +36,6 @@
         }
     }
 
-
     public class StorageContext : DbContext
     {
         // the default constructor loads the Connection appsetting (from web.config) 
@@ -40,7 +44,8 @@
         public StorageContext(string connstr) : base(connstr) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        { }
+        {
+        }
 
         // constant / shared tables
         public DbSet<ActionType> ActionTypes { get; set; }
@@ -60,5 +65,20 @@
         public DbSet<Operation> Operations { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
+    }
+
+    public class CredentialStorageContext : DbContext
+    {
+        // the default constructor loads the Connection appsetting (from web.config) 
+        // which is the alias of the correct connection string (also from web.config)
+        public CredentialStorageContext() : base(WebConfigurationManager.AppSettings["Connection"]) { }
+        public CredentialStorageContext(string connstr) : base(connstr) { }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserCredential>().Map(m => { m.ToTable("Users"); });
+        }
+        
+        public DbSet<UserCredential> Credentials { get; set; }
     }
 }

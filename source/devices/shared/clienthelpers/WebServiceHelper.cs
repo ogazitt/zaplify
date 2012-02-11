@@ -1,21 +1,36 @@
-using System;
-using System.Net;
-using System.IO;
-using System.IO.IsolatedStorage;
-using System.Runtime.Serialization;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using System.Runtime.Serialization.Json;
-//using System.Net.Browser;
-using SharpCompress.Compressor;
-using SharpCompress.Compressor.Deflate;
-using SharpCompress.Writer.GZip;
-
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.IO;
+    using System.IO.IsolatedStorage;
+    using System.Net;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
+
+    using SharpCompress.Compressor;
+    using SharpCompress.Compressor.Deflate;
+    using SharpCompress.Writer.GZip;
+    using BuiltSteady.Zaplify.Devices.ClientEntities;
+
+    public enum OperationStatus
+    {
+        Started = 0,
+        Success = 1,
+        Failed = 2,
+        Retry = 3
+    }
+
     public class WebServiceHelper
     {
+        const string authResponseHeader = "Set-Cookie";
+        const string authRequestHeader = "Cookie";
+        static string authCookie = null;
+        static HttpWebRequest request = null;
+        static bool isRequestInProgress = false;        // only one network operation at a time
+
+        public static string BaseUrl { get { return baseUrl; } }
         private static string baseUrl
         {
             get
@@ -24,154 +39,72 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 return "http://api.zaplify.com";
 #else
                 return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8888" : "http://api.zaplify.com";
-                //return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8080" : "http://api.zaplify.com";
-                //return "http://api.zaplify.com";
 #endif
             }
         }
-        public static string BaseUrl { get { return baseUrl; } }
 
-        static HttpWebRequest request = null;
+#region // Web Service calls
 
-        // only one network operation at a time
-        static bool isRequestInProgress = false;
-
-        //static bool registerResult = WebRequest.RegisterPrefix("http://", WebRequestCreator.ClientHttp); 
-
-        #region Web Service calls
-
-        /// <summary>
-        /// Create a new Tag
-        /// </summary>
-        /// <param name="user">User credentials to create</param>
-        /// <param name="del">Delegate to callback</param>
         public static void CreateTag(User user, Tag tag, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/tags", "POST", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
-        /// <summary>
-        /// Create a new Item
-        /// </summary>
-        /// <param name="user">User credentials to create</param>
-        /// <param name="del">Delegate to callback</param>
         public static void CreateItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/items", "POST", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
-        /// <summary>
-        /// Create a new Folder
-        /// </summary>
-        /// <param name="user">User credentials to create</param>
-        /// <param name="del">Delegate to callback</param>
         public static void CreateFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/folders", "POST", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
-        /// <summary>
-        /// Create a new User
-        /// </summary>
-        /// <param name="user">User credentials to create</param>
-        /// <param name="del">Delegate to callback with the User info</param>
         public static void CreateUser(User user, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/users", "POST", user, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
-        /// <summary>
-        /// Delete a Tag
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="del">Delegate to callback</param>
         public static void DeleteTag(User user, Tag tag, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/tags/" + tag.ID, "DELETE", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
-        /// <summary>
-        /// Delete a Item
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="del">Delegate to callback</param>
         public static void DeleteItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/items/" + item.ID, "DELETE", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
-        /// <summary>
-        /// Delete a Folder
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="del">Delegate to callback</param>
         public static void DeleteFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/folders/" + folder.ID, "DELETE", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
-        /// <summary>
-        /// Get the constants from the web service
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="del">Delegate for processing the callback; this delegate takes a Constants</param>
         public static void GetConstants(User user, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, String.Format("{0}/constants", baseUrl), "GET", null, del, netOpInProgressDel, ProcessResponse<Constants>);
         }
 
-        /// <summary>
-        /// Authenticate the user credentials and return the User info to the delegate
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="del">Delegate to callback with the User info</param>
         public static void GetUser(User user, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<User>));
         }
 
-        /// <summary>
-        /// Send a byte array of the trace file to the service 
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="del">Delegate to callback with the User info</param>
-        /// <param name="bytes">Byte array of trace file</param>
-        /// <param name="netOpInProgressDel"></param>
         public static void SendTrace(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/trace", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
-        /// <summary>
-        /// Send a bytestream of the wav to the service and retrieve the extracted text as a string
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="del">Delegate to callback with the User info</param>
-        /// <param name="ms">MemoryStream of the speech wav</param>
-        /// <param name="netOpInProgressDel"></param>
         public static void SpeechToText(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/speech", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
-        /// <summary>
-        /// Send a bytestream of the wav to the service and retrieve the extracted text as a string
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="del">Delegate to callback with the User info</param>
-        /// <param name="ms">MemoryStream of the speech wav</param>
-        /// <param name="netOpInProgressDel"></param>
         public static void SpeechToTextStream(User user, Delegate streamDel, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/speech", "POST", streamDel, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
-        /// <summary>
-        /// Update a Tag
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="originalAndNewItems">The original and new tags.  The Service will use original and new values to resolve conflicts</param>
-        /// <param name="del">Delegate to callback</param>
         public static void UpdateTag(User user, List<Tag> originalAndNewTags, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewTags == null || originalAndNewTags.Count != 2)
@@ -179,12 +112,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             InvokeWebServiceRequest(user, baseUrl + "/tags/" + originalAndNewTags[0].ID, "PUT", originalAndNewTags, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
-        /// <summary>
-        /// Update a Item
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="originalAndNewItems">The original and new items.  The Service will use original and new values to resolve conflicts</param>
-        /// <param name="del">Delegate to callback</param>
         public static void UpdateItem(User user, List<Item> originalAndNewItems, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewItems == null || originalAndNewItems.Count != 2)
@@ -192,12 +119,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             InvokeWebServiceRequest(user, baseUrl + "/items/" + originalAndNewItems[0].ID, "PUT", originalAndNewItems, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
-        /// <summary>
-        /// Update a Folder
-        /// </summary>
-        /// <param name="user">User credentials to invoke the method</param>
-        /// <param name="folder">The original and new items.  The Service will use original and new values to resolve conflicts</param>
-        /// <param name="del">Delegate to callback</param>
         public static void UpdateFolder(User user, List<Folder> originalAndNewFolders, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewFolders == null || originalAndNewFolders.Count != 2)
@@ -205,25 +126,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             InvokeWebServiceRequest(user, baseUrl + "/folders/" + originalAndNewFolders[0].ID, "PUT", originalAndNewFolders, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
         
-        /// <summary>
-        /// Verify the user credentials and process the HTTP response code for further action
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="del">Delegate to callback with the HTTP status code</param>
         public static void VerifyUserCredentials(User user, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, baseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
-        #endregion
+#endregion
 
-        #region Helper methods
+#region // Helper methods
 
-        /// <summary>
-        /// Common code for all callbacks to get the WebResponse 
-        /// </summary>
-        /// <param name="result"></param>
-        /// <returns></returns>
         private static HttpWebResponseWrapper<T> GetWebResponse<T>(IAsyncResult result)
         {
             HttpWebResponse resp = null;
@@ -246,22 +157,22 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 return null;
             }
 
+            // put auth cookie in static memory
+            if (resp.Headers[authResponseHeader] != null)
+            {
+                authCookie = resp.Headers[authResponseHeader];
+            }
+
             // create and initialize a new response wrapper
             HttpWebResponseWrapper<T> wrapper = new HttpWebResponseWrapper<T>(resp);
-            
+
             return wrapper;
         }
 
-        /// <summary>
-        /// Common code for invoking all the web service calls.  GET requests will be served directly from this method,
-        /// whereas POST/PUT/DELETE requests are served from the InvokeWebServiceRequest_Inner method (which is an async callback)
-        /// </summary>
-        /// <param name="user">User structure for authorization information</param>
-        /// <param name="url">URL to invoke</param>
-        /// <param name="verb">Verb to use (e.g. GET / POST)</param>
-        /// <param name="obj">Object to serialize on the request</param>
-        /// <param name="del">Delegate supplied by caller to invoke when the operation completes</param>
-        /// <param name="callback">Web Service-specific callback that will be invoked when the network operation completes</param>
+
+        // Common code for invoking all the web service calls.  
+        // GET requests will be served directly from this method,
+        // POST/PUT/DELETE requests are served from the InvokeWebServiceRequest_Inner method (which is an async callback)
         private static void InvokeWebServiceRequest(User user, string url, string verb, object obj, Delegate del, Delegate netOpInProgressDel, AsyncCallback callback)
         {
             // this code is non-reentrant
@@ -270,9 +181,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             // signal that a network operation is starting
             if (netOpInProgressDel != null)
-                netOpInProgressDel.DynamicInvoke(true, null);
+                netOpInProgressDel.DynamicInvoke(true, OperationStatus.Started);
 
-            //bool registerResult = WebRequest.RegisterPrefix("http://", WebRequestCreator.ClientHttp);
 #if IOS
 			request = (HttpWebRequest) WebRequest.Create(url);
 #else
@@ -281,7 +191,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             request.Accept = "application/json";
             request.UserAgent = "Zaplify-WinPhone";
             request.Method = verb == null ? "GET" : verb;
-            if (user != null)
+
+            if (authCookie != null)
+            {
+                request.Headers[authRequestHeader] = authCookie;
+            }
+            else if (user != null)
             {
                 request.Headers["Zaplify-Username"] = user.Name;
                 request.Headers["Zaplify-Password"] = user.Password;
@@ -308,7 +223,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                     // signal that a network operation is done and unsuccessful
                     if (netOpInProgressDel != null)
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                    {
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
+                    }
                 }
             }
             else
@@ -334,16 +251,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     isRequestInProgress = false;
                     // signal that a network operation is done and unsuccessful
                     if (netOpInProgressDel != null)
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                        netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
                 }
             }
         }
 
-        /// <summary>
-        /// Async callback called from InvokeWebServiceRequest for non-GET requests 
-        /// which need to set a request body
-        /// </summary>
-        /// <param name="res"></param>
         private static void InvokeWebServiceRequest_Inner(IAsyncResult res)
         {
             WebInvokeServiceState state = res.AsyncState as WebInvokeServiceState;
@@ -394,7 +306,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         private static void InvokeWebServiceRequest_Invoke(Delegate del, Delegate netOpInProgressDel, AsyncCallback callback)
         {
-
             // execute the web request and get the response
             try
             {
@@ -413,16 +324,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                 // signal the operation is done and unsuccessful
                 if (netOpInProgressDel != null)
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
             }
         }
 
-        /// <summary>
-        /// Common code to process the response from any web service call.  This is invoked from the callback 
-        /// method for the web service, and passed a Type for deserializing the response body. 
-        /// This method will also invoke the delegate with the result of the Web Service call
-        /// </summary>
-        /// <param name="result"></param>
+
+        // Common code to process the response from any web service call.  This is invoked from the callback 
+        // method for the web service, and passed a Type for deserializing the response body. 
+        // This method will also invoke the delegate with the result of the Web Service call
         private static void ProcessResponse<T>(IAsyncResult result)
         {
             WebServiceState state = result.AsyncState as WebServiceState;
@@ -437,19 +346,35 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             if (resp == null)
             {
                 // signal that the network operation completed unsuccessfully
-            if (netOpInProgressDel != null)
-                netOpInProgressDel.DynamicInvoke(false, false);
+                if (netOpInProgressDel != null)
+                {
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
+                }
                 return;
             }
             else
             {
+                OperationStatus status = AsOperationStatus(resp.StatusCode);
+                if (resp.StatusCode == HttpStatusCode.Unauthorized)
+                {   // using this status code to indicate cookie has expired or is invalid
+                    if (authCookie != null)
+                    {   // remove cookie and retry with credentials 
+                        status = OperationStatus.Retry;
+                        authCookie = null;
+                    }
+                }
+                if (resp.StatusCode == HttpStatusCode.Forbidden)
+                {   // remove cookie and force authentication on next request
+                    authCookie = null;
+                }                
+                
                 if (netOpInProgressDel != null)
-                {
-                    // signal that the network operation completed and whether it completed successfully
-                    if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created || resp.StatusCode == HttpStatusCode.Accepted)
-                        netOpInProgressDel.DynamicInvoke(false, true);
-                    else
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                {   // signal the network operation completed and whether it completed successfully
+                    netOpInProgressDel.DynamicInvoke(false, status);
+                    if (status == OperationStatus.Retry)
+                    {   // delegate will retry, exit now
+                        return;
+                    }
                 }
             }
 
@@ -470,10 +395,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        /// <summary>
-        /// Process User-related operations (the delegate takes both a User and an HttpStatusCode)
-        /// </summary>
-        /// <param name="result"></param>
         private static void ProcessUser(IAsyncResult result)
         {
             WebServiceState state = result.AsyncState as WebServiceState;
@@ -489,18 +410,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 // signal that the network operation completed unsuccessfully
                 if (netOpInProgressDel != null)
-                    netOpInProgressDel.DynamicInvoke(false, false);
+                {
+                    netOpInProgressDel.DynamicInvoke(false, OperationStatus.Failed);
+                }
                 return;
             }
             else
             {
                 if (netOpInProgressDel != null)
-                {
-                    // signal that the network operation completed and whether it completed successfully
-                    if (resp.StatusCode == HttpStatusCode.OK || resp.StatusCode == HttpStatusCode.Created || resp.StatusCode == HttpStatusCode.Accepted)
-                        netOpInProgressDel.DynamicInvoke(false, true);
-                    else
-                        netOpInProgressDel.DynamicInvoke(false, false);
+                {   // signal that the network operation completed and whether it completed successfully
+                    netOpInProgressDel.DynamicInvoke(false, AsOperationStatus(resp.StatusCode));
                 }
             }
 
@@ -518,6 +437,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 del.DynamicInvoke(resp.GetBody(), resp.StatusCode);
         }
 
+        private static OperationStatus AsOperationStatus(HttpStatusCode statusCode)
+        {
+            if (statusCode == HttpStatusCode.OK || statusCode == HttpStatusCode.Created || statusCode == HttpStatusCode.Accepted)
+            {
+                return OperationStatus.Success;
+            }
+            return OperationStatus.Failed;
+        }
+
         private class WebInvokeServiceState
         {
             public AsyncCallback Callback { get; set; }  // callback for the GetResponse
@@ -532,6 +460,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             public Delegate NetworkOperationInProgressDelegate { get; set; }  // delegate passed in by the caller
         }
 
-        #endregion
+#endregion
     }
 }

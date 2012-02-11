@@ -1,25 +1,31 @@
-﻿<Properties>
+﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="iphone/Main.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../shared/clienthelpers/HttpWrappers-ios.cs">
     <Files>
-      <File FileName="iphone/ItemPage.cs" Line="256" Column="86" />
+      <File FileName="iphone/ItemPage.cs" Line="73" Column="33" />
       <File FileName="../shared/cliententities/Item.cs" Line="1" Column="1" />
-      <File FileName="iphone/controls/StyledHtmlElement.cs" Line="6" Column="54" />
-      <File FileName="iphone/controls/RadioEventElement.cs" Line="10" Column="84" />
-      <File FileName="iphone/controls/ButtonListElement.cs" Line="72" Column="1" />
-      <File FileName="iphone/ListViewController.cs" Line="151" Column="62" />
-      <File FileName="iphone/MessageBox.cs" Line="5" Column="17" />
-      <File FileName="iphone/SettingsViewController.cs" Line="6" Column="1" />
-      <File FileName="iphone/Main.cs" Line="16" Column="1" />
+      <File FileName="iphone/ListViewController.cs" Line="36" Column="1" />
+      <File FileName="iphone/MessageBox.cs" Line="1" Column="1" />
+      <File FileName="iphone/SettingsViewController.cs" Line="1" Column="1" />
+      <File FileName="iphone/Main.cs" Line="1" Column="1" />
+      <File FileName="../shared/clienthelpers/WebServiceHelper.cs" Line="145" Column="1" />
+      <File FileName="iphone/controls/ButtonListElement.cs" Line="1" Column="1" />
+      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="557" Column="1" />
+      <File FileName="../shared/clienthelpers/RequestQueue.cs" Line="1" Column="1" />
+      <File FileName="../shared/clienthelpers/DataContractJsonSerializer-ios.cs" Line="1" Column="1" />
+      <File FileName="iphone/MoreViewController.cs" Line="1" Column="1" />
+      <File FileName="../shared/clienthelpers/HttpWrappers-ios.cs" Line="127" Column="1" />
+      <File FileName="iphone/App.cs" Line="83" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="ClientEntities-ios" expanded="True" />
+          <Node name="ClientHelpers-ios" expanded="True">
+            <Node name="HttpWrappers-ios.cs" selected="True" />
+          </Node>
+          <Node name="ClientViewModels-ios" expanded="True" />
           <Node name="iphone" expanded="True">
-            <Node name="controls" expanded="True" />
-            <Node name="Images" expanded="True" />
-            <Node name="Main.cs" selected="True" />
+            <Node name="ListViewController.cs" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -27,9 +33,24 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="119" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/controls/ButtonListElement.cs" line="74" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/controls/ButtonListElement.cs" line="72" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="900" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="71" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="93" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clientviewmodels/MainViewModel.cs" line="802" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="337" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ListViewController.cs" line="36" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="145" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="153" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="109" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="127" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="64" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="310" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="66" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="66" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="65" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="65" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="66" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="67" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
