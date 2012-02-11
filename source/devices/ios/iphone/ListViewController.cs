@@ -2,7 +2,6 @@ using MonoTouch.UIKit;
 using System.Drawing;
 using System;
 using MonoTouch.Foundation;
-using Newtonsoft.Json;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Collections.Generic;

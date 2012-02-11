@@ -64,9 +64,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\net35\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="MonoTouch.Dialog-1" />
   </ItemGroup>
   <ItemGroup>
@@ -98,6 +95,7 @@
     <Compile Include="controls\StyledHtmlElement.cs" />
     <Compile Include="controls\ButtonListElement.cs" />
     <Compile Include="controls\DateEventElement.cs" />
+    <Compile Include="SettingsPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="SettingsViewController_iPad.xib" />

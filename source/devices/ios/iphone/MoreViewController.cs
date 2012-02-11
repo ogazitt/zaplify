@@ -1,15 +1,14 @@
-using MonoTouch.UIKit;
-using System.Drawing;
 using System;
-using MonoTouch.Foundation;
-using Newtonsoft.Json;
+using System.Drawing;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Collections.Generic;
+using MonoTouch.Dialog;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
-using MonoTouch.Dialog;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -52,7 +51,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				Style = UITableViewStyle.Plain,
 				Autorotate = true
 			};
-			this.NavigationController.PushViewController (dv, true);				
+			this.NavigationController.PushViewController (dv, false);				
 		}
 		
 		public override void DidReceiveMemoryWarning ()

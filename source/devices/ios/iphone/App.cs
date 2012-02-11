@@ -53,7 +53,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			
 			var folders = new UINavigationController(new FoldersViewController (UITableViewStyle.Plain));
-			var settings = new SettingsViewController ();
+			//var settings = new SettingsViewController ();
+			var settings = new UINavigationController(new SettingsPage());
 			var more = new UINavigationController(new MoreViewController());
 			
 			tabBarController = new UITabBarController ();

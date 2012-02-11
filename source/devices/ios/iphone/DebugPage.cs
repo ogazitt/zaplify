@@ -20,6 +20,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
             // render request queue
 			var queue = new Section("Request Queue");
+			queue.Add(new StringElement(
+				"Clear Queue", 
+				delegate 
+			    { 
+					RequestQueue.DeleteQueue();
+					queue.Clear ();
+				}));
+			
 			List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords();
             if (requests != null)
             {
@@ -39,6 +47,19 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 
 			var traceMessages = new Section("Trace Messages");
+			traceMessages.Add(new StringElement(
+				"Clear Trace", 
+				delegate 
+			    { 
+					TraceHelper.ClearMessages();
+					traceMessages.Clear ();
+				}));
+			traceMessages.Add(new StringElement(
+				"Send Trace", 
+				delegate 
+			    { 
+					TraceHelper.SendMessages(App.ViewModel.User);
+				}));
 			foreach (var m in TraceHelper.GetMessages().Split('\n'))
 			{
 				// skip empty messages
@@ -52,9 +73,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					Accessory = UITableViewCellAccessory.DetailDisclosureButton,
 					Font = UIFont.FromName("Helvetica", UIFont.SmallSystemFontSize),
 				};
+				string msg = m;  // make a copy for the closure below
 				sse.AccessoryTapped += delegate 
 				{
-					string msg = m;
 					var alert = new UIAlertView ("Detail", msg, null, "Ok");
 					alert.Show ();
 				};
@@ -71,8 +92,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			var dvc = new DialogViewController (root, true);
 			this.NavigationController.PushViewController (dvc, true);
 		}
-		
-
 	}
 }
 
