@@ -123,8 +123,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // get the first component of the content-type header
             // string contentType = resp.Headers["Content-Type"].Split(';')[0];
             string contentType = resp.ContentType.Split(';')[0];
-
-            return DeserializeResponseBody(resp.GetResponseStream(), contentType, t);
+			return DeserializeResponseBody(resp.GetResponseStream(), contentType, t);
         }
 
 		/*

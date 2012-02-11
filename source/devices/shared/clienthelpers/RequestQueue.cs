@@ -92,7 +92,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                 // if the ID is null, try to create it
                 // this may fail because for update requests, Body is a List<>, not a ZaplifyEntity
-                if (ID == null || ID == Guid.Empty)
+                if (ID == Guid.Empty)
                 {
                     try
                     {

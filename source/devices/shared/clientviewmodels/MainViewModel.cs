@@ -1,19 +1,17 @@
-﻿namespace BuiltSteady.Zaplify.Devices.ClientViewModels
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Runtime.Serialization;
-    using System.Text;
-    using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Windows;
 
-    using BuiltSteady.Zaplify.Devices.ClientEntities;
-    using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 #if IOS
 namespace System.Windows
@@ -22,6 +20,8 @@ namespace System.Windows
 }
 #endif
 
+namespace BuiltSteady.Zaplify.Devices.ClientViewModels
+{
     public class MainViewModel : INotifyPropertyChanged
     {
         public MainViewModel()
