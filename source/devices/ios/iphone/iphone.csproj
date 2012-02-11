@@ -83,10 +83,6 @@
     <Compile Include="MoreViewController.designer.cs">
       <DependentUpon>MoreViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="SettingsViewController.cs" />
-    <Compile Include="SettingsViewController.designer.cs">
-      <DependentUpon>SettingsViewController.cs</DependentUpon>
-    </Compile>
     <Compile Include="MessageBox.cs" />
     <Compile Include="App.cs" />
     <Compile Include="DebugPage.cs" />
@@ -98,8 +94,6 @@
     <Compile Include="SettingsPage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <InterfaceDefinition Include="SettingsViewController_iPad.xib" />
-    <InterfaceDefinition Include="SettingsViewController_iPhone.xib" />
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />
     <InterfaceDefinition Include="FoldersViewController_iPhone.xib" />
   </ItemGroup>
