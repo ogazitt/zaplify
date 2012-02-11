@@ -34,6 +34,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			base.ViewDidLoad ();
 		}
+		
+		public override void ViewDidAppear (bool animated)
+		{
+			TableView.ReloadData();
+			base.ViewDidAppear (animated);
+		}
+		
 		public override void DidReceiveMemoryWarning ()
 		{
 			// Releases the view if it doesn't have a superview.
@@ -115,7 +122,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
 				}
 	 
-				cell.TextLabel.Text = App.ViewModel.Folders[indexPath.Row].Name;
+				cell.TextLabel.Text = App.ViewModel.Folders[row].Name;
 	 
 				return cell;
 			}

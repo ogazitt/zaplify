@@ -24,7 +24,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		public MoreViewController() : base()
 		{
 			this.Title = NSBundle.MainBundle.LocalizedString ("More", "More");
-			this.TabBarItem.Image = UIImage.FromBundle ("Images/second.png");
+			this.TabBarItem.Image = UIImage.FromBundle ("Images/appbar.overflowdots.png");
 		}
 		
 		public override void ViewDidLoad ()

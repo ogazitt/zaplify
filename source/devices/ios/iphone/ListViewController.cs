@@ -26,18 +26,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		 		
 		public ListViewController(UIViewController parent, Folder f, Guid? currentID) : base(UITableViewStyle.Plain)
 		{
-			this.Title = f.Name;
 			folder = f;
-			listID = currentID;
+            listID = (currentID == Guid.Empty) ? (Guid?) null : (Guid?) currentID;
 			parentController = parent;
 		}
 		
-		public override void ViewDidLoad () 
+		public override void ViewDidAppear(bool animated)
 		{
 			TableView.DataSource = new ListTableDataSource(this);
 			TableView.Delegate = new ListTableDelegate(this);
-
-			base.ViewDidLoad ();
 
 			// load the folder and construct the list of Items that will be rendered
 			try
@@ -65,6 +62,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     listName = folder.Name;
                 else
                     listName = folder.Items.Single(i => i.ID == listID).Name;
+				this.Title = listName;
 
                 // construct a synthetic item that represents the list of items for which the 
                 // ParentID is the parent.  this also works for the root list in a folder, which
@@ -91,8 +89,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				this.NavigationController.PopToViewController(parentController, true);
                 return;
             }
-
+			
+			// call the base class implementation
+			base.ViewDidAppear(animated);
+			TableView.ReloadData();
 		}
+		
 		public override void DidReceiveMemoryWarning ()
 		{
 			// Releases the view if it doesn't have a superview.
@@ -150,7 +152,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		            {
 		                ItemPage itemPage = new ItemPage(controller.NavigationController, item);
 						TraceHelper.StartMessage("ListPage: Navigate to Item");
-						itemPage.NavigateTo();
+						itemPage.PushViewController();
 		            }
 				}
 			}

@@ -67,9 +67,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="MonoTouch.Dialog">
-      <HintPath>..\..\..\packages\MonoTouch.Dialog.0.1\lib\mono\MonoTouch.Dialog.dll</HintPath>
-    </Reference>
+    <Reference Include="MonoTouch.Dialog-1" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -114,6 +112,9 @@
     <Content Include="Images\second%402x.png" />
     <Content Include="Images\20-gear2.png" />
     <Content Include="Images\33-cabinet.png" />
+    <Content Include="Images\redbutton.png" />
+    <Content Include="Images\greenbutton.png" />
+    <Content Include="Images\appbar.overflowdots.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

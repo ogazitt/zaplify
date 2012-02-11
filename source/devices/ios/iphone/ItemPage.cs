@@ -17,6 +17,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		Item itemCopy = null;
 		Folder folder = null;
 		UINavigationController controller;
+		RootElement root = null;
 		
 		public ItemPage(UINavigationController c, Item item)
 		{
@@ -26,14 +27,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			thisItem = item;
 		}
 		
-		public void NavigateTo()
+		public void PushViewController()
 		{
 			// trace event
             TraceHelper.AddMessage("Item: NavigateTo");
-
-			// make a copy - thisItem is what the winphone project uses
-			//Item thisItem = item;
-			//Item itemCopy = null;
 			
             try
             {
@@ -47,7 +44,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
 	         // make a deep copy of the item for local binding
 	        itemCopy = new Item(thisItem);
-			var root = RenderViewItem(itemCopy);			
+			root = RenderViewItem(itemCopy);			
 			var dvc = new DialogViewController (root, true);
 			
 			// create an Edit button which pushes the edit view onto the nav stack
@@ -59,28 +56,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			// push the "view item" view onto the nav stack
 			controller.PushViewController (dvc, true);
-			
-			//return dvc;
 		}
 				
         private void CancelButton_Click(object sender, EventArgs e)
-        //private void CancelButton_Click()
         {
             // trace page navigation
             TraceHelper.StartMessage("Item: Navigate back");
 
-            // Navigate back to the tastlist page
-            //NavigationService.GoBack();
+            // Navigate back to the list page
+			NavigateBack();
         }
 		
 		private void DeleteButton_Click(object sender, EventArgs e)
-		//private void DeleteButton_Click()
         {
             // if this is a new item, delete just does the same thing as cancel
             if (thisItem == null)
             {
                 CancelButton_Click(sender, e);
-                //CancelButton_Click();
                 return;
             }
 
@@ -100,11 +92,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             folder.Items.Remove(thisItem);
 
             // save the changes to local storage
-            //StorageHelper.WriteFolders(App.ViewModel.Folders);
             StorageHelper.WriteFolder(folder);
-
-            // trigger a databinding refresh for items
-            //App.ViewModel.NotifyPropertyChanged("Items");
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -113,16 +101,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             TraceHelper.StartMessage("Item: Navigate back");
 
             // Navigate back to the folder page
-            //NavigationService.GoBack();
+			NavigateBack();
         }
 		
 		private void SaveButton_Click(object sender, EventArgs e)
-		//private void SaveButton_Click()
         {
             // update the LastModified timestamp
             itemCopy.LastModified = DateTime.UtcNow;
-
-            //ParseFields(itemCopy);
+			
+			// parse common regexps out of the description and into the appropriate
+			// fields (phone, email, URL, etc)
+            ParseFields(itemCopy);
 
             // if this is a new item, create it
             if (thisItem == null)
@@ -163,9 +152,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             //StorageHelper.WriteFolders(App.ViewModel.Folders);
             StorageHelper.WriteFolder(folder);
 
-            // trigger a databinding refresh for items
-            //App.ViewModel.NotifyPropertyChanged("Items");
-
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
 
@@ -175,8 +161,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // trace page navigation
             TraceHelper.StartMessage("Item: Navigate back");
 
-            // Navigate back to the folder page
-            //NavigationService.GoBack();
+            // Navigate back to the list page
+			NavigateBack();
         }
 
 		#region Helpers
@@ -199,6 +185,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return -1;
             }
         }
+		
+		private void NavigateBack()
+		{
+			// since we're in the edit page, we need to pop twice
+			controller.PopViewControllerAnimated(false);
+			controller.PopViewControllerAnimated(true);
+			root.Dispose();
+		}
 
         private void ParseFields(Item item)
         {
@@ -250,15 +244,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			primarySection.Add (sse);
 			
 			// create the dialog with the primary section
-			RootElement root = new RootElement(item.Name)
+			RootElement editRoot = new RootElement(item.Name)
 			{
 				primarySection,
 				new Section() 
 				{ 
 					new ButtonListElement() 
 					{
-						new Button() { Caption = "Save", Color = UIColor.Green, Clicked = SaveButton_Click },
-						new Button() { Caption = "Delete", Color = UIColor.Red, Clicked = DeleteButton_Click }, 
+						new Button() { Caption = "Save", Background = "Images/greenbutton.png", Clicked = SaveButton_Click },
+						new Button() { Caption = "Delete", Background = "Images/redbutton.png", Clicked = DeleteButton_Click }, 
 					},
 				},
 			};
@@ -266,13 +260,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			sse.Tapped += delegate 
 			{
 				// render the non-primary fields as a new section
-            	root.Insert(1, RenderEditItemFields(item, itemType, false, false));
+            	editRoot.Insert(1, RenderEditItemFields(item, itemType, false, false));
 				
 				// remove the "more" button
 				primarySection.Remove (sse);
 			};			
 			
-			return root;
+			return editRoot;
         }
 		
         private Element RenderEditItemField(Item item, Field field)
@@ -397,6 +391,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					{
 						new Section () 
 						{ 
+							// TODO: this code is responsible for the following warning:
+							// Warning CS0618: `MonoTouch.Dialog.Section.Add(System.Collections.Generic.IEnumerable<MonoTouch.Dialog.Element>)' is obsolete: 
+						    // `Please use AddAll since this version will not work in future versions of MonoTouch when we introduce 4.0 covariance' (CS0618) (iphone)
 							from pr in App.ViewModel.Constants.Priorities 
 								select (Element) new RadioEventElement(pr.Name, field.DisplayName)
 						}
@@ -429,28 +426,42 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     folderPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(folderPicker);
                     break;
+                    */
                 case "List":
-                    ListPicker listPicker = new ListPicker()
-                    {
-                        MinWidth = minWidth,
-                        FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                        IsTabStop = true
-                    };
-                    var lists = App.ViewModel.Items.Where(i => i.FolderID == item.FolderID && i.IsList == true).OrderBy(i => i.Name).ToObservableCollection();
+                    var lists = App.ViewModel.Items.Where(li => li.FolderID == item.FolderID && li.IsList == true).OrderBy(li => li.Name).ToObservableCollection();
                     lists.Insert(0, new Item()
                     {
                         ID = Guid.Empty,
                         Name = folder.Name
                     });
-                    listPicker.ItemsSource = lists;
-                    listPicker.DisplayMemberPath = "Name";
-                    Item thisItem = lists.FirstOrDefault(i => i.ID == item.ParentID);
-                    listPicker.SelectedIndex = lists.IndexOf(thisItem);
-                    listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lists[listPicker.SelectedIndex].ID, null); });
-                    listPicker.TabIndex = tabIndex++;
-                    EditStackPanel.Children.Add(listPicker);
+                    Item currentList = lists.FirstOrDefault(li => li.ID == item.ParentID);
+					var listsGroup = new RadioGroup (field.DisplayName, 0);
+					listsGroup.Selected = Math.Max(lists.IndexOf(currentList), 0);
+					var listsElement = new RootElement(field.DisplayName, listsGroup)
+					{
+						new Section () 
+						{ 
+							// TODO: this code is responsible for the following warning:
+							// Warning CS0618: `MonoTouch.Dialog.Section.Add(System.Collections.Generic.IEnumerable<MonoTouch.Dialog.Element>)' is obsolete: 
+						    // `Please use AddAll since this version will not work in future versions of MonoTouch when we introduce 4.0 covariance' (CS0618) (iphone)
+							from l in lists
+								select (Element) new RadioEventElement(l.Name, field.DisplayName)
+						}
+					};
+					// augment the radio elements with the right index and event handler
+					int index = 0;
+					foreach (var radio in listsElement[0].Elements)
+					{
+						int currentIndex = index;  // make a local copy for the closure									
+						RadioEventElement radioEventElement = (RadioEventElement) radio;
+						radioEventElement.OnSelected += delegate(object sender, EventArgs e)
+						{
+							pi.SetValue(container, lists[currentIndex].ID, null); 
+						};
+						index++;
+					}
+					element = listsElement;
                     break;
-                    */
                 case "Integer":
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.NumberPad;

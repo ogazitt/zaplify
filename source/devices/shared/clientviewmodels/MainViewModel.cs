@@ -874,11 +874,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         private void PlayQueueCallback(object obj)
         {
             // trace callback
-            TraceHelper.AddMessage(String.Format("Finished Play Queue: {0}", obj == null ? "null" : "success"));
+            TraceHelper.AddMessage(String.Format("Play Queue Callback: {0}", obj == null ? "null" : "success"));
 
             // dequeue the current record (which removes it from the queue)
             RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-
+			
+			// parse out request record info and trace the details 
+            string typename;
+            string reqtype;
+            string id;
+            string name;
+            RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
+			TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
+			
             // don't need to process the object since the folder will be refreshed at the end 
             // of the cycle anyway
 

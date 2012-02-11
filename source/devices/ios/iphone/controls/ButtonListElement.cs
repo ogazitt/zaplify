@@ -12,7 +12,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	{
 		public string Caption { get; set; }
 		public EventHandler Clicked { get; set; }
-		public UIColor Color { get; set; }
+		public string Background { get; set; }
 		public UIButton ButtonReference { get; set; }
 	}
 	
@@ -66,14 +66,19 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			int x = 0;
 			foreach (var btn in Buttons)
 			{
-				var button = UIButton.FromType(UIButtonType.RoundedRect);
+				UIButton button = UIButton.FromType(UIButtonType.RoundedRect);
    				button.Frame = new RectangleF(margin + x * (buttonWidth + margin), margin, buttonWidth, buttonHeight);
    				button.SetTitle(btn.Caption, UIControlState.Normal);
-				button.SetTitleColor(btn.Color, UIControlState.Normal);
+				if (btn.Background != null)
+				{
+					// set the background image, and also change the font color to white 
+					button.SetBackgroundImage(new UIImage(btn.Background), UIControlState.Normal);
+					button.SetTitleColor(UIColor.White, UIControlState.Normal);
+				}
 				if (btn.Clicked != null)
 					button.TouchUpInside += btn.Clicked;
 				// retain a reference to the button (otherwise it somehow falls out of scope and gets GC'd 
-				// causing a SIGSEGV when the event handler is invoked0
+				// causing a SIGSEGV when the event handler is invoked)
 				btn.ButtonReference = button;
 				cell.ContentView.AddSubview(button);				
 				x++;

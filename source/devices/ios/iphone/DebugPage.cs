@@ -29,7 +29,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     string reqtype;
                     string id;
                     string name;
-                    RetrieveRequestInfo(req, out typename, out reqtype, out id, out name);
+                    RequestQueue.RetrieveRequestInfo(req, out typename, out reqtype, out id, out name);
                     var sse = new StyledStringElement(String.Format("  {0} {1} {2} (id {3})", reqtype, typename, name, id))
 					{
 						Font = UIFont.FromName("Helvetica", UIFont.SmallSystemFontSize),
@@ -72,50 +72,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			this.NavigationController.PushViewController (dvc, true);
 		}
 		
-		private static void RetrieveRequestInfo(RequestQueue.RequestRecord req, out string typename, out string reqtype, out string id, out string name)
-        {
-            typename = req.BodyTypeName;
-            reqtype = "";
-            id = "";
-            name = "";
-            switch (req.ReqType)
-            {
-                case RequestQueue.RequestRecord.RequestType.Delete:
-                    reqtype = "Delete";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
-                    break;
-                case RequestQueue.RequestRecord.RequestType.Insert:
-                    reqtype = "Insert";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
-                    break;
-                case RequestQueue.RequestRecord.RequestType.Update:
-                    reqtype = "Update";
-                    switch (req.BodyTypeName)
-                    {
-                        case "Tag":
-                            name = ((List<Tag>)req.Body)[0].Name;
-                            id = ((List<Tag>)req.Body)[0].ID.ToString();
-                            break;
-                        case "Item":
-                            name = ((List<Item>)req.Body)[0].Name;
-                            id = ((List<Item>)req.Body)[0].ID.ToString();
-                            break;
-                        case "Folder":
-                            name = ((List<Folder>)req.Body)[0].Name;
-                            id = ((List<Folder>)req.Body)[0].ID.ToString();
-                            break;
-                        default:
-                            name = "(unrecognized entity)";
-                            break;
-                    }
-                    break;
-                default:
-                    reqtype = "Unrecognized";
-                    break;
-            }
-        }
+
 	}
 }
 
