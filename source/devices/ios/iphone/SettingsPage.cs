@@ -150,6 +150,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // run this on the UI thread
 			Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
+#elif IOS
+			this.BeginInvokeOnMainThread(() =>
+			{
 #endif
 				switch (code)
 	            {
@@ -177,7 +180,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	            }
-#if WINDOWS_PHONE
+#if WINDOWS_PHONE || IOS
             });
 #endif
         }
