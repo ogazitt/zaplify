@@ -104,9 +104,6 @@
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Web.Providers">
-      <HintPath>..\packages\System.Web.Providers.1.0.1\lib\Net40\System.Web.Providers.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>True</Private>
     </Reference>
@@ -151,7 +148,6 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
-    <Compile Include="models\storage\Storage.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
     <Compile Include="resources\ConstantsResource.cs" />
@@ -296,9 +292,9 @@
       <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
       <Name>ServerEntities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\servicehelpers\ServiceHelpers.csproj">
-      <Project>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</Project>
-      <Name>ServiceHelpers</Name>
+    <ProjectReference Include="..\servicehost\ServiceHost.csproj">
+      <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
+      <Name>ServiceHost</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

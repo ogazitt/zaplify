@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text;
 using System.Configuration;
-using BuiltSteady.Zaplify.ServiceHelpers;
+using BuiltSteady.Zaplify.ServiceHost;
 
 namespace BuiltSteady.Zaplify.MailWorker
 {
@@ -24,22 +24,13 @@ namespace BuiltSteady.Zaplify.MailWorker
         static string FolderMarker = @"#folder:";
         static string ListMarker = @"#list:";
 
-        static ZaplifyStore ZaplifyStore
-        {
-            get
-            {
-                // use a cached context (to promote serving values out of EF cache) 
-                return ZaplifyStore.Current;
-            }
-        }
-
         static Guid toDoItemType;
         static Guid ToDoItemType
         {
             get
             {
                 if (toDoItemType == Guid.Empty)
-                    toDoItemType = ZaplifyStore.ItemTypes.Single(lt => lt.Name == "To Do" && lt.UserID == null).ID;
+                    toDoItemType = Storage.StaticContext.ItemTypes.Single(lt => lt.Name == "To Do" && lt.UserID == null).ID;
                 return toDoItemType;
             }
         }
@@ -50,7 +41,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (completeField == Guid.Empty)
-                    completeField = ZaplifyStore.Fields.Single(f => f.Name == "Complete" && f.ItemTypeID == ToDoItemType).ID;
+                    completeField = Storage.StaticContext.Fields.Single(f => f.Name == "Complete" && f.ItemTypeID == ToDoItemType).ID;
                 return completeField;
             }
         }
@@ -61,7 +52,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (phoneField == Guid.Empty)
-                    phoneField = ZaplifyStore.Fields.Single(f => f.Name == "Phone" && f.ItemTypeID == ToDoItemType).ID;
+                    phoneField = Storage.StaticContext.Fields.Single(f => f.Name == "Phone" && f.ItemTypeID == ToDoItemType).ID;
                 return phoneField;
             }
         }
@@ -72,7 +63,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (emailField == Guid.Empty)
-                    emailField = ZaplifyStore.Fields.Single(f => f.Name == "Email" && f.ItemTypeID == ToDoItemType).ID;
+                    emailField = Storage.StaticContext.Fields.Single(f => f.Name == "Email" && f.ItemTypeID == ToDoItemType).ID;
                 return phoneField;
             }
         }
@@ -83,7 +74,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (websiteField == Guid.Empty)
-                    websiteField = ZaplifyStore.Fields.Single(f => f.Name == "Website" && f.ItemTypeID == ToDoItemType).ID;
+                    websiteField = Storage.StaticContext.Fields.Single(f => f.Name == "Website" && f.ItemTypeID == ToDoItemType).ID;
                 return websiteField;
             }
         }
@@ -94,7 +85,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (dueDateField == Guid.Empty)
-                    dueDateField = ZaplifyStore.Fields.Single(f => f.Name == "DueDate" && f.ItemTypeID == ToDoItemType).ID;
+                    dueDateField = Storage.StaticContext.Fields.Single(f => f.Name == "DueDate" && f.ItemTypeID == ToDoItemType).ID;
                 return dueDateField;
             }
         }
@@ -185,13 +176,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     folderName = folderName.Substring(0, folderNameEnd);
                     folderName = folderName.Trim();
-                    folder = ZaplifyStore.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
+                    folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
                     if (folder != null)
                         return folder.ID;
                 }
             }
 
-            folder = ZaplifyStore.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
+            folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
             if (folder != null)
                 return folder.ID;
             else
@@ -214,13 +205,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     listName = listName.Substring(0, listNameEnd);
                     listName = listName.Trim();
-                    list = ZaplifyStore.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
+                    list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
                     if (list != null)
                         return list.ID;
                 }
             }
 
-            list = ZaplifyStore.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == ToDoItemType);
+            list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == ToDoItemType);
             if (list != null)
                 return list.ID;
             else
@@ -330,7 +321,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             bool comma = false;
             try
             {
-                ItemType itemType = ZaplifyStore.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
+                ItemType itemType = Storage.StaticContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
 
                 foreach (Field field in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
@@ -392,8 +383,8 @@ namespace BuiltSteady.Zaplify.MailWorker
                 body = m.BodyHtml;
                 html = true;
             }
-            
-            var users = ZaplifyStore.Users.Where(u => u.Email == from).ToList();
+
+            var users = Storage.StaticContext.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)
             {
                 Guid? folder = GetFolder(u, body, html);
@@ -424,8 +415,8 @@ namespace BuiltSteady.Zaplify.MailWorker
                     // extract structured fields such as due date, e-mail, website, phone number
                     ParseFields(item, body);
 
-                    var newItem = ZaplifyStore.Items.Add(item);
-                    int rows = ZaplifyStore.SaveChanges();
+                    var newItem = Storage.StaticContext.Items.Add(item);
+                    int rows = Storage.StaticContext.SaveChanges();
 
                     if (rows > 0)
                         TraceLine(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)), "Information");
