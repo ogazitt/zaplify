@@ -41,7 +41,14 @@
             else
             {
                 // otherwise get the client item from the database
-                clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
+                try
+                {
+                    clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
+                }
+                catch (Exception)
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
+                    return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.OK);
+                }
             }
 
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
