@@ -267,13 +267,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 #endif
         }
 
-        public delegate void NetworkDelegate(bool operationInProgress, bool? operationSuccessful);
-        private static void NetworkCallback(bool operationInProgress, bool? operationSuccessful)
+        public delegate void NetworkDelegate(bool operationInProgress, OperationStatus operationSuccessful);
+        private static void NetworkCallback(bool operationInProgress, OperationStatus operationSuccessful)
         {
             // if the network operation returned, clean up resources
-            if (operationSuccessful != null)
+            if (operationSuccessful != OperationStatus.Started)
             {
-                if ((bool)operationSuccessful == false)
+                if (operationSuccessful == OperationStatus.Failed)
                 {
                     // stop listening
                     mic.Stop();

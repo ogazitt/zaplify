@@ -28,11 +28,20 @@
                 return new HttpResponseMessageWrapper<Item>(req, code);
             }
 
-            // get the new item from the message body
-            Item clientItem = ProcessRequestBody(req, typeof(Item)) as Item;
-            if (clientItem.ID != id)
-            {   // IDs must match
-                return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
+            // get the item from the message body if one was passed
+            Item clientItem;
+            if (req.Content.Headers.ContentLength > 0)
+            {
+                clientItem = ProcessRequestBody(req, typeof(Item)) as Item;
+                if (clientItem.ID != id)
+                {   // IDs must match
+                    return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                // otherwise get the client item from the database
+                clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
             }
 
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
