@@ -8,11 +8,11 @@
     using System.Web;
 
     using BuiltSteady.Zaplify.ServerEntities;
-    using BuiltSteady.Zaplify.ServiceHelpers;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     public class UserMembershipProvider : MembershipProvider
     {
-        const int authTicketLifetime = 1;      // minutes
+        const int authTicketLifetime = 120;      // minutes
 
         public override string ApplicationName
         {

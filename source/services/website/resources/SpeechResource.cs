@@ -19,7 +19,7 @@
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
-    using BuiltSteady.Zaplify.ServiceHelpers;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     // singleton service, which manages thread-safety on its own
     [ServiceContract]

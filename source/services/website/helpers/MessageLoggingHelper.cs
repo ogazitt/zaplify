@@ -7,9 +7,8 @@
     using System.ServiceModel;
     using System.ServiceModel.Description;
     using Microsoft.ApplicationServer.Http.Channels;
-    //using Microsoft.WindowsAzure.ServiceRuntime;
 
-    using BuiltSteady.Zaplify.ServiceHelpers;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     public class LoggingMessageTracer : IDispatchMessageInspector,
         IClientMessageInspector
