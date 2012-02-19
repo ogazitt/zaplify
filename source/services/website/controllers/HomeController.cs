@@ -21,7 +21,6 @@
                 ViewBag.Message = mu.Email;
             }
 
-            ViewBag.Message += ", Welcome to ASP.NET MVC!";
             return View();
         }
 

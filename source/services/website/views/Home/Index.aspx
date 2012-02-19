@@ -4,6 +4,8 @@
     <title>Welcome</title>
 </asp:Content>
 
-<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
-    <h2><%: ViewBag.Message %></h2>
+<asp:Content ContentPlaceHolderID="MainContent" runat="server">
+    <div style="text-align:center; margin-top:40px">
+        <img runat="server" alt="Under Construction" src="~/content/images/under-construction.jpg" />
+    </div>
 </asp:Content>
