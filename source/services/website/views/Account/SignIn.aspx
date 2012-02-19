@@ -1,49 +1,52 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<BuiltSteady.Zaplify.Website.Models.LogOnModel>" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<SignInModel>" %>
+<%@ Import Namespace="BuiltSteady.Zaplify.Website.Models" %>
 
-<asp:Content ID="loginTitle" ContentPlaceHolderID="TitleContent" runat="server">
-    Log On
-</asp:Content>
-
-<asp:Content ID="loginContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>Log On</h2>
-    <p>
-        Please enter your user name and password. <%: Html.ActionLink("Register", "Register") %> if you don't have an account.
-    </p>
-
+<asp:Content ContentPlaceHolderID="MasterHead" runat="server">
+    <title>Sign-in</title>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js") %>" type="text/javascript"></script>
+</asp:Content>
+
+<asp:Content ContentPlaceHolderID="MainContent" runat="server">
+<div class="dialog-panel-top">&nbsp;</div>
+<div class="dialog-panel">
+    <h2>Sign In</h2>
 
     <% using (Html.BeginForm()) { %>
-        <%: Html.ValidationSummary(true, "Login was unsuccessful. Please correct the errors and try again.") %>
         <div>
             <fieldset>
-                <legend>Account Information</legend>
+                <legend>User Information</legend>
                 
-                <div class="editor-label">
+                <div class="dialog-label">
                     <%: Html.LabelFor(m => m.UserName) %>
                 </div>
-                <div class="editor-field">
+                <div class="dialog-field">
                     <%: Html.TextBoxFor(m => m.UserName) %>
                     <%: Html.ValidationMessageFor(m => m.UserName) %>
                 </div>
                 
-                <div class="editor-label">
+                <div class="dialog-label">
                     <%: Html.LabelFor(m => m.Password) %>
                 </div>
-                <div class="editor-field">
+                <div class="dialog-field">
                     <%: Html.PasswordFor(m => m.Password) %>
                     <%: Html.ValidationMessageFor(m => m.Password) %>
                 </div>
                 
-                <div class="editor-label">
+                <div class="dialog-field">
                     <%: Html.CheckBoxFor(m => m.RememberMe) %>
                     <%: Html.LabelFor(m => m.RememberMe) %>
                 </div>
                 
                 <p>
-                    <input type="submit" value="Log On" />
+                    <input class="dialog-button" type="submit" value="Sign-in" />
                 </p>
             </fieldset>
         </div>
+
+        <%: Html.ValidationSummary(true, "Unable to sign in. Please update your user information and try again.") %>
     <% } %>
+
+</div>
+<div class="dialog-panel-bottom">&nbsp;</div>
 </asp:Content>

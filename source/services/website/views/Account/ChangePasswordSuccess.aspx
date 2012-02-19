@@ -1,12 +1,16 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage" %>
 
-<asp:Content ID="changePasswordTitle" ContentPlaceHolderID="TitleContent" runat="server">
-    Change Password
+<asp:Content ID="changePasswordTitle" ContentPlaceHolderID="MasterHead" runat="server">
+    <title>Change Password</title>
 </asp:Content>
 
-<asp:Content ID="changePasswordSuccessContent" ContentPlaceHolderID="MainContent" runat="server">
-    <h2>Change Password</h2>
+<asp:Content ContentPlaceHolderID="MainContent" runat="server">
+<div class="dialog-panel-top">&nbsp;</div>
+<div class="dialog-panel">
+    <h2>Change Password</h2>    
     <p>
-        Your password has been changed successfully.
+        Your password has been changed.
     </p>
+</div>
+<div class="dialog-panel-bottom">&nbsp;</div>
 </asp:Content>

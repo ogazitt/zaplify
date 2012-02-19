@@ -162,6 +162,11 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\images\footer-bkgnd.png" />
+    <Content Include="content\images\header-bkgnd.png" />
+    <Content Include="content\images\panel-bottom-bkgnd.png" />
+    <Content Include="content\images\panel-middle-bkgnd.png" />
+    <Content Include="content\images\panel-top-bkgnd.png" />
     <Content Include="content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -247,6 +252,8 @@
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="views\account\SignIn.aspx" />
+    <Content Include="views\shared\SignInControl.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -269,12 +276,10 @@
     <Content Include="scripts\MicrosoftMvcValidation.debug.js" />
     <Content Include="views\account\ChangePassword.aspx" />
     <Content Include="views\account\ChangePasswordSuccess.aspx" />
-    <Content Include="views\account\LogOn.aspx" />
     <Content Include="views\account\Register.aspx" />
     <Content Include="views\home\About.aspx" />
     <Content Include="views\home\Index.aspx" />
     <Content Include="views\shared\Error.aspx" />
-    <Content Include="views\shared\LogOnUserControl.ascx" />
     <Content Include="views\shared\Site.Master" />
     <Content Include="views\Web.config">
       <SubType>Designer</SubType>

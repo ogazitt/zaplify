@@ -15,13 +15,13 @@
     public class AccountController : Controller
     {
 
-        public ActionResult LogOn()
+        public ActionResult SignIn()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult LogOn(LogOnModel model, string returnUrl)
+        public ActionResult SignIn(SignInModel model, string returnUrl)
         {
             if (ModelState.IsValid)
             {
@@ -49,7 +49,7 @@
             return View(model);
         }
 
-        public ActionResult LogOff()
+        public ActionResult SignOut()
         {
             FormsAuthentication.SignOut();
 
@@ -66,7 +66,13 @@
         {
             if (ModelState.IsValid)
             {
-                // Attempt to register the user
+                if (!ValidateAccessCode(model))
+                {   // validate access code (restrict access for now)
+                    ModelState.AddModelError("", "The given access code is not valid.");
+                    return View(model);
+                }
+
+                // attempt to register the user
                 MembershipCreateStatus createStatus;
                 Membership.CreateUser(model.UserName, model.Password, model.Email, null, null, true, null, out createStatus);
 
@@ -81,7 +87,7 @@
                 }
             }
 
-            // If we got this far, something failed, redisplay form
+            // error, redisplay form
             return View(model);
         }
 
@@ -147,10 +153,14 @@
             }
         }
 
+        private bool ValidateAccessCode(RegisterModel model)
+        {
+            return model.AccessCode.Equals("ZAP", StringComparison.Ordinal);
+        }
+
         private static string ErrorCodeToString(MembershipCreateStatus createStatus)
         {
-            // See http://go.microsoft.com/fwlink/?LinkID=177550 for
-            // a full list of status codes.
+            // see http://go.microsoft.com/fwlink/?LinkID=177550 for a full list of status codes.
             switch (createStatus)
             {
                 case MembershipCreateStatus.DuplicateUserName:
