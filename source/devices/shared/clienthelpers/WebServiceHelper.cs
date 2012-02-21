@@ -31,16 +31,50 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         static HttpWebRequest request = null;
         static bool isRequestInProgress = false;        // only one network operation at a time
 
-        public static string BaseUrl { get { return baseUrl; } }
-        private static string baseUrl
+        private static string baseUrl = null;
+        private static string appSettingsBaseUrl = null;
+        private static bool triedGettingAppSettingsBaseUrl = false;
+        // default URL (which depends on the environment)
+        private static string defaultBaseUrl
         {
             get
             {
-#if IOS
+#if IOS || !DEBUG  // IOS environment and release bits always hit the public service
                 return "http://api.zaplify.com";
-#else
+#else           // the emulator defaults to hitting a localhost service; a device always hits the public service
                 return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:8888" : "http://api.zaplify.com";
 #endif
+            }
+        }
+        // getter / setter which cache the Base URL stored in AppSettings 
+        private static string AppSettingsBaseUrl
+        {
+            get
+            {
+                if (appSettingsBaseUrl == null && !triedGettingAppSettingsBaseUrl)
+                    IsolatedStorageSettings.ApplicationSettings.TryGetValue("BaseUrl", out appSettingsBaseUrl);
+                return appSettingsBaseUrl;
+            }
+            set
+            {
+                IsolatedStorageSettings.ApplicationSettings["BaseUrl"] = value;
+                appSettingsBaseUrl = value;
+            }
+        }
+        // BaseUrl for the service
+        //   If the BaseUrl was set, use that value
+        //   Otherwise if the AppSettings BaseUrl was found, use this one
+        //   Otherwise, use the default BaseUrl
+        public static string BaseUrl
+        {
+            get
+            {
+                return baseUrl ?? (AppSettingsBaseUrl ?? defaultBaseUrl);
+            }
+            set
+            {
+                baseUrl = value;
+                AppSettingsBaseUrl = value;
             }
         }
 
@@ -48,90 +82,90 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         public static void CreateTag(User user, Tag tag, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tags", "POST", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
+            InvokeWebServiceRequest(user, BaseUrl + "/tags", "POST", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
         public static void CreateItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/items", "POST", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
+            InvokeWebServiceRequest(user, BaseUrl + "/items", "POST", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         public static void CreateFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/folders", "POST", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
+            InvokeWebServiceRequest(user, BaseUrl + "/folders", "POST", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
         public static void CreateUser(User user, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/users", "POST", user, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
+            InvokeWebServiceRequest(user, BaseUrl + "/users", "POST", user, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
         public static void DeleteTag(User user, Tag tag, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/tags/" + tag.ID, "DELETE", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
+            InvokeWebServiceRequest(user, BaseUrl + "/tags/" + tag.ID, "DELETE", tag, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
         public static void DeleteItem(User user, Item item, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/items/" + item.ID, "DELETE", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
+            InvokeWebServiceRequest(user, BaseUrl + "/items/" + item.ID, "DELETE", item, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         public static void DeleteFolder(User user, Folder folder, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/folders/" + folder.ID, "DELETE", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
+            InvokeWebServiceRequest(user, BaseUrl + "/folders/" + folder.ID, "DELETE", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
         public static void GetConstants(User user, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, String.Format("{0}/constants", baseUrl), "GET", null, del, netOpInProgressDel, ProcessResponse<Constants>);
+            InvokeWebServiceRequest(user, String.Format("{0}/constants", BaseUrl), "GET", null, del, netOpInProgressDel, ProcessResponse<Constants>);
         }
 
         public static void GetUser(User user, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<User>));
+            InvokeWebServiceRequest(user, BaseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<User>));
         }
 
         public static void SendTrace(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/trace", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
+            InvokeWebServiceRequest(user, BaseUrl + "/trace", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
         public static void SpeechToText(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/speech", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
+            InvokeWebServiceRequest(user, BaseUrl + "/speech", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
         public static void SpeechToTextStream(User user, Delegate streamDel, Delegate del, Delegate netOpInProgressDel)
         {
-            InvokeWebServiceRequest(user, baseUrl + "/speech", "POST", streamDel, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
+            InvokeWebServiceRequest(user, BaseUrl + "/speech", "POST", streamDel, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
         public static void UpdateTag(User user, List<Tag> originalAndNewTags, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewTags == null || originalAndNewTags.Count != 2)
                 return;
-            InvokeWebServiceRequest(user, baseUrl + "/tags/" + originalAndNewTags[0].ID, "PUT", originalAndNewTags, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
+            InvokeWebServiceRequest(user, BaseUrl + "/tags/" + originalAndNewTags[0].ID, "PUT", originalAndNewTags, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Tag>));
         }
 
         public static void UpdateItem(User user, List<Item> originalAndNewItems, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewItems == null || originalAndNewItems.Count != 2)
                 return;
-            InvokeWebServiceRequest(user, baseUrl + "/items/" + originalAndNewItems[0].ID, "PUT", originalAndNewItems, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
+            InvokeWebServiceRequest(user, BaseUrl + "/items/" + originalAndNewItems[0].ID, "PUT", originalAndNewItems, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Item>));
         }
 
         public static void UpdateFolder(User user, List<Folder> originalAndNewFolders, Delegate del, Delegate netOpInProgressDel)
         {
             if (originalAndNewFolders == null || originalAndNewFolders.Count != 2)
                 return;
-            InvokeWebServiceRequest(user, baseUrl + "/folders/" + originalAndNewFolders[0].ID, "PUT", originalAndNewFolders, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
+            InvokeWebServiceRequest(user, BaseUrl + "/folders/" + originalAndNewFolders[0].ID, "PUT", originalAndNewFolders, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
         
         public static void VerifyUserCredentials(User user, Delegate del, Delegate netOpInProgressDel)
         {
-			// get rid of the auth cookie before invoking the operation
-			authCookie = null;
-            InvokeWebServiceRequest(user, baseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
+            // get rid of the auth cookie before invoking the operation
+            authCookie = null;
+            InvokeWebServiceRequest(user, BaseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
 #endregion

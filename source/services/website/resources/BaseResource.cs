@@ -13,7 +13,7 @@
 
     using Newtonsoft.Json;
     using BuiltSteady.Zaplify.ServerEntities;
-    using BuiltSteady.Zaplify.ServiceHelpers;
+    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.Website.Models.AccessControl;
 

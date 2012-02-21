@@ -143,8 +143,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // remove all children and then add some debug spew
             DebugPanel.Children.Clear();
-            DebugPanel.Children.Add(new TextBlock() { Text = String.Format("URL: {0}", WebServiceHelper.BaseUrl) });
+            DebugPanel.Children.Add(new TextBlock() { Text = "Connection Status and Server URL:" });
             DebugPanel.Children.Add(new TextBlock() { Text = String.Format("Connected: {0}", App.ViewModel.LastNetworkOperationStatus) });
+            TextBox textBox = new TextBox() { Text = WebServiceHelper.BaseUrl };
+            DebugPanel.Children.Add(textBox);
+            Button button = new Button() { Content = "Store New Service URL" };
+            button.Click += (s, e) => { WebServiceHelper.BaseUrl = textBox.Text; };
+            DebugPanel.Children.Add(button);
 
             // render request queue
             DebugPanel.Children.Add(new TextBlock() { Text = "Request Queue:" });

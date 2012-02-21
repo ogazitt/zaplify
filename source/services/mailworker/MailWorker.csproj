@@ -65,7 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ZaplifyStore.cs" />
     <Compile Include="WorkerRole.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -76,14 +75,17 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\servicehelpers\ServiceHelpers.csproj">
-      <Project>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</Project>
-      <Name>ServiceHelpers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\serverentities\ServerEntities.csproj">
       <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
       <Name>ServerEntities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\servicehost\ServiceHost.csproj">
+      <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
+      <Name>ServiceHost</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

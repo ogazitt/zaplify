@@ -67,7 +67,7 @@
         <!--listening popup panel-->
         <Popup x:Name="SpeechPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
             <Grid>
-                <Border Background="#FF1F1F1F" Height="190"/>
+                <Border Background="#FF1F1F1F" Height="270"/>
                 <StackPanel Width="480">
                     <TextBlock x:Name="SpeechLabel" Margin="20,15,0,0" Text="{Binding SpeechLabelText}" Style="{StaticResource PhoneTextExtraLargeStyle}" Width="460" />
                     <toolkit:PerformanceProgressBar x:Name="SpeechProgressBar" IsIndeterminate="True" Margin="0,20,0,0" Visibility="{Binding NetworkOperationInProgress}"/>
@@ -82,11 +82,11 @@
         <!--quick add popup panel-->
         <Popup x:Name="QuickAddPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
             <Grid>
-                <Border Background="#FF1F1F1F" Height="350"/>
+                <Border Background="#FF1F1F1F" Height="285"/>
                 <StackPanel Width="480">
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,15,0,0">
                         <CheckBox x:Name="QuickAddPopupIsListCheckbox" Content="list" />
-                        <toolkit:ListPicker x:Name="QuickAddPopupItemTypePicker" Width="300" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemsSource="{Binding UserItemTypes}"/>
+                        <toolkit:ListPicker x:Name="QuickAddPopupItemTypePicker" Width="300" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding ItemTypes}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,15,0,0">
                         <TextBox x:Name="QuickAddPopupTextBox" InputScope="Text" Width="396" />

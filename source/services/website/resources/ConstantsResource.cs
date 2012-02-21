@@ -8,9 +8,10 @@
     using System.ServiceModel;
     using System.ServiceModel.Web;
 
+    using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models;
-    using BuiltSteady.Zaplify.ServerEntities;
 
     [ServiceContract]
     [LogMessages]

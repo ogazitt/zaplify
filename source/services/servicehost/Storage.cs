@@ -1,8 +1,9 @@
-﻿namespace BuiltSteady.Zaplify.Website.Models
+﻿namespace BuiltSteady.Zaplify.ServiceHost
 {
     using System.Data.Entity;
     using System.Web.Configuration;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     public static class Storage
     {
@@ -38,10 +39,8 @@
 
     public class StorageContext : DbContext
     {
-        // the default constructor loads the Connection appsetting (from web.config) 
-        // which is the alias of the correct connection string (also from web.config)
-        public StorageContext() : base(WebConfigurationManager.AppSettings["Connection"]) { }
-        public StorageContext(string connstr) : base(connstr) { }
+        public StorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public StorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -69,10 +68,8 @@
 
     public class CredentialStorageContext : DbContext
     {
-        // the default constructor loads the Connection appsetting (from web.config) 
-        // which is the alias of the correct connection string (also from web.config)
-        public CredentialStorageContext() : base(WebConfigurationManager.AppSettings["Connection"]) { }
-        public CredentialStorageContext(string connstr) : base(connstr) { }
+        public CredentialStorageContext() : base(HostEnvironment.UserAccountConnection) { }
+        public CredentialStorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -7,6 +7,9 @@
       <Import moduleName="RemoteForwarder" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="Connection" />
+      <Setting name="SQLAzure" />
+      <Setting name="SQLExpress" />
     </ConfigurationSettings>
   </WorkerRole>
   <WebRole name="Website" vmsize="ExtraSmall">
@@ -24,6 +27,11 @@
       <Import moduleName="Diagnostics" />
       <Import moduleName="RemoteAccess" />
     </Imports>
+    <ConfigurationSettings>
+      <Setting name="Connection" />
+      <Setting name="SQLAzure" />
+      <Setting name="SQLExpress" />
+    </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
         <Environment>

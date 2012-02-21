@@ -10,6 +10,7 @@ XapCacheFile.xml
 *.schemaview
 *.pidb
 *.mdb
+*.build.csdef
 *.exe
 ~$*.*
 *~

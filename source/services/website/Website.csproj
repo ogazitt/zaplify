@@ -104,9 +104,6 @@
     <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Web.Providers">
-      <HintPath>..\packages\System.Web.Providers.1.0.1\lib\Net40\System.Web.Providers.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>True</Private>
     </Reference>
@@ -151,7 +148,6 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
-    <Compile Include="models\storage\Storage.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
     <Compile Include="resources\ConstantsResource.cs" />
@@ -166,6 +162,12 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\images\footer-bkgnd.png" />
+    <Content Include="content\images\header-bkgnd.png" />
+    <Content Include="content\images\panel-bottom-bkgnd.png" />
+    <Content Include="content\images\panel-middle-bkgnd.png" />
+    <Content Include="content\images\panel-top-bkgnd.png" />
+    <Content Include="content\images\under-construction.jpg" />
     <Content Include="content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -251,6 +253,8 @@
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="views\account\SignIn.aspx" />
+    <Content Include="views\shared\SignInControl.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -273,12 +277,10 @@
     <Content Include="scripts\MicrosoftMvcValidation.debug.js" />
     <Content Include="views\account\ChangePassword.aspx" />
     <Content Include="views\account\ChangePasswordSuccess.aspx" />
-    <Content Include="views\account\LogOn.aspx" />
     <Content Include="views\account\Register.aspx" />
     <Content Include="views\home\About.aspx" />
     <Content Include="views\home\Index.aspx" />
     <Content Include="views\shared\Error.aspx" />
-    <Content Include="views\shared\LogOnUserControl.ascx" />
     <Content Include="views\shared\Site.Master" />
     <Content Include="views\Web.config">
       <SubType>Designer</SubType>
@@ -296,9 +298,9 @@
       <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
       <Name>ServerEntities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\servicehelpers\ServiceHelpers.csproj">
-      <Project>{F9A1E801-73CB-436A-BF0A-FD58B6473112}</Project>
-      <Name>ServiceHelpers</Name>
+    <ProjectReference Include="..\servicehost\ServiceHost.csproj">
+      <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
+      <Name>ServiceHost</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

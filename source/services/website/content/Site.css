@@ -1,189 +1,203 @@
 ﻿/*----------------------------------------------------------
-The base color for this template is #5c87b2. If you'd like
-to use a different color start by replacing all instances of
-#5c87b2 with your new color.
+Reset all styling
 ----------------------------------------------------------*/
+html {
+    min-height: 100%;
+}
+
 body {
-    background-color: #5c87b2;
-    font-size: .85em;
-    font-family: "Trebuchet MS", Verdana, Helvetica, Sans-Serif;
+    min-height: 100%;
+}
+
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td {
     margin: 0;
     padding: 0;
-    color: #696969;
+    spellcheck: false;
 }
 
-a:link {
-    color: #034af3;
-    text-decoration: underline;
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
-a:visited {
-    color: #505abc;
+fieldset,img { border: 0; }
+
+address,caption,cite,code,dfn,em,strong,th,var,optgroup {
+    font-style: inherit;
+    font-weight: inherit;
 }
 
-a:hover {
-    color: #1d60ff;
-    text-decoration: none;
+del,ins { text-decoration: none; }
+li { list-style: none; }
+caption,th { text-align: left; }
+
+h1,h2,h3,h4,h5,h6 {
+    font-size: 100%;
+    font-weight: normal;
 }
 
-a:active {
-    color: #12eb87;
+q:before,q:after { content: ''; }
+
+abbr,acronym {
+    border: 0;
+    font-variant: normal;
 }
 
-p, ul {
-    margin-bottom: 20px;
-    line-height: 1.6em;
+sup { vertical-align: baseline; }
+sub { vertical-align: baseline; }
+legend { color: #000; }
+
+input,button,textarea,select,optgroup,option {
+    font-family: inherit;
+    font-size: inherit;
+    font-style: inherit;
+    font-weight: inherit;
+    spellcheck: false;
 }
 
-header,
-footer,
-nav,
-section {
-    display: block;
+input,button,textarea,select { *font-size: 100%; spellcheck:false;}
+
+textarea {
+    resize:none;
+    spellcheck:false;
 }
 
-/* HEADINGS   
+/*----------------------------------------------------------
+Default site styling
 ----------------------------------------------------------*/
-h1, h2, h3, h4, h5, h6 {
-    font-size: 1.5em;
-    color: #000;
+.site-default 
+{
+    overflow-y: hidden;
+    font-size: 0.8em;
+    font-family: "segoe ui", tahoma, verdana, arial, sans-serif;
+    color: #202030;
+    background-color: #E2E6E6;
 }
 
-h1 {
-    font-size: 2em;
-    padding-bottom: 0;
-    margin-bottom: 0;
+a { color: #2020D0; outline: none; cursor: pointer; }
+a:link { xcolor: inherit; text-decoration: none; }
+a:visited { xcolor: inherit; }
+a:hover { xcolor: inherit; }
+a:active { xcolor: inherit; }
+button::-moz-focus-inner, a::-moz-focus-inner, input::-moz-focus-inner, a::-moz-focus-inner { border: 0; }
+
+h1, h2, h3, h4, h5, h6 {    
+    font-family: "lucida grande", "segoe ui", tahoma, verdana, arial, sans-serif;
 }
 
-h2 {
-    padding: 0 0 10px 0;
-}
+h1 { font-size: 2em; }
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.2em; }
+h4 { font-size: 1.1em; }
+h5, h6 { font-size: 1em; }
 
-h3 {
-    font-size: 1.2em;
-}
-
-h4 {
-    font-size: 1.1em;
-}
-
-h5, h6 {
-    font-size: 1em;
-}
-
-/* PRIMARY LAYOUT ELEMENTS   
+/*----------------------------------------------------------
+Layout elements
 ----------------------------------------------------------*/
 
-/* you can specify a greater or lesser percentage for the 
-page width. Or, you can specify an exact pixel width. */
-.page {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+.layout-region {
+    width: auto;
 }
 
-header, #header {
-    position: relative;
-    margin-bottom: 0px;
-    color: #000;
-    padding: 0;
+.header-region {   
+    min-width: 600px;
+    height: 60px;
+    background: transparent url(images/header-bkgnd.png) repeat-x left -55px;
 }
 
-header h1, #header h1 {
-    font-weight: bold;
-    padding: 5px 0;
-    margin: 0;
-    color: #fff;
-    border: none;
-    line-height: 2em;
-    font-size: 32px !important;
-    text-shadow: 1px 1px 2px #111;
+.header-content {   
 }
 
-#main {
-    padding: 30px 30px 15px 30px;
-    background-color: #fff;
-    border-radius: 4px 0 0 0;
-    -webkit-border-radius: 4px 0 0 0;
-    -moz-border-radius: 4px 0 0 0;
+.main-content-region {
+    min-width: 600px;
+    min-height: 450px;
+    margin: 20px 20px 20px 20px;
 }
 
-footer, 
-#footer {
-    background-color: #fff;
-    color: #999;
-    padding: 10px 0;
+.main-content {
     text-align: center;
-    line-height: normal;
-    margin: 0 0 30px 0;
-    font-size: .9em;
-    border-radius: 0 0 4px 4px;
-    -webkit-border-radius: 0 0 4px 4px;
-    -moz-border-radius: 0 0 4px 4px;
+    width: 100%;
 }
 
-/* TAB MENU   
+.footer-region {
+    position: fixed; 
+    bottom: 0px;
+    min-width: 600px;
+    width: 100%;
+    height: 25px;
+    background: transparent url(images/footer-bkgnd.png) repeat-x left 0px;   
+}
+
+.footer-copyright { float: right; margin: 6px 8px 0 0; }
+.footer-copyright a {  color: #202030; }
+
+.footer-content { float: left; }
+
+.signin-control
+{
+    position: fixed;
+    right:15px;
+    top: 15px;
+}
+
+/*----------------------------------------------------------
+Dialogs and Forms
 ----------------------------------------------------------*/
-ul#menu {
-    border-bottom: 1px #5C87B2 solid;
-    padding: 0 0 2px;
-    position: relative;
+
+.dialog-panel {
+    max-width: 490px;
+    padding: 0 20px 10px 30px;
+    background: transparent url(images/panel-middle-bkgnd.png) repeat-y left 0px;
+    Xborder: 1px solid red;
+}
+
+.dialog-panel p {
+    padding-right: 20px;
+}
+
+.dialog-panel-top {
+    max-width: 540px;
+    height: 20px;
+    background: transparent url(images/panel-top-bkgnd.png) no-repeat left top;
+    Xborder: 1px solid green;
+}
+
+.dialog-panel-bottom {
+    max-width: 540px;
+    height: 20px;
+    background: transparent url(images/panel-bottom-bkgnd.png) no-repeat left bottom;
+    Xborder: 1px solid blue;
+}
+
+.dialog-label {
     margin: 0;
-    text-align: right;
 }
 
-ul#menu li {
-    display: inline;
-    list-style: none;
+.dialog-field {
+    margin: 0 0 6px 0;
 }
 
-ul#menu li#greeting {
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    line-height: 2.8em;
-    color: #fff;
+.dialog-button {
+    cursor: pointer;
+    color: #202030;
+    display: inline-block;
+    width: 120px;
+    height: 28px;
+    text-align: center;
+    Xbackground: transparent url(images/redbutton.png) no-repeat;
 }
-
-ul#menu li a {
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    line-height: 2.8em;
-    background-color: #e8eef4;
-    color: #034af3;
-    border-radius: 4px 4px 0 0;
-    -webkit-border-radius: 4px 4px 0 0;
-    -moz-border-radius: 4px 4px 0 0;
-}
-
-ul#menu li a:hover {
-    background-color: #fff;
-    text-decoration: none;
-}
-
-ul#menu li a:active {
-    background-color: #a6e2a6;
-    text-decoration: none;
-}
-
-ul#menu li.selected a {
-    background-color: #fff;
-    color: #000;
-}
-
-/* FORM LAYOUT ELEMENTS   
-----------------------------------------------------------*/
 
 fieldset {
-    border: 1px solid #ddd;
-    padding: 0 1.4em 1.4em 1.4em;
-    margin: 0 0 1.5em 0;
+    margin: 10px 0;
+    padding: 12px;
+    border: 1px solid #D0BCAE;
+    max-width: 460px;
 }
 
 legend {
+    color: #D0BCAE;
     font-size: 1.2em;
-    font-weight: bold;
+    padding: 0 4px;
 }
 
 textarea {
@@ -192,93 +206,33 @@ textarea {
 
 input[type="text"], 
 input[type="password"] {
-    border: 1px solid #ccc;
-    padding: 2px;
-    font-size: 1.2em;
-    color: #444;
+    border: 1px solid #D0BCAE;
+    padding: 2px 3px 2px 3px;
+    margin-top: 3px;
+    font-size: 1em;
+    color: #202030;
     width: 200px;
+    background-color: #EEECE1;
 }
 
 select {
-    border: 1px solid #ccc;
+    border: 1px solid #D0BCAE;
     padding: 2px;
     font-size: 1.2em;
-    color: #444;
+    color: #202030;
 }
 
 input[type="submit"] {
-    font-size: 1.2em;
-    padding: 5px;
+    font-size: 1em;
+    padding: 0px 5px 0px 5px;
 }
 
-/* TABLE
+
+/*----------------------------------------------------------
+Validation
 ----------------------------------------------------------*/
-
-table {
-    border: solid 1px #e8eef4;
-    border-collapse: collapse;
-}
-
-table td {
-    padding: 5px;
-    border: solid 1px #e8eef4;
-}
-
-table th {
-    padding: 6px 5px;
-    text-align: left;
-    background-color: #e8eef4;
-    border: solid 1px #e8eef4;
-}
-
-/* MISC  
-----------------------------------------------------------*/
-.clear {
-    clear: both;
-}
-
-.error {
-    color: Red;
-}
-
-nav, 
-#menucontainer {
-    margin-top: 40px;
-}
-
-div#title {
-    display: block;
-    float: left;
-    text-align: left;
-}
-
-#logindisplay {
-    font-size: 1.1em;
-    display: block;
-    text-align: right;
-    margin: 10px;
-    color: White;
-}
-
-#logindisplay a:link {
-    color: white;
-    text-decoration: underline;
-}
-
-#logindisplay a:visited {
-    color: white;
-    text-decoration: underline;
-}
-
-#logindisplay a:hover {
-    color: white;
-    text-decoration: none;
-}
-
-/* Styles for validation helpers
------------------------------------------------------------*/
 .field-validation-error {
-    color: #ff0000;
+    color: #C80A0A;
 }
 
 .field-validation-valid {
@@ -286,39 +240,26 @@ div#title {
 }
 
 .input-validation-error {
-    border: 1px solid #ff0000;
-    background-color: #ffeeee;
+    border: 1px solid #C80A0A;
+    background-color: #F5EFD0;
 }
 
 .validation-summary-errors {
-    font-weight: bold;
-    color: #ff0000;
+    color: #C80A0A;
 }
 
 .validation-summary-valid {
     display: none;
 }
 
-/* Styles for editor and display helpers
+/*----------------------------------------------------------
+Miscellaneous
 ----------------------------------------------------------*/
-.display-label, 
-.editor-label {
-    margin: 1em 0 0 0;
-}
+.clear { clear: both; }
+.error { color: #961919; }
 
-.display-field, 
-.editor-field {
-    margin: 0.5em 0 0 0;
-}
+.display-none { display: none; }
+.display-block { display: block; }
+.display-inline { display: inline-block; }
 
-.text-box {
-    width: 30em;
-}
 
-.text-box.multi-line {
-    height: 6.5em;
-}
-
-.tri-state {
-    width: 6em;
-}
