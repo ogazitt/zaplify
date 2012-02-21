@@ -49,6 +49,7 @@
     <MtouchProfiling>true</MtouchProfiling>
     <IpaPackageName />
     <MtouchI18n />
+    <MtouchExtraArgs>-aot "nimt-trampolines=512" </MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -83,7 +84,6 @@
     <Compile Include="MoreViewController.designer.cs">
       <DependentUpon>MoreViewController.cs</DependentUpon>
     </Compile>
-    <Compile Include="MessageBox.cs" />
     <Compile Include="App.cs" />
     <Compile Include="DebugPage.cs" />
     <Compile Include="ItemPage.cs" />
@@ -92,6 +92,13 @@
     <Compile Include="controls\ButtonListElement.cs" />
     <Compile Include="controls\DateEventElement.cs" />
     <Compile Include="SettingsPage.cs" />
+    <Compile Include="UIColorHelper.cs" />
+    <Compile Include="controls\UIImageButton.cs" />
+    <Compile Include="controls\MessageBox.cs" />
+    <Compile Include="controls\UICheckbox.cs" />
+    <Compile Include="AddPage.cs" />
+    <Compile Include="CalendarPage.cs" />
+    <Compile Include="controls\MultilineEntryElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />
@@ -107,6 +114,22 @@
     <Content Include="Images\redbutton.png" />
     <Content Include="Images\greenbutton.png" />
     <Content Include="Images\appbar.overflowdots.png" />
+    <Content Include="Images\66-microphone.png" />
+    <Content Include="Images\80-shopping-cart.png" />
+    <Content Include="Images\83-calendar.png" />
+    <Content Include="Images\117-todo.png" />
+    <Content Include="Images\appbar.folder.rest.png" />
+    <Content Include="Images\contact.png" />
+    <Content Include="Images\checkbox.off.png" />
+    <Content Include="Images\checkbox.on.png" />
+    <Content Include="Images\179-notepad.png" />
+    <Content Include="Images\180-stickynote.png" />
+    <Content Include="Images\silverbutton.png" />
+    <Content Include="Images\darkglassbutton.png" />
+    <Content Include="Images\darkgreybutton.png" />
+    <Content Include="Images\uiglassbutton-template.png" />
+    <Content Include="Images\background%402x.png" />
+    <Content Include="Images\background.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

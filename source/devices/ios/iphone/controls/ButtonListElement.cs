@@ -13,12 +13,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 		public string Caption { get; set; }
 		public EventHandler Clicked { get; set; }
 		public string Background { get; set; }
+		public UIColor TextColor { get; set; }
+		public UIFont Font { get; set; }
 		public UIButton ButtonReference { get; set; }
 	}
 	
 	public class ButtonListElement : Element, IEnumerable
 	{
 		public List<Button> Buttons = new List<Button>();
+		
+		public float? Margin { get; set; }
 
 		public ButtonListElement () : base (null) { }
 
@@ -48,12 +52,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			var cell = new UITableViewCell (UITableViewCellStyle.Default, "ButtonListElementCell");
 			cell.Accessory = UITableViewCellAccessory.None;
 			cell.SelectionStyle = UITableViewCellSelectionStyle.None;
+			cell.BackgroundColor = UIColor.FromPatternImage(new UIImage("Images/background.png"));
 			
 			// if no child buttons, return a blank cell
 			if (Buttons.Count == 0)
 				return cell;
 			
-			float margin = 5f;  // 5 pixel margin between elements
+			float margin = Margin ?? 5f;  // 5 pixel margin between elements by default
 			// compute button width: 
 			//   [margin] { [button] [margin] }* 
 			// the total available width is the bounds minus the margin (minus 20 fudge factor 
@@ -73,7 +78,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				{
 					// set the background image, and also change the font color to white 
 					button.SetBackgroundImage(new UIImage(btn.Background), UIControlState.Normal);
-					button.SetTitleColor(UIColor.White, UIControlState.Normal);
+					button.SetTitleColor(btn.TextColor ?? UIColor.White, UIControlState.Normal);
+					button.Font = btn.Font ?? UIFont.BoldSystemFontOfSize(17);
 				}
 				if (btn.Clicked != null)
 					button.TouchUpInside += btn.Clicked;

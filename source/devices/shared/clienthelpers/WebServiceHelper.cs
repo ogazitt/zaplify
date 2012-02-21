@@ -1,19 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.IO.IsolatedStorage;
+using System.Net;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+/*
+using SharpCompress.Compressor;
+using SharpCompress.Compressor.Deflate;
+using SharpCompress.Writer.GZip;
+*/
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.IO.IsolatedStorage;
-    using System.Net;
-    using System.Runtime.Serialization;
-    using System.Runtime.Serialization.Json;
-
-    using SharpCompress.Compressor;
-    using SharpCompress.Compressor.Deflate;
-    using SharpCompress.Writer.GZip;
-    using BuiltSteady.Zaplify.Devices.ClientEntities;
-
     public enum OperationStatus
     {
         Started = 0,
@@ -128,6 +129,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         
         public static void VerifyUserCredentials(User user, Delegate del, Delegate netOpInProgressDel)
         {
+			// get rid of the auth cookie before invoking the operation
+			authCookie = null;
             InvokeWebServiceRequest(user, baseUrl + "/users", "GET", null, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
@@ -217,10 +220,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     if (result != null)
                         isRequestInProgress = true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     isRequestInProgress = false;
-
+					
+					// trace the exception
+					TraceHelper.AddMessage("Exception in BeginGetResponse: " + ex.Message);
+					
                     // signal that a network operation is done and unsuccessful
                     if (netOpInProgressDel != null)
                     {
@@ -283,8 +289,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     if (state.RequestBody.GetType() == typeof(byte[]))
                     {
                         byte[] bytes = (byte[])state.RequestBody;
+#if !IOS
                         stream = new GZipStream(stream, CompressionMode.Compress);
                         request.ContentType = "application/x-gzip";
+#else
+						stream = new MemoryStream();
+#endif
                         stream.Write(bytes, 0, bytes.Length);
                     }
                     else

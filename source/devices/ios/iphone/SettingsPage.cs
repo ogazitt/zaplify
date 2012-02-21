@@ -14,14 +14,15 @@ using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	public class SettingsPage : UIViewController
+	public class SettingsPage : UINavigationController
 	{
 		private User user;
 		private EntryElement Username;
 		private EntryElement Password;
 		private EntryElement Email;
 		private CheckboxElement MergeCheckbox;
-		
+        private bool accountOperationSuccessful = false;
+				
 		public SettingsPage()
 		{
 			// trace event
@@ -38,9 +39,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			// initialize controls
 			user = App.ViewModel.User;	
-			Username = new EntryElement("Username", "Enter username", user.Name);
-			Password = new EntryElement("Password", "Enter password", user.Password, true);
-			Email = new EntryElement("Email", "Enter email", user.Email);
+			Username = new EntryElement("Username", "Enter username", user != null ? user.Name : "");
+			Password = new EntryElement("Password", "Enter password", user != null ? user.Password : "", true);
+			Email = new EntryElement("Email", "Enter email", user != null ? user.Email : "");
 			MergeCheckbox = new CheckboxElement("Merge local data?", true);
 			
 			var root = new RootElement("Settings")
@@ -56,28 +57,36 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				{
 					new ButtonListElement() 
 					{
-						new Button() { Caption = "Create Account", Clicked = CreateUserButton_Click },
-						new Button() { Caption = "Pair Account", Clicked = SyncUserButton_Click }, 
+						new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
+						new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
 					},
 				},
 			};
-			var dvc = new DialogViewController(root);
-			dvc.NavigationItem.HidesBackButton = true;
-			
-			// push the settings view onto the nav stack
-			this.NavigationController.PushViewController(dvc, false);
-			//this.NavigationController.NavigationBarHidden = true; 
-			//this.NavigationController.PushViewController (dvc, true);
 
+			// push the view onto the nav stack
+			var dvc = new DialogViewController(root);
+			dvc.NavigationItem.HidesBackButton = true;	
+			dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
+			this.PushViewController(dvc, false);
+			
 			base.ViewDidAppear (animated);
 		}
 		
-		private bool accountTextChanged = false;
-        private bool accountOperationSuccessful = false;
+	 	public override void ViewDidDisappear (bool animated)
+		{
+			if (accountOperationSuccessful)
+			{
+			}
+			base.ViewDidDisappear (animated);
+		}
 		
 		void CreateUserButton_Click (object sender, EventArgs e)
         {
-            if (Username.Value == null || Username.Value == "" ||
+            // make sure the values are updated
+			Username.FetchValue();
+			Password.FetchValue();
+			Email.FetchValue();
+			if (Username.Value == null || Username.Value == "" ||
                 Password.Value == null || Password.Value == "" ||
                 Email.Value == null || Email.Value == "")
             {
@@ -111,6 +120,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 	 	void SyncUserButton_Click (object sender, EventArgs e)
 		{
+            // make sure the values are updated
+			Username.FetchValue();
+			Password.FetchValue();
+			Email.FetchValue();
 			if (MergeCheckbox.Value == true)
             {
 				MessageBoxResult result = MessageBox.Show(
@@ -160,6 +173,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    MessageBox.Show(String.Format("successfully linked with {0} account; data sync will start automatically.", Username.Value));
 	                    accountOperationSuccessful = true;
 	                    user.Synced = true;
+						// the server no longer echos the password in the payload so keep the local value when successful
+						if (user.Password == null)
+							user.Password = Password.Value;
 	                    App.ViewModel.User = user;
 	                    App.ViewModel.SyncWithService();
 	                    break;
@@ -168,7 +184,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	                case HttpStatusCode.Forbidden:
-	                    MessageBox.Show(String.Format("incorrect password"));
+	                    MessageBox.Show(String.Format("incorrect username or password"));
 	                    accountOperationSuccessful = false;
 	                    break;
 	                case null:
@@ -200,6 +216,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         MessageBox.Show(String.Format("user account {0} successfully created", Username.Value));
                         accountOperationSuccessful = true;
                         user.Synced = true;
+						// the server no longer echos the password in the payload so keep the local value when successful
+						if (user.Password == null)
+							user.Password = Password.Value;
                         App.ViewModel.User = user;
                         App.ViewModel.SyncWithService();
                         break;

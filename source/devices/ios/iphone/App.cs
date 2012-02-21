@@ -52,13 +52,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// create a new window instance based on the screen size
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			
+			var add = new AddPage();
+			var calendar = new CalendarPage();
 			var folders = new UINavigationController(new FoldersViewController (UITableViewStyle.Plain));
 			//var settings = new SettingsViewController ();
-			var settings = new UINavigationController(new SettingsPage());
+			var settings = new SettingsPage();
 			var more = new UINavigationController(new MoreViewController());
 			
 			tabBarController = new UITabBarController ();
 			tabBarController.ViewControllers = new UIViewController [] {
+				add,
+				calendar,
 				folders,
 				settings,
 				more,

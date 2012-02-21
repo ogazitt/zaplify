@@ -2,7 +2,7 @@ using System;
 using MonoTouch.UIKit;
 using MonoTouch.Foundation;
 
-namespace BuiltSteady.Zaplify.Devices.IPhone
+namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 {
 	public enum MessageBoxResult
     {

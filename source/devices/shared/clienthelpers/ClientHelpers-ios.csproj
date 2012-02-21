@@ -66,9 +66,6 @@
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="SharpCompress.3.5">
-      <HintPath>..\..\..\packages\sharpcompress.0.6\lib\net35\SharpCompress.3.5.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json.MonoTouch">
       <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\mono\Newtonsoft.Json.MonoTouch.dll</HintPath>
     </Reference>

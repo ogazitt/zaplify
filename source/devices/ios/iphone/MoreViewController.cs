@@ -14,8 +14,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public partial class MoreViewController : UIViewController
 	{
-		private UIViewController moreController;
-		
 		static bool UserInterfaceIdiomIsPhone {
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
 		}
@@ -28,8 +26,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 		public override void ViewDidLoad ()
 		{
-			this.moreController = this;
-			
 			base.ViewDidLoad ();
 		}
 		

@@ -119,6 +119,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					// See the styles demo for different UITableViewCellAccessory
 					cell = new UITableViewCell (UITableViewCellStyle.Default, cellID);
 					cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
+					cell.ImageView.Image = new UIImage("Images/appbar.folder.rest.png");
 				}
 	 
 				cell.TextLabel.Text = App.ViewModel.Folders[row].Name;

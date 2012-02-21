@@ -468,24 +468,25 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case "Date":
-					DateEventElement dateElement = new DateEventElement(field.DisplayName, Convert.ToDateTime((string) currentValue));
+					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
+					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
                     {
                         //pi.SetValue(container, dp.Value, null);
-                        pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("d"), null);
+                        pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
                         folder.NotifyPropertyChanged("FirstDue");
                         folder.NotifyPropertyChanged("FirstDueColor");
                     };
 					element = dateElement;
                     break;
                 case "Boolean":
-				/*
+					/*
 					BooleanImageElement boolElement = new BooleanImageElement(field.DisplayName, (bool) currentValue, 
 				    	new UIImage("Images/first.png"), new UIImage("Images/second.png"));
 					boolElement.ValueChanged += delegate { pi.SetValue(container, boolElement.Value, null); };
 					element = boolElement;
 					*/
-					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, (bool) currentValue);
+					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
 					checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
 					element = checkboxElement;
                     break;
