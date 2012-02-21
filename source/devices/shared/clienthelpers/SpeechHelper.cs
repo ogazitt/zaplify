@@ -55,7 +55,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         // delegate to call with the recognized string
         public delegate void SpeechToTextCallbackDelegate(string textString);
 
-        public static void CancelStreamed(Delegate networkDel)
+        public static void Cancel(Delegate networkDel)
         {
             // stop listening
             mic.Stop();
@@ -443,27 +443,4 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         #endregion
     }
-
-    #region XNA scaffolding
-
-    public class XNAFrameworkDispatcherService : IApplicationService
-    {
-        private DispatcherTimer frameworkDispatcherTimer;
-
-        public XNAFrameworkDispatcherService()
-        {
-            this.frameworkDispatcherTimer = new DispatcherTimer();
-            this.frameworkDispatcherTimer.Interval = TimeSpan.FromTicks(333333);
-            this.frameworkDispatcherTimer.Tick += frameworkDispatcherTimer_Tick;
-            FrameworkDispatcher.Update();
-        }
-
-        void frameworkDispatcherTimer_Tick(object sender, EventArgs e) { FrameworkDispatcher.Update(); }
-
-        void IApplicationService.StartService(ApplicationServiceContext context) { this.frameworkDispatcherTimer.Start(); }
-
-        void IApplicationService.StopService() { this.frameworkDispatcherTimer.Stop(); }
-    }
-
-    #endregion
 }

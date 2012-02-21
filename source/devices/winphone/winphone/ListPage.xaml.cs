@@ -35,7 +35,7 @@
         private ListHelper ListHelper;
         private Tag tag;
 
-        private SpeechHelper.SpeechState speechState;
+        private NuanceHelper.SpeechState speechState;
         private string speechDebugString = null;
         private DateTime speechStart;
 
@@ -758,7 +758,7 @@
             }
 
             // set the UI state to initializing state
-            speechState = SpeechHelper.SpeechState.Initializing;
+            speechState = NuanceHelper.SpeechState.Initializing;
             SpeechSetUIState(speechState);
 
             // store debug / timing info
@@ -767,15 +767,15 @@
 
             // store debug / timing info
             TimeSpan ts = DateTime.Now - speechStart;
-            string stateString = SpeechHelper.SpeechStateString(speechState);
+            string stateString = NuanceHelper.SpeechStateString(speechState);
             string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Connecting Socket");
             TraceHelper.AddMessage(traceString);
             speechDebugString += traceString + "\n";
 
             // initialize the connection to the speech service
-            SpeechHelper.Start(
+            NuanceHelper.Start(
                 App.ViewModel.User,
-                new SpeechHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
 
             // open the popup
@@ -786,19 +786,19 @@
         {
             switch (speechState)
             {
-                case SpeechHelper.SpeechState.Initializing:
-                case SpeechHelper.SpeechState.Listening:
-                case SpeechHelper.SpeechState.Recognizing:
+                case NuanceHelper.SpeechState.Initializing:
+                case NuanceHelper.SpeechState.Listening:
+                case NuanceHelper.SpeechState.Recognizing:
                     // user tapped the cancel button
 
                     // cancel the current operation / close the socket to the service
-                    SpeechHelper.CancelStreamed(
+                    NuanceHelper.Cancel(
                         new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
 
                     // reset the text in the textbox
                     QuickAddPopupTextBox.Text = "";
                     break;
-                case SpeechHelper.SpeechState.Finished:
+                case NuanceHelper.SpeechState.Finished:
                     // user tapped the OK button
 
                     // set the text in the popup textbox
@@ -845,40 +845,40 @@
 
             switch (speechState)
             {
-                case SpeechHelper.SpeechState.Initializing:
+                case NuanceHelper.SpeechState.Initializing:
                     // can't happen since the button isn't enabled
 #if DEBUG
                     MessageBox.Show("Invalid state SpeechState.Initializing reached");
 #endif
                     break;
-                case SpeechHelper.SpeechState.Listening:
+                case NuanceHelper.SpeechState.Listening:
                     // done button tapped
 
                     // set the UI state to recognizing state
-                    speechState = SpeechHelper.SpeechState.Recognizing;
+                    speechState = NuanceHelper.SpeechState.Recognizing;
                     SpeechSetUIState(speechState);
 
                     // store debug / timing info
                     ts = DateTime.Now - speechStart;
-                    stateString = SpeechHelper.SpeechStateString(speechState);
+                    stateString = NuanceHelper.SpeechStateString(speechState);
                     traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Stopping mic");
                     TraceHelper.AddMessage(traceString);
                     speechDebugString += traceString + "\n";
 
                     // stop listening and get the recognized text from the speech service
-                    SpeechHelper.Stop(new SpeechHelper.SpeechToTextCallbackDelegate(SpeechPopup_SpeechToTextCallback)); 
+                    NuanceHelper.Stop(new NuanceHelper.SpeechToTextCallbackDelegate(SpeechPopup_SpeechToTextCallback)); 
                     break;
-                case SpeechHelper.SpeechState.Recognizing:
+                case NuanceHelper.SpeechState.Recognizing:
                     // can't happen since the button isn't enabled
 #if DEBUG
                     MessageBox.Show("Invalid state SpeechState.Initializing reached");
 #endif
                     break;
-                case SpeechHelper.SpeechState.Finished:
+                case NuanceHelper.SpeechState.Finished:
                     // "try again" button tapped
 
                     // set the UI state to initializing state
-                    speechState = SpeechHelper.SpeechState.Initializing;
+                    speechState = NuanceHelper.SpeechState.Initializing;
                     SpeechSetUIState(speechState);
 
                     // store debug / timing info
@@ -887,28 +887,28 @@
 
                     // store debug / timing info
                     ts = DateTime.Now - speechStart;
-                    stateString = SpeechHelper.SpeechStateString(speechState);
+                    stateString = NuanceHelper.SpeechStateString(speechState);
                     traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Initializing Request");
                     TraceHelper.AddMessage(traceString);
                     speechDebugString += traceString + "\n";
 
                     // initialize the connection to the speech service
-                    SpeechHelper.Start(
+                    NuanceHelper.Start(
                         App.ViewModel.User,
-                        new SpeechHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                        new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
                         new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
                     break;
             }
         }
 
-        private void SpeechPopup_SpeechStateCallback(SpeechHelper.SpeechState state, string message)
+        private void SpeechPopup_SpeechStateCallback(NuanceHelper.SpeechState state, string message)
         {
             speechState = state;
             SpeechSetUIState(speechState);
 
             // store debug / timing info
             TimeSpan ts = DateTime.Now - speechStart;
-            string stateString = SpeechHelper.SpeechStateString(state);
+            string stateString = NuanceHelper.SpeechStateString(state);
             string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, message);
             TraceHelper.AddMessage(traceString);
             speechDebugString += traceString + "\n";
@@ -919,12 +919,12 @@
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 // set the UI state to finished state
-                speechState = SpeechHelper.SpeechState.Finished;
+                speechState = NuanceHelper.SpeechState.Finished;
                 SpeechSetUIState(speechState);
 
                 // store debug / timing info
                 TimeSpan ts = DateTime.Now - speechStart;
-                string stateString = SpeechHelper.SpeechStateString(speechState);
+                string stateString = NuanceHelper.SpeechStateString(speechState);
                 string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, textString);
                 TraceHelper.AddMessage(traceString);
                 speechDebugString += traceString + "\n";
@@ -996,29 +996,29 @@
         /// Set the UI based on the current state of the speech state machine
         /// </summary>
         /// <param name="state"></param>
-        private void SpeechSetUIState(SpeechHelper.SpeechState state)
+        private void SpeechSetUIState(NuanceHelper.SpeechState state)
         {
             switch (state)
             {
-                case SpeechHelper.SpeechState.Initializing:
+                case NuanceHelper.SpeechState.Initializing:
                     SpeechLabelText = "initializing...";
                     SpeechButtonText = "done";
                     SpeechButtonEnabled = false;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case SpeechHelper.SpeechState.Listening:
+                case NuanceHelper.SpeechState.Listening:
                     SpeechLabelText = "listening...";
                     SpeechButtonText = "done";
                     SpeechButtonEnabled = true;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case SpeechHelper.SpeechState.Recognizing:
+                case NuanceHelper.SpeechState.Recognizing:
                     SpeechLabelText = "recognizing...";
                     SpeechButtonText = "try again";
                     SpeechButtonEnabled = false;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case SpeechHelper.SpeechState.Finished:
+                case NuanceHelper.SpeechState.Finished:
                     SpeechLabelText = "";
                     SpeechButtonText = "try again";
                     SpeechButtonEnabled = true;
