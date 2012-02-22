@@ -2,22 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Configuration;
     using System.Linq;
-    using System.Web;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.ServiceModel;
     using System.ServiceModel.Web;
-    using Microsoft.ApplicationServer.Http;
-    using System.Net.Http;
-    using System.Net;
-    using System.Net.Http.Headers;
-    using System.Configuration;
+    using System.Text.RegularExpressions;
+    using System.Web;
     using System.Web.Configuration;
     using System.Web.Security;
+    using Microsoft.ApplicationServer.Http;
 
-    using BuiltSteady.Zaplify.Website.Helpers;
-    using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Website.Models;
 
     [ServiceContract]
     [LogMessages]
@@ -63,7 +64,13 @@
                 if (createStatus == MembershipCreateStatus.DuplicateUserName)
                 {
                     return HttpStatusCode.Conflict;
-                }
+                }                
+                if (createStatus == MembershipCreateStatus.InvalidUserName ||
+                    createStatus == MembershipCreateStatus.InvalidEmail || 
+                    createStatus == MembershipCreateStatus.InvalidPassword)
+                {
+                    return HttpStatusCode.NotAcceptable;
+                } 
             }
             catch (Exception)
             { }

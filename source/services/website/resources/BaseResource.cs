@@ -8,6 +8,7 @@
     using System.Net.Http;
     using System.Runtime.Serialization.Json;
     using System.Runtime.Serialization;
+    using System.Text;
     using System.Web;
     using System.Web.Security;
 
@@ -19,6 +20,7 @@
 
     public class BaseResource
     {
+        const string authorizationHeader = "Authorization";
         const string authRequestHeader = "Cookie";
         protected StorageContext storageContext = null;
         User currentUser = null;
@@ -114,26 +116,25 @@
             }
         }
 
-        // extract username and password from message headers (passed by devices)
-        // TODO: figure out how to use auth cookie from devices
+        // extract username and password from authorization header (passed by devices)
         protected UserCredential GetUserFromMessageHeaders(HttpRequestMessage req)
         {
             LoggingHelper.TraceFunction();
 
-            IEnumerable<string> values = new List<string>();
-            if (req.Headers.TryGetValues("Zaplify-Username", out values) == false)
-            {
-                return null;
+            IEnumerable<string> header = new List<string>();
+            if (!req.Headers.TryGetValues(authorizationHeader, out header) == false)
+            {   // process basic authorization header
+                string[] headerParts = header.ToArray<string>()[0].Split(' ');
+                if (headerParts.Length > 1 && headerParts[0].Equals("Basic", StringComparison.OrdinalIgnoreCase))
+                {
+                    string credentials = Encoding.UTF8.GetString(Convert.FromBase64String(headerParts[1]));
+                    int firstColonIndex = credentials.IndexOf(':');
+                    string username = credentials.Substring(0, firstColonIndex);
+                    string password = credentials.Substring(firstColonIndex + 1);
+                    return new UserCredential() { Name = username.ToLower(), Password = password };
+                }
             }
-            string username = values.ToArray<string>()[0];
-
-            if (req.Headers.TryGetValues("Zaplify-Password", out values) == false)
-            {
-                return null;
-            }
-            string password = values.ToArray<string>()[0];
-
-            return new UserCredential() { Name = username.ToLower(), Password = password };
+            return null;
         }
 
         // base code to process message and deserialize body to expected type

@@ -29,9 +29,18 @@
 
     public class SignInModel
     {
-        [Required]
+        //[Required]
         [Display(Name = "User name")]
-        public string UserName { get; set; }
+        public string UserName 
+        {
+            get { return Email; }
+            set { Email = value; }
+        }
+
+        [Required]
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email address")]
+        public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
@@ -44,13 +53,19 @@
 
     public class RegisterModel
     {
-        [Required]
+        //[Required]
         [Display(Name = "User name")]
-        public string UserName { get; set; }
+        public string UserName
+        {
+            get { return Email; }
+            set { Email = value; }
+        }
 
         [Required]
         [DataType(DataType.EmailAddress)]
+        [RegularExpression("^[a-z0-9_\\+-]+([\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$", ErrorMessage = "Not a valid email address")]
         [Display(Name = "Email address")]
+
         public string Email { get; set; }
 
         [Required]
