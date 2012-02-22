@@ -101,8 +101,8 @@ Layout elements
 
 .header-region {   
     min-width: 600px;
-    height: 60px;
-    background: transparent url(images/header-bkgnd.png) repeat-x left -55px;
+    height: 50px;
+    background: transparent url(images/banner-bkgnd.png) repeat-x left -50px;
 }
 
 .header-content {   
@@ -125,7 +125,7 @@ Layout elements
     min-width: 600px;
     width: 100%;
     height: 25px;
-    background: transparent url(images/footer-bkgnd.png) repeat-x left 0px;   
+    background: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
 }
 
 .footer-copyright { float: right; margin: 6px 8px 0 0; }
@@ -147,7 +147,7 @@ Dialogs and Forms
 .dialog-panel {
     max-width: 490px;
     padding: 0 20px 10px 30px;
-    background: transparent url(images/panel-middle-bkgnd.png) repeat-y left 0px;
+    background: transparent url(images/panel-middle-bkgnd.png) repeat-y;
     Xborder: 1px solid red;
 }
 
@@ -158,14 +158,14 @@ Dialogs and Forms
 .dialog-panel-top {
     max-width: 540px;
     height: 20px;
-    background: transparent url(images/panel-top-bkgnd.png) no-repeat left top;
+    background: transparent url(images/panel-bkgnd.png) no-repeat left top;
     Xborder: 1px solid green;
 }
 
 .dialog-panel-bottom {
     max-width: 540px;
     height: 20px;
-    background: transparent url(images/panel-bottom-bkgnd.png) no-repeat left bottom;
+    background: transparent url(images/panel-bkgnd.png) no-repeat left bottom;
     Xborder: 1px solid blue;
 }
 

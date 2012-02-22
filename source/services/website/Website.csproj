@@ -162,11 +162,9 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="content\images\footer-bkgnd.png" />
-    <Content Include="content\images\header-bkgnd.png" />
-    <Content Include="content\images\panel-bottom-bkgnd.png" />
+    <Content Include="content\images\banner-bkgnd.png" />
+    <Content Include="content\images\panel-bkgnd.png" />
     <Content Include="content\images\panel-middle-bkgnd.png" />
-    <Content Include="content\images\panel-top-bkgnd.png" />
     <Content Include="content\images\under-construction.jpg" />
     <Content Include="content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
