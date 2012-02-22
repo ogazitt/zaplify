@@ -6,11 +6,11 @@ using System.IO.IsolatedStorage;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
-/*
+#if !IOS
 using SharpCompress.Compressor;
 using SharpCompress.Compressor.Deflate;
 using SharpCompress.Writer.GZip;
-*/
+#endif
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
