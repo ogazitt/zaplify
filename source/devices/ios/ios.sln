@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers-ios", "..\sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViewModels-ios", "..\shared\clientviewmodels\ClientViewModels-ios.csproj", "{484B23D7-99FA-456B-B3E6-756EA9843E86}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuanceSpeechKit", "nuancespeechkit\NuanceSpeechKit.csproj", "{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -17,6 +19,14 @@ Global
 		Release|iPhone = Release|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhone.Build.0 = Release|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.Build.0 = Debug|iPhone
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
@@ -52,5 +62,58 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = iphone\iphone.csproj
+		Policies = $0
+		$0.DotNetNamingPolicy = $1
+		$1.DirectoryNamespaceAssociation = None
+		$1.ResourceNamePolicy = FileFormatDefault
+		$0.TextStylePolicy = $2
+		$2.inheritsSet = null
+		$2.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $3
+		$3.IndentSwitchBody = True
+		$3.StatementBraceStyle = NextLine
+		$3.PlaceElseOnNewLine = True
+		$3.PlaceCatchOnNewLine = True
+		$3.PlaceFinallyOnNewLine = True
+		$3.PlaceWhileOnNewLine = True
+		$3.BeforeMethodDeclarationParentheses = False
+		$3.BeforeMethodCallParentheses = False
+		$3.BeforeConstructorDeclarationParentheses = False
+		$3.BeforeIndexerDeclarationBracket = False
+		$3.BeforeDelegateDeclarationParentheses = False
+		$3.NewParentheses = False
+		$3.SpacesBeforeBrackets = False
+		$3.inheritsSet = Mono
+		$3.inheritsScope = text/x-csharp
+		$3.scope = text/x-csharp
+		$0.TextStylePolicy = $4
+		$4.FileWidth = 120
+		$4.inheritsSet = VisualStudio
+		$4.inheritsScope = text/plain
+		$4.scope = text/plain
+		$0.TextStylePolicy = $5
+		$5.inheritsSet = null
+		$5.scope = application/vnd.apple-interface-builder
+		$0.XmlFormattingPolicy = $6
+		$6.inheritsSet = null
+		$6.scope = application/vnd.apple-interface-builder
+		$0.TextStylePolicy = $7
+		$7.inheritsSet = null
+		$7.scope = application/xml
+		$0.XmlFormattingPolicy = $8
+		$8.inheritsSet = Mono
+		$8.inheritsScope = application/xml
+		$8.scope = application/xml
+		$0.StandardHeader = $9
+		$9.Text = 
+		$9.IncludeInNewFiles = True
+		$0.VersionControlPolicy = $10
+		$10.inheritsSet = Mono
+		$0.ChangeLogPolicy = $11
+		$11.UpdateMode = None
+		$11.MessageStyle = $12
+		$12.LineAlign = 0
+		$11.inheritsSet = Mono
+		description = Zaplify
 	EndGlobalSection
 EndGlobal

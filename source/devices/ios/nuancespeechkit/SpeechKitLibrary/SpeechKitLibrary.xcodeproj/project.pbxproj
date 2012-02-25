@@ -1,0 +1,245 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		20B3C00514F871430004E2E9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20B3C00414F871430004E2E9 /* Foundation.framework */; };
+		20B3C00B14F871430004E2E9 /* SpeechKitLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 20B3C00A14F871430004E2E9 /* SpeechKitLibrary.m */; };
+		20B3C01214F871E60004E2E9 /* SpeechKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20B3C01114F871E60004E2E9 /* SpeechKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		20B3C00114F871430004E2E9 /* libSpeechKitLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSpeechKitLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		20B3C00414F871430004E2E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		20B3C00814F871430004E2E9 /* SpeechKitLibrary-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SpeechKitLibrary-Prefix.pch"; sourceTree = "<group>"; };
+		20B3C00914F871430004E2E9 /* SpeechKitLibrary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeechKitLibrary.h; sourceTree = "<group>"; };
+		20B3C00A14F871430004E2E9 /* SpeechKitLibrary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SpeechKitLibrary.m; sourceTree = "<group>"; };
+		20B3C01114F871E60004E2E9 /* SpeechKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SpeechKit.framework; path = ../../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/SpeechKit.framework; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		20B3BFFE14F871430004E2E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20B3C01214F871E60004E2E9 /* SpeechKit.framework in Frameworks */,
+				20B3C00514F871430004E2E9 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		20B3BFF614F871430004E2E9 = {
+			isa = PBXGroup;
+			children = (
+				20B3C00614F871430004E2E9 /* SpeechKitLibrary */,
+				20B3C00314F871430004E2E9 /* Frameworks */,
+				20B3C00214F871430004E2E9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		20B3C00214F871430004E2E9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				20B3C00114F871430004E2E9 /* libSpeechKitLibrary.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		20B3C00314F871430004E2E9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				20B3C01114F871E60004E2E9 /* SpeechKit.framework */,
+				20B3C00414F871430004E2E9 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		20B3C00614F871430004E2E9 /* SpeechKitLibrary */ = {
+			isa = PBXGroup;
+			children = (
+				20B3C00914F871430004E2E9 /* SpeechKitLibrary.h */,
+				20B3C00A14F871430004E2E9 /* SpeechKitLibrary.m */,
+				20B3C00714F871430004E2E9 /* Supporting Files */,
+			);
+			path = SpeechKitLibrary;
+			sourceTree = "<group>";
+		};
+		20B3C00714F871430004E2E9 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				20B3C00814F871430004E2E9 /* SpeechKitLibrary-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		20B3BFFF14F871430004E2E9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		20B3C00014F871430004E2E9 /* SpeechKitLibrary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 20B3C00E14F871430004E2E9 /* Build configuration list for PBXNativeTarget "SpeechKitLibrary" */;
+			buildPhases = (
+				20B3BFFD14F871430004E2E9 /* Sources */,
+				20B3BFFE14F871430004E2E9 /* Frameworks */,
+				20B3BFFF14F871430004E2E9 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SpeechKitLibrary;
+			productName = SpeechKitLibrary;
+			productReference = 20B3C00114F871430004E2E9 /* libSpeechKitLibrary.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		20B3BFF814F871430004E2E9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = 20B3BFFB14F871430004E2E9 /* Build configuration list for PBXProject "SpeechKitLibrary" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 20B3BFF614F871430004E2E9;
+			productRefGroup = 20B3C00214F871430004E2E9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				20B3C00014F871430004E2E9 /* SpeechKitLibrary */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		20B3BFFD14F871430004E2E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20B3C00B14F871430004E2E9 /* SpeechKitLibrary.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		20B3C00C14F871430004E2E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		20B3C00D14F871430004E2E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		20B3C00F14F871430004E2E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/SpeechKitLibrary.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../packages/Nuance.SpeechKit.1.0.1/lib/objc\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SpeechKitLibrary/SpeechKitLibrary-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		20B3C01014F871430004E2E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/SpeechKitLibrary.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../../../../packages/Nuance.SpeechKit.1.0.1/lib/objc\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "SpeechKitLibrary/SpeechKitLibrary-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		20B3BFFB14F871430004E2E9 /* Build configuration list for PBXProject "SpeechKitLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				20B3C00C14F871430004E2E9 /* Debug */,
+				20B3C00D14F871430004E2E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		20B3C00E14F871430004E2E9 /* Build configuration list for PBXNativeTarget "SpeechKitLibrary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				20B3C00F14F871430004E2E9 /* Debug */,
+				20B3C01014F871430004E2E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 20B3BFF814F871430004E2E9 /* Project object */;
+}

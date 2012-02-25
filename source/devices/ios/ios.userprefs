@@ -2,39 +2,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" ActiveRuntime="Mono 2.10.8" />
   <MonoDevelop.Ide.Workbench ActiveDocument="iphone/AddPage.cs">
     <Files>
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/JsonSerializer.cs" Line="432" Column="1" />
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/Serialization/JsonSerializerInternalWriter.cs" Line="86" Column="1" />
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/Serialization/DefaultContractResolver.cs" Line="89" Column="40" />
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/Utilities/ThreadSafeStore.cs" Line="27" Column="1" />
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/Serialization/JsonTypeReflector.cs" Line="296" Column="1" />
-      <File FileName="../../../../Downloads/ayoung-Newtonsoft.Json-a77ac54/Newtonsoft.Json/Utilities/ReflectionUtils.cs" Line="743" Column="1" />
-      <File FileName="iphone/AddPage.cs" Line="67" Column="19" />
-      <File FileName="iphone/SettingsPage.cs" Line="1" Column="1" />
-      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="1" Column="1" />
-      <File FileName="../shared/clienthelpers/WebServiceHelper.cs" Line="296" Column="35" />
-      <File FileName="iphone/App.cs" Line="1" Column="1" />
-      <File FileName="iphone/CalendarPage.cs" Line="53" Column="1" />
-      <File FileName="iphone/ItemPage.cs" Line="1" Column="1" />
-      <File FileName="iphone/controls/ButtonListElement.cs" Line="1" Column="1" />
-      <File FileName="iphone/ListViewController.cs" Line="1" Column="1" />
-      <File FileName="iphone/FoldersViewController.cs" Line="1" Column="1" />
-      <File FileName="../shared/cliententities/Color.cs" Line="1" Column="1" />
+      <File FileName="iphone/AddPage.cs" Line="574" Column="19" />
+      <File FileName="iphone/NuanceHelper-ios.cs" Line="86" Column="48" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="ClientEntities-ios" expanded="True" />
-          <Node name="ClientHelpers-ios" expanded="True">
-            <Node name="References" expanded="True" />
-          </Node>
-          <Node name="ClientViewModels-ios" expanded="True">
-            <Node name="References" expanded="True" />
-          </Node>
-          <Node name="iphone" expanded="True" selected="True">
-            <Node name="References" expanded="True" />
-            <Node name="controls" expanded="True" />
-            <Node name="ListViewController.cs" expanded="True" />
-          </Node>
+          <Node name="iphone" expanded="True" selected="True" />
         </State>
       </Pad>
       <Pad Id="ClassPad">
@@ -46,12 +20,8 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="900" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/SettingsPage.cs" line="124" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="228" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/WebServiceHelper.cs" line="156" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <AuthorInfo Name="Omri Gazitt" Email="ogazitt@builtsteady.com" Copyright="2012" Company="BuiltSteady, Inc." Trademark="" />
 </Properties>

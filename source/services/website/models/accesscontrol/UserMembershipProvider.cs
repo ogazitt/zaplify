@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Security.Cryptography;
     using System.Security.Principal;
+    using System.Text.RegularExpressions;
     using System.Web.Security;
     using System.Web;
 
@@ -48,10 +49,24 @@
             status = MembershipCreateStatus.Success;
             CredentialStorageContext storage = Storage.NewCredentialContext;
 
+            const string emailPattern = "^[a-z0-9_\\+-]+([\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
+            if (!Regex.IsMatch(email.ToLower(), emailPattern))
+            {   // not valid email address
+                status = MembershipCreateStatus.InvalidEmail;
+                LoggingHelper.TraceInfo("Failed to create user account due to invalid email: " + email);
+                return null;
+            }
+
+            if (password.Length < MinRequiredPasswordLength)
+            {   // not a valid password
+                status = MembershipCreateStatus.InvalidPassword;
+                LoggingHelper.TraceInfo("Failed to create user account due to invalid password: " + password);
+                return null;
+            }
+
             if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
-                // Log failure to create duplicate user account
                 LoggingHelper.TraceInfo("Failed to create duplicate user account: " + username);
                 return null;
             }

@@ -100,11 +100,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void CreateUserButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Username.Text == null || Username.Text == "" ||
-                Password.Password == null || Password.Password == "" ||
-                Email.Text == null || Email.Text == "")
+            if (Email.Text == null || Email.Text == "" ||
+                Password.Password == null || Password.Password == "")
             {
-                MessageBox.Show("please enter a username, password, and email address");
+                MessageBox.Show("please enter a valid email address and password");
                 return;
             }
 
@@ -126,7 +125,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 }
             }
 
-            User user = new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text };
+            User user = new User() { Email = Email.Text, Password = Password.Password };
             App.ViewModel.User = user;
 
             WebServiceHelper.CreateUser(
@@ -181,7 +180,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             else
             {
                 // save the new account information
-                User user = new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text };
+                User user = new User() { Email = Email.Text, Password = Password.Password };
                 App.ViewModel.User = user;
             }
 
@@ -217,7 +216,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 }
             }
 
-            User user = new User() { Name = Username.Text, Password = Password.Password, Email = Email.Text };
+            User user = new User() { Email = Email.Text, Password = Password.Password };
             App.ViewModel.User = user;
 
             WebServiceHelper.VerifyUserCredentials(
@@ -228,23 +227,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void Textbox_LostFocus(object sender, RoutedEventArgs e)
         {
-            // all textboxes must have values for the create user button to be enabled
-            if (Username.Text == null || Username.Text == "" ||
-                Password.Password == null || Password.Password == "" ||
-                Email.Text == null || Email.Text == "")
+            // must have values for the create user button to be enabled
+            if (Email.Text == null || Email.Text == "" ||
+                Password.Password == null || Password.Password == "")
                 CreateUserButton.IsEnabled = false;
             else
                 CreateUserButton.IsEnabled = true;
 
-            // username and password textboxes must have valid values for the sync button to be enabled
-            if (Username.Text == null || Username.Text == "" ||
+            // email and password textboxes must have valid values for the sync button to be enabled
+            if (Email.Text == null || Email.Text == "" ||
                 Password.Password == null || Password.Password == "")
                 SyncUserButton.IsEnabled = false;
             else
                 SyncUserButton.IsEnabled = true;
 
-            // username must be different than the current username (if any) for create user button to be enabled
-            if (App.ViewModel.User != null && App.ViewModel.User.Name == Username.Text)
+            // email must be different than the current email (if any) for create user button to be enabled
+            if (App.ViewModel.User != null && App.ViewModel.User.Name == Email.Text)
                 CreateUserButton.IsEnabled = false;
 
             // indicate that the account text is modified
@@ -264,14 +262,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 switch (code)
                 {
                     case HttpStatusCode.OK:
-                        MessageBox.Show(String.Format("successfully linked with {0} account; data sync will start automatically.", Username.Text));
+                        MessageBox.Show(String.Format("successfully linked with {0} account; data sync will start automatically.", Email.Text));
                         accountOperationSuccessful = true;
                         user.Synced = true;
                         App.ViewModel.User = user;
                         App.ViewModel.SyncWithService();
                         break;
                     case HttpStatusCode.NotFound:
-                        MessageBox.Show(String.Format("user {0} not found", Username.Text));
+                        MessageBox.Show(String.Format("user {0} not found", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                     case HttpStatusCode.Forbidden:
@@ -283,7 +281,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("account {0} was not successfully paired", Username.Text));
+                        MessageBox.Show(String.Format("account {0} was not successfully paired", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                 }
@@ -303,22 +301,26 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 {
                     case HttpStatusCode.OK:
                     case HttpStatusCode.Created:
-                        MessageBox.Show(String.Format("user account {0} successfully created", Username.Text));
+                        MessageBox.Show(String.Format("user account {0} successfully created", Email.Text));
                         accountOperationSuccessful = true;
                         user.Synced = true;
                         App.ViewModel.User = user;
                         App.ViewModel.SyncWithService();
                         break;
                     case HttpStatusCode.NotFound:
-                        MessageBox.Show(String.Format("user {0} not found", Username.Text));
+                        MessageBox.Show(String.Format("user {0} not found", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                     case HttpStatusCode.Conflict:
-                        MessageBox.Show(String.Format("user {0} already exists", Username.Text));
+                        MessageBox.Show(String.Format("user {0} already exists", Email.Text));
+                        accountOperationSuccessful = false;
+                        break;
+                    case HttpStatusCode.NotAcceptable:
+                        MessageBox.Show(String.Format("email address {0} in invalid OR password is not strong enough", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                     case HttpStatusCode.InternalServerError:
-                        MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", Username.Text));
+                        MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                     case null:
@@ -326,7 +328,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("user {0} was not created", Username.Text));
+                        MessageBox.Show(String.Format("user {0} was not created", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                 }

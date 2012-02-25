@@ -17,14 +17,6 @@
                 <legend>User Information</legend>
                 
                 <div class="dialog-label">
-                    <%: Html.LabelFor(m => m.UserName) %>
-                </div>
-                <div class="dialog-field">
-                    <%: Html.TextBoxFor(m => m.UserName) %>
-                    <%: Html.ValidationMessageFor(m => m.UserName) %>
-                </div>
-                
-                <div class="dialog-label">
                     <%: Html.LabelFor(m => m.Email) %>
                 </div>
                 <div class="dialog-field">

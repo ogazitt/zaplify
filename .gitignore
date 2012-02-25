@@ -1,5 +1,7 @@
 bin/
 obj/
+tmp/
+build/
 .DS_Store
 service/website/bin/
 source/devices/winphone/winphone/PerformanceLogs/

@@ -6,11 +6,13 @@ using System.IO.IsolatedStorage;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
+
 #if !IOS
 using SharpCompress.Compressor;
 using SharpCompress.Compressor.Deflate;
 using SharpCompress.Writer.GZip;
 #endif
+
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
@@ -25,6 +27,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
     public class WebServiceHelper
     {
+        const string authorizationHeader = "Authorization";
         const string authResponseHeader = "Set-Cookie";
         const string authRequestHeader = "Cookie";
         static string authCookie = null;
@@ -97,6 +100,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         public static void CreateUser(User user, Delegate del, Delegate netOpInProgressDel)
         {
+            authCookie = null;  // do NOT use cookie of previous user
             InvokeWebServiceRequest(user, BaseUrl + "/users", "POST", user, del, netOpInProgressDel, new AsyncCallback(ProcessUser));
         }
 
@@ -230,13 +234,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             request.Method = verb == null ? "GET" : verb;
 
             if (authCookie != null)
-            {
+            {   // send auth cookie
                 request.Headers[authRequestHeader] = authCookie;
             }
             else if (user != null)
-            {
-                request.Headers["Zaplify-Username"] = user.Name;
-                request.Headers["Zaplify-Password"] = user.Password;
+            {   // send credentials in authorization header
+                string credentials = string.Format("{0}:{1}", user.Name, user.Password);
+                string encodedCreds = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(credentials));
+                request.Headers[authorizationHeader] = string.Format("Basic {0}", encodedCreds);
             }
 
             // if this is a GET request, we can execute from here

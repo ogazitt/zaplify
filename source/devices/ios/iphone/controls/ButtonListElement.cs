@@ -33,7 +33,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 
 			Buttons.Add (button);
 		}
-
+  
 		public int AddAll (IEnumerable<Button> buttons)
 		{
 			int count = 0;
@@ -43,7 +43,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			}
 			return count;
 		}
-		
+
+        public void Add(IEnumerable<Button> buttons) 
+        {
+            AddAll(buttons);
+        }
+     
+
 		public override UITableViewCell GetCell (UITableView tv)
 		{
 			// always create a new cell instead of dequeuing a proper cell - this is because
@@ -81,8 +87,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 					button.SetTitleColor(btn.TextColor ?? UIColor.White, UIControlState.Normal);
 					button.Font = btn.Font ?? UIFont.BoldSystemFontOfSize(17);
 				}
-				if (btn.Clicked != null)
-					button.TouchUpInside += btn.Clicked;
+				Button savedButton = btn;
+                if (btn.Clicked != null)
+                {   
+					button.TouchUpInside += (s, e) => { savedButton.Clicked(savedButton, e); };
+                }
 				// retain a reference to the button (otherwise it somehow falls out of scope and gets GC'd 
 				// causing a SIGSEGV when the event handler is invoked)
 				btn.ButtonReference = button;

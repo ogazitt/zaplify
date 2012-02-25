@@ -24,6 +24,8 @@
     <MtouchProfiling>true</MtouchProfiling>
     <MtouchLink>None</MtouchLink>
     <MtouchI18n />
+    <MtouchExtraArgs>-gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit"
+</MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -34,6 +36,9 @@
     <ConsolePause>false</ConsolePause>
     <MtouchLink>None</MtouchLink>
     <DefineConstants>IOS;</DefineConstants>
+    <MtouchExtraArgs>-gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit"
+</MtouchExtraArgs>
+    <MtouchI18n />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,7 +54,8 @@
     <MtouchProfiling>true</MtouchProfiling>
     <IpaPackageName />
     <MtouchI18n />
-    <MtouchExtraArgs>-aot "nimt-trampolines=512" </MtouchExtraArgs>
+    <MtouchExtraArgs>-aot "nimt-trampolines=512" -gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit -framework SystemConfiguration -framework Security -framework AVFoundation"
+</MtouchExtraArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -59,6 +65,9 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchExtraArgs>-aot "nimt-trampolines=512" -gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit -framework SystemConfiguration -framework Security -framework AVFoundation""
+</MtouchExtraArgs>
+    <MtouchI18n />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -66,6 +75,9 @@
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
     <Reference Include="MonoTouch.Dialog-1" />
+    <Reference Include="SpeechKitLibraryBinder">
+      <HintPath>..\..\..\packages\Nuance.SpeechKit.1.0.1\lib\mono\SpeechKitLibraryBinder.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -99,6 +111,7 @@
     <Compile Include="AddPage.cs" />
     <Compile Include="CalendarPage.cs" />
     <Compile Include="controls\MultilineEntryElement.cs" />
+    <Compile Include="NuanceHelper-ios.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />

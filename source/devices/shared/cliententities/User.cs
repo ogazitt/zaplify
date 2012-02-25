@@ -27,10 +27,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid id;
-        /// <summary>
-        /// ID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override Guid ID
         {
@@ -48,33 +44,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override string Name
         {
             get
             {
-                return name;
+                return Email;
             }
             set
             {
-                if (value != name)
-                {
-                    name = value;
-                    NotifyPropertyChanged("Name");
-                }
+                Email = value;
             }
         }
 
         private string password;
-        /// <summary>
-        /// Password property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Password
         {
@@ -93,10 +76,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string email;
-        /// <summary>
-        /// Email property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Email
         {
@@ -115,10 +94,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Folder> folders;
-        /// <summary>
-        /// Folders collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Folder> Folders
         {
@@ -137,10 +112,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<ItemType> itemTypes;
-        /// <summary>
-        /// ItemTypes collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<ItemType> ItemTypes
         {
@@ -159,10 +130,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Tag> tags;
-        /// <summary>
-        /// Tags collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Tag> Tags
         {

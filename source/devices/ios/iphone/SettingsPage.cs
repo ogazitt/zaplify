@@ -19,7 +19,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		private User user;
 		private EntryElement Username;
 		private EntryElement Password;
-		private EntryElement Email;
 		private CheckboxElement MergeCheckbox;
         private bool accountOperationSuccessful = false;
 				
@@ -39,9 +38,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			// initialize controls
 			user = App.ViewModel.User;	
-			Username = new EntryElement("Username", "Enter username", user != null ? user.Name : "");
+			Username = new EntryElement("Email", "Enter email", user != null ? user.Name : "");
 			Password = new EntryElement("Password", "Enter password", user != null ? user.Password : "", true);
-			Email = new EntryElement("Email", "Enter email", user != null ? user.Email : "");
 			MergeCheckbox = new CheckboxElement("Merge local data?", true);
 			
 			var root = new RootElement("Settings")
@@ -50,7 +48,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				{
 					Username,
 					Password,
-					Email,
 					MergeCheckbox,
 				},
 				new Section()
@@ -85,10 +82,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // make sure the values are updated
 			Username.FetchValue();
 			Password.FetchValue();
-			Email.FetchValue();
 			if (Username.Value == null || Username.Value == "" ||
-                Password.Value == null || Password.Value == "" ||
-                Email.Value == null || Email.Value == "")
+                Password.Value == null || Password.Value == "")
             {
                 MessageBox.Show("please enter a username, password, and email address");
                 return;
@@ -113,7 +108,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 
             WebServiceHelper.CreateUser(
-                new User() { Name = Username.Value, Password = Password.Value, Email = Email.Value },
+                new User() { Name = Username.Value, Password = Password.Value, Email = Username.Value },
                 new CreateUserCallbackDelegate(CreateUserCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
         }
@@ -123,7 +118,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // make sure the values are updated
 			Username.FetchValue();
 			Password.FetchValue();
-			Email.FetchValue();
+			//Email.FetchValue();
 			if (MergeCheckbox.Value == true)
             {
 				MessageBoxResult result = MessageBox.Show(
@@ -145,7 +140,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }
             }
 
-            User user = new User() { Name = Username.Value, Password = Password.Value, Email = Email.Value };
+            User user = new User() { Name = Username.Value, Password = Password.Value, Email = Username.Value };
 
             WebServiceHelper.VerifyUserCredentials(
                 user,
