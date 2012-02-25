@@ -1,24 +1,6 @@
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using System.IO;
-using System.Collections.Generic;
-using NSpeex;
-using System.Windows.Resources;
-using Microsoft.Phone.Net.NetworkInformation;
 using System.Threading;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 using com.nuance.nmdp.speechkit;
 using com.nuance.nmdp.speechkit.oem;
 
