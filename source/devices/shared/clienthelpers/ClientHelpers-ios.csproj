@@ -90,4 +90,7 @@
       <Name>ClientEntities-ios</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="beep.wav" />
+  </ItemGroup>
 </Project>
