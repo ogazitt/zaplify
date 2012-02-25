@@ -14,5 +14,6 @@ XapCacheFile.xml
 *.mdb
 *.build.csdef
 *.exe
+libSpeechKitLibrary*.a
 ~$*.*
 *~

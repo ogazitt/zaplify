@@ -65,9 +65,11 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <CodesignKey>iPhone Developer</CodesignKey>
-    <MtouchExtraArgs>-aot "nimt-trampolines=512" -gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit -framework SystemConfiguration -framework Security -framework AVFoundation""
-</MtouchExtraArgs>
+    <MtouchExtraArgs>-aot "nimt-trampolines=512" -gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit -framework SystemConfiguration -framework Security -framework AVFoundation -framework AudioToolbox"</MtouchExtraArgs>
     <MtouchI18n />
+    <MtouchUseLlvm>true</MtouchUseLlvm>
+    <MtouchArch>ARMv7</MtouchArch>
+    <IpaPackageName />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

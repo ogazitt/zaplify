@@ -1,13 +1,16 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" ActiveRuntime="Mono 2.10.8" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="iphone/AddPage.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|iPhone" ActiveRuntime="Mono 2.10.8" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../shared/clienthelpers/IsolatedStorageSettings-ios.cs">
     <Files>
       <File FileName="iphone/AddPage.cs" Line="574" Column="19" />
-      <File FileName="iphone/NuanceHelper-ios.cs" Line="86" Column="48" />
+      <File FileName="iphone/NuanceHelper-ios.cs" Line="1" Column="1" />
+      <File FileName="../shared/clienthelpers/StorageHelper.cs" Line="27" Column="29" />
+      <File FileName="../shared/clienthelpers/IsolatedStorageSettings-ios.cs" Line="30" Column="19" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
+          <Node name="ClientHelpers-ios" expanded="True" />
           <Node name="iphone" expanded="True" selected="True" />
         </State>
       </Pad>

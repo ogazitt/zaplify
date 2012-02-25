@@ -27,7 +27,7 @@
 //
 
 // users of the desktop moonlight libraries needs to use the "standard" isolated storage from the .net framework
-#if NET_2_1 || DEBUG
+#if NET_2_1 || IOS
 
 using System;
 using System.Collections;
