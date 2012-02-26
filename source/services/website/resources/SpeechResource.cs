@@ -81,7 +81,7 @@
                 sre.SetInputToAudioStream(stream, formatInfo);
 
 #if WRITEFILE || DEBUG
-                string msg = WriteSpeechFile(CurrentUserName, stream);
+                string msg = WriteSpeechFile(CurrentUser.Name, stream);
                 if (msg != null)
                     return new HttpResponseMessageWrapper<string>(req, msg, HttpStatusCode.OK);
 #endif

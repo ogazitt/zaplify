@@ -1,0 +1,114 @@
+﻿/*----------------------------------------------------------
+Dashboard elements
+----------------------------------------------------------*/
+
+.dashboard-region {
+    min-width: 960px;
+}
+
+.dashboard-list {
+    display: inline-block;
+    padding: 5px 0 5px 0;
+    width: 200px;
+    min-height: 400px;
+    background-color: #EEECE1;
+    border-width: 0px 1px 1px 0px;
+    border-style: solid;
+    border-color: #C4BD97;
+}
+
+.dashboard-manager {
+    display: inline-block;
+    margin: 0 12px 0 12px;
+    width: 55%;
+    min-width: 360px;
+    xborder: 1px dashed blue;
+}
+
+.dashboard-folders {
+    float:left;
+}
+
+.dashboard-suggestions {
+    float:right;
+}
+
+.folder-button {
+    cursor: pointer;
+    margin: 4px 10px 0 10px;
+    padding: 4px 0 2px 0;
+    width: 180px;
+    height: 20px;
+    position: relative;
+    text-align: center;
+    background-color: #AEC2D0;
+    xborder: 1px dotted red;
+}
+
+.folder-button:hover {
+    font-weight: bold;
+}
+
+.folder-button.expanded {
+    font-weight: bold;
+}
+
+.folder-button.selected {
+    color: #E2E6E6;
+    background-color: #50738A;
+}
+
+.folder-button .folder-selector {
+    display: inline-block;
+    position: absolute;
+    top: 3px;
+    right: 2px;
+    width: 12px;
+    height: 21px;
+    background: transparent url(images/folder-selector.png) no-repeat left top;
+}
+
+.folder-button.selected .folder-selector {
+    background: transparent url(images/folder-selected.png) no-repeat left top;
+}
+
+.folder-items {
+    cursor: pointer;
+    margin: 1px 10px 0 10px;
+    width: 178px;
+    min-height: 176px;
+    max-height: 264px;
+    border: 1px solid #C4BD97;
+    background-color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.list-items {
+    min-height: 20px;
+}
+
+.item-list-button {
+    padding: 2px;
+    background-color: #DDD9C3;
+    border-bottom: 1px solid #C4BD97;
+}
+
+.item-list-button.expanded {
+    font-weight: bold;
+}
+
+.item-list-button.selected {
+    background-color: #ECE4B2;
+}
+
+.item-button {
+    padding: 2px;
+    border-bottom: 1px solid #DDD9C3;
+}
+
+.item-button.selected {
+    background-color: #F5F0D2;
+}
+
+.indent-1 { padding-left: 12px; }

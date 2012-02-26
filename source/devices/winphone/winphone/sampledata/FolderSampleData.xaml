@@ -1,23 +1,23 @@
-<local:MainViewModel 
+<viewmodel:MainViewModel 
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:BuiltSteady.Zaplify.Devices.WinPhone"
-    xmlns:zaplify="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
+    xmlns:viewmodel="clr-namespace:BuiltSteady.Zaplify.Devices.ClientViewModels;assembly=BuiltSteady.Zaplify.Devices.ClientViewModels"
+    xmlns:entities="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
 
-    <local:MainViewModel.Folders>
-        <zaplify:Folder Name="list one">
-            <zaplify:Folder.Items>
-                <zaplify:Item Name="item one" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="true" Due="2011-07-17" PriorityID="1" Description="do item one" />
-                <zaplify:Item Name="item two" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="false" PriorityID="2" />
-                <zaplify:Item Name="item three" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" PriorityID="3" Due="2011-07-31" Description="do item three" />
-            </zaplify:Folder.Items>
-        </zaplify:Folder>
-        <zaplify:Folder Name="list two">
-            <zaplify:Folder.Items>
-                <zaplify:Item Name="l2 item one" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="1" Description="do l2 item one" />
-                <zaplify:Item Name="l2 item two" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="2" Description="do l2 item two" />
-                <zaplify:Item Name="l2 item three" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="3" Description="do l2 item three" />
-            </zaplify:Folder.Items>
-        </zaplify:Folder>        
-     </local:MainViewModel.Folders>
-</local:MainViewModel>
+    <viewmodel:MainViewModel.Folders>
+        <entities:Folder Name="list one">
+            <entities:Folder.Items>
+                <entities:Item Name="item one" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="true" Due="2011-07-17" PriorityID="1" Description="do item one" />
+                <entities:Item Name="item two" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="false" PriorityID="2" />
+                <entities:Item Name="item three" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" PriorityID="3" Due="2011-07-31" Description="do item three" />
+            </entities:Folder.Items>
+        </entities:Folder>
+        <entities:Folder Name="list two">
+            <entities:Folder.Items>
+                <entities:Item Name="l2 item one" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="1" Description="do l2 item one" />
+                <entities:Item Name="l2 item two" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="2" Description="do l2 item two" />
+                <entities:Item Name="l2 item three" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" PriorityID="3" Description="do l2 item three" />
+            </entities:Folder.Items>
+        </entities:Folder>        
+     </viewmodel:MainViewModel.Folders>
+</viewmodel:MainViewModel>

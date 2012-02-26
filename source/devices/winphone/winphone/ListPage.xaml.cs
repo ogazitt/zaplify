@@ -694,7 +694,7 @@
 
             // hack: special-case processing for To Do item types
             // set the complete field to false 
-            if (item.ItemTypeID == ItemType.ToDoItem)
+            if (item.ItemTypeID == ItemType.Task)
                 item.Complete = false;
 
             // enqueue the Web Request Record
@@ -976,6 +976,11 @@
         {
             QuickAddPopupItemTypePicker.ItemsSource = App.ViewModel.ItemTypes;
             QuickAddPopupItemTypePicker.DisplayMemberPath = "Name";
+
+            if (list.ItemTypeID == null || list.ItemTypeID == Guid.Empty)
+            {
+                list.ItemTypeID = folder.DefaultItemTypeID;
+            }
 
             // set the selected index 
             if (list.ItemTypeID != null && list.ItemTypeID != Guid.Empty)

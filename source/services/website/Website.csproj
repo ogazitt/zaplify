@@ -140,7 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="controllers\AccountController.cs" />
-    <Compile Include="controllers\HomeController.cs" />
+    <Compile Include="controllers\BaseController.cs" />
+    <Compile Include="controllers\DashboardController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -148,6 +149,7 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
+    <Compile Include="models\DataModels.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
     <Compile Include="resources\ConstantsResource.cs" />
@@ -162,66 +164,12 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\dashboard\Dashboard.css" />
+    <Content Include="content\dashboard\images\folder-selected.png" />
+    <Content Include="content\dashboard\images\folder-selector.png" />
     <Content Include="content\images\banner-bkgnd.png" />
     <Content Include="content\images\panel-bkgnd.png" />
     <Content Include="content\images\panel-middle-bkgnd.png" />
-    <Content Include="content\images\under-construction.jpg" />
-    <Content Include="content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="content\themes\base\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="content\themes\base\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="content\themes\base\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="content\themes\base\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="content\themes\base\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="content\themes\base\images\ui-icons_222222_256x240.png" />
-    <Content Include="content\themes\base\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="content\themes\base\images\ui-icons_454545_256x240.png" />
-    <Content Include="content\themes\base\images\ui-icons_888888_256x240.png" />
-    <Content Include="content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="content\themes\base\jquery-ui.css" />
-    <Content Include="content\themes\base\jquery.ui.accordion.css" />
-    <Content Include="content\themes\base\jquery.ui.all.css" />
-    <Content Include="content\themes\base\jquery.ui.autocomplete.css" />
-    <Content Include="content\themes\base\jquery.ui.base.css" />
-    <Content Include="content\themes\base\jquery.ui.button.css" />
-    <Content Include="content\themes\base\jquery.ui.core.css" />
-    <Content Include="content\themes\base\jquery.ui.datepicker.css" />
-    <Content Include="content\themes\base\jquery.ui.dialog.css" />
-    <Content Include="content\themes\base\jquery.ui.progressbar.css" />
-    <Content Include="content\themes\base\jquery.ui.resizable.css" />
-    <Content Include="content\themes\base\jquery.ui.selectable.css" />
-    <Content Include="content\themes\base\jquery.ui.slider.css" />
-    <Content Include="content\themes\base\jquery.ui.tabs.css" />
-    <Content Include="content\themes\base\jquery.ui.theme.css" />
-    <Content Include="content\themes\base\minified\images\ui-bg_flat_0_aaaaaa_40x100.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_flat_75_ffffff_40x100.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_glass_55_fbf9ee_1x400.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_glass_65_ffffff_1x400.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_glass_75_dadada_1x400.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_glass_75_e6e6e6_1x400.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_glass_95_fef1ec_1x400.png" />
-    <Content Include="content\themes\base\minified\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
-    <Content Include="content\themes\base\minified\images\ui-icons_222222_256x240.png" />
-    <Content Include="content\themes\base\minified\images\ui-icons_2e83ff_256x240.png" />
-    <Content Include="content\themes\base\minified\images\ui-icons_454545_256x240.png" />
-    <Content Include="content\themes\base\minified\images\ui-icons_888888_256x240.png" />
-    <Content Include="content\themes\base\minified\images\ui-icons_cd0a0a_256x240.png" />
-    <Content Include="content\themes\base\minified\jquery-ui.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.accordion.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.all.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.autocomplete.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.base.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.button.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.core.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.datepicker.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.dialog.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.progressbar.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.resizable.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.selectable.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.slider.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.tabs.min.css" />
-    <Content Include="content\themes\base\minified\jquery.ui.theme.min.css" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="scripts\jquery-1.7.1-vsdoc.js" />
@@ -233,6 +181,8 @@
     <Content Include="scripts\jquery.validate.js" />
     <Content Include="scripts\jquery.validate.min.js" />
     <Content Include="scripts\modernizr-2.0.6-development-only.js" />
+    <Content Include="scripts\dashboard\controls.js" />
+    <Content Include="scripts\shared\datamodel.js" />
     <Content Include="startup\7z.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -252,6 +202,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="views\account\SignIn.aspx" />
+    <Content Include="views\dashboard\About.aspx" />
+    <Content Include="views\dashboard\Home.aspx" />
     <Content Include="views\shared\SignInControl.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -276,8 +228,6 @@
     <Content Include="views\account\ChangePassword.aspx" />
     <Content Include="views\account\ChangePasswordSuccess.aspx" />
     <Content Include="views\account\Register.aspx" />
-    <Content Include="views\home\About.aspx" />
-    <Content Include="views\home\Index.aspx" />
     <Content Include="views\shared\Error.aspx" />
     <Content Include="views\shared\Site.Master" />
     <Content Include="views\Web.config">

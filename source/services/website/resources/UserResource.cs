@@ -99,7 +99,7 @@
 
             // verify credentials passed in headers match the user in request body
             // disallows one user deleting another user (may want to allow in future with proper permissions)
-            if (requestedUser.Name.Equals(CurrentUserName, StringComparison.OrdinalIgnoreCase))
+            if (requestedUser.Name.Equals(CurrentUser.Name, StringComparison.OrdinalIgnoreCase))
             {
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
             }
@@ -113,7 +113,7 @@
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Forbidden);
                 }
                 
-                if (Membership.DeleteUser(CurrentUserName))
+                if (Membership.DeleteUser(CurrentUser.Name))
                 {   // delete user and all related data
                     return new HttpResponseMessageWrapper<User>(req, requestedUser, HttpStatusCode.Accepted);
                 }
@@ -135,25 +135,10 @@
             }
 
             try
-            {              
-                // TODO: avoid doing two storage accesses, ID is accessed during authentication 
-                User userData = this.StorageContext.Users.Include("Folders").Single<User>(u => u.Name == CurrentUserName);                
-                if (userData.Folders != null && userData.Folders.Count > 0)
-                {   // get user and all top-level data
-                    userData = this.StorageContext.Users.
-                        Include("ItemTypes.Fields").
-                        Include("Tags").
-                        Include("Folders.FolderUsers").
-                        Include("Folders.Items.ItemTags").
-                        Include("Folders.Items.FieldValues").
-                        Single<User>(u => u.ID == userData.ID && u.Folders.Any(f => f.FolderUsers.Any(fu => fu.UserID == userData.ID)));
-                    
-                    // Items are already serialized under Folders, don't serialize another copy
-                    userData.Items = null;
-                }
-
+            {
+                UserDataModel model = new UserDataModel(this);
                 // make sure the response isn't cached
-                var response = new HttpResponseMessageWrapper<User>(req, userData, HttpStatusCode.OK);
+                var response = new HttpResponseMessageWrapper<User>(req, model.UserData, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                 return response;
             }
@@ -200,7 +185,7 @@
                 User requestedUser = this.StorageContext.Users.Single<User>(u => u.ID == id);
 
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
-                if (requestedUser.ID != CurrentUserID)
+                if (requestedUser.ID != CurrentUser.ID)
                 {
                     return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.Forbidden);
                 }
@@ -260,7 +245,7 @@
             {   // TODO: should we allow changing of username?
 
                 // check to make sure the old password passed in the message is valid
-                if (!Membership.ValidateUser(CurrentUserName, originalUserData.Password))
+                if (!Membership.ValidateUser(CurrentUser.Name, originalUserData.Password))
                 {   
                     return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Forbidden);
                 }
@@ -276,7 +261,7 @@
                     mu.ChangePassword(originalUserData.Password, newUserData.Password);    
                 }
 
-                User currentUser = this.StorageContext.Users.Single<User>(u => u.ID == CurrentUserID);
+                User currentUser = this.StorageContext.Users.Single<User>(u => u.ID == CurrentUser.ID);
                 return new HttpResponseMessageWrapper<User>(req, currentUser, HttpStatusCode.Accepted);
             }
             catch (Exception)

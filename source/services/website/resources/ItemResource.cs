@@ -53,9 +53,9 @@
 
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
             {   // changing a system Item to a user Item
-                clientItem.UserID = CurrentUserID;
+                clientItem.UserID = CurrentUser.ID;
             }
-            if (clientItem.UserID != CurrentUserID)
+            if (clientItem.UserID != CurrentUser.ID)
             {   // requested Item does not belong to authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
             }
@@ -63,7 +63,7 @@
             try
             {
                 Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
-                if (folder.UserID != CurrentUserID)
+                if (folder.UserID != CurrentUser.ID)
                 {   // requested item does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                 }
@@ -122,7 +122,7 @@
                 try
                 {
                     Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == requestedItem.FolderID);
-                    if (folder.UserID != CurrentUserID || requestedItem.UserID != CurrentUserID)
+                    if (folder.UserID != CurrentUser.ID || requestedItem.UserID != CurrentUser.ID)
                     {   // requested item does not belong to the authenticated user, return 403 Forbidden
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                     }
@@ -154,9 +154,9 @@
 
             if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
             {   // changing a system Item to a user Item
-                clientItem.UserID = CurrentUserID;
+                clientItem.UserID = CurrentUser.ID;
             }
-            if (clientItem.UserID != CurrentUserID)
+            if (clientItem.UserID != CurrentUser.ID)
             {   // requested Item does not belong to authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
             }
@@ -169,7 +169,7 @@
             try
             {
                 Folder folder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == clientItem.FolderID);
-                if (folder.UserID != CurrentUserID)
+                if (folder.UserID != CurrentUser.ID)
                 {   // requested folder does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                 }
@@ -257,7 +257,7 @@
                 Item requestedItem = this.StorageContext.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
 
                 // if the Folder does not belong to the authenticated user, return 403 Forbidden
-                if (requestedItem.UserID != CurrentUserID)
+                if (requestedItem.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
                 originalItem.UserID = requestedItem.UserID;
@@ -266,8 +266,8 @@
                 Folder originalFolder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == originalItem.FolderID);
                 Folder newFolder = this.StorageContext.Folders.Single<Folder>(tl => tl.ID == newItem.FolderID);
 
-                if (originalFolder.UserID != CurrentUserID || newFolder.UserID != CurrentUserID ||
-                    originalItem.UserID != CurrentUserID || newItem.UserID != CurrentUserID)
+                if (originalFolder.UserID != CurrentUser.ID || newFolder.UserID != CurrentUser.ID ||
+                    originalItem.UserID != CurrentUser.ID || newItem.UserID != CurrentUser.ID)
                 {   // folder or item does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Forbidden);
                 }

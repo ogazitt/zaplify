@@ -43,7 +43,7 @@
                     Include("Items.FieldValues").Single<Folder>(g => g.ID == id);
 
                 // if the requested Folder does not belong to the authenticated user, return 403 Forbidden
-                if (requestedFolder.UserID != CurrentUserID)
+                if (requestedFolder.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
 
                 // remove the itemtags associated with each of the items in this folder
@@ -100,7 +100,7 @@
                 var folders = this.StorageContext.Folders.Include("FolderUsers").
                     Include("Items.ItemTags").
                     Include("Items.FieldValues").
-                    Where(f => f.UserID == CurrentUserID).ToList();
+                    Where(f => f.UserID == CurrentUser.ID).ToList();
 
                 var response = new HttpResponseMessageWrapper<List<Folder>>(req, folders, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
@@ -126,7 +126,7 @@
                 Folder requestedFolder = this.StorageContext.Folders.Include("FolderUsers").Include("Items.ItemTags").Include("Items.FieldValues").Single<Folder>(f => f.ID == id);
 
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
-                if (requestedFolder.UserID != CurrentUserID)
+                if (requestedFolder.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
                 else
                     return new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.OK);
@@ -150,8 +150,8 @@
 
             // check to make sure the userid in the new folder is the same userid for the current user
             if (clientFolder.UserID == null || clientFolder.UserID == Guid.Empty)
-                clientFolder.UserID = CurrentUserID;
-            if (clientFolder.UserID != CurrentUserID)
+                clientFolder.UserID = CurrentUser.ID;
+            if (clientFolder.UserID != CurrentUser.ID)
                 return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
 
             // fill out the ID if it's not set (e.g. from a javascript client)
@@ -245,7 +245,7 @@
                 Folder requestedFolder = this.StorageContext.Folders.Single<Folder>(t => t.ID == id);
 
                 // if the Folder does not belong to the authenticated user, return 403 Forbidden
-                if (requestedFolder.UserID != CurrentUserID)
+                if (requestedFolder.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
                 originalFolder.UserID = requestedFolder.UserID;

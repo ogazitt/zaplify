@@ -36,12 +36,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             return this.Name;
         }
 
-        // built-in items
-        public static Guid ToDoItem = new Guid("00000000-0000-0000-0000-000000000001");
-        public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000002");
-        public static Guid FreeformItem = new Guid("00000000-0000-0000-0000-000000000003");
+        // default item types
+        public static Guid Task = new Guid("00000000-0000-0000-0000-000000000001");
+        public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000002");
+        public static Guid Location = new Guid("00000000-0000-0000-0000-000000000003");
         public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000004");
-        public static List<Guid> BuiltInTypes = new List<Guid>() { ToDoItem, ShoppingItem, FreeformItem, Contact };
+        public static List<Guid> Default = new List<Guid>() { Task, ListItem, Location, Contact };
 
         // static dictionary of current item types
         public static Dictionary<Guid, ItemType> ItemTypes { get; set; }
@@ -64,12 +64,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
 
             // last resort
-            if (itemTypeID == ToDoItem)
-                return "ToDo";
-            if (itemTypeID == ShoppingItem)
-                return "Shopping Item";
-            if (itemTypeID == FreeformItem)
-                return "Freeform Item";
+            if (itemTypeID == Task)
+                return "Task";
+            if (itemTypeID == ListItem)
+                return "List Item";
+            if (itemTypeID == Location)
+                return "Location";
+            if (itemTypeID == Contact)
+                return "Contact";
             return null;
         }
 

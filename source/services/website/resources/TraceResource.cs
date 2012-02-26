@@ -43,7 +43,7 @@
                 else
                     stream = req.Content.ReadAsStreamAsync().Result;
 
-                string error = WriteFile(this.CurrentUserName, stream);
+                string error = WriteFile(this.CurrentUser.Name, stream);
                 var response = new HttpResponseMessageWrapper<string>(req, error != null ? error : "OK", HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
 
