@@ -8,6 +8,7 @@ using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using System.Text.RegularExpressions;
+using MonoTouch.Foundation;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -112,6 +113,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// parse common regexps out of the description and into the appropriate
 			// fields (phone, email, URL, etc)
             ParseFields(itemCopy);
+            
+            // remove any NEW FieldValues (i.e. ones which didn't exist on the original item) 
+            // which contain null Values (we don't want to burden the item with
+            // extraneous null fields)
+            List<FieldValue> fieldValues = new List<FieldValue>(itemCopy.FieldValues);
+            foreach (var fv in fieldValues)
+                if (fv.Value == null && (thisItem == null || thisItem.GetFieldValue(fv.FieldID, false) == null))
+                    itemCopy.FieldValues.Remove(fv);                       
 
             // if this is a new item, create it
             if (thisItem == null)
@@ -294,39 +303,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
             catch (Exception)
             {
+                // an exception indicates this isn't a strongly typed property on the Item
+                // this is NOT an error condition
             }
 
             // if couldn't find a strongly typed property, this property is stored as a 
             // FieldValue on the item
             if (pi == null)
             {
-                FieldValue fieldValue = null;
-                // get current item's value for this field
-                try
-                {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                    currentValue = fieldValue.Value;
-                }
-                catch (Exception)
-                {
-                }
+                // get current item's value for this field, or create a new FieldValue
+                // if one doesn't already exist
+                FieldValue fieldValue = item.GetFieldValue(field.ID, true);
+                currentValue = fieldValue.Value;
 
-                // get the item copy's fieldvalue for this field
-                // we use this to write changes to the field's value
-                try
-                {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                }
-                catch (Exception)
-                {
-                    fieldValue = new FieldValue()
-                    {
-                        FieldID = field.ID,
-                        ItemID = item.ID,
-                    };
-                }
-
-                // get the value property of the current fieldvalue
+                // get the value property of the current fieldvalue (this should never fail)
                 pi = fieldValue.GetType().GetProperty("Value");
                 if (pi == null)
                     return null;
@@ -363,7 +353,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case "PhoneNumber":
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.PhonePad;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { 
+                        pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case "Website":
                     entryElement.Value = (string) currentValue;
@@ -379,7 +370,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case "Address":
                     entryElement.Value = (string) currentValue;
                     entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { 
+                        pi.SetValue(container, entryElement.Value, null); };
                     break;
 				case "Priority":
 					var priorities = new RadioGroup (field.DisplayName, 0);
@@ -714,7 +706,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     // (usually extracted from the item field's contents)
                     StyledStringElement stringElement = new StyledStringElement(action.DisplayName, currentValue, UITableViewCellStyle.Value1);
 					Element element = stringElement; 
-					
+                    
                     // render the action based on the action type
                     switch (action.ActionName)
                     {
@@ -757,30 +749,56 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         case "Map":
                             stringElement.Tapped += delegate
                             {
-                            };
+                                // try to use the maps: URL scheme
+                                string url = "maps://" + url.Replace(" ", "%20");
+                                if (UIApplication.SharedApplication.CanOpenUrl(new NSUrl(url)))
+                                    UIApplication.SharedApplication.OpenUrl(new NSUrl(url));
+                                else
+                                {
+                                    // open the google maps website
+                                    url = url.Replace("maps://", "http://maps.google.com/maps?q=");
+                                    UIApplication.SharedApplication.OpenUrl(new NSUrl(url));
+                                }                                    
+                            };                         
                             break;
                         case "Phone":
-                            stringElement.Tapped += delegate
+                           stringElement.Tapped += delegate
                             {
+                                // construct the correct URL
+                                List<string> urlComponents = new List<string>() { "tel://" };
+                                urlComponents.AddRange(currentValue.Split('(', ')', '-', ' '));
+                                string url = String.Concat(urlComponents);                               
+                                if (UIApplication.SharedApplication.OpenUrl(new NSUrl(url)) == false)
+                                    MessageBox.Show("Can't make a phone call");
                             };
                             break;
                         case "TextMessage":
                             stringElement.Tapped += delegate
                             {
-                            };
+                                // construct the correct URL
+                                List<string> urlComponents = new List<string>() { "sms:" };
+                                urlComponents.AddRange(currentValue.Split('(', ')', '-', ' '));
+                                string url = String.Concat(urlComponents);                               
+                                if (UIApplication.SharedApplication.OpenUrl(new NSUrl(url)) == false)
+                                    MessageBox.Show("Can't send a text message");
+                            };                             
                             break;
                         case "Browse":
-                            string url = (string)currentValue;
+                            // construct the correct URL
+                            string url = currentValue.Replace(" ", "%20");
                             if (url.Substring(0, 4) != "http")
                                 url = String.Format("http://{0}", url);
-                            var browserElement = new StyledHtmlElement(action.DisplayName, url, UITableViewCellStyle.Value1, url);
+                            StyledHtmlElement browserElement = new StyledHtmlElement(action.DisplayName, url, UITableViewCellStyle.Value1, url);
 							element = browserElement;
                             break;
                         case "Email":
                             stringElement.Tapped += delegate
                             {
-                                // To = (string)currentValue 
-                            };
+                                // construct the correct URL
+                                string emailUrl = currentValue.Trim();                              
+                                if (UIApplication.SharedApplication.OpenUrl(new NSUrl(emailUrl)) == false)
+                                    MessageBox.Show("Can't launch the email application");
+                            };                             
                             break;
                     }
 					

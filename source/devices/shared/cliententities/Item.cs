@@ -564,12 +564,66 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         private Dictionary<string, FieldValue> fieldValueDict = new Dictionary<string, FieldValue>();
 
         /// <summary>
-        /// Retrieve a FieldValue from the dictionary (or store a new one)
+        /// Retrieve a FieldValue by name
         /// </summary>
         /// <param name="fieldName">field name to retrieve a FieldValue for</param>
         /// <param name="create">create the FieldValue if it doesn't exist?</param>
         /// <returns></returns>
-        private FieldValue GetFieldValue(string fieldName, bool create)
+        public FieldValue GetFieldValue(string fieldName, bool create)
+        {
+            // try to find the current item's itemtype (this should succeed)
+            ItemType it;
+            if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
+                return null;
+            try
+            {
+                // try to find the fieldName among the "supported" fields of the itemtype 
+                // this may fail if this itemtype doesn't support this field name
+                Field field = it.Fields.Single(f => f.Name == fieldName);
+                
+                // delegate to GetFieldValue(Guid fieldID)
+                return GetFieldValue(field, create);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Retrieve a FieldValue by ID
+        /// </summary>
+        /// <param name="fieldID">field ID to retrieve a FieldValue for</param>
+        /// <param name="create">create the FieldValue if it doesn't exist?</param>
+        /// <returns></returns>
+        public FieldValue GetFieldValue(Guid fieldID, bool create)
+        {
+            // try to find the current item's itemtype (this should succeed)
+            ItemType it;
+            if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
+                return null;
+            try
+            {
+                // try to find the fieldID among the "supported" fields of the itemtype 
+                // this may fail if this itemtype doesn't support this field name
+                Field field = it.Fields.Single(f => f.ID == fieldID);
+                
+                // delegate to GetFieldValue(Guid fieldID)
+                return GetFieldValue(field, create);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Retrieve a FieldValue from the dictionary (or store a new one)
+        /// </summary>
+        /// <param name="field">Field to retrieve a FieldValue for</param>
+        /// <param name="create">create the FieldValue if it doesn't exist?</param>
+        /// <returns></returns>
+        public FieldValue GetFieldValue(Field field, bool create)
         {
             FieldValue fieldValue = null;
 
@@ -578,49 +632,35 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 fieldValueDict = new Dictionary<string, FieldValue>();
 
             // try to get the FieldValue out of the dictionary (if it was already retrieved)
-            if (fieldValueDict.TryGetValue(fieldName, out fieldValue) == true)
+            if (fieldValueDict.TryGetValue(field.Name, out fieldValue) == true)
                 return fieldValue;
 
-            // try to find the current item's itemtype (this should succeed)
-            ItemType it;
-            if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
-                return null;
-
-            // try to find the fieldName among the "supported" fields of the itemtype 
-            // this may fail if this itemtype doesn't support this field name
+            // get the fieldvalue associated with this field
+            // this may fail if this item doesn't have this field set yet
             try
             {
-                Field field = it.Fields.Single(f => f.Name == fieldName);
-                // get the fieldvalue associated with this field
-                // this may fail if this item doesn't have this field set yet
-                try
-                {
-                    fieldValue = fieldValues.Single(fv => fv.FieldID == field.ID);
-                }
-                catch (Exception)
-                {
-                    // if the caller wishes to create a new FieldValue, do so now
-                    if (create)
-                    {
-                        fieldValue = new FieldValue()
-                        {
-                            FieldID = field.ID,
-                            ItemID = this.ID
-                        };
-
-                        // store the new FieldValue in the dictionary
-                        fieldValueDict[fieldName] = fieldValue;
-
-                        if (fieldValues == null)
-                            fieldValues = new ObservableCollection<FieldValue>();
-
-                        // add the new FieldValue in the FieldValues collection
-                        fieldValues.Add(fieldValue);
-                    }
-                }
+                fieldValue = fieldValues.Single(fv => fv.FieldID == field.ID);
             }
             catch (Exception)
             {
+                // if the caller wishes to create a new FieldValue, do so now
+                if (create)
+                {
+                    fieldValue = new FieldValue()
+                    {
+                        FieldID = field.ID,
+                        ItemID = this.ID
+                    };
+
+                    // store the new FieldValue in the dictionary
+                    fieldValueDict[field.Name] = fieldValue;
+
+                    if (fieldValues == null)
+                        fieldValues = new ObservableCollection<FieldValue>();
+
+                    // add the new FieldValue in the FieldValues collection
+                    fieldValues.Add(fieldValue);
+                }
             }
 
             return fieldValue;
@@ -637,7 +677,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     return (bool?)Convert.ToBoolean(fv.Value);
                 else
                     return null;
-                //return dueDate == null ? null : (DateTime?) Convert.ToDateTime(dueDate);
             }
             set
             {
