@@ -14,10 +14,13 @@ SET IDENTITY_INSERT [dbo].[ActionTypes] ON
 INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (1, N'Postpone', N'postpone', N'DueDate', 1)
 INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (2, N'AddToCalendar', N'add reminder', N'DueDate', 2)
 INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (3, N'Map', N'map', N'Location', 3)
-INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (4, N'Phone', N'call', N'Phone', 4)
-INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (5, N'TextMessage', N'text', N'Phone', 5)
-INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (6, N'Browse', N'browse', N'Website', 6)
-INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (7, N'Email', N'email', N'Email', 7)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (4, N'Map', N'map', N'Address', 4)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (5, N'Phone', N'call cell', N'CellPhone', 5)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (6, N'Phone', N'call home', N'HomePhone', 6)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (7, N'Phone', N'call work', N'WorkPhone', 7)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (8, N'TextMessage', N'text', N'CellPhone', 8)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (9, N'Browse', N'browse', N'Website', 9)
+INSERT [dbo].[ActionTypes] ([ActionTypeID], [ActionName], [DisplayName], [FieldName], [SortOrder]) VALUES (10, N'Email', N'email', N'Email', 10)
 SET IDENTITY_INSERT [dbo].[ActionTypes] OFF
 GO
 
@@ -68,7 +71,7 @@ INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName],
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000015', N'Description', 2, N'00000000-0000-0000-0000-000000000001', N'Details', N'TextBox', 0, 5)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000016', N'Locations', 13, N'00000000-0000-0000-0000-000000000001', N'Location', N'LocationList', 0, 6)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000017', N'Contacts', 13, N'00000000-0000-0000-0000-000000000001', N'For', N'ContactList', 0, 7)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000018', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000001', N'Tags (separated by commas)', N'TagList', 0, 8)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000018', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000001', N'Tags', N'TagList', 0, 8)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000019', N'Complete', 5, N'00000000-0000-0000-0000-000000000001', N'Complete', N'Boolean', 0, 9)
 /* ListItem */
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000021', N'Name', 1, N'00000000-0000-0000-0000-000000000002', N'Name', N'String', 1, 1)
@@ -79,20 +82,20 @@ INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName],
 /* Location */
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000031', N'Name', 1, N'00000000-0000-0000-0000-000000000003', N'Name', N'String', 1, 1)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000032', N'Address', 6, N'00000000-0000-0000-0000-000000000003', N'Address', N'Address', 1, 2)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000033', N'Phone', 7, N'00000000-0000-0000-0000-000000000003', N'Phone', N'PhoneNumber', 0, 7)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000034', N'Website', 8, N'00000000-0000-0000-0000-000000000003', N'Website', N'Website', 0, 8)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000035', N'Email', 9, N'00000000-0000-0000-0000-000000000003', N'Email', N'Email', 0, 9)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000036', N'Description', 2, N'00000000-0000-0000-0000-000000000003', N'Description', N'TextBox', 0, 2)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000037', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000003', N'Tags (separated by commas)', N'TagList', 0, 5)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000033', N'Phone', 7, N'00000000-0000-0000-0000-000000000003', N'Phone', N'PhoneNumber', 0, 3)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000034', N'Website', 8, N'00000000-0000-0000-0000-000000000003', N'Website', N'Website', 0, 4)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000035', N'Email', 9, N'00000000-0000-0000-0000-000000000003', N'Email', N'Email', 0, 5)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000036', N'Description', 2, N'00000000-0000-0000-0000-000000000003', N'Description', N'TextBox', 0, 6)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000037', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000003', N'Tags', N'TagList', 0, 7)
 /* Contact */
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000041', N'Name', 1, N'00000000-0000-0000-0000-000000000004', N'Name', N'String', 1, 1)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000042', N'Email', 9, N'00000000-0000-0000-0000-000000000004', N'Email', N'Email', 1, 2)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000043', N'Phone', 7, N'00000000-0000-0000-0000-000000000004', N'Cell Phone', N'PhoneNumber', 1, 3)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000044', N'Phone', 7, N'00000000-0000-0000-0000-000000000004', N'Home Phone', N'PhoneNumber', 0, 4)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000045', N'Phone', 7, N'00000000-0000-0000-0000-000000000004', N'Work Phone', N'PhoneNumber', 0, 5)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000043', N'CellPhone', 7, N'00000000-0000-0000-0000-000000000004', N'Cell Phone', N'PhoneNumber', 1, 3)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000044', N'HomePhone', 7, N'00000000-0000-0000-0000-000000000004', N'Home Phone', N'PhoneNumber', 0, 4)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000045', N'WorkPhone', 7, N'00000000-0000-0000-0000-000000000004', N'Work Phone', N'PhoneNumber', 0, 5)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000046', N'Locations', 13, N'00000000-0000-0000-0000-000000000004', N'Address', N'LocationList', 0, 6)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000047', N'Birthday', 4, N'00000000-0000-0000-0000-000000000004', N'Birthday', N'Date', 0, 7)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000048', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000004', N'Tags (separated by commas)', N'TagList', 0, 8)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldTypeID], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000048', N'ItemTags', 12, N'00000000-0000-0000-0000-000000000004', N'Tags', N'TagList', 0, 8)
 GO
 
 /****** Object:  Table [dbo].[Permissions]    Script Date: 01/18/2012 11:19:55 ******/
