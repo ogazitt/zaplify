@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers-ios", "..\sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViewModels-ios", "..\shared\clientviewmodels\ClientViewModels-ios.csproj", "{484B23D7-99FA-456B-B3E6-756EA9843E86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuanceSpeechKit", "nuancespeechkit\NuanceSpeechKit.csproj", "{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -19,14 +17,6 @@ Global
 		Release|iPhone = Release|iPhone
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhone.Build.0 = Release|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{062C6F8A-EFE2-4B7D-B075-AAF8D1D0ADE0}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.ActiveCfg = Debug|iPhone
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhone.Build.0 = Debug|iPhone
 		{18117044-3C87-4D61-9F1D-5014A2B24189}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
