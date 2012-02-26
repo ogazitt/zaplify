@@ -10,6 +10,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public Guid ID { get; set; }
         public string Name { get; set; }
         public Guid UserID { get; set; }
+        public Guid DefaultItemTypeID { get; set; }
         public List<FolderUser> FolderUsers { get; set; }
         public List<Item> Items { get; set; }
     }

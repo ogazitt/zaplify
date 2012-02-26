@@ -190,12 +190,12 @@ Dialogs and Forms
 fieldset {
     margin: 10px 0;
     padding: 12px;
-    border: 1px solid #D0BCAE;
+    border: 1px solid #C4BD97;
     max-width: 460px;
 }
 
 legend {
-    color: #D0BCAE;
+    color: #948A54;
     font-size: 1.2em;
     padding: 0 4px;
 }
@@ -206,7 +206,7 @@ textarea {
 
 input[type="text"], 
 input[type="password"] {
-    border: 1px solid #D0BCAE;
+    border: 1px solid #C4BD97;
     padding: 2px 3px 2px 3px;
     margin-top: 3px;
     font-size: 1em;
@@ -216,7 +216,7 @@ input[type="password"] {
 }
 
 select {
-    border: 1px solid #D0BCAE;
+    border: 1px solid #C4BD97;
     padding: 2px;
     font-size: 1.2em;
     color: #202030;
@@ -256,10 +256,11 @@ Validation
 Miscellaneous
 ----------------------------------------------------------*/
 .clear { clear: both; }
-.error { color: #961919; }
+.error { color: #C80A0A; }
 
 .display-none { display: none; }
 .display-block { display: block; }
 .display-inline { display: inline-block; }
 
-
+.float-left { float: left; }
+.float-right { float: right; }

@@ -28,7 +28,7 @@ namespace Website
             routes.MapRoute(
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
-                new { controller = "Home", action = "Index", id = UrlParameter.Optional }, // Parameter defaults
+                new { controller = "Dashboard", action = "Home", id = UrlParameter.Optional }, // Parameter defaults
                 new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "tags", "trace", "users" }) }
             );
 

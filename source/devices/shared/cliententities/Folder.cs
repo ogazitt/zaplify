@@ -129,6 +129,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        private Guid defaultItemTypeID;
+        /// <summary>
+        /// DefaultItemType property
+        /// </summary>
+        /// <returns></returns>
+        [DataMember]
+        public Guid DefaultItemTypeID
+        {
+            get
+            {
+                return defaultItemTypeID;
+            }
+            set
+            {
+                if (value != defaultItemTypeID)
+                {
+                    defaultItemTypeID = value;
+                    NotifyPropertyChanged("DefaultItemTypeID");
+                }
+            }
+        }
+
         static string FirstDueText = "next item due ";
         /// <summary>
         /// Returns the earliest date a item is due in this folder

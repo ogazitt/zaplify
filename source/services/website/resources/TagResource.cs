@@ -41,7 +41,7 @@
                 Tag requestedTag = this.StorageContext.Tags.Include("ItemTags").Single<Tag>(t => t.ID == id);
 
                 // if the requested tag does not belong to the authenticated user, return 403 Forbidden
-                if (requestedTag.UserID != CurrentUserID)
+                if (requestedTag.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
 
                 // delete all the itemtags associated with this item
@@ -80,7 +80,7 @@
             {
                 var tags = this.StorageContext.Tags.
                     Include("Fields").
-                    Where(lt => lt.UserID == null || lt.UserID == CurrentUserID).
+                    Where(lt => lt.UserID == null || lt.UserID == CurrentUser.ID).
                     OrderBy(lt => lt.Name).
                     ToList<Tag>();
                 return new HttpResponseMessageWrapper<List<Tag>>(req, tags, HttpStatusCode.OK);
@@ -109,7 +109,7 @@
 
                 // if the requested tag is not generic (i.e. UserID == 0), 
                 // and does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
-                if (requestedTag.UserID != null && requestedTag.UserID != CurrentUserID)
+                if (requestedTag.UserID != null && requestedTag.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
                 else
                     return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.OK);
@@ -136,8 +136,8 @@
 
             // if the requested tag does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
             if (clientTag.UserID == null || clientTag.UserID == Guid.Empty)
-                clientTag.UserID = CurrentUserID;
-            if (clientTag.UserID != CurrentUserID)
+                clientTag.UserID = CurrentUser.ID;
+            if (clientTag.UserID != CurrentUser.ID)
                 return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
 
             // add the new tag to the database
@@ -201,7 +201,7 @@
                 Tag requestedTag = this.StorageContext.Tags.Single<Tag>(t => t.ID == id);
 
                 // if the Tag does not belong to the authenticated user, return 403 Forbidden
-                if (requestedTag.UserID != CurrentUserID)
+                if (requestedTag.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
                 originalTag.UserID = requestedTag.UserID;
