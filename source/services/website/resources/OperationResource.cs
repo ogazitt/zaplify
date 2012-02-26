@@ -36,7 +36,7 @@
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.BadRequest);
             }
 
-            if (clientOperation.UserID != CurrentUserID)
+            if (clientOperation.UserID != CurrentUser.ID)
             {   // requested operation does not belong to the authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.Forbidden);
             }
@@ -73,7 +73,7 @@
                 Operation requestedOperation = this.StorageContext.Operations.Single<Operation>(t => t.ID == id);
 
                 // if the requested operation does not belong to the authenticated user, return 403 Forbidden, otherwise return the operation
-                if (requestedOperation.UserID != CurrentUserID)
+                if (requestedOperation.UserID != CurrentUser.ID)
                     return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.Forbidden);
                 else
                     return new HttpResponseMessageWrapper<Operation>(req, requestedOperation, HttpStatusCode.OK);
@@ -103,7 +103,7 @@
             Operation clientOperation = ProcessRequestBody(req, typeof(Operation)) as Operation;
 
             // if the requested operation does not belong to the authenticated user, return 403 Forbidden
-            if (clientOperation.UserID != CurrentUserID)
+            if (clientOperation.UserID != CurrentUser.ID)
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.Forbidden);
 
             // fill out the ID if it's not set (e.g. from a javascript client)
@@ -171,7 +171,7 @@
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.BadRequest);
 
             // if the operation does not belong to the authenticated user, return 403 Forbidden
-            if (originalOperation.UserID != CurrentUserID || newOperation.UserID != CurrentUserID)
+            if (originalOperation.UserID != CurrentUser.ID || newOperation.UserID != CurrentUser.ID)
                 return new HttpResponseMessageWrapper<Operation>(req, HttpStatusCode.Forbidden);
 
             try

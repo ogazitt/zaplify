@@ -25,7 +25,20 @@
         protected StorageContext storageContext = null;
         User currentUser = null;
 
-        virtual protected StorageContext StorageContext
+        public User CurrentUser
+        {
+            get
+            {
+                if (currentUser == null)
+                {   // get current user, ensure the ID is included
+                    MembershipUser mu = Membership.GetUser();
+                    currentUser = UserMembershipProvider.AsUser(mu);
+                }
+                return currentUser;
+            }
+        }
+
+        public StorageContext StorageContext
         {
             get
             {
@@ -34,38 +47,6 @@
                     storageContext = Storage.NewContext;
                 }
                 return storageContext;
-            }
-        }
-
-        protected Guid CurrentUserID
-        {
-            get
-            {
-                if (currentUser != null && !string.IsNullOrEmpty(currentUser.Name))
-                {
-                    if (currentUser.ID == Guid.Empty)
-                    {   // retrieve ID from storage
-                        if (this.StorageContext.Users.Any<User>(u => u.Name == currentUser.Name))
-                        {
-                            User user = this.StorageContext.Users.Single<User>(u => u.Name == currentUser.Name);
-                            currentUser.ID = user.ID;
-                            return currentUser.ID;
-                        }
-                    }
-                    else
-                    {
-                        return currentUser.ID;
-                    }
-                }
-                return Guid.Empty;
-            }
-        }
-
-        protected string CurrentUserName
-        {
-            get
-            {
-                return (currentUser != null) ? currentUser.Name : null;
             }
         }
 
@@ -101,6 +82,11 @@
                     return HttpStatusCode.Forbidden;
 
                 this.currentUser = credentials.AsUser();
+                if (this.currentUser.ID == null || this.currentUser.ID == Guid.Empty)
+                {   // ensure ID is included
+                    mu = Membership.GetUser(currentUser.Name, true);
+                    this.currentUser = UserMembershipProvider.AsUser(mu);
+                }
 
                 if (Membership.Provider is UserMembershipProvider)
                 {   // add auth cookie to response (cookie includes user id)
@@ -190,8 +176,8 @@
                 Operation op = new Operation()
                 {
                     ID = Guid.NewGuid(),
-                    UserID = CurrentUserID,
-                    Username = CurrentUserName,
+                    UserID = CurrentUser.ID,
+                    Username = CurrentUser.Name,
                     EntityID = id,
                     EntityName = name,
                     EntityType = bodyType.Name,

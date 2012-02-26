@@ -39,7 +39,7 @@
             try
             {
                 ItemType requestedItemType = this.StorageContext.ItemTypes.Single<ItemType>(t => t.ID == id);
-                if (requestedItemType.UserID != CurrentUserID)
+                if (requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to the authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
                 }
@@ -72,7 +72,7 @@
             {
                 var itemTypes = this.StorageContext.ItemTypes.
                     Include("Fields").
-                    Where(lt => lt.UserID == null || lt.UserID == CurrentUserID).
+                    Where(lt => lt.UserID == null || lt.UserID == CurrentUser.ID).
                     OrderBy(lt => lt.Name).
                     ToList<ItemType>();
                 return new HttpResponseMessageWrapper<List<ItemType>>(req, itemTypes, HttpStatusCode.OK);
@@ -98,7 +98,7 @@
             {
                 ItemType requestedItemType = this.StorageContext.ItemTypes.Include("Fields").Single<ItemType>(t => t.ID == id);
 
-                if (requestedItemType.UserID != null && requestedItemType.UserID != CurrentUserID)
+                if (requestedItemType.UserID != null && requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to system or authenticated user, return 403 Forbidden
                     return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
                 }
@@ -127,9 +127,9 @@
 
             if (clientItemType.UserID == null || clientItemType.UserID == Guid.Empty)
             {   // changing a system itemType to a user itemType
-                clientItemType.UserID = CurrentUserID;
+                clientItemType.UserID = CurrentUser.ID;
             }
-            if (clientItemType.UserID != CurrentUserID)
+            if (clientItemType.UserID != CurrentUser.ID)
             {   // requested itemType does not belong to authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
             }
@@ -187,7 +187,7 @@
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
             }
 
-            if (originalItemType.UserID != CurrentUserID || newItemType.UserID != CurrentUserID)
+            if (originalItemType.UserID != CurrentUser.ID || newItemType.UserID != CurrentUser.ID)
             {   // itemType does not belong to the authenticated user, return 403 Forbidden
                 return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
             }

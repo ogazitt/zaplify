@@ -36,7 +36,7 @@
                     }
                     else
                     {
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Home", "Dashboard");
                     }
                 }
                 else
@@ -53,7 +53,7 @@
         {
             FormsAuthentication.SignOut();
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Home", "Dashboard");
         }
 
         public ActionResult Register()
@@ -79,7 +79,7 @@
                 if (createStatus == MembershipCreateStatus.Success)
                 {
                     SetAuthCookie(model.UserName, false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Initialize", "Dashboard");
                 }
                 else
                 {
