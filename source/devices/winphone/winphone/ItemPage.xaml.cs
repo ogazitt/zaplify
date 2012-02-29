@@ -418,39 +418,20 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
             catch (Exception)
             {
+                // an exception indicates this isn't a strongly typed property on the Item
+                // this is NOT an error condition
             }
 
             // if couldn't find a strongly typed property, this property is stored as a 
             // FieldValue on the item
             if (pi == null)
             {
-                FieldValue fieldValue = null;
-                // get current item's value for this field
-                try
-                {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                    currentValue = fieldValue.Value;
-                }
-                catch (Exception)
-                {
-                }
+                // get current item's value for this field, or create a new FieldValue
+                // if one doesn't already exist
+                FieldValue fieldValue = item.GetFieldValue(field.ID, true);
+                currentValue = fieldValue.Value;
 
-                // get the item copy's fieldvalue for this field
-                // we use this to write changes to the field's value
-                try
-                {
-                    fieldValue = itemCopy.FieldValues.Single(fv => fv.FieldID == field.ID);
-                }
-                catch (Exception)
-                {
-                    fieldValue = new FieldValue()
-                    {
-                        FieldID = field.ID,
-                        ItemID = item.ID,
-                    };
-                }
-
-                // get the value property of the current fieldvalue
+                // get the value property of the current fieldvalue (this should never fail)
                 pi = fieldValue.GetType().GetProperty("Value");
                 if (pi == null)
                     return;
