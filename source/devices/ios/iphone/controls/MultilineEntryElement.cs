@@ -88,7 +88,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			set
 			{
 				base.Value = value;
-				if (entry != null)
+				if (entry != null && entry.Text != value)
 					entry.Text = value;
 			}
 		}
