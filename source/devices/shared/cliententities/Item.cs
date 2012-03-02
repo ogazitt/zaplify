@@ -6,11 +6,12 @@ using System.Runtime.Serialization;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Linq;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Item : ZaplifyEntity, INotifyPropertyChanged
+    public class Item : ClientEntity, INotifyPropertyChanged
     {
         public Item() : base()
         {
@@ -107,10 +108,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid id;
-        /// <summary>
-        /// ID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override Guid ID
         {
@@ -128,11 +125,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        private float sortOrder;
+        [DataMember]
+        public float SortOrder
+        {
+            get
+            {
+                return sortOrder;
+            }
+            set
+            {
+                if (value != sortOrder)
+                {
+                    sortOrder = value;
+                    NotifyPropertyChanged("SortOrder");
+                }
+            }
+        }
+
         private DateTime created;
-        /// <summary>
-        /// Created property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public DateTime Created
         {
@@ -150,11 +161,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-         private ObservableCollection<FieldValue> fieldValues;
-        /// <summary>
-        /// FieldValues collection
-        /// </summary>
-        /// <returns></returns>
+        private ObservableCollection<FieldValue> fieldValues;
         [DataMember]
         public ObservableCollection<FieldValue> FieldValues
         {
@@ -173,10 +180,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid folderID;
-        /// <summary>
-        /// FolderID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public Guid FolderID
         {
@@ -195,10 +198,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private bool isList;
-        /// <summary>
-        /// IsList property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public bool IsList
         {
@@ -217,10 +216,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<ItemTag> itemTags;
-        /// <summary>
-        /// ItemTags collection
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<ItemTag> ItemTags
         {
@@ -239,10 +234,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid itemTypeID;
-        /// <summary>
-        /// ItemType property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public Guid ItemTypeID
         {
@@ -261,10 +252,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private DateTime lastModified;
-        /// <summary>
-        /// LastModified property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public DateTime LastModified
         {
@@ -283,10 +270,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override string Name
         {
@@ -305,10 +288,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid? parentID;
-        /// <summary>
-        /// ParentID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public Guid? ParentID
         {
@@ -330,10 +309,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid userID;
-        /// <summary>
-        /// UserID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public Guid UserID
         {
@@ -351,224 +326,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-/*
-        private bool complete;
-        /// <summary>
-        /// Complete property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public bool Complete
-        {
-            get
-            {
-                return complete;
-            }
-            set
-            {
-                if (value != complete)
-                {
-                    complete = value;
-                    NotifyPropertyChanged("Complete");
-                    NotifyPropertyChanged("NameDisplayColor");
-                }
-            }
-        }
-
-        private string description;
-        /// <summary>
-        /// Description property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Description
-        {
-            get
-            {
-                return description;
-            }
-            set
-            {
-                if (value != description)
-                {
-                    description = value;
-                    NotifyPropertyChanged("Description");
-                }
-            }
-        }
-
-        private string dueDate;
-        /// <summary>
-        /// DueDate property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string DueDate
-        {
-            get
-            {
-                return dueDate;
-            }
-            set
-            {
-                if (value != dueDate)
-                {
-                    dueDate = value;
-                    NotifyPropertyChanged("DueDate");
-                    NotifyPropertyChanged("Due");
-                    NotifyPropertyChanged("DueDisplay");
-                    NotifyPropertyChanged("DueDisplayColor");
-                    NotifyPropertyChanged("DueSort");
-                }
-            }
-        }
-
-        private string email;
-        /// <summary>
-        /// Email property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Email
-        {
-            get
-            {
-                return email;
-            }
-            set
-            {
-                if (value != email)
-                {
-                    email = value;
-                    NotifyPropertyChanged("Email");
-                }
-            }
-        }
-
-        private Guid? linkedFolderID;
-        /// <summary>
-        /// LinkedFolderID property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public Guid? LinkedFolderID
-        {
-            get
-            {
-                return linkedFolderID;
-            }
-            set
-            {
-                if (value != linkedFolderID)
-                {
-                    linkedFolderID = value;
-                    NotifyPropertyChanged("LinkedFolderID");
-                }
-            }
-        }
-
-        private string location;
-        /// <summary>
-        /// Location property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Location
-        {
-            get
-            {
-                return location;
-            }
-            set
-            {
-                if (value != location)
-                {
-                    location = value;
-                    NotifyPropertyChanged("Location");
-                }
-            }
-        }
-
-        private string phone;
-        /// <summary>
-        /// Phone property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Phone
-        {
-            get
-            {
-                return phone;
-            }
-            set
-            {
-                if (value != phone)
-                {
-                    phone = value;
-                    NotifyPropertyChanged("Phone");
-                }
-            }
-        }
-
-        private int? priorityId;
-        /// <summary>
-        /// PriorityID property (0 is low, 1 is regular, 2 is high)
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public int? PriorityID
-        {
-            get
-            {
-                return priorityId;
-            }
-            set
-            {
-                if (value != priorityId)
-                {
-                    priorityId = value;
-                    NotifyPropertyChanged("PriorityID");
-                    NotifyPropertyChanged("PriorityIDIcon");
-                    NotifyPropertyChanged("PriorityIDSort");
-                }
-            }
-        }
-
-        private string website;
-        /// <summary>
-        /// Website property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public string Website
-        {
-            get
-            {
-                return website;
-            }
-            set
-            {
-                if (value != website)
-                {
-                    website = value;
-                    NotifyPropertyChanged("Website");
-                }
-            }
-        }
-
- */
         #region DataBinding Properties
 
         // dictionary to hold all the aliases to FieldValues
         private Dictionary<string, FieldValue> fieldValueDict = new Dictionary<string, FieldValue>();
 
-        /// <summary>
-        /// Retrieve a FieldValue by name
-        /// </summary>
-        /// <param name="fieldName">field name to retrieve a FieldValue for</param>
-        /// <param name="create">create the FieldValue if it doesn't exist?</param>
-        /// <returns></returns>
+
+        // get FieldValue of this Item by FieldName
+        // if create == true, a new FieldValue for this FieldName will be created if none exists
         public FieldValue GetFieldValue(string fieldName, bool create)
         {
             // try to find the current item's itemtype (this should succeed)
@@ -576,11 +341,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
                 return null;
             try
-            {
-                // try to find the fieldName among the "supported" fields of the itemtype 
+            {   // try to find the fieldName among the "supported" fields of the itemtype 
                 // this may fail if this itemtype doesn't support this field name
                 Field field = it.Fields.Single(f => f.Name == fieldName);
-                
+
                 // delegate to GetFieldValue(Guid fieldID)
                 return GetFieldValue(field, create);
             }
@@ -590,12 +354,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
         
-        /// <summary>
-        /// Retrieve a FieldValue by ID
-        /// </summary>
-        /// <param name="fieldID">field ID to retrieve a FieldValue for</param>
-        /// <param name="create">create the FieldValue if it doesn't exist?</param>
-        /// <returns></returns>
+        // get FieldValue of this Item by ID
+        // if create == true, a new FieldValue with this ID will be created if none exists
         public FieldValue GetFieldValue(Guid fieldID, bool create)
         {
             // try to find the current item's itemtype (this should succeed)
@@ -617,12 +377,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
         
-        /// <summary>
-        /// Retrieve a FieldValue from the dictionary (or store a new one)
-        /// </summary>
-        /// <param name="field">Field to retrieve a FieldValue for</param>
-        /// <param name="create">create the FieldValue if it doesn't exist?</param>
-        /// <returns></returns>
+        // get FieldValue of this Item for the given Field
+        // if create == true, a new FieldValue with for this Field will be created if none exists
         public FieldValue GetFieldValue(Field field, bool create)
         {
             FieldValue fieldValue = null;
@@ -649,7 +405,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     fieldValue = new FieldValue()
                     {
                         FieldID = field.ID,
-                        ItemID = this.ID
+                        ItemID = this.ID,
+                        Value = FieldTypes.DefaultValue(field.FieldType)
                     };
 
                     // store the new FieldValue in the dictionary
@@ -849,11 +606,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         // display color property for Name
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
 
-        public int? PriorityID
+        public int? Priority
         {
             get
             {
-                FieldValue fv = GetFieldValue("PriorityID", false);
+                FieldValue fv = GetFieldValue("Priority", false);
                 if (fv != null)
                     return (int?)Convert.ToInt32(fv.Value);
                 else
@@ -861,11 +618,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("PriorityID", true);
+                FieldValue fv = GetFieldValue("Priority", true);
                 if (fv != null)
                 {
                     fv.Value = (value == null) ? null : ((int)value).ToString();
-                    NotifyPropertyChanged("PriorityID");
+                    NotifyPropertyChanged("Priority");
                 }
             }
         }
@@ -891,14 +648,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        // display image for PriorityID
-        public string PriorityIDIcon
+        // display image for Priority
+        public string PriorityIcon
         {
             get
             {
-                if (PriorityID == null)
+                if (Priority == null)
                     return "/Images/priority.none.png";
-                string priString = PriorityNames[(int)PriorityID];
+                string priString = PriorityNames[(int)Priority];
                 switch (priString)
                 {
                     case "Low":
@@ -913,8 +670,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        // sort property for PriorityID
-        public int PriorityIDSort { get { return PriorityID == null ? 1 : (int)PriorityID; } }
+        // sort property for Priority
+        public int PrioritySort { get { return Priority == null ? 1 : (int)Priority; } }
 
         // hardcode some names and colors for priority values
         public static string[] PriorityNames = new string[] { "Low", "Normal", "High" };
@@ -942,7 +699,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Website", false);
+                FieldValue fv = GetFieldValue("WebLink", false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -950,7 +707,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Website", true);
+                FieldValue fv = GetFieldValue("WebLink", true);
                 if (fv != null)
                 {
                     fv.Value = value;

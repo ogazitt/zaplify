@@ -8,12 +8,11 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Tag : ZaplifyEntity, INotifyPropertyChanged
+    public class Tag : ClientEntity, INotifyPropertyChanged
     {
         public Tag() : base() 
         {
-            // default the tag to White
-            color = "White";
+            colorID = 0;       
         }
 
         public Tag(Tag tag)
@@ -78,39 +77,23 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private string color;
-        /// <summary>
-        /// Color property
-        /// </summary>
-        /// <returns></returns>
+        private int colorID;
         [DataMember]
-        public string Color
+        public int ColorID
         {
             get
             {
-                return color;
+                return colorID;
             }
             set
             {
-                if (value != color)
+                if (value != colorID)
                 {
-                    color = value;
-                    NotifyPropertyChanged("Color");
+                    colorID = value;
+                    NotifyPropertyChanged("ColorID");
                 }
             }
         }
-
-        public static List<string> Colors = new List<string>()
-        {
-            "White",
-            "Blue",
-            "Brown",
-            "Green",
-            "Orange",
-            "Purple",
-            "Red",
-            "Yellow",
-        };
 
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)

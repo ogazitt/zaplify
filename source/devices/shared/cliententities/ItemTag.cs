@@ -8,7 +8,7 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class ItemTag : ZaplifyEntity, INotifyPropertyChanged
+    public class ItemTag : ClientEntity, INotifyPropertyChanged
     {
         public ItemTag() : base() { }
 

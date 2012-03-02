@@ -33,6 +33,10 @@ Dashboard elements
     float:right;
 }
 
+/*----------------------------------------------------------
+Dashboard Folders elements
+----------------------------------------------------------*/
+
 .folder-button {
     cursor: pointer;
     margin: 4px 10px 0 10px;
@@ -42,11 +46,11 @@ Dashboard elements
     position: relative;
     text-align: center;
     background-color: #AEC2D0;
-    xborder: 1px dotted red;
+    Xborder: 1px dotted red;
 }
 
 .folder-button:hover {
-    font-weight: bold;
+    Xfont-weight: bold;
 }
 
 .folder-button.expanded {
@@ -72,6 +76,10 @@ Dashboard elements
     background: transparent url(images/folder-selected.png) no-repeat left top;
 }
 
+.folder-button .folder-selector:hover {
+    background: transparent url(images/folder-selector-hover.png) no-repeat left top;
+}
+
 .folder-items {
     cursor: pointer;
     margin: 1px 10px 0 10px;
@@ -90,6 +98,8 @@ Dashboard elements
 
 .item-list-button {
     padding: 2px;
+    max-height: 18px;
+    overflow: hidden;
     background-color: #DDD9C3;
     border-bottom: 1px solid #C4BD97;
 }
@@ -105,6 +115,8 @@ Dashboard elements
 .item-button {
     padding: 2px;
     border-bottom: 1px solid #DDD9C3;
+    overflow:hidden;
+    max-height: 34px;
 }
 
 .item-button.selected {
@@ -112,3 +124,46 @@ Dashboard elements
 }
 
 .indent-1 { padding-left: 12px; }
+
+/*----------------------------------------------------------
+Dashboard Manager elements
+----------------------------------------------------------*/
+
+.manager-toolbar {
+    width: 100%;
+    height: 32px;
+    padding: 6px 6px 6px 6px;
+    background-color: #EEECE1;
+    border-width: 0px 1px 1px 0px;
+    border-style: solid;
+    border-color: #C4BD97;
+}
+
+.toolbar-button {
+    display:inline-block;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+}
+
+.item-path {
+    Xborder: 1px dashed red;
+}
+
+.manager-active {
+    width: 100%;
+    padding: 2px;
+    display: none;
+    Xborder: 1px dashed blue;
+}
+
+.input_item-name {
+    min-width: 100%;
+    display: block;
+}
+
+.manager-help {
+    width: 100%;
+    Xborder: 1px dashed blue;
+}
+

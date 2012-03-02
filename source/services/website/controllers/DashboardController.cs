@@ -3,7 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Web.Mvc;
+
+    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Models;
 
     public class DashboardController : BaseController
@@ -42,100 +45,85 @@
 
         void CreateDefaultFolders(UserDataModel model)
         {
-            Guid folderID = Guid.NewGuid();
+            Guid activitiesID = Guid.NewGuid();
+            Guid peopleID = Guid.NewGuid();
+            Guid placesID = Guid.NewGuid();
+            Guid listsID = Guid.NewGuid();
             DateTime now = DateTime.Now;
             Folder folder;
             Item item;
 
             FolderUser folderUser = new FolderUser() 
-                {  ID = Guid.NewGuid(), FolderID = folderID, UserID = this.CurrentUser.ID, PermissionID=Permission.Full };
+                {  ID = Guid.NewGuid(), FolderID = activitiesID, UserID = this.CurrentUser.ID, PermissionID=Permissions.Full };
 
             // create Activities folder
-            folder = new Folder() { ID = folderID, 
+            folder = new Folder() { ID = activitiesID, SortOrder = 1000,
                 Name = "Activities", UserID = this.CurrentUser.ID, 
-                DefaultItemTypeID = ItemType.Task, Items = new List<Item>(), 
+                ItemTypeID = SystemItemTypes.Task, Items = new List<Item>(), 
                 FolderUsers = new List<FolderUser>() { folderUser }
             };
             model.StorageContext.Folders.Add(folder);
 
+            // create Lists folder
+            folderUser.FolderID = listsID;
+            folder = new Folder() { ID = listsID, SortOrder = 2000,
+                Name = "Lists", UserID = this.CurrentUser.ID,
+                ItemTypeID = SystemItemTypes.ListItem, Items = new List<Item>(),
+                FolderUsers = new List<FolderUser>() { folderUser }
+            };
+            model.StorageContext.Folders.Add(folder);
+
+            // create People folder
+            folderUser.FolderID = peopleID;
+            folder = new Folder() { ID = peopleID, SortOrder = 3000,
+                Name = "People", UserID = this.CurrentUser.ID,
+                ItemTypeID = SystemItemTypes.Contact, Items = new List<Item>(),
+                FolderUsers = new List<FolderUser>() { folderUser }
+            };
+            model.StorageContext.Folders.Add(folder);
+
+            // create Places folder
+            folderUser.FolderID = placesID;
+            folder = new Folder() { ID = placesID, SortOrder = 4000,
+                Name = "Places", UserID = this.CurrentUser.ID,
+                ItemTypeID = SystemItemTypes.Location, Items = new List<Item>(),
+                FolderUsers = new List<FolderUser>() { folderUser }
+            };
+            model.StorageContext.Folders.Add(folder);
+            // save folders
+            model.StorageContext.SaveChanges();
+
+            model = new UserDataModel(Storage.NewContext, this.CurrentUser);
+
             // create Tasks list
-            item = new Item() { ID = Guid.NewGuid(), 
-                Name = "Tasks", FolderID = folder.ID, UserID = this.CurrentUser.ID,
-                IsList = true, ItemTypeID = ItemType.Task, ParentID = null,
+            item = new Item() { ID = Guid.NewGuid(), SortOrder = 1000,
+                Name = "Tasks", FolderID = activitiesID, UserID = this.CurrentUser.ID,
+                IsList = true, ItemTypeID = SystemItemTypes.Task, ParentID = null,
                 Created = now, LastModified = now 
             };
             model.StorageContext.Items.Add(item);
 
             // create Learn Zaplify task
-            item = new Item() { ID = Guid.NewGuid(),  
-                Name = "Learn about Zaplify!", FolderID = folder.ID, UserID = this.CurrentUser.ID,
-                IsList = false, ItemTypeID = ItemType.Task, ParentID = item.ID, 
+            item = new Item() { ID = Guid.NewGuid(), SortOrder = 2000,
+                Name = "Learn about Zaplify!", FolderID = activitiesID, UserID = this.CurrentUser.ID,
+                IsList = false, ItemTypeID = SystemItemTypes.Task, ParentID = item.ID, 
                 FieldValues = new List<FieldValue>(),
                 Created = now, LastModified = now
             };
             model.StorageContext.Items.Add(item);
             
             model.StorageContext.FieldValues.Add(
-                ConstantsModel.CreateFieldValue(item.ID, ItemType.Task, "Due", DateTime.Today.Date.ToString("yyyy/MM/dd")));
+                ConstantsModel.CreateFieldValue(item.ID, SystemItemTypes.Task, "Due", DateTime.Today.Date.ToString("yyyy/MM/dd")));
             model.StorageContext.FieldValues.Add(
-                ConstantsModel.CreateFieldValue(item.ID, ItemType.Task, "Details", "Tap the browse button below to discover more about Zaplify."));
-
-            // create Lists folder
-            folderID = Guid.NewGuid();
-            folderUser.FolderID = folderID;
-            folder = new Folder()
-            {
-                ID = folderID,
-                Name = "Lists",
-                UserID = this.CurrentUser.ID,
-                DefaultItemTypeID = ItemType.ListItem,
-                Items = new List<Item>(),
-                FolderUsers = new List<FolderUser>() { folderUser }
-            };
-            model.StorageContext.Folders.Add(folder);
+                ConstantsModel.CreateFieldValue(item.ID, SystemItemTypes.Task, "Details", "Tap the browse button below to discover more about Zaplify."));
 
             // create Groceries list
-            item = new Item()
-            {
-                ID = Guid.NewGuid(),
-                Name = "Groceries",
-                FolderID = folder.ID,
-                UserID = this.CurrentUser.ID,
-                IsList = true,
-                ItemTypeID = ItemType.ListItem,
-                ParentID = null,
-                Created = now,
-                LastModified = now
+            item = new Item() { ID = Guid.NewGuid(), SortOrder = 3000,
+                Name = "Groceries", FolderID = listsID, UserID = this.CurrentUser.ID,
+                IsList = true, ItemTypeID = SystemItemTypes.ShoppingItem, ParentID = null,
+                Created = now, LastModified = now
             };
             model.StorageContext.Items.Add(item);
-
-            // create People folder
-            folderID = Guid.NewGuid();
-            folderUser.FolderID = folderID;
-            folder = new Folder()
-            {
-                ID = folderID,
-                Name = "People",
-                UserID = this.CurrentUser.ID,
-                DefaultItemTypeID = ItemType.Contact,
-                Items = new List<Item>(),
-                FolderUsers = new List<FolderUser>() { folderUser }
-            };
-            model.StorageContext.Folders.Add(folder);
-
-            // create Places folder
-            folderID = Guid.NewGuid();
-            folderUser.FolderID = folderID;
-            folder = new Folder()
-            {
-                ID = folderID,
-                Name = "Places",
-                UserID = this.CurrentUser.ID,
-                DefaultItemTypeID = ItemType.Location,
-                Items = new List<Item>(),
-                FolderUsers = new List<FolderUser>() { folderUser }
-            };
-            model.StorageContext.Folders.Add(folder);
 
             model.StorageContext.SaveChanges();
         }

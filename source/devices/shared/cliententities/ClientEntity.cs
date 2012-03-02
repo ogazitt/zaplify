@@ -8,7 +8,7 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract]
-    public class ZaplifyEntity 
+    public class ClientEntity 
     {
         [DataMember]
         public virtual Guid ID { get; set; }
@@ -16,7 +16,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         [DataMember]
         public virtual string Name { get; set; }
 
-        public ZaplifyEntity()
+        public ClientEntity()
         {
             ID = Guid.NewGuid();
         }

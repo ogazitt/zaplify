@@ -8,7 +8,7 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Field : ZaplifyEntity, INotifyPropertyChanged
+    public class Field : ClientEntity, INotifyPropertyChanged
     {
         public Field() : base() { }
 
@@ -31,10 +31,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid id;
-        /// <summary>
-        /// ID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override Guid ID
         {
@@ -53,10 +49,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override string Name
         {
@@ -74,33 +66,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private int fieldTypeID;
-        /// <summary>
-        /// FieldTypeID property
-        /// </summary>
-        /// <returns></returns>
+        private string fieldType;
         [DataMember]
-        public int FieldTypeID
+        public string FieldType
         {
             get
             {
-                return fieldTypeID;
+                return fieldType;
             }
             set
             {
-                if (value != fieldTypeID)
+                if (value != fieldType)
                 {
-                    fieldTypeID = value;
-                    NotifyPropertyChanged("FieldTypeID");
+                    fieldType = value;
+                    NotifyPropertyChanged("FieldType");
                 }
             }
         }
 
         private string displayName;
-        /// <summary>
-        /// DisplayName property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string DisplayName
         {
@@ -119,10 +103,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string displayType;
-        /// <summary>
-        /// DisplayType property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string DisplayType
         {
@@ -141,10 +121,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid itemTypeID;
-        /// <summary>
-        /// ItemTypeID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public Guid ItemTypeID
         {
@@ -163,10 +139,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private bool isPrimary;
-        /// <summary>
-        /// IsPrimary property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public bool IsPrimary
         {
@@ -185,10 +157,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private int sortOrder;
-        /// <summary>
-        /// SortOrder property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public int SortOrder
         {

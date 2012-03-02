@@ -5,11 +5,12 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
+
+using BuiltSteady.Zaplify.Devices.ClientEntities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -96,7 +97,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 {
                     try
                     {
-                        ZaplifyEntity entity = (ZaplifyEntity)this.Body;
+                        ClientEntity entity = (ClientEntity)this.Body;
                         ID = entity.ID;
                     }
                     catch (Exception)
@@ -349,13 +350,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 case RequestQueue.RequestRecord.RequestType.Delete:
                     reqtype = "Delete";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
+                    id = ((ClientEntity)req.Body).ID.ToString();
+                    name = ((ClientEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Insert:
                     reqtype = "Insert";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
+                    id = ((ClientEntity)req.Body).ID.ToString();
+                    name = ((ClientEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Update:
                     reqtype = "Update";

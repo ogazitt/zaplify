@@ -49,7 +49,6 @@
         // constant / shared tables
         public DbSet<ActionType> ActionTypes { get; set; }
         public DbSet<Color> Colors { get; set; }
-        public DbSet<FieldType> FieldTypes { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Priority> Priorities { get; set; }
 

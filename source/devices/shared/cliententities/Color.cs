@@ -37,10 +37,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private int colorID;
-        /// <summary>
-        /// ColorID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public int ColorID
         {
@@ -59,10 +55,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Name
         {

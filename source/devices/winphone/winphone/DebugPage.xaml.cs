@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Windows;
@@ -13,7 +14,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
-using System.ComponentModel;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -59,15 +60,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void Debug_AddButton_Click(object sender, EventArgs e)
         {
             Item item;
-            Item todoList, shoppingList;
+            Item taskList, groceryList;
 
             // create some debug records
 
             // create a to-do style item
-            Folder folder = App.ViewModel.Folders.Single(f => f.Name == "Personal");
-            todoList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.Task && i.IsList == true);
-            shoppingList = App.ViewModel.Items.Single(i => i.ItemTypeID == ItemType.ListItem && i.IsList == true);
-            folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = todoList.ID, ItemTypeID = ItemType.Task, Name = "Check out Zaplify", Due = DateTime.Today, PriorityID = 1 });
+            Folder folder = App.ViewModel.Folders.Single(f => f.Name == "Activities");
+            taskList = App.ViewModel.Items.Single(i => i.ItemTypeID == SystemItemTypes.Task && i.IsList == true);
+            folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = taskList.ID, ItemTypeID = SystemItemTypes.Task, SortOrder = 1000,
+                Name = "Check out Zaplify", Due = DateTime.Today, Priority = 1 });
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
@@ -78,11 +79,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ID = item.ID
                 });
 
+            folder = App.ViewModel.Folders.Single(f => f.Name == "Lists");
+            groceryList = App.ViewModel.Items.Single(i => i.ItemTypeID == SystemItemTypes.ShoppingItem && i.IsList == true);
             // create a shopping item
+            int index = 1;
             string[] names = { "Milk", "OJ", "Cereal", "Coffee", "Bread" };
             foreach (var name in names)
             {
-                folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = shoppingList.ID, ItemTypeID = ItemType.ListItem, Name = name });
+                folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = groceryList.ID, ItemTypeID = SystemItemTypes.ShoppingItem, SortOrder = (1000*index), Name = name });
 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
@@ -183,13 +187,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             {
                 case RequestQueue.RequestRecord.RequestType.Delete:
                     reqtype = "Delete";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
+                    id = ((ClientEntity)req.Body).ID.ToString();
+                    name = ((ClientEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Insert:
                     reqtype = "Insert";
-                    id = ((ZaplifyEntity)req.Body).ID.ToString();
-                    name = ((ZaplifyEntity)req.Body).Name;
+                    id = ((ClientEntity)req.Body).ID.ToString();
+                    name = ((ClientEntity)req.Body).Name;
                     break;
                 case RequestQueue.RequestRecord.RequestType.Update:
                     reqtype = "Update";

@@ -86,7 +86,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ColorListPicker.DisplayMemberPath = "Name";
             try
             {
-                BuiltSteady.Zaplify.Devices.ClientEntities.Color color = App.ViewModel.Constants.Colors.Single(c => c.Name == tagCopy.Color);
+                BuiltSteady.Zaplify.Devices.ClientEntities.Color color = App.ViewModel.Constants.Colors.Single(c => c.ColorID == tagCopy.ColorID);
                 ColorListPicker.SelectedIndex = App.ViewModel.Constants.Colors.IndexOf(color);
             }
             catch (Exception)
@@ -147,7 +147,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             tagCopy.Name = TagName.Text;
 
             // get the color from the listpicker
-            tagCopy.Color = App.ViewModel.Constants.Colors[ColorListPicker.SelectedIndex].Name;
+            tagCopy.ColorID = App.ViewModel.Constants.Colors[ColorListPicker.SelectedIndex].ColorID;
 
             // check for appropriate values
             if (tagCopy.Name == "")

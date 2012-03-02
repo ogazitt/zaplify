@@ -36,10 +36,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<ActionType> actionTypes;
-        /// <summary>
-        /// ActionTypes collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<ActionType> ActionTypes
         {
@@ -58,10 +54,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Color> colors;
-        /// <summary>
-        /// Colors collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Color> Colors
         {
@@ -79,33 +71,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private ObservableCollection<FieldType> fieldTypes;
-        /// <summary>
-        /// Field Types collection property
-        /// </summary>
-        /// <returns></returns>
-        [DataMember]
-        public ObservableCollection<FieldType> FieldTypes
+        public string LookupColor(int colorID)
         {
-            get
-            {
-                return fieldTypes;
-            }
-            set
-            {
-                if (value != fieldTypes)
-                {
-                    fieldTypes = value;
-                    NotifyPropertyChanged("FieldTypes");
-                }
-            }
+            Color color = Colors.Single(c => c.ColorID == colorID);
+            return color.Name;
         }
 
         private ObservableCollection<ItemType> itemTypes;
-        /// <summary>
-        /// List Types collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<ItemType> ItemTypes
         {
@@ -124,10 +96,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Permission> permissions;
-        /// <summary>
-        /// Permissions collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Permission> Permissions
         {
@@ -146,10 +114,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Priority> priorities;
-        /// <summary>
-        /// Priorities collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Priority> Priorities
         {

@@ -48,7 +48,7 @@
     <OutputPath>..\..\..\bin\database\debug\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
-    <TargetConnectionString>Data Source=raobsl4g40.database.windows.net;User ID=builtsteady;Pooling=False;MultipleActiveResultSets=False;Packet Size=4096;Application Name=".Net SqlClient Data Provider"</TargetConnectionString>
+    <TargetConnectionString>Data Source=.\SQLExpress;Integrated Security=True;Pooling=False;MultipleActiveResultSets=False;Packet Size=4096;Application Name=".Net SqlClient Data Provider"</TargetConnectionString>
     <TargetDatabase>Zaplify</TargetDatabase>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <SuppressWarnings>
@@ -88,13 +88,7 @@
     <Build Include="dbo.Colors.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="dbo.Emails.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
     <Build Include="dbo.Fields.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
-    <Build Include="dbo.FieldTypes.Table.sql">
       <SubType>Code</SubType>
     </Build>
     <Build Include="dbo.FieldValues.Table.sql">
