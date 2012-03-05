@@ -13,6 +13,7 @@
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     [ServiceContract]
     [LogMessages]
@@ -155,6 +156,10 @@
                 return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
 
             // fill out the ID if it's not set (e.g. from a javascript client)
+            if (clientFolder.ItemTypeID == null || clientFolder.ItemTypeID == Guid.Empty)
+                clientFolder.ItemTypeID = SystemItemTypes.Task;
+
+            // default ItemTypeID to Task if not set
             if (clientFolder.ID == null || clientFolder.ID == Guid.Empty)
                 clientFolder.ID = Guid.NewGuid();
 

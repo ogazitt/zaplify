@@ -14,6 +14,7 @@
         <div class="header-region">
             <% Html.RenderPartial("SignInControl"); %>            
             <div class="header-content">
+                <img class="logo" src="<%: Url.Content("~/content/images/zaplogo.png") %>" />
                 <asp:ContentPlaceHolder id="HeaderContent" runat="server" />
             </div>
         </div>

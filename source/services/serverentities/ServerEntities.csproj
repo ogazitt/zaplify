@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\shared\entities\EntityConstants.cs">
+      <Link>EntityConstants.cs</Link>
+    </Compile>
     <Compile Include="ActionType.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Constants.cs" />
@@ -53,7 +56,6 @@
     <Compile Include="FolderUser.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="FieldType.cs" />
     <Compile Include="ItemType.cs" />
     <Compile Include="Permission.cs" />
     <Compile Include="Priority.cs" />

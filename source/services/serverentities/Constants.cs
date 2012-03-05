@@ -9,7 +9,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
     {
         public List<ActionType> ActionTypes { get; set; }
         public List<Color> Colors { get; set; }
-        public List<FieldType> FieldTypes { get; set; }
         public List<ItemType> ItemTypes { get; set; }
         public List<Permission> Permissions { get; set; }
         public List<Priority> Priorities { get; set; }

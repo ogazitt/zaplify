@@ -15,6 +15,7 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using System.Windows.Media.Imaging;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -211,7 +212,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 case "due":
                     return items.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
                 case "priority": // by pri
-                    return items.OrderBy(t => t.Complete).ThenByDescending(t => t.PriorityIDSort).ThenBy(t => t.Name).ToObservableCollection();
+                    return items.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
                 case "name": // by name
                     return items.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
             }
@@ -248,7 +249,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
+            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
             element.SetValue(Grid.ColumnProperty, 0);  // this is a dummy element - will always be a blank png - added here to get the spacing right
             itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri("/Images/appbar.folder.rest.png", UriKind.Relative)), Width = 64, Height = 64, Margin = new Thickness(-3, 3, 0, 0) });
             element.SetValue(Grid.ColumnProperty, 1);
@@ -316,16 +317,16 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
             itemLineOne.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(1, GridUnitType.Star) });
-            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIDIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
+            itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(item.PriorityIcon, UriKind.Relative)), Margin = new Thickness(0, 2, 0, 0) });
             element.SetValue(Grid.ColumnProperty, 0);
-            // if the icon string is empty, render a checkbox
-            if (icon == null)
+            // render a checkbox if has Complete field
+            if (itemType != null && itemType.HasField(FieldNames.Complete))
             {
                 itemLineOne.Children.Add(element = new CheckBox() { IsChecked = (item.Complete == null ? false : item.Complete), Tag = item.ID });
                 element.SetValue(Grid.ColumnProperty, 1);
                 ((CheckBox)element).Click += new RoutedEventHandler(checkBoxClickEvent);
             }
-            else
+            if (icon != null)
             {
                 if (icon.StartsWith("/Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
                     icon = "/Images/" + icon;
@@ -376,7 +377,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         ClickMode = ClickMode.Release,
                         Content = tag.Name,
                         FontSize = (double)App.Current.Resources["PhoneFontSizeNormal"],
-                        Foreground = new SolidColorBrush(GetDisplayColor(tag.Color)),
+                        Foreground = new SolidColorBrush(GetDisplayColor(App.ViewModel.Constants.LookupColor(tag.ColorID))),
                         Tag = tag.ID
                     });
                     button.Click += tagClickEvent;

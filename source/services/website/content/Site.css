@@ -101,11 +101,19 @@ Layout elements
 
 .header-region {   
     min-width: 600px;
-    height: 50px;
-    background: transparent url(images/banner-bkgnd.png) repeat-x left -50px;
+    height: 60px;
+    background: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
 }
 
-.header-content {   
+.header-content {
+}
+
+.header-content img {
+    position: fixed;
+    left: 20px;
+    top: 0px;
+    height: 65px;
+    width: 157;
 }
 
 .main-content-region {
@@ -250,6 +258,24 @@ Validation
 
 .validation-summary-valid {
     display: none;
+}
+
+/*----------------------------------------------------------
+Icons
+----------------------------------------------------------*/
+
+.busy {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: transparent url(images/busy.gif) no-repeat;
+}
+
+.refresh {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: transparent url(images/refresh.png) no-repeat;
 }
 
 /*----------------------------------------------------------

@@ -32,10 +32,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private int actionTypeID;
-        /// <summary>
-        /// ActionTypeID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public int ActionTypeID
         {
@@ -54,10 +50,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string fieldName;
-        /// <summary>
-        /// FieldName property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string FieldName
         {
@@ -76,10 +68,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string displayName;
-        /// <summary>
-        /// DisplayName property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string DisplayName
         {
@@ -98,10 +86,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string actionName;
-        /// <summary>
-        /// ActionName property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string ActionName
         {
@@ -120,10 +104,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private int sortOrder;
-        /// <summary>
-        /// SortOrder property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public int SortOrder
         {

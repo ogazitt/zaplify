@@ -28,6 +28,7 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using System.Device.Location;
 using System.ComponentModel;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -460,17 +461,17 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             tb.SetBinding(TextBox.TextProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
 
             bool notMatched = false;
-            // render the right control based on the type 
+            // render the right control based on the DisplayType 
             switch (field.DisplayType)
             {
-                case "String":
+                case DisplayTypes.Text:
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
                     tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                     EditStackPanel.Children.Add(tb);
                     break;
-                case "TextBox":
+                case DisplayTypes.TextArea:
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
                     tb.AcceptsReturn = true;
                     tb.TextWrapping = TextWrapping.Wrap;
@@ -479,8 +480,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     EditStackPanel.Children.Add(tb);
                     break;
-                case "Phone":
-                case "PhoneNumber":
+                case DisplayTypes.Phone:
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.TelephoneNumber } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
@@ -498,14 +498,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
                     EditStackPanel.Children.Add(innerPanel);
                     break;
-                case "Website":
+                case DisplayTypes.Link:
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Url } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
                     tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                     EditStackPanel.Children.Add(tb);
                     break;
-                case "Email":
+                case DisplayTypes.Email:
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.EmailSmtpAddress } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
@@ -524,8 +524,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
                     EditStackPanel.Children.Add(innerPanel);
                     break;
-                case "Location":
-                case "Address":
+                case DisplayTypes.Address:
                     tb.InputScope = new InputScope()
                     {
                         Names = 
@@ -561,7 +560,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
                     EditStackPanel.Children.Add(innerPanel);
                     break;
-                case "Priority":
+                case DisplayTypes.Priority:
                     ListPicker lp = new ListPicker()
                     {
                         MinWidth = minWidth,
@@ -618,7 +617,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                     EditStackPanel.Children.Add(tb);
                     break;
-                case "Date":
+                case DisplayTypes.DatePicker:
                     DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
                     dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
                     dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
@@ -631,13 +630,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     dp.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(dp);
                     break;
-                case "Boolean":
+                case DisplayTypes.Checkbox:
                     CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
                     cb.SetBinding(CheckBox.IsCheckedProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
                     cb.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(cb);
                     break;
-                case "TagList":
+                case DisplayTypes.TagList:
                     TextBox taglist = new TextBox() { MinWidth = minWidth, IsTabStop = true };
                     taglist.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                     taglist.TabIndex = tabIndex++;

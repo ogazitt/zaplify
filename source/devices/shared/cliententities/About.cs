@@ -14,10 +14,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         public About() { }
 
         private string versionNumber;
-        /// <summary>
-        /// VersionNumber property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string VersionNumber
         {
@@ -36,10 +32,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string developerInfo;
-        /// <summary>
-        /// DeveloperInfo property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string DeveloperInfo
         {
@@ -58,10 +50,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string feedbackEmail;
-        /// <summary>
-        /// FeedbackEmail property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string FeedbackEmail
         {
@@ -80,10 +68,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string website;
-        /// <summary>
-        /// Website property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Website
         {
@@ -102,10 +86,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Version> versions;
-        /// <summary>
-        /// Versions property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Version> Versions
         {
@@ -140,10 +120,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         public Version() { }
 
         private string number;
-        /// <summary>
-        /// Number property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Number
         {
@@ -162,10 +138,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string details;
-        /// <summary>
-        /// Details property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Details
         {

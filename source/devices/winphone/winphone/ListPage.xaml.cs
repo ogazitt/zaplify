@@ -25,6 +25,7 @@
     using BuiltSteady.Zaplify.Devices.ClientEntities;
     using BuiltSteady.Zaplify.Devices.ClientViewModels;
     using BuiltSteady.Zaplify.Devices.ClientHelpers;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
@@ -386,7 +387,7 @@
             Item itemCopy = new Item(item);
 
             // toggle the complete flag to reflect the checkbox click
-            item.Complete = !item.Complete;
+            item.Complete = (item.Complete == null) ? true : !item.Complete;
 
             // bump the last modified timestamp
             item.LastModified = DateTime.UtcNow;
@@ -692,11 +693,6 @@
                 IsList = isChecked,
             };
 
-            // hack: special-case processing for To Do item types
-            // set the complete field to false 
-            if (item.ItemTypeID == ItemType.Task)
-                item.Complete = false;
-
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
@@ -979,7 +975,7 @@
 
             if (list.ItemTypeID == null || list.ItemTypeID == Guid.Empty)
             {
-                list.ItemTypeID = folder.DefaultItemTypeID;
+                list.ItemTypeID = folder.ItemTypeID;
             }
 
             // set the selected index 

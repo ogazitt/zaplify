@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Collections.ObjectModel;
 
+using BuiltSteady.Zaplify.Shared.Entities;
+
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class ItemType : ZaplifyEntity, INotifyPropertyChanged
+    public class ItemType : ClientEntity, INotifyPropertyChanged
     {
         public ItemType() : base() { }
 
@@ -36,13 +38,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             return this.Name;
         }
 
-        // default item types
-        public static Guid Task = new Guid("00000000-0000-0000-0000-000000000001");
-        public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000002");
-        public static Guid Location = new Guid("00000000-0000-0000-0000-000000000003");
-        public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000004");
-        public static List<Guid> Default = new List<Guid>() { Task, ListItem, Location, Contact };
-
         // static dictionary of current item types
         public static Dictionary<Guid, ItemType> ItemTypes { get; set; }
         public static void CreateDictionary(ObservableCollection<ItemType> itemTypes)
@@ -64,22 +59,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
 
             // last resort
-            if (itemTypeID == Task)
+            if (itemTypeID == SystemItemTypes.Task)
                 return "Task";
-            if (itemTypeID == ListItem)
-                return "List Item";
-            if (itemTypeID == Location)
+            if (itemTypeID == SystemItemTypes.Location)
                 return "Location";
-            if (itemTypeID == Contact)
+            if (itemTypeID == SystemItemTypes.Contact)
                 return "Contact";
+            if (itemTypeID == SystemItemTypes.ListItem)
+                return "ListItem";
+            if (itemTypeID == SystemItemTypes.ShoppingItem)
+                return "ShoppingItem";
             return null;
         }
 
         private Guid id;
-        /// <summary>
-        /// ID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override Guid ID
         {
@@ -98,10 +91,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override string Name
         {
@@ -120,10 +109,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private List<Field> fields;
-        /// <summary>
-        /// Fields collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public List<Field> Fields
         {
@@ -142,10 +127,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string icon;
-        /// <summary>
-        /// Icon property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public string Icon
         {
@@ -171,6 +152,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             {
                 handler(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        public bool HasField(string fieldName)
+        {
+            foreach (Field f in this.Fields)
+            {
+                if (f.Name.Equals(fieldName, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
     }
 }

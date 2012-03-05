@@ -9,7 +9,7 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class Folder : ZaplifyEntity, INotifyPropertyChanged
+    public class Folder : ClientEntity, INotifyPropertyChanged
     {
         public Folder() : base()
         {
@@ -64,10 +64,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private Guid id;
-        /// <summary>
-        /// ID property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override Guid ID
         {
@@ -86,10 +82,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private string name;
-        /// <summary>
-        /// Name property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public override string Name
         {
@@ -108,10 +100,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         private ObservableCollection<Item> items;
-        /// <summary>
-        /// Items collection property
-        /// </summary>
-        /// <returns></returns>
         [DataMember]
         public ObservableCollection<Item> Items
         {
@@ -129,33 +117,45 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid defaultItemTypeID;
-        /// <summary>
-        /// DefaultItemType property
-        /// </summary>
-        /// <returns></returns>
+        private Guid itemTypeID;
         [DataMember]
-        public Guid DefaultItemTypeID
+        public Guid ItemTypeID
         {
             get
             {
-                return defaultItemTypeID;
+                return itemTypeID;
             }
             set
             {
-                if (value != defaultItemTypeID)
+                if (value != itemTypeID)
                 {
-                    defaultItemTypeID = value;
-                    NotifyPropertyChanged("DefaultItemTypeID");
+                    itemTypeID = value;
+                    NotifyPropertyChanged("ItemTypeID");
+                }
+            }
+        }
+
+        private float sortOrder;
+        [DataMember]
+        public float SortOrder
+        {
+            get
+            {
+                return sortOrder;
+            }
+            set
+            {
+                if (value != sortOrder)
+                {
+                    sortOrder = value;
+                    NotifyPropertyChanged("SortOrder");
                 }
             }
         }
 
         static string FirstDueText = "next item due ";
-        /// <summary>
-        /// Returns the earliest date a item is due in this folder
+        /// Returns the item with earliest due date in this folder
         /// This property is used solely for databinding
-        /// </summary>
         public string FirstDue
         {
             get

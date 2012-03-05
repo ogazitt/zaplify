@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class User : ZaplifyEntity, INotifyPropertyChanged
+    public class User : ClientEntity, INotifyPropertyChanged
     {
         public User() : base() { }
 
