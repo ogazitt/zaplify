@@ -206,10 +206,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             // create and initialize a new response wrapper
             HttpWebResponseWrapper<T> wrapper = new HttpWebResponseWrapper<T>(resp);
-
+   
+            // try to get the status code - an exception indicates an error in the payload
+            try
+            {
+                if (wrapper.StatusCode > 0)
+                    return wrapper;
+            }
+            catch (Exception)
+            {
+                TraceHelper.AddMessage("Bad response format received");
+                return null;
+            }
+            
             return wrapper;
         }
-
 
         // Common code for invoking all the web service calls.  
         // GET requests will be served directly from this method,

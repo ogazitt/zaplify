@@ -3,6 +3,7 @@ using System.Threading;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using Nuance.SpeechKit;
 using MonoTouch.Foundation;
+using System.IO;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -50,10 +51,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public static void Cancel(Delegate networkDel)
         {
             // update the speech state
-            speechStateDelegate.DynamicInvoke(SpeechState.Finished, "Canceled speech operation");
+            if (speechStateDelegate != null)
+                speechStateDelegate.DynamicInvoke(SpeechState.Finished, "Canceled speech operation");
    
             // cleanup
             CleanupSpeechKit();
+        }
+        
+        public static void Cleanup()
+        {
+            CleanupSpeechKit();
+            //SpeechKit.Destroy();
         }
 
         public static string SpeechStateString(SpeechState state)
@@ -162,10 +170,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 TraceHelper.AddMessage("Exception in SpeechKitInitialize: " + ex.Message);
                 return false;
             }
-   
-            //_beep = (SKEarcon) SKEarcon.FromName("beep.wav");
-            //beep = new SKEarcon("beep.wav");
-            //SpeechKit.SetEarcon(beep, SKEarconType.SKStartRecordingEarconType);
+            
+            //beep = (SKEarcon) SKEarcon.FromName(p);
+            string path = Path.GetFullPath("beep.wav");
+            beep = new SKEarcon(path);
+            SpeechKit.SetEarcon(beep, SKEarconType.SKStartRecordingEarconType);
 
             return true;
         }

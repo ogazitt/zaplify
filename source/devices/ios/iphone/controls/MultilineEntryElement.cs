@@ -14,33 +14,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	///     
 	/// The Text fields in a given section are aligned with each other.
 	/// </remarks>
-	public class MultilineEntryElement : EntryElement, IElementSizing {
-		/// <summary>
-		///   The number of lines in the MultilineEntryElement
-		/// </summary>
-		public int Lines { 
-			get {
-				return lines;
-			}
-			set {
-				lines = value;
-			}
-		}
-		protected int lines = 1;
-
-		/// <summary>
-		/// The key used for reusable UITableViewCells.
-		/// </summary>
-		static NSString entryKey = new NSString ("MultilineEntryElement");
-		protected override NSString EntryKey {
-			get {
-				return entryKey;
-			}
-		}
-		
-		bool isPassword, becomeResponder;
+	public class MultilineEntryElement : Element, IElementSizing 
+    {
 		UITextView entry;
 		static UIFont font = UIFont.BoldSystemFontOfSize (17);
+        string val;
 		
 		/// <summary>
 		/// Constructs an EntryElement with the given caption, placeholder and initial value.
@@ -51,83 +29,59 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 		/// <param name="value">
 		/// Initial value.
 		/// </param>
-		public MultilineEntryElement (string caption, string value) : base (caption, "", value)
+		public MultilineEntryElement (string caption, string value) : base(caption)
 		{ 
+            Caption = caption;
 			Value = value;
 		}
 
-		/// <summary>
-		/// Constructs an EntryElement for password entry with the given caption, placeholder and initial value.
-		/// </summary>
-		/// <param name="caption">
-		/// The caption to use.
-		/// </param>
-		/// <param name="value">
-		/// Initial value.
-		/// </param>
-		/// <param name="isPassword">
-		/// True if this should be used to enter a password.
-		/// </param>
-		public MultilineEntryElement (string caption, string value, bool isPassword) : base (caption, "", value, isPassword)
-		{
-			Value = value;
-			this.isPassword = isPassword;
-		}
+        /// <summary>
+        ///   The number of lines in the MultilineEntryElement
+        /// </summary>
+        public int Lines { get; set; }
 
-		public override string Summary ()
+        public string Value
+        {
+            get
+            {
+                return val;
+            }
+            set
+            {
+                val = value;
+                if (entry != null && entry.Text != value)
+                    entry.Text = value;
+            }
+        }
+		
+        public override string Summary ()
 		{
 			return Value;
 		}
+        
+        public event EventHandler Changed;
 		
-		public new string Value
-		{
-			get
-			{
-				return base.Value;
-			}
-			set
-			{
-				base.Value = value;
-				if (entry != null && entry.Text != value)
-					entry.Text = value;
-			}
-		}
 
 		// 
 		// Computes the X position for the entry by aligning all the entries in the Section
 		//
 		SizeF ComputeEntryPosition (UITableView tv, UITableViewCell cell)
 		{
-			Section s = Parent as Section;
-			if (s.EntryAlignment.Width != 0)
-				return s.EntryAlignment;
-
-			// If all EntryElements have a null Caption, align UITextField with the Caption
-			// offset of normal cells (at 10px).
-			SizeF max = new SizeF (-15, tv.StringSize ("M", font).Height);
-			foreach (var e in s.Elements){
-				var ee = e as EntryElement;
-				if (ee == null)
-					continue;
-				if (ee.Caption != null) {
-					var size = tv.StringSize (ee.Caption, font);
-					if (size.Width > max.Width)
-						max = size;
-				}
+			SizeF max = new SizeF (-15, GetTextViewHeight(this.GetContainerTableView()));
+	        if (Caption != null) {
+				var size = tv.StringSize (Caption, font);
+				if (size.Width > max.Width)
+					max.Width = size.Width;
 			}
 			
-			// set the height based on the Lines property
-			max.Height = GetTextViewHeight(this.GetContainerTableView());
-			
-			s.EntryAlignment = new SizeF (25 + Math.Min (max.Width, 160), max.Height);
-			return s.EntryAlignment;
+			var entryAlignment = new SizeF (25 + Math.Min (max.Width, 160), max.Height);
+			return entryAlignment;
 		}
 
 		protected virtual UITextView CreateTextView (RectangleF frame)
 		{
 			return new UITextView (frame) {
 				AutoresizingMask = UIViewAutoresizing.FlexibleWidth | UIViewAutoresizing.FlexibleLeftMargin, 
-				SecureTextEntry = isPassword,
 				Text = Value ?? "",
 				Tag = 1,
 				Font = font,
@@ -135,11 +89,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			};
 		}
 
-		static NSString cellkey = new NSString ("MultilineEntryElement");
+		static string cellkey = "MultilineEntryElement";
 
 		protected override NSString CellKey {
 			get {
-				return cellkey;
+				return new NSString(cellkey + Lines.ToString());
 			}
 		}
 
@@ -158,66 +112,22 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				float width = cell.ContentView.Bounds.Width - size.Width;
 
 				entry = CreateTextView (new RectangleF (size.Width, yOffset, width, size.Height));
-				entry.Changed += delegate {
+                entry.ReturnKeyType = UIReturnKeyType.Done;
+                entry.KeyboardType = UIKeyboardType.Default;
+                entry.AutocorrectionType = UITextAutocorrectionType.Default;
+
+                entry.Changed += delegate {
 					FetchValue ();
 				};
 				entry.Ended += delegate {
 					FetchValue ();
-					
-					RootElement root = this.GetImmediateRootElement ();
-					EntryElement focus = null;
-
-					if (root == null)
-						return;
-
-					foreach (var s in root) {
-						foreach (var e in s.Elements) {
-							if (e == this) {
-								focus = this;
-							} else if (focus != null && e is EntryElement) {
-								focus = e as EntryElement;
-								break;
-							}
-						}
-
-						if (focus != null && focus != this)
-							break;
-					}
-
-					if (focus != this)
-						focus.BecomeFirstResponder (true);
-					else 
-						focus.ResignFirstResponder (true);
-
-					return;
+					entry.ResignFirstResponder();
 				};
 
 				entry.Started += delegate {
-					MultilineEntryElement self = null;
-
-					if (!ReturnKeyType.HasValue) {
-						var returnType = UIReturnKeyType.Default;
-
-						foreach (var e in (Parent as Section).Elements){
-							if (e == this)
-								self = this;
-							else if (self != null && e is EntryElement)
-								returnType = UIReturnKeyType.Next;
-						}
-						entry.ReturnKeyType = returnType;
-					} else
-						entry.ReturnKeyType = ReturnKeyType.Value;
-
 					tv.ScrollToRow (IndexPath, UITableViewScrollPosition.Middle, true);
 				};
 			}
-			if (becomeResponder){
-				entry.BecomeFirstResponder ();
-				becomeResponder = false;
-			}
-			entry.KeyboardType = KeyboardType;
-			entry.AutocapitalizationType = AutocapitalizationType;
-			entry.AutocorrectionType = AutocorrectionType;
 
 			cell.TextLabel.Text = Caption;
 			cell.ContentView.AddSubview (entry);
@@ -239,10 +149,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 		}
 		
 		/// <summary>
-		///  Copies the value from the UITextField in the EntryElement to the
+		///  Copies the value from the UITextView in the EntryElement to the
 		//   Value property and raises the Changed event if necessary.
 		/// </summary>
-		public new void FetchValue ()
+		public void FetchValue ()
 		{
 			if (entry == null)
 				return;
@@ -251,6 +161,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			if (newValue == Value)
 				return;
 
+            if (Changed != null)
+                Changed(this, new EventArgs());
+   
+            // check for return key and resign responder if it is
+            if (newValue.IndexOf('\n') >= 0)
+            {
+                entry.ResignFirstResponder();
+                return;
+            }
+            
 			Value = newValue;
 		}
 	}	

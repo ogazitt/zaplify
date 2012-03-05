@@ -43,7 +43,7 @@ namespace Nuance.SpeechKit
         IntPtr Constructor(string path);
         
         [Static, Export("earconWithName:")]
-        IntPtr FromName(string name);
+        SKEarcon FromName(string name);
     }   
     
     // SKRecognition.h

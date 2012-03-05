@@ -13,6 +13,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		206244DB14FCB0F200AE9C1F /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
 		20B3C00114F871430004E2E9 /* libSpeechKitLibrary.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSpeechKitLibrary.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		20B3C00414F871430004E2E9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		20B3C00814F871430004E2E9 /* SpeechKitLibrary-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SpeechKitLibrary-Prefix.pch"; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 		20B3C00614F871430004E2E9 /* SpeechKitLibrary */ = {
 			isa = PBXGroup;
 			children = (
+				206244DB14FCB0F200AE9C1F /* beep.wav */,
 				20B3C00914F871430004E2E9 /* SpeechKitLibrary.h */,
 				20B3C00A14F871430004E2E9 /* SpeechKitLibrary.m */,
 				20B3C00714F871430004E2E9 /* Supporting Files */,
@@ -238,6 +240,7 @@
 				20B3C01014F871430004E2E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

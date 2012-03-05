@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Drawing;
 using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Text.RegularExpressions;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Devices.ClientViewModels;
+using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
-using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using BuiltSteady.Zaplify.Devices.ClientViewModels;
-using BuiltSteady.Zaplify.Devices.IPhone.Controls;
-using System.Drawing;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -26,31 +22,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
     
 	public class AddPage : UINavigationController
 	{
+        private DialogViewController dialogViewController;
 		public MultilineEntryElement Name;
-		private CheckboxElement IsList;
-		private RootElement ItemTypeRadio;
-		private RootElement ListRadio;
-        private ButtonListElement[] AddButtons = new ButtonListElement[2];
+		private RootElement ListsRootElement;
+        private ButtonListElement[] AddButtons = new ButtonListElement[3];
 		private List<Item> lists;
         private List<Button> buttonList;
-        
-        private string speechDebugString = null;
-        private DateTime speechStart;
         
         private SpeechPopupDelegate SpeechPopupDelegate = new SpeechPopupDelegate();
         public UIActionSheet SpeechPopup;
         public UILabel SpeechTextLabel = new UILabel();
-        /*
-        { 
-            Text = "initializing...",
-            Font = UIFont.BoldSystemFontOfSize(17),
-            TextAlignment = UITextAlignment.Center,
-            BackgroundColor = UIColor.Clear,
-            TextColor = UIColor.White,
-        };
-        */
         public UIActivityIndicatorView ActivityIndicator = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.WhiteLarge) { Hidden = true };
-
 		
         // number of lists to generate "Add" buttons for
         const int MaxLists = 4;
@@ -67,7 +49,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		public override void ViewDidAppear (bool animated)
 		{
 			// trace event
-            TraceHelper.AddMessage("Settings: ViewDidAppear");
+            TraceHelper.AddMessage("Add: ViewDidAppear");
 			
 			// initialize controls 
 			var pushToTalkButton = new ButtonListElement() 
@@ -75,7 +57,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				new Button() 
 				{ 
 					Background = "Images/redbutton.png", 
-					Caption = "Hold to speak", 
+					Caption = "Touch to speak", 
 					Clicked = SpeechButton_Click
 				}, 
 			};
@@ -93,30 +75,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			addButton.Margin = 0f;
 			
 			Name = new MultilineEntryElement("Name", "") { Lines = 3 };
-			IsList = new CheckboxElement ("List?", false); 
-			ItemTypeRadio = new RootElement ("Type", new RadioGroup (0))
-			{
-				new Section ()
-				{
-					from it in App.ViewModel.ItemTypes
-						select (Element) new RadioElement (it.Name)
-				}
-			};
-			ListRadio = new RootElement("List", new RadioGroup(0))				
-			{
-		        from f in App.ViewModel.Folders
-			        orderby f.Name ascending
-			        group f by f.Name into g
-			        select new Section (g.Key) 
-					{
-			            new RadioElement(g.Key),
-						from hs in g 
-							from it in App.ViewModel.Items 
-								where it.FolderID == hs.ID && it.IsList == true 
-								orderby it.Name ascending
-			               		select (Element) new RadioElement(String.Format("{0} : {1}", hs.Name, it.Name))
-					}
-			};
         
             // get all the lists
             lists = (from it in App.ViewModel.Items 
@@ -132,53 +90,80 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                               Clicked = AddButton_Click 
                           }).ToList();
             
+            // clear the button rows
+            for (int i = 0; i < AddButtons.Length; i++) 
+                AddButtons[i] = null;
+            
             // assemble the buttons into rows (maximum of six buttons and two rows)
             // if there are three or less buttons, one row
             // otherwise distribute evenly across two rows
             int count = Math.Min(buttonList.Count, MaxLists);
-            int firstrow = count, secondrow = 0;
+            int firstrow = count, secondrow = 0, addButtonsRow = 0;
             if (count > MaxLists / 2)
             {
                 firstrow = count / 2;
                 secondrow = count - firstrow;
             }
-            AddButtons[0] = new ButtonListElement()
+            if (firstrow > 0) 
             {
-                buttonList.Take(firstrow)
-            };
+                AddButtons[addButtonsRow++] = new ButtonListElement()
+                {
+                    buttonList.Take(firstrow)
+                };
+            }
             if (secondrow > 0)
             {
-                AddButtons[1] = new ButtonListElement()
+                AddButtons[addButtonsRow++] = new ButtonListElement()
                 {
                     buttonList.Skip(firstrow).Take(secondrow)
                 };
             }
-            else
-                AddButtons[1] = null;
 			
-			// save the lists for processing in the AddButton handler
-//			lists = new List<Item>();
-//			foreach (Folder f in App.ViewModel.Folders)
-//			{
-//				lists.Add(new Item() { ID = Guid.Empty, FolderID = f.ID });
-//				//lists.AddRange(App.ViewModel.Items.Where(it => it.FolderID == f.ID && it.IsList == true).OrderBy(it => it.Name));
-//			}
-
+            // assemble a page which contains a hierarchy of every folder and list, grouped by folder 
+            ListsRootElement = new RootElement("Add to list:")              
+            {
+                from f in App.ViewModel.Folders
+                    orderby f.Name ascending
+                    group f by f.Name into g
+                    select new Section() 
+                    {
+                        new StyledStringElement(g.Key, delegate { AddItemToFolder(g.Key); }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
+                        from hs in g 
+                            from it in App.ViewModel.Items 
+                                where it.FolderID == hs.ID && it.IsList == true 
+                                orderby it.Name ascending
+                                select (Element) new StyledStringElement("        " + it.Name, delegate { AddItem(hs, it); }) { Image = new UIImage("Images/179-notepad.png") }
+                    }
+            };
+            var dvc = new DialogViewController(ListsRootElement);
+            // create a last "row" of buttons containing only one "More..." button which will bring up the folder/list page
+            AddButtons[addButtonsRow] = new ButtonListElement() 
+            { 
+                new Button() 
+                {
+                    Background = "Images/darkgreybutton.png", 
+                    Caption = "More...", 
+                    Clicked = (s, e) => 
+                    {
+                        dvc.Title = (Name.Value == null || Name.Value == "") ? "Navigate to:" : "Add " + Name.Value + " to:";
+                        dialogViewController.NavigationController.PushViewController(dvc, true); 
+                    }
+                }
+            };
+                
 			// create the dialog
 			var root = new RootElement("Add Item")
 			{
 				new Section()
 				{
 					Name,
-					//IsList,
-					//ItemTypeRadio,
-					//ListRadio,
 				},
 				new Section("Add to list:")
 				{
 					//addButton,
                     AddButtons[0],
-                    AddButtons[1]
+                    AddButtons[1],
+                    AddButtons[2],
 				},
 				new Section()
 				{
@@ -186,90 +171,55 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				},
 			};
 			
-			// create and push the dialog view onto the nav stack
-			var dvc = new DialogViewController(root);
-			dvc.NavigationItem.HidesBackButton = true;	
-			dvc.Title = NSBundle.MainBundle.LocalizedString ("Add", "Add");
-			this.PushViewController(dvc, false);
+            // create and push the dialog view onto the nav stack
+            dialogViewController = new DialogViewController(root);
+            dialogViewController.NavigationItem.HidesBackButton = true;  
+            dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add", "Add");
+
+            // set up the "pull to refresh" feature
+            App.ViewModel.SyncCompleteArg = dialogViewController;
+            App.ViewModel.SyncComplete += RefreshHandler;
+            dialogViewController.RefreshRequested += delegate 
+            {
+                App.ViewModel.SyncWithService();
+            };
+                    
+			this.PushViewController(dialogViewController, false);
 			
-			base.ViewDidAppear (animated);
+			base.ViewDidAppear(animated);
 		}
 		
-		private void AddButton_Click(object sender, EventArgs e)
-		{
-            string name = Name.Value;
-            // don't add empty items
-            if (name == null || name == "")
-                return;
-			
-			// get the values for all the controls
-            int itemTypeIndex = ItemTypeRadio.RadioSelected;
-            if (itemTypeIndex < 0)
-            {
-                MessageBox.Show("item type must be set");
-                return;
-			}
-			int listIndex = ListRadio.RadioSelected;
-            if (listIndex < 0)
-            {
-                MessageBox.Show("list must be set");
-                return;
-            }
-            bool isChecked = IsList.Value;
-			
+        public override void ViewDidDisappear(bool animated)
+        {
+            App.ViewModel.SyncComplete -= RefreshHandler;
+            App.ViewModel.SyncCompleteArg = null;
+            NuanceHelper.Cleanup();
+            //dialogViewController.Dispose();
+            base.ViewDidDisappear(animated);
+        }
+        
+        #region Event Handlers
+        
+        private void AddButton_Click(object sender, EventArgs e)
+        {
             // determine which button was clicked
             Button clickedButton = sender as Button ?? AddButtons[0][0];
-            listIndex = buttonList.IndexOf(clickedButton);
+            int listIndex = buttonList.IndexOf(clickedButton);
             
-			Item list = lists[listIndex];
-			Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
+            Item list = lists[listIndex];
+            Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
+   
+            AddItem(folder, list);
+        }     
 
-            // create the new item
-            Item item = new Item()
-            {
-                Name = name,
-                FolderID = folder.ID,
-                //ItemTypeID = App.ViewModel.ItemTypes[itemTypeIndex].ID,
-                ItemTypeID = list.ItemTypeID,
-                ParentID = list.ID,
-                //IsList = isChecked,
-            };
-
-            // hack: special-case processing for To Do item types
-            // set the complete field to false 
-            if (item.ItemTypeID == ItemType.ToDoItem)
-                item.Complete = false;
-
-            // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord()
-                {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = item
-                });
-
-            // add the item to the folder
-            folder.Items.Add(item);
-
-            // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
-
-            // trigger a sync with the Service 
-            App.ViewModel.SyncWithService();		
-			
-			// refresh the view
-			if (isChecked)
-			{
-				// we just added a new list - so refresh the whole view
-				this.ViewDidAppear(true);
-			}
-			else
-			{
-				// just reset the name field
-				Name.Value = "";
-			}
-		}
-	
+        private void RefreshHandler(object sender, MainViewModel.SyncCompleteEventArgs e)
+        {
+            this.BeginInvokeOnMainThread(() =>
+            {    
+                dialogViewController.ReloadComplete();
+            });
+        }
+        
         // handle events associated with the Speech Popup
         private void SpeechButton_Click(object sender, EventArgs e)
         {
@@ -292,7 +242,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     return;
 
                 // trace page navigation
-                TraceHelper.StartMessage("ListPage: Navigate to Settings");
+                TraceHelper.StartMessage("Add: Navigate to Settings");
 
                 // Navigate to the settings page
                 this.TabBarController.PresentViewController(this.TabBarController.ViewControllers[3], true, null);
@@ -308,12 +258,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             SpeechPopupDelegate.speechDebugString = "";
 
             // store debug / timing info
-            TimeSpan ts = DateTime.Now - speechStart;
+            TimeSpan ts = DateTime.Now - SpeechPopupDelegate.speechStart;
             string stateString = NuanceHelper.SpeechStateString(SpeechPopupDelegate.speechState);
             string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Connecting Socket");
             TraceHelper.AddMessage(traceString);
             SpeechPopupDelegate.speechDebugString += traceString + "\n";
-
+   
+            // cancel any existing speech operation
+            NuanceHelper.Cleanup();
+            
             // initialize the connection to the speech service
             NuanceHelper.Start(
                 App.ViewModel.User,
@@ -326,8 +279,77 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             SpeechPopup.ShowFromTabBar(((UITabBarController)this.ParentViewController).TabBar);
         }
         
+        #endregion
+        
         #region Helpers
         
+        private void AddItem(Folder folder, Item list)
+        {
+            string name = Name.Value;
+
+                // don't add empty items - instead, navigate to the list
+            if (name == null || name == "")
+            {
+                UITableViewController nextController = new ListViewController(this, folder, list != null ? list.ID : Guid.Empty);  
+                TraceHelper.StartMessage("AddPage: Navigate to List");
+                this.PushViewController(nextController, true);
+                return;
+            }
+   
+            Guid itemTypeID;
+            Guid parentID;
+            if (list == null)
+            {
+                itemTypeID = folder.DefaultItemTypeID;
+                parentID = Guid.Empty;
+            }
+            else
+            {
+                itemTypeID = list.ItemTypeID;
+                parentID = list.ID;
+            }
+            
+            // create the new item
+            Item item = new Item()
+            {
+                Name = name,
+                FolderID = folder.ID,
+                ItemTypeID = itemTypeID,
+                ParentID = parentID,
+            };
+
+            // hack: special-case processing for To Do item types
+            // set the complete field to false 
+            if (item.ItemTypeID == ItemType.Task)
+                item.Complete = false;
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = item
+                });
+
+            // add the item to the folder
+            folder.Items.Add(item);
+
+            // save the changes to local storage
+            StorageHelper.WriteFolder(folder);
+
+            // trigger a sync with the Service 
+            App.ViewModel.SyncWithService();             
+
+            // reset the name field to make it easy to add the next one
+            Name.Value = "";
+        }
+        
+        private void AddItemToFolder(string folderName)
+        {
+            Folder folder = App.ViewModel.Folders.Single(f => f.Name == folderName);
+            AddItem(folder, null);
+        }
+ 
         public void SetupSpeechPopup(string text)
         {
             SpeechPopup = new UIActionSheet(" ", SpeechPopupDelegate, "Cancel", "Done");

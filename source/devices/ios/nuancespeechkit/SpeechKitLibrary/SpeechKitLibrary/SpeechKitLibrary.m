@@ -31,7 +31,7 @@ const unsigned char SpeechKitApplicationKey[] = {0x55, 0x83, 0xcd, 0x00, 0xa8, 0
         NSString *text = [NSString stringWithFormat:@"initialized.  sessionid = %@", [SpeechKit sessionID]];
         [self setStatus:text];        
         
-        SKEarcon* earconStart	= [SKEarcon earconWithName:@"earcon_listening.wav"];
+        SKEarcon* earconStart	= [SKEarcon earconWithName:@"beep.wav"];
         [SpeechKit setEarcon:earconStart forType:SKStartRecordingEarconType];
         
         voiceSearch = [[SKRecognizer alloc] initWithType:SKDictationRecognizerType

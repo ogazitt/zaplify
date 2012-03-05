@@ -1,15 +1,12 @@
-using MonoTouch.UIKit;
-using System.Drawing;
 using System;
-using MonoTouch.Foundation;
-using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using BuiltSteady.Zaplify.Devices.ClientViewModels;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -242,7 +239,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				ItemType itemType = ItemType.ItemTypes[item.ItemTypeID];
 				
 				// note the ToDo cell type is too complicated to cache - bad behavior happens when we reuse a cell
-				UITableViewCell cell = itemType.ID == ItemType.ToDoItem ? null : tableView.DequeueReusableCell (itemType.Name);
+				UITableViewCell cell = itemType.ID == ItemType.Task ? null : tableView.DequeueReusableCell (itemType.Name);
 				if (cell == null) {
 					cell = new UITableViewCell (UITableViewCellStyle.Subtitle, itemType.Name);
 					cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;

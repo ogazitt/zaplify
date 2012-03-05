@@ -415,6 +415,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 #endif
             }
         }
+        
+        /// <summary>
+        /// The SyncComplete event fires when a SyncWithService cycle is complete
+        /// The EventArgs is typed SyncCompleteEventArgs and the SyncCompleteArg
+        /// in this class is populated with the SyncCompleteArg on this ViewModel
+        /// </summary>
+        public delegate void SyncCompleteEventHandler(object sender, SyncCompleteEventArgs ea);
+        public class SyncCompleteEventArgs
+        {
+            public SyncCompleteEventArgs(object obj)
+            {
+                SyncCompleteArg = obj;
+            }
+            
+            public object SyncCompleteArg { get; set; }
+        }
+        public event SyncCompleteEventHandler SyncComplete;
+        public object SyncCompleteArg { get; set; }
 
 #endregion
 
@@ -745,6 +763,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 });
 #endif
             }
+            else
+            {
+                // refresh cycle interrupted - still need to signal the SyncComplete event if it was set
+                if (SyncComplete != null)
+                    SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+                
+            }
         }
 
         public delegate void GetUserDataCallbackDelegate(User user);
@@ -787,6 +812,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     StorageHelper.WriteFolder(f);
                 }
             }
+            
+            // invoke the SyncComplete event handler if it was set
+            if (SyncComplete != null)
+                SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
         }
 
         public delegate void NetworkOperationInProgressCallbackDelegate(bool operationInProgress, OperationStatus status);
@@ -798,6 +827,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             if (status != OperationStatus.Started)
             {
                 LastNetworkOperationStatus = (status == OperationStatus.Success);
+                
+                // check for network operation failure
+                if (LastNetworkOperationStatus == false)
+                {
+                    // refresh cycle interrupted - still need to signal the SyncComplete event if it was set
+                    if (SyncComplete != null)
+                        SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));                    
+                }
             }
             
             if (status == OperationStatus.Retry)
@@ -817,23 +854,34 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             // trace callback
             TraceHelper.AddMessage(String.Format("Play Queue Callback: {0}", obj == null ? "null" : "success"));
-
-            // dequeue the current record (which removes it from the queue)
-            RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-			
-			// parse out request record info and trace the details 
-            string typename;
-            string reqtype;
-            string id;
-            string name;
-            RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
-			TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
-			
-            // don't need to process the object since the folder will be refreshed at the end 
-            // of the cycle anyway
-
-            // since the operation was successful, continue to drain the queue
-            PlayQueue();
+   
+            // if the operation was successful, continue the refresh cycle
+            if (obj != null)
+            {
+                // dequeue the current record (which removes it from the queue)
+                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
+    			
+    			// parse out request record info and trace the details 
+                string typename;
+                string reqtype;
+                string id;
+                string name;
+                RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
+    			TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
+    			
+                // don't need to process the object since the folder will be refreshed at the end 
+                // of the cycle anyway
+    
+                // since the operation was successful, continue to drain the queue
+                PlayQueue();
+            }
+            else
+            {
+                // refresh cycle interrupted - still need to signal the SyncComplete event if it was set
+                if (SyncComplete != null)
+                    SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+                
+            }
         }
 
 #endregion

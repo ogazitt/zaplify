@@ -20,7 +20,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	
 	public class ButtonListElement : Element, IEnumerable
 	{
-		public List<Button> Buttons = new List<Button>();
+		private const float minSpacing = 5f;
+        private const float defaultMargin = 5f;
+        
+        public List<Button> Buttons = new List<Button>();
 		
 		public float? Margin { get; set; }
 
@@ -64,21 +67,24 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			if (Buttons.Count == 0)
 				return cell;
 			
-			float margin = Margin ?? 5f;  // 5 pixel margin between elements by default
+			float margin = Margin ?? defaultMargin;  
+            float spacing = margin > minSpacing ? margin : minSpacing;
+            
 			// compute button width: 
-			//   [margin] { [button] [margin] }* 
-			// the total available width is the bounds minus the margin (minus 20 fudge factor 
+			//   [margin] { [button] { [buttonspacing] [ button] }* [margin] } 
+			// the total available width is the bounds minus the margins and button spacing (minus 20 fudge factor 
 			// since CocoaTouch seems to pad the cell by 10 pixels on each side)
 			// divide this available width by the number of buttons and deduct the margin 
 			// to get the button width
-			float buttonWidth = Convert.ToSingle(Math.Round ((cell.Bounds.Width - 20f - margin) / Buttons.Count - margin));  
+            float availableWidth = cell.Bounds.Width - 20f - 2 * margin - (Buttons.Count - 1) * spacing;
+			float buttonWidth = Convert.ToSingle(Math.Round(availableWidth / Buttons.Count));  
 			float buttonHeight = (cell.Bounds.Height) - 2 * margin;
 			
 			int x = 0;
 			foreach (var btn in Buttons)
 			{
 				UIButton button = UIButton.FromType(UIButtonType.RoundedRect);
-   				button.Frame = new RectangleF(margin + x * (buttonWidth + margin), margin, buttonWidth, buttonHeight);
+   				button.Frame = new RectangleF(margin + x * (buttonWidth + spacing), margin, buttonWidth, buttonHeight);
    				button.SetTitle(btn.Caption, UIControlState.Normal);
 				if (btn.Background != null)
 				{

@@ -9,6 +9,7 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using System.Text.RegularExpressions;
 using MonoTouch.Foundation;
+using System.Text;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -19,6 +20,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		Folder folder = null;
 		UINavigationController controller;
 		RootElement root = null;
+        DialogViewController editViewController;
 		
 		public ItemPage(UINavigationController c, Item item)
 		{
@@ -31,7 +33,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		public void PushViewController()
 		{
 			// trace event
-            TraceHelper.AddMessage("Item: NavigateTo");
+            TraceHelper.AddMessage("Item: PushViewController");
 			
             try
             {
@@ -51,8 +53,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// create an Edit button which pushes the edit view onto the nav stack
 			dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
 				var editRoot = RenderEditItem(itemCopy, true /* render the list field */);
-				var editdvc = new DialogViewController(editRoot, true);
-				controller.PushViewController(editdvc, true);
+				editViewController = new DialogViewController(editRoot, true);
+				controller.PushViewController(editViewController, true);
 			});
 			
 			// push the "view item" view onto the nav stack
@@ -245,34 +247,37 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			Section primarySection = RenderEditItemFields(item, itemType, true, renderFolderField);
 
 			// render more button
-			var sse = new StyledStringElement("more details")			                                  
-			{ 
-				Accessory = UITableViewCellAccessory.DisclosureIndicator,
-			};
-			// add the more button to the section
-			primarySection.Add (sse);
-			
+            var moreButton = new Button() { Background = "Images/darkgreybutton.png", Caption = "more details" };
+            var sse = new ButtonListElement() { Margin = 0f };
+            sse.Buttons.Add(moreButton);
+            var moreSection = new Section() { sse };
+
+            // render save/delete buttons
+            var actionButtons = new ButtonListElement() 
+            {
+                new Button() { Caption = "Save", Background = "Images/greenbutton.png", Clicked = SaveButton_Click },
+                new Button() { Caption = "Delete", Background = "Images/redbutton.png", Clicked = DeleteButton_Click }, 
+            };
+            actionButtons.Margin = 0f;
+            
 			// create the dialog with the primary section
 			RootElement editRoot = new RootElement(item.Name)
 			{
 				primarySection,
-				new Section() 
-				{ 
-					new ButtonListElement() 
-					{
-						new Button() { Caption = "Save", Background = "Images/greenbutton.png", Clicked = SaveButton_Click },
-						new Button() { Caption = "Delete", Background = "Images/redbutton.png", Clicked = DeleteButton_Click }, 
-					},
-				},
+                moreSection,
+                new Section() { actionButtons },
 			};
 
-			sse.Tapped += delegate 
+            //sse.Tapped += delegate 
+            moreButton.Clicked += (s, e) => 
 			{
-				// render the non-primary fields as a new section
-            	editRoot.Insert(1, RenderEditItemFields(item, itemType, false, false));
+                // remove the "more" button
+            	editRoot.Remove(moreSection);
+
+                // render the non-primary fields as a new section
+                editRoot.Insert(1, RenderEditItemFields(item, itemType, false, false));
 				
-				// remove the "more" button
-				primarySection.Remove (sse);
+				//primarySection.Remove (sse);
 			};			
 			
 			return editRoot;
@@ -343,18 +348,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					//element = stringElement;
                     break;
 				case "TextBox":
-					MultilineElement multilineElement = new MultilineElement(field.DisplayName, (string) currentValue);
-					multilineElement.Tapped += delegate 
-					{
-					};
-					element = multilineElement;
+					//MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
+					//multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
+					//element = multilineElement;
+                    entryElement.Value = (string) currentValue;
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case "Phone":
                 case "PhoneNumber":
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.PhonePad;
-					entryElement.Changed += delegate { 
-                        pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case "Website":
                     entryElement.Value = (string) currentValue;
@@ -370,8 +374,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case "Address":
                     entryElement.Value = (string) currentValue;
                     entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { 
-                        pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
 				case "Priority":
 					var priorities = new RadioGroup (field.DisplayName, 0);
@@ -379,28 +382,22 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						((int?) currentValue) != null ? 
 						(int) currentValue : 
 						1;  // HACK: hardcode to "Normal" priority.  this should come from a table.
-					var priorityElement = new RootElement(field.DisplayName, priorities)
-					{
-						new Section () 
-						{ 
-							// TODO: this code is responsible for the following warning:
-							// Warning CS0618: `MonoTouch.Dialog.Section.Add(System.Collections.Generic.IEnumerable<MonoTouch.Dialog.Element>)' is obsolete: 
-						    // `Please use AddAll since this version will not work in future versions of MonoTouch when we introduce 4.0 covariance' (CS0618) (iphone)
-							from pr in App.ViewModel.Constants.Priorities 
-								select (Element) new RadioEventElement(pr.Name, field.DisplayName)
-						}
-					};
+                    var priSection = new Section();
+                    priSection.AddAll(
+                        from pr in App.ViewModel.Constants.Priorities 
+                             select (Element) new RadioEventElement(pr.Name, field.DisplayName));
+                    var priorityElement = new RootElement(field.DisplayName, priorities) { priSection };
 					// augment the radio elements with the right index and event handler
 					int i = 0;
 					foreach (var radio in priorityElement[0].Elements)
 					{
 						RadioEventElement radioEventElement = (RadioEventElement) radio;
-						radioEventElement.Value = i.ToString();
-						i++;
-						radioEventElement.OnSelected += delegate(object sender, EventArgs e)
-						{
-							pi.SetValue(container, Convert.ToInt32(((RadioEventElement)sender).Value), null); 
-						};
+						//radioEventElement.Value = i.ToString();
+						int index = i++;
+						radioEventElement.OnSelected += delegate(object sender, EventArgs e) { pi.SetValue(container, index, null); };
+						//{
+						//	pi.SetValue(container, Convert.ToInt32(((RadioEventElement)sender).Value), null); 
+						//};
 					}
 					element = priorityElement;
 		            //var root = priorityElement.GetImmediateRootElement ();
@@ -426,20 +423,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         ID = Guid.Empty,
                         Name = folder.Name
                     });
-                    Item currentList = lists.FirstOrDefault(li => li.ID == item.ParentID);
+                    Item currentList = lists.FirstOrDefault(li => li.ID == (Guid) currentValue);
 					var listsGroup = new RadioGroup (field.DisplayName, 0);
 					listsGroup.Selected = Math.Max(lists.IndexOf(currentList), 0);
-					var listsElement = new RootElement(field.DisplayName, listsGroup)
-					{
-						new Section () 
-						{ 
-							// TODO: this code is responsible for the following warning:
-							// Warning CS0618: `MonoTouch.Dialog.Section.Add(System.Collections.Generic.IEnumerable<MonoTouch.Dialog.Element>)' is obsolete: 
-						    // `Please use AddAll since this version will not work in future versions of MonoTouch when we introduce 4.0 covariance' (CS0618) (iphone)
-							from l in lists
-								select (Element) new RadioEventElement(l.Name, field.DisplayName)
-						}
-					};
+                    var listsSection = new Section();
+                    listsSection.AddAll(
+                        from l in lists
+                            select (Element) new RadioEventElement(l.Name, field.DisplayName));
+                    var listsElement = new RootElement(field.DisplayName, listsGroup) { listsSection };
 					// augment the radio elements with the right index and event handler
 					int index = 0;
 					foreach (var radio in listsElement[0].Elements)
@@ -495,6 +486,63 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     EditStackPanel.Children.Add(innerPanel);
                     break;
                     */
+                case "ContactList":
+                    // render the current items 
+                    StringElement stringElement = new StringElement(field.DisplayName);
+                    Item currentContacts;
+                    if (currentValue == null) 
+                    {
+                        currentContacts = new Item()
+                        {
+                            ID = Guid.Empty, // signal new list
+                            IsList = true,
+                            FolderID = folder.ID,
+                            ParentID = item.ID,
+                        };
+                    }
+                    else
+                    {
+                        // build the current contact list
+                        Guid currentContactListID = new Guid((string) currentValue);
+                        currentContacts = new Item(App.ViewModel.Items.Single(it => it.ID == currentContactListID));
+                        currentContacts.Items = App.ViewModel.Items.Where(it => it.ParentID == currentContacts.ID).ToObservableCollection();
+                        
+                        // build a comma-delimited list of names to display in the control
+                        List<string> names = currentContacts.Items.Select(it => it.Name).ToList();
+                        StringBuilder sb = new StringBuilder();
+                        bool comma = false;
+                        foreach (var name in names)
+                        {
+                            if (comma)
+                                sb.Append(", ");
+                            else
+                                comma = true;
+                            sb.Append(name);
+                        }
+                        stringElement.Value = sb.ToString();
+                    }
+                    Item contacts = new Item()
+                    {
+                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == ItemType.Contact).ToObservableCollection(),
+                    };
+                    stringElement.Tapped += delegate 
+                    {
+                        // put up the list picker dialog
+                        ListPickerPage listPicker = new ListPickerPage(
+                            editViewController.NavigationController, 
+                            stringElement,
+                            pi,
+                            container,
+                            field.DisplayName, 
+                            currentContacts, 
+                            contacts);
+                        listPicker.PushViewController();
+                    };
+                    element = stringElement;
+                    break;
+                case "LocationList":
+                    // bring up multi list picker UI
+                    break;
                 default:
                     notMatched = true;
                     break;
@@ -544,8 +592,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }
             }
 
-            // add the listboxitem to the listbox
-            EditListBox.Items.Add(listBoxItem);
             */
 			
 			return element;
@@ -553,7 +599,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
         private Section RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderListField)
         {
-            Section section = new Section(primary ? "" : "Other");
+            Section section = new Section(/* primary ? "" : "Other" */);
 			
 			if (renderListField == true)
             {
@@ -713,20 +759,32 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         case "Navigate":
 						    try
                             {
-                                Folder f = App.ViewModel.Folders.Single(t => t.ID == Guid.Parse(currentValue));
-                                stringElement.Value = String.Format("to {0}", f.Name);
+                                Item newItem = App.ViewModel.Items.Single(it => it.ID == Guid.Parse(currentValue));
+                                stringElement.Value = String.Format("to {0}", newItem.Name);
                                 stringElement.Tapped += delegate 
                                 {
-                                    // trace page navigation
-                                    TraceHelper.StartMessage("Item: Navigate to Folder");
-
                                     // Navigate to the new page
-                                    //NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + f.ID.ToString(), UriKind.Relative));
+                                    if (newItem != null)
+                                    {
+                                        if (newItem.IsList == true)
+                                        {
+                                            // Navigate to the list page
+                                            UITableViewController nextController = new ListViewController(this.controller, folder, newItem.ID);  
+                                            TraceHelper.StartMessage("Item: Navigate to ListPage");
+                                            this.controller.PushViewController(nextController, true);
+                                        }
+                                        else
+                                        {
+                                            ItemPage itemPage = new ItemPage(controller.NavigationController, newItem);
+                                            TraceHelper.StartMessage("Item: Navigate to ItemPage");
+                                            itemPage.PushViewController();
+                                        }
+                                    }
                                 };
                             }
                             catch (Exception)
                             {
-                                stringElement.Value = "(folder not found)";
+                                stringElement.Value = "(item not found)";
                             }
                             break;
                         case "Postpone":
@@ -750,7 +808,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             stringElement.Tapped += delegate
                             {
                                 // try to use the maps: URL scheme
-                                string url = "maps://" + url.Replace(" ", "%20");
+                                string url = "maps://" + currentValue.Replace(" ", "%20");
                                 if (UIApplication.SharedApplication.CanOpenUrl(new NSUrl(url)))
                                     UIApplication.SharedApplication.OpenUrl(new NSUrl(url));
                                 else
