@@ -246,7 +246,6 @@ DataModel.processFolders = function DataModel$processFolders(jsonParsed) {
 
             if (item.IsList) {
                 listCount++;
-                item.ViewState.Expand = (listCount == 1);
             }
             folder.Items[iid] = item;
         }
