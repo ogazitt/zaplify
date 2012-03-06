@@ -20,9 +20,9 @@ Dashboard elements
 .dashboard-manager {
     display: inline-block;
     margin: 0 12px 0 12px;
-    width: 55%;
-    min-width: 360px;
-    xborder: 1px dashed blue;
+    float: left;
+    min-width: 55%;
+    Xborder: 1px dashed red;
 }
 
 .dashboard-folders {
@@ -46,38 +46,20 @@ Dashboard Folders elements
     position: relative;
     text-align: center;
     background-color: #AEC2D0;
-    Xborder: 1px dotted red;
+    border-radius: 15px;
 }
 
 .folder-button:hover {
-    Xfont-weight: bold;
-}
-
-.folder-button.expanded {
     font-weight: bold;
 }
 
 .folder-button.selected {
+    font-weight: bold;
     color: #E2E6E6;
     background-color: #50738A;
-}
-
-.folder-button .folder-selector {
-    display: inline-block;
-    position: absolute;
-    top: 3px;
-    right: 2px;
-    width: 12px;
-    height: 21px;
-    background: transparent url(images/folder-selector.png) no-repeat left top;
-}
-
-.folder-button.selected .folder-selector {
-    background: transparent url(images/folder-selected.png) no-repeat left top;
-}
-
-.folder-button .folder-selector:hover {
-    background: transparent url(images/folder-selector-hover.png) no-repeat left top;
+    border-radius: 0;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
 }
 
 .folder-items {
@@ -103,14 +85,8 @@ Dashboard Folders elements
     background-color: #DDD9C3;
     border-bottom: 1px solid #C4BD97;
 }
-
-.item-list-button.expanded {
-    font-weight: bold;
-}
-
-.item-list-button.selected {
-    background-color: #ECE4B2;
-}
+.item-list-button.selected { background-color: #ECE4B2; }
+.item-list-button.expanded { font-weight: bold; }
 
 .item-button {
     padding: 2px;
@@ -118,19 +94,16 @@ Dashboard Folders elements
     overflow:hidden;
     max-height: 34px;
 }
-
-.item-button.selected {
-    background-color: #F5F0D2;
-}
+.item-button.selected { background-color: #F5F0D2; }
 
 .indent-1 { padding-left: 12px; }
 
 /*----------------------------------------------------------
-Dashboard Manager elements
+Dashboard Toolbar elements
 ----------------------------------------------------------*/
 
 .manager-toolbar {
-    width: 100%;
+    width: 100% - 12px;
     height: 32px;
     padding: 6px 6px 6px 6px;
     background-color: #EEECE1;
@@ -142,28 +115,74 @@ Dashboard Manager elements
 .toolbar-button {
     display:inline-block;
     cursor: pointer;
-    width: 28px;
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+    border: 1px solid transparent;
+}
+
+.toolbar-button:hover { background-color: #ECE4B2; border-color: #C4BD97;}
+.toolbar-button.disabled { opacity:0.4; filter:alpha(opacity=40); }
+.toolbar-button.disabled:hover { background-color: transparent; border-color: transparent; }
+
+.tool-separator {
+    display:inline-block;
+    width: 1px;
     height: 28px;
+    border-left: 1px solid #C4BD97;
 }
 
-.item-path {
-    Xborder: 1px dashed red;
+.add-folder {
+    display: inline-block; width: 32px; height: 32px;
+    background: transparent url(images/add-folder.png) no-repeat;
 }
 
-.manager-active {
-    width: 100%;
-    padding: 2px;
-    display: none;
+.add-list {
+    display: inline-block; width: 32px; height: 32px;
+    background: transparent url(images/add-list.png) no-repeat;
+}
+
+.add-item {
+    display: inline-block; width: 32px; height: 32px;
+    background: transparent url(images/add-item.png) no-repeat;
+}
+
+.update-item {
+    display: inline-block; width: 32px; height: 32px;
+    background: transparent url(images/update-item.png) no-repeat;
+}
+
+.delete-item {
+    display: inline-block; width: 32px; height: 32px;
+    background: transparent url(images/delete-item.png) no-repeat;
+}
+
+.manager-region {
+    width: 100% - 12px;
+    padding: 4px;
     Xborder: 1px dashed blue;
-}
-
-.input_item-name {
-    min-width: 100%;
-    display: block;
 }
 
 .manager-help {
     width: 100%;
-    Xborder: 1px dashed blue;
+    Xborder: 1px dashed green;
 }
+
+.item-path {
+    width: 100%;
+    padding: 0 0 4px 0;
+    font-size: 11pt;
+    Xborder: 1px dashed red;
+}
+
+.item-editor {
+    width: 100%;
+    Xborder: 1px dashed green;
+}
+
+.input_item-name {
+    min-width: 98%;
+    display: block;
+}
+
 

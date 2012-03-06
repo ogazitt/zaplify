@@ -7,6 +7,8 @@
     <script src="<%: Url.Content("~/scripts/shared/service.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/shared/datamodel.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/controls.js") %>" type="text/javascript"></script>
+    <script src="<%: Url.Content("~/scripts/dashboard/folderlist.js") %>" type="text/javascript"></script>
+    <script src="<%: Url.Content("~/scripts/dashboard/foldermanager.js") %>" type="text/javascript"></script>
 
 <%
     var siteUrl = this.ResolveUrl("~/");

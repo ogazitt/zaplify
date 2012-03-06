@@ -165,9 +165,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="content\dashboard\Dashboard.css" />
-    <Content Include="content\dashboard\images\folder-selected.png" />
-    <Content Include="content\dashboard\images\folder-selector-hover.png" />
-    <Content Include="content\dashboard\images\folder-selector.png" />
+    <Content Include="content\dashboard\images\add-folder.png" />
+    <Content Include="content\dashboard\images\add-item.png" />
+    <Content Include="content\dashboard\images\add-list.png" />
+    <Content Include="content\dashboard\images\delete-item.png" />
+    <Content Include="content\dashboard\images\update-item.png" />
     <Content Include="content\images\banner-bkgnd.png" />
     <Content Include="content\images\busy.gif" />
     <Content Include="content\images\panel-bkgnd.png" />
@@ -176,6 +178,8 @@
     <Content Include="content\images\zaplogo.png" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
+    <Content Include="scripts\dashboard\foldermanager.js" />
+    <Content Include="scripts\dashboard\folderlist.js" />
     <Content Include="scripts\jquery-1.7.1-vsdoc.js" />
     <Content Include="scripts\jquery-1.7.1.js" />
     <Content Include="scripts\jquery-1.7.1.min.js" />
@@ -207,7 +211,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="views\account\SignIn.aspx" />
-    <Content Include="views\dashboard\About.aspx" />
     <Content Include="views\dashboard\Home.aspx" />
     <Content Include="views\shared\SignInControl.ascx" />
     <Content Include="Web.config">
