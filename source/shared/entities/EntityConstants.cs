@@ -38,6 +38,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class ActionNames
     {                                                       // FieldNames:
+        public const string Navigate = "Navigate";          // Contacts, Locations
         public const string Postpone = "Postpone";          // DueDate
         public const string AddToCalendar = "AddToCalendar";// ReminderDate
         public const string Map = "Map";                    // Address

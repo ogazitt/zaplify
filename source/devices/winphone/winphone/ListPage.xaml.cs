@@ -679,6 +679,7 @@
                 MessageBox.Show("item type must be set");
                 return;
             }
+            ItemType itemType = App.ViewModel.ItemTypes[itemTypeIndex];
 
             // get the value of the IsList checkbox
             bool isChecked = (QuickAddPopupIsListCheckbox.IsChecked == null) ? false : (bool) QuickAddPopupIsListCheckbox.IsChecked;
@@ -688,10 +689,15 @@
             {
                 Name = name,
                 FolderID = folder.ID,
-                ItemTypeID = App.ViewModel.ItemTypes[itemTypeIndex].ID,
+                ItemTypeID = itemType.ID,
                 ParentID = list.ID,
                 IsList = isChecked,
             };
+
+            // hack: special case processing for item types that have a Complete field
+            // if it exists, set it to false
+            if (itemType.HasField("Complete"))
+                item.Complete = false;
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(

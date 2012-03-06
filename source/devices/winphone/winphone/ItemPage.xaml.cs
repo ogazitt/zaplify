@@ -929,7 +929,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // render the action based on the action type
                     switch (action.ActionName)
                     {
-                        case "Navigate":
+                        case ActionNames.Navigate:
                             try
                             {
                                 Folder f = App.ViewModel.Folders.Single(t => t.ID == Guid.Parse(currentValue));
@@ -948,7 +948,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 valueTextBlock.Text = "(folder not found)";
                             }
                             break;
-                        case "Postpone":
+                        case ActionNames.Postpone:
                             valueTextBlock.Text = "to tomorrow";
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -957,7 +957,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             });
                             break;
-                        case "AddToCalendar":
+                        case ActionNames.AddToCalendar:
                             valueTextBlock.DataContext = item;
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("DueDisplay"));
                             button.Click += new RoutedEventHandler(delegate
@@ -966,7 +966,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             });
                             break;
-                        case "Map":
+                        case ActionNames.Map:
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -987,7 +987,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 mapItem.Show();
                             });
                             break;
-                        case "Phone":
+                        case ActionNames.Call:
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -995,7 +995,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 phoneCallTask.Show();
                             });
                             break;
-                        case "TextMessage":
+                        case ActionNames.TextMessage:
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -1003,7 +1003,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 smsTask.Show();
                             });
                             break;
-                        case "Browse":
+                        case ActionNames.Browse:
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
@@ -1014,7 +1014,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 browserTask.Show();
                             });
                             break;
-                        case "Email":
+                        case ActionNames.SendEmail:
                             valueTextBlock.SetBinding(TextBlock.TextProperty, new Binding("Value"));
                             button.Click += new RoutedEventHandler(delegate
                             {
