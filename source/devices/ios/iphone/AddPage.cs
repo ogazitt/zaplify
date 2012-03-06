@@ -6,6 +6,7 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
+using BuiltSteady.Zaplify.Shared.Entities;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -300,7 +301,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             Guid parentID;
             if (list == null)
             {
-                itemTypeID = folder.DefaultItemTypeID;
+                itemTypeID = folder.ItemTypeID;
                 parentID = Guid.Empty;
             }
             else
@@ -308,6 +309,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 itemTypeID = list.ItemTypeID;
                 parentID = list.ID;
             }
+            
+            // get a reference to the item type
+            ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == itemTypeID);
             
             // create the new item
             Item item = new Item()
@@ -318,9 +322,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 ParentID = parentID,
             };
 
-            // hack: special-case processing for To Do item types
-            // set the complete field to false 
-            if (item.ItemTypeID == ItemType.Task)
+            // hack: special case processing for item types that have a Complete field
+            // if it exists, set it to false
+            if (itemType.HasField("Complete"))
                 item.Complete = false;
 
             // enqueue the Web Request Record

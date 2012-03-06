@@ -396,6 +396,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             try
             {
                 fieldValue = fieldValues.Single(fv => fv.FieldID == field.ID);
+                
+                // store the new FieldValue in the dictionary
+                fieldValueDict[field.Name] = fieldValue;
             }
             catch (Exception)
             {

@@ -1,29 +1,36 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" ActiveRuntime="Mono 2.10.8" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="iphone/AddPage.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="iphone/ItemPage.cs">
     <Files>
-      <File FileName="iphone/AddPage.cs" Line="210" Column="50" />
-      <File FileName="iphone/NuanceHelper-ios.cs" Line="1" Column="1" />
-      <File FileName="../shared/clienthelpers/StorageHelper.cs" Line="1" Column="1" />
+      <File FileName="iphone/AddPage.cs" Line="185" Column="15" />
+      <File FileName="iphone/NuanceHelper-ios.cs" Line="101" Column="17" />
+      <File FileName="../shared/clienthelpers/StorageHelper.cs" Line="27" Column="29" />
       <File FileName="../shared/clienthelpers/IsolatedStorageSettings-ios.cs" Line="30" Column="19" />
-      <File FileName="iphone/ItemPage.cs" Line="311" Column="38" />
-      <File FileName="iphone/Main.cs" Line="1" Column="1" />
-      <File FileName="iphone/App.cs" Line="59" Column="13" />
       <File FileName="../shared/cliententities/Item.cs" Line="647" Column="1" />
-      <File FileName="iphone/ListViewController.cs" Line="245" Column="56" />
-      <File FileName="../shared/cliententities/ItemType.cs" Line="12" Column="18" />
-      <File FileName="../../../../../../Developer/MonoTouch/Source/mono/mcs/class/corlib/System.Reflection/PropertyInfo.cs" Line="93" Column="1" />
-      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="818" Column="1" />
-      <File FileName="../shared/clienthelpers/WebServiceHelper.cs" Line="445" Column="1" />
+      <File FileName="iphone/CalendarPage.cs" Line="41" Column="35" />
+      <File FileName="iphone/DebugPage.cs" Line="22" Column="16" />
+      <File FileName="iphone/SettingsPage.cs" Line="53" Column="5" />
+      <File FileName="../shared/clienthelpers/HttpWrappers-ios.cs" Line="54" Column="1" />
+      <File FileName="iphone/controls/MultilineEntryElement.cs" Line="19" Column="1" />
+      <File FileName="iphone/ItemPage.cs" Line="508" Column="135" />
+      <File FileName="iphone/controls/ButtonListElement.cs" Line="11" Column="15" />
+      <File FileName="iphone/ListViewController.cs" Line="210" Column="3" />
+      <File FileName="iphone/ListPickerPage.cs" Line="96" Column="105" />
+      <File FileName="iphone/controls/UICheckbox.cs" Line="1" Column="1" />
+      <File FileName="iphone/controls/UIImageButton.cs" Line="1" Column="1" />
+      <File FileName="iphone/App.cs" Line="36" Column="1" />
+      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="345" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
-        <State expanded="True" selected="True">
+        <State expanded="True">
           <Node name="ClientEntities-ios" expanded="True" />
           <Node name="ClientHelpers-ios" expanded="True" />
           <Node name="ClientViewModels-ios" expanded="True" />
           <Node name="iphone" expanded="True">
             <Node name="controls" expanded="True" />
+            <Node name="Images" expanded="True" />
+            <Node name="FoldersViewController_iPhone.xib" selected="True" />
           </Node>
         </State>
       </Pad>
@@ -37,18 +44,10 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="111" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="374" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="357" />
       <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/App.cs" line="52" />
       <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/cliententities/Item.cs" line="885" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/ItemPage.cs" line="126" />
       <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clientviewmodels/MainViewModel.cs" line="836" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clientviewmodels/MainViewModel.cs" line="882" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clientviewmodels/MainViewModel.cs" line="818" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/AddPage.cs" line="70" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/AddPage.cs" line="349" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/AddPage.cs" line="209" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="95" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

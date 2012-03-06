@@ -66,13 +66,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="ZaplifyEntity.cs" />
     <Compile Include="About.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="FieldType.cs" />
     <Compile Include="FieldValue.cs" />
     <Compile Include="Folder.cs" />
     <Compile Include="Item.cs" />
@@ -83,5 +81,9 @@
     <Compile Include="Tag.cs" />
     <Compile Include="User.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
+    <Compile Include="ClientEntity.cs" />
+    <Compile Include="..\..\..\shared\entities\EntityConstants.cs">
+      <Link>EntityConstants.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

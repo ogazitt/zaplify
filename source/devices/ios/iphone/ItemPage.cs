@@ -10,6 +10,7 @@ using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using System.Text.RegularExpressions;
 using MonoTouch.Foundation;
 using System.Text;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -177,7 +178,27 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         }
 
 		#region Helpers
-		
+
+        private string GetTypeName(PropertyInfo pi)
+        {
+            string typename = pi.PropertyType.Name;
+            // if it's a generic type, get the underlying type (this is for Nullables)
+            if (pi.PropertyType.IsGenericType)
+            {
+                typename = pi.PropertyType.FullName;
+                string del = "[[System.";  // delimiter
+                int index = typename.IndexOf(del);
+                index = index < 0 ? index : index + del.Length;  // add length of delimiter
+                int index2 = index < 0 ? index : typename.IndexOf(",", index);
+                // if anything went wrong, default to String
+                if (index < 0 || index2 < 0)
+                    typename = "String";
+                else
+                    typename = typename.Substring(index, index2 - index);
+            }
+            return typename;
+        }
+
 		/// <summary>
         /// Find a item by ID and then return its index 
         /// </summary>
@@ -339,7 +360,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // render the right control based on the type 
             switch (field.DisplayType)
             {
-                case "String":
+                case DisplayTypes.Text:
 					//StyledMultilineElement stringElement = new StyledMultilineElement(field.DisplayName, (string) currentValue);
 					entryElement.KeyboardType = UIKeyboardType.Default;
                     entryElement.Value = (string) currentValue;
@@ -347,36 +368,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
 					//element = stringElement;
                     break;
-				case "TextBox":
+                case DisplayTypes.TextArea:
 					//MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
 					//multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
 					//element = multilineElement;
                     entryElement.Value = (string) currentValue;
                     entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-                case "Phone":
-                case "PhoneNumber":
+                case DisplayTypes.Phone:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.PhonePad;
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-                case "Website":
+                case DisplayTypes.Link:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.Url;
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-                case "Email":
+                case DisplayTypes.Email:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.EmailAddress;
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-                case "Location":
-                case "Address":
+                case DisplayTypes.Address:
                     entryElement.Value = (string) currentValue;
                     entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-				case "Priority":
+                case DisplayTypes.Priority:
 					var priorities = new RadioGroup (field.DisplayName, 0);
 					priorities.Selected = 
 						((int?) currentValue) != null ? 
@@ -417,12 +436,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     break;
                     */
                 case "List":
+                    // create a collection of lists in this folder, and add the folder as the first entry
                     var lists = App.ViewModel.Items.Where(li => li.FolderID == item.FolderID && li.IsList == true).OrderBy(li => li.Name).ToObservableCollection();
                     lists.Insert(0, new Item()
                     {
                         ID = Guid.Empty,
                         Name = folder.Name
                     });
+                    // a null value for the "list" field indicates a Folder as a parent (i.e. this item is a top-level item)
+                    if (currentValue == null)
+                        currentValue = Guid.Empty;
                     Item currentList = lists.FirstOrDefault(li => li.ID == (Guid) currentValue);
 					var listsGroup = new RadioGroup (field.DisplayName, 0);
 					listsGroup.Selected = Math.Max(lists.IndexOf(currentList), 0);
@@ -450,7 +473,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     entryElement.KeyboardType = UIKeyboardType.NumberPad;
 					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
-                case "Date":
+                case DisplayTypes.DatePicker:
 					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
 					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
@@ -462,7 +485,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     };
 					element = dateElement;
                     break;
-                case "Boolean":
+                case DisplayTypes.Checkbox:
 					/*
 					BooleanImageElement boolElement = new BooleanImageElement(field.DisplayName, (bool) currentValue, 
 				    	new UIImage("Images/first.png"), new UIImage("Images/second.png"));
@@ -473,14 +496,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
 					element = checkboxElement;
                     break;
-				/*
-                case "TagList":
-                    TextBox taglist = new TextBox() { MinWidth = minWidth, IsTabStop = true };
-                    taglist.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                    taglist.TabIndex = tabIndex++;
-                    RenderEditItemTagList(taglist, (Item) container, pi);
-                    EditStackPanel.Children.Add(taglist);
+                case DisplayTypes.TagList:
+                    // TODO                   
                     break;
+                /*
                 case "ListPointer":
                     innerPanel = RenderEditFolderPointer(pi, minWidth);
                     EditStackPanel.Children.Add(innerPanel);
@@ -523,7 +542,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     }
                     Item contacts = new Item()
                     {
-                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == ItemType.Contact).ToObservableCollection(),
+                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == SystemItemTypes.Contact).ToObservableCollection(),
                     };
                     stringElement.Tapped += delegate 
                     {
@@ -548,7 +567,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     break;
             }
 			
-			/*
             // if wasn't able to match field type by display type, try matching by CLR type
             if (notMatched == true)
             {
@@ -556,44 +574,38 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 switch (typename)
                 {
                     case "String":
-                        tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
-                        tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
-                        tb.TabIndex = tabIndex++;
-                        tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                        EditStackPanel.Children.Add(tb);
+                        entryElement.KeyboardType = UIKeyboardType.Default;
+                        entryElement.Value = (string) currentValue;
+                        entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
+                        entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                         break;
                     case "Int32":
-                        tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
-                        tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, Convert.ToInt32(tb.Text), null); });
-                        tb.TabIndex = tabIndex++;
-                        tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                        EditStackPanel.Children.Add(tb);
+                        entryElement.Value = (string) currentValue;
+                        entryElement.KeyboardType = UIKeyboardType.NumberPad;
+                        entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                         break;
                     case "DateTime":
-                        DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
-                        dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
-                        dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                        DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
+                        DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
+                        dateElement.ValueSelected += delegate 
                         {
-                            pi.SetValue(container, dp.Value, null);
+                            //pi.SetValue(container, dp.Value, null);
+                            pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
                             folder.NotifyPropertyChanged("FirstDue");
                             folder.NotifyPropertyChanged("FirstDueColor");
-                        });
-                        dp.TabIndex = tabIndex++;
-                        EditStackPanel.Children.Add(dp);
+                        };
+                        element = dateElement;
                         break;
                     case "Boolean":
-                        CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
-                        cb.SetBinding(CheckBox.IsEnabledProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
-                        cb.TabIndex = tabIndex++;
-                        EditStackPanel.Children.Add(cb);
+                        CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
+                        checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
+                        element = checkboxElement;
                         break;
                     default:
                         break;
                 }
             }
 
-            */
-			
 			return element;
         }
         
@@ -787,7 +799,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 stringElement.Value = "(item not found)";
                             }
                             break;
-                        case "Postpone":
+                        case ActionNames.Postpone:
                             stringElement.Value = "to tomorrow";
                             stringElement.Tapped += delegate
                             {
@@ -796,7 +808,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             };
                             break;
-                        case "AddToCalendar":
+                        case ActionNames.AddToCalendar:
                             stringElement.Value = item.DueDisplay;
                             stringElement.Tapped += delegate
                             {
@@ -804,7 +816,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             };
                             break;
-                        case "Map":
+                        case ActionNames.Map:
                             stringElement.Tapped += delegate
                             {
                                 // try to use the maps: URL scheme
@@ -819,7 +831,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 }                                    
                             };                         
                             break;
-                        case "Phone":
+                        case ActionNames.Call:
                            stringElement.Tapped += delegate
                             {
                                 // construct the correct URL
@@ -830,7 +842,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                     MessageBox.Show("Can't make a phone call");
                             };
                             break;
-                        case "TextMessage":
+                        case ActionNames.TextMessage:
                             stringElement.Tapped += delegate
                             {
                                 // construct the correct URL
@@ -841,7 +853,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                     MessageBox.Show("Can't send a text message");
                             };                             
                             break;
-                        case "Browse":
+                        case ActionNames.Browse:
                             // construct the correct URL
                             string url = currentValue.Replace(" ", "%20");
                             if (url.Substring(0, 4) != "http")
@@ -849,7 +861,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             StyledHtmlElement browserElement = new StyledHtmlElement(action.DisplayName, url, UITableViewCellStyle.Value1, url);
 							element = browserElement;
                             break;
-                        case "Email":
+                        case ActionNames.SendEmail:
                             stringElement.Tapped += delegate
                             {
                                 // construct the correct URL

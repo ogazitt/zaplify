@@ -5,6 +5,7 @@ using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
+using BuiltSteady.Zaplify.Shared.Entities;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
 
@@ -238,9 +239,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				Item item = controller.list.Items[indexPath.Row];
 				ItemType itemType = ItemType.ItemTypes[item.ItemTypeID];
 				
-				// note the ToDo cell type is too complicated to cache - bad behavior happens when we reuse a cell
-				UITableViewCell cell = itemType.ID == ItemType.Task ? null : tableView.DequeueReusableCell (itemType.Name);
-				if (cell == null) {
+				// note that item types with "Complete" fields are complicated to cache - bad behavior happens when we reuse a cell
+				UITableViewCell cell = itemType.HasField(FieldNames.Complete) ? null : tableView.DequeueReusableCell (itemType.Name);
+				if (cell == null) 
+                {
 					cell = new UITableViewCell (UITableViewCellStyle.Subtitle, itemType.Name);
 					cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
 				}
@@ -257,9 +259,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					cell.DetailTextLabel.Text = item.Due != null ? ((DateTime) item.Due).ToString("d") : "";
 					cell.DetailTextLabel.TextColor = UIColorHelper.FromString(item.DueDisplayColor);
 					icon = itemType.Icon;
-					if (icon == null)
-					{	
-						// this implies a To-Do - so render a checkbox instead of a 
+
+                    if (itemType != null && itemType.HasField(FieldNames.Complete))
+                    {
+						// a "Complete" field means this item is a task that can be completed - so render a checkbox instead of a 
 						// static icon
 						bool complete = item.Complete == null ? false : (bool) item.Complete;
 						icon = complete ? "Images/checkbox.on.png" : "Images/checkbox.off.png";
@@ -293,14 +296,19 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						cell.Add(checkBox);
 					}				
 				}
-				// on iOS, the image path is relative, so transform "/Images/foo.png" to "Images/foo.png"
-				if (icon.StartsWith ("/Images/"))
-				    icon = icon.Substring(1);
-                if (icon.StartsWith("Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
-                    icon = "Images/" + icon;
-				if (cell.ImageView.Image == null)
-					cell.ImageView.Image = new UIImage(icon);
-
+                
+                // if the icon was specified, render it
+                if (icon != null)
+                {   
+    				// on iOS, the image path is relative, so transform "/Images/foo.png" to "Images/foo.png"
+    				if (icon.StartsWith ("/Images/"))
+    				    icon = icon.Substring(1);
+                    if (icon.StartsWith("Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
+                        icon = "Images/" + icon;
+    				if (cell.ImageView.Image == null)
+    					cell.ImageView.Image = new UIImage(icon);
+                }
+                
 				return cell;
 			}
 		}
