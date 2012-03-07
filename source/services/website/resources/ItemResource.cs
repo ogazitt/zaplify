@@ -12,6 +12,7 @@
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     [ServiceContract]
     [LogMessages]
@@ -208,8 +209,9 @@
                         }
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {   // folder not inserted - return 409 Conflict
+                        LoggingHelper.TraceError("Database exception for insert: " + ex.Message);
                         return new HttpResponseMessageWrapper<Item>(req, HttpStatusCode.Conflict);
                     }
                 }
