@@ -16,8 +16,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public class ItemPage
 	{
-		Item thisItem = null;
-		Item itemCopy = null;
+		Item ThisItem = null;
+		Item ItemCopy = null;
 		Folder folder = null;
 		UINavigationController controller;
 		RootElement root = null;
@@ -28,7 +28,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// trace event
             TraceHelper.AddMessage("Item: constructor");
 			controller = c;
-			thisItem = item;
+			ThisItem = item;
 		}
 		
 		public void PushViewController()
@@ -38,7 +38,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
             try
             {
-                folder = App.ViewModel.LoadFolder(thisItem.FolderID);
+                folder = App.ViewModel.LoadFolder(ThisItem.FolderID);
             }
             catch (Exception)
             {
@@ -46,15 +46,22 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				return;
             }
 
-	         // make a deep copy of the item for local binding
-	        itemCopy = new Item(thisItem);
-			root = RenderViewItem(itemCopy);			
+	        // make a deep copy of the item which stores the previous values
+            // the iphone implementation will make changes to the "live" copy 
+	        ItemCopy = new Item(ThisItem);
+			root = RenderViewItem(ThisItem);			
 			var dvc = new DialogViewController (root, true);
 			
 			// create an Edit button which pushes the edit view onto the nav stack
 			dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
-				var editRoot = RenderEditItem(itemCopy, true /* render the list field */);
+				var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
 				editViewController = new DialogViewController(editRoot, true);
+                editViewController.ViewDissapearing += (sender, e) => 
+                { 
+                    // trigger a sync with the service when the view disappears, and reload the Actions page 
+                    App.ViewModel.SyncWithService(); 
+                    dvc.ReloadData();
+                };    
 				controller.PushViewController(editViewController, true);
 			});
 			
@@ -74,7 +81,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		private void DeleteButton_Click(object sender, EventArgs e)
         {
             // if this is a new item, delete just does the same thing as cancel
-            if (thisItem == null)
+            if (ThisItem == null)
             {
                 CancelButton_Click(sender, e);
                 return;
@@ -89,11 +96,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Delete,
-                    Body = itemCopy
+                    Body = ThisItem
                 });
 
             // remove the item from the local itemType
-            folder.Items.Remove(thisItem);
+            folder.Items.Remove(ThisItem);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -108,77 +115,101 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			NavigateBack();
         }
 		
-		private void SaveButton_Click(object sender, EventArgs e)
+		public void SaveButton_Click(object sender, EventArgs e)
         {
             // update the LastModified timestamp
-            itemCopy.LastModified = DateTime.UtcNow;
+            ThisItem.LastModified = DateTime.UtcNow;
 			
 			// parse common regexps out of the description and into the appropriate
 			// fields (phone, email, URL, etc)
-            ParseFields(itemCopy);
+            ParseFields(ThisItem);
             
             // remove any NEW FieldValues (i.e. ones which didn't exist on the original item) 
             // which contain null Values (we don't want to burden the item with
             // extraneous null fields)
-            List<FieldValue> fieldValues = new List<FieldValue>(itemCopy.FieldValues);
+            List<FieldValue> fieldValues = new List<FieldValue>(ThisItem.FieldValues);
             foreach (var fv in fieldValues)
-                if (fv.Value == null && (thisItem == null || thisItem.GetFieldValue(fv.FieldID, false) == null))
-                    itemCopy.FieldValues.Remove(fv);                       
+                if (fv.Value == null && (ItemCopy == null || ItemCopy.GetFieldValue(fv.FieldID, false) == null))
+                    ThisItem.FieldValues.Remove(fv);                       
 
-            // if this is a new item, create it
-            if (thisItem == null)
-            {
-                // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
-                    new RequestQueue.RequestRecord()
-                        {
-                            ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                            Body = itemCopy
-                        });
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                    Body = new List<Item>() { ItemCopy, ThisItem },
+                    BodyTypeName = "Item",
+                    ID = ThisItem.ID
+                });
 
-                // add the item to the local itemType
-                folder.Items.Add(itemCopy);
-                thisItem = itemCopy;
-            }
-            else // this is an update
-            {
-                // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
-                    new RequestQueue.RequestRecord()
-                    {
-                        ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                        Body = new List<Item>() { thisItem, itemCopy },
-                        BodyTypeName = "Item",
-                        ID = thisItem.ID
-                    });
-
-                // save the changes to the existing item
-                int index = IndexOf(folder, thisItem);
-                if (index < 0)
-                    return; 
-                folder.Items[index] = itemCopy;
-                thisItem = itemCopy;
-            }
+            // create a copy of the new baseline
+            ItemCopy = new Item(ThisItem);
             
             // save the changes to local storage
-            //StorageHelper.WriteFolders(App.ViewModel.Folders);
             StorageHelper.WriteFolder(folder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
 
-            // signal the folder that the FirstDue property needs to be recomputed
-            folder.NotifyPropertyChanged("FirstDue");
-
             // trace page navigation
-            TraceHelper.StartMessage("Item: Navigate back");
+            //TraceHelper.StartMessage("Item: Navigate back");
 
             // Navigate back to the list page
-			NavigateBack();
+			//NavigateBack();
         }
 
 		#region Helpers
-
+  
+        private string CreateCommaDelimitedList(Item list)
+        {
+            if (list == null)
+                return null;
+            
+            // build a comma-delimited list of names to display in a control
+            List<string> names = list.Items.Select(it => it.Name).ToList();
+            StringBuilder sb = new StringBuilder();
+            bool comma = false;
+            foreach (var name in names)
+            {
+                if (comma)
+                    sb.Append(", ");
+                else
+                    comma = true;
+                sb.Append(name);
+            }
+            return sb.ToString();
+        }
+        
+        private Item CreateItemCopyWithChildren(Guid itemID)
+        {
+            Item item = new Item(App.ViewModel.Items.Single(it => it.ID == itemID));
+            item.Items = App.ViewModel.Items.Where(it => it.ParentID == itemID).ToObservableCollection();    
+            return item;
+        }       
+        
+        private Item CreateValueList(Item item, Field field, Guid itemID)
+        {
+            Item list;
+            if (itemID == Guid.Empty) 
+            {
+                list = new Item()
+                {
+                    ID = itemID, // signal new list
+                    Name = field.DisplayName,
+                    IsList = true,
+                    FolderID = folder.ID,
+                    ParentID = item.ID,
+                    ItemTypeID = item.ItemTypeID,
+                };
+            }
+            else
+            {
+                // get the current value list
+                list = CreateItemCopyWithChildren((Guid) itemID);
+            }
+            return list;
+        }
+        
         private string GetTypeName(PropertyInfo pi)
         {
             string typename = pi.PropertyType.Name;
@@ -365,7 +396,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					entryElement.KeyboardType = UIKeyboardType.Default;
                     entryElement.Value = (string) currentValue;
 					entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
 					//element = stringElement;
                     break;
                 case DisplayTypes.TextArea:
@@ -373,27 +404,27 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					//multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
 					//element = multilineElement;
                     entryElement.Value = (string) currentValue;
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.Phone:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.PhonePad;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.Link:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.Url;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.Email:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.EmailAddress;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.Address:
                     entryElement.Value = (string) currentValue;
                     entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.Priority:
 					var priorities = new RadioGroup (field.DisplayName, 0);
@@ -413,7 +444,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						RadioEventElement radioEventElement = (RadioEventElement) radio;
 						//radioEventElement.Value = i.ToString();
 						int index = i++;
-						radioEventElement.OnSelected += delegate(object sender, EventArgs e) { pi.SetValue(container, index, null); };
+						radioEventElement.OnSelected += delegate(object sender, EventArgs e) { pi.SetValue(container, index, null); SaveButton_Click(null, null); };
 						//{
 						//	pi.SetValue(container, Convert.ToInt32(((RadioEventElement)sender).Value), null); 
 						//};
@@ -463,6 +494,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						radioEventElement.OnSelected += delegate(object sender, EventArgs e)
 						{
 							pi.SetValue(container, lists[currentIndex].ID, null); 
+                            SaveButton_Click(null, null);
 						};
 						index++;
 					}
@@ -471,7 +503,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case "Integer":
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.NumberPad;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
                     break;
                 case DisplayTypes.DatePicker:
 					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
@@ -480,6 +512,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     {
                         //pi.SetValue(container, dp.Value, null);
                         pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
+                        SaveButton_Click(null, null);
                         folder.NotifyPropertyChanged("FirstDue");
                         folder.NotifyPropertyChanged("FirstDueColor");
                     };
@@ -493,7 +526,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					element = boolElement;
 					*/
 					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
-					checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
+					checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); SaveButton_Click(null, null); };
 					element = checkboxElement;
                     break;
                 case DisplayTypes.TagList:
@@ -506,50 +539,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     break;
                     */
                 case "ContactList":
-                    // render the current items 
-                    StringElement stringElement = new StringElement(field.DisplayName);
-                    Item currentContacts;
-                    if (currentValue == null) 
-                    {
-                        currentContacts = new Item()
-                        {
-                            ID = Guid.Empty, // signal new list
-                            IsList = true,
-                            FolderID = folder.ID,
-                            ParentID = item.ID,
-                        };
-                    }
-                    else
-                    {
-                        // build the current contact list
-                        Guid currentContactListID = new Guid((string) currentValue);
-                        currentContacts = new Item(App.ViewModel.Items.Single(it => it.ID == currentContactListID));
-                        currentContacts.Items = App.ViewModel.Items.Where(it => it.ParentID == currentContacts.ID).ToObservableCollection();
-                        
-                        // build a comma-delimited list of names to display in the control
-                        List<string> names = currentContacts.Items.Select(it => it.Name).ToList();
-                        StringBuilder sb = new StringBuilder();
-                        bool comma = false;
-                        foreach (var name in names)
-                        {
-                            if (comma)
-                                sb.Append(", ");
-                            else
-                                comma = true;
-                            sb.Append(name);
-                        }
-                        stringElement.Value = sb.ToString();
-                    }
+                    StringElement contactsElement = new StringElement(field.DisplayName);
+                    Item currentContacts = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
+                    contactsElement.Value = CreateCommaDelimitedList(currentContacts);
                     Item contacts = new Item()
                     {
-                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == SystemItemTypes.Contact).ToObservableCollection(),
+                        Items = App.ViewModel.Items.
+                            Where(it => it.ItemTypeID == SystemItemTypes.Contact).
+                            Select(it => new Item() { Name = it.Name, FolderID = folder.ID, ItemTypeID = SystemItemTypes.ListItem, ParentID = currentContacts.ID, ItemRef = it.ID }).
+                            ToObservableCollection(),
                     };
-                    stringElement.Tapped += delegate 
+                    contactsElement.Tapped += delegate 
                     {
                         // put up the list picker dialog
                         ListPickerPage listPicker = new ListPickerPage(
+                            this,
                             editViewController.NavigationController, 
-                            stringElement,
+                            contactsElement,
                             pi,
                             container,
                             field.DisplayName, 
@@ -557,10 +563,31 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             contacts);
                         listPicker.PushViewController();
                     };
-                    element = stringElement;
+                    element = contactsElement;
                     break;
                 case "LocationList":
-                    // bring up multi list picker UI
+                    StringElement locationsElement = new StringElement(field.DisplayName);
+                    Item currentLocations = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
+                    locationsElement.Value = CreateCommaDelimitedList(currentLocations);
+                    Item locations = new Item()
+                    {
+                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == SystemItemTypes.Location).ToObservableCollection(),
+                    };
+                    locationsElement.Tapped += delegate 
+                    {
+                        // put up the list picker dialog
+                        ListPickerPage listPicker = new ListPickerPage(
+                            this,
+                            editViewController.NavigationController, 
+                            locationsElement,
+                            pi,
+                            container,
+                            field.DisplayName, 
+                            currentLocations, 
+                            locations);
+                        listPicker.PushViewController();
+                    };
+                    element = locationsElement;
                     break;
                 default:
                     notMatched = true;
@@ -768,7 +795,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     // render the action based on the action type
                     switch (action.ActionName)
                     {
-                        case "Navigate":
+                        case ActionNames.Navigate:
 						    try
                             {
                                 Item newItem = App.ViewModel.Items.Single(it => it.ID == Guid.Parse(currentValue));
@@ -869,7 +896,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 if (UIApplication.SharedApplication.OpenUrl(new NSUrl(emailUrl)) == false)
                                     MessageBox.Show("Can't launch the email application");
                             };                             
-                            break;
+                            break;                 
                     }
 					
 					// add the element to the section (note that the reference may have been

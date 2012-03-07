@@ -116,6 +116,7 @@
     <Compile Include="controls\MultilineEntryElement.cs" />
     <Compile Include="NuanceHelper-ios.cs" />
     <Compile Include="ListPickerPage.cs" />
+    <Compile Include="controls\CheckboxImageElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />
