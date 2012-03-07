@@ -3,7 +3,7 @@ Dashboard elements
 ----------------------------------------------------------*/
 
 .dashboard-region {
-    min-width: 960px;
+    min-width: 800px;
 }
 
 .dashboard-list {
@@ -21,7 +21,6 @@ Dashboard elements
     display: inline-block;
     margin: 0 12px 0 12px;
     float: left;
-    min-width: 55%;
     Xborder: 1px dashed red;
 }
 
@@ -66,8 +65,7 @@ Dashboard Folders elements
     cursor: pointer;
     margin: 1px 10px 0 10px;
     width: 178px;
-    min-height: 176px;
-    max-height: 264px;
+    min-height: 132px;
     border: 1px solid #C4BD97;
     background-color: white;
     overflow-x: hidden;

@@ -111,6 +111,14 @@
                         // Items already serialized under Folders, don't serialize another copy
                         userData.Items = null;
                     }
+
+                    // Include does not support filtering or sorting, post-process ordering of folders and items in memory
+                    // sort folders by SortOrder field
+                    userData.Folders = userData.Folders.OrderBy(f => f.SortOrder).ToList();
+                    for (var i=0; i < userData.Folders.Count; i++)
+                    {   // sort items by SortOrder field
+                        userData.Folders[i].Items = userData.Folders[i].Items.OrderBy(item => item.SortOrder).ToList(); 
+                    }
                 }
                 return userData;
             }

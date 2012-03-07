@@ -37,16 +37,20 @@ Control.ellipsis = function Control$ellipsis(element, height) {
 // Dashboard static object - manages controls for dashboard
 // assumes there are three panes marked by classes:
 // dashboard-folders, dashboard-manager, dashboard-suggestions
+
 var Dashboard = function Dashboard$() {
     // data members used
     this.dataModel = null;
     this.folderList = null;
     this.folderManager = null;
-};
+}
+
+// ---------------------------------------------------------
+// public methods
 
 Dashboard.Init = function Dashboard$Init(dataModel) {
     this.dataModel = dataModel;
-    this.dataModel.AddDataChangedHandler('dashboard', Dashboard.Refresh);
+    this.dataModel.AddDataChangedHandler('dashboard', Dashboard.render);
 
     // folders list
     this.folderList = new FolderList(this.dataModel.Folders);
@@ -60,10 +64,9 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // suggestions list
 
-}
-
-Dashboard.Refresh = function Dashboard$Refresh(type, id) {
-    Dashboard.folderList.render(".dashboard-folders");
+    // bind events
+    $(window).bind('load', Dashboard.resize);
+    $(window).bind('resize', Dashboard.resize);
 }
 
 // event handler, do not reference this to access static Dashboard
@@ -82,4 +85,40 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     }
 }
 
+// ---------------------------------------------------------
+// private methods
 
+Dashboard.render = function Dashboard$render(folderID, itemID) {
+    Dashboard.folderList.render(".dashboard-folders");
+}
+
+Dashboard.resize = function Dashboard$resize() {
+    if (Dashboard.resizing) { return; }
+
+    Dashboard.resizing = true;
+    $(window).unbind('resize', Dashboard.resize);
+
+    var winHeight = $(window).height();
+    var headerHeight = $('.header-region').height();
+    var footerHeight = $('.footer-region').height();
+    var dbHeight = winHeight - (headerHeight + footerHeight + 40);
+
+    var $db = $('.dashboard-region');
+    var $dbm = $('.dashboard-manager');
+    var $dbf = $('.dashboard-folders');
+    var $dbs = $('.dashboard-suggestions');
+    var dbOuterHeight = $db.outerHeight();
+    var dbWidth = $db.width();
+    var dbfWidth = $dbf.width();
+    var dbsWidth = $dbs.width();
+    var dbmMargins = 26;
+
+    $dbm.width(dbWidth - (dbfWidth + dbsWidth + dbmMargins));
+    $dbf.height(dbHeight);
+    $dbs.height(dbHeight);
+
+    Dashboard.render();
+
+    $(window).bind('resize', Dashboard.resize);
+    Dashboard.resizing = false;
+}
