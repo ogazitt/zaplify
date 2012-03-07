@@ -16,10 +16,8 @@ function FolderManager(dataModel) {
     this.$managerRegion = null;
 
     this.toolbar = new Toolbar(this);
+    this.listEditor = new ListEditor(this);
     this.managerHelp = new FolderManagerHelp(this);
-
-    // TEMPORARY 
-    this.$itemPath = null;
 }
 
 FolderManager.prototype.render = function (container) {
@@ -30,105 +28,53 @@ FolderManager.prototype.render = function (container) {
         $('<div class="manager-toolbar"></div>').appendTo($(container));
         this.toolbar.render('.manager-toolbar');
         this.toolbar.bind(Toolbar.Refresh, 'click', this.dataModel.Refresh);
-        this.toolbar.bind(Toolbar.AddFolder, 'click', function (myself) { alert('not implemented'); }, this);
-        this.toolbar.bind(Toolbar.AddList, 'click', function (myself) { myself.addItem(true); }, this);
-        this.toolbar.bind(Toolbar.AddItem, 'click', function (myself) { myself.addItem(false); }, this);
-        this.toolbar.bind(Toolbar.UpdateItem, 'click', function (myself) { myself.updateItem(); }, this);
-        this.toolbar.bind(Toolbar.DeleteItem, 'click', function (myself) { myself.deleteItem(); }, this);
+        this.toolbar.bind(Toolbar.AddFolder, 'click', function (handlerObj) { handlerObj.addFolder(); }, this.listEditor);
+        this.toolbar.bind(Toolbar.AddList, 'click', function (handlerObj) { handlerObj.addItem(true); }, this.listEditor);
+        this.toolbar.bind(Toolbar.AddItem, 'click', function (handlerObj) { handlerObj.addItem(false); }, this.listEditor);
+        this.toolbar.bind(Toolbar.UpdateItem, 'click', function (handlerObj) { handlerObj.updateItem(); }, this.listEditor);
+        this.toolbar.bind(Toolbar.DeleteItem, 'click', function (handlerObj) { handlerObj.deleteItem(); }, this.listEditor);
 
         // manager region
         this.$managerRegion = $('<div class="manager-region"></div>').appendTo($(container));
 
-        //TEMPORARY
-        this.$itemEditor = $('<div class="item-editor"></div>').appendTo(this.$managerRegion);
-        this.$itemPath = $('<div class="item-path"></div>').appendTo(this.$itemEditor);
-        $input = $('<div><input id="txtName" type="text" class="input_item-name" /></div>').appendTo(this.$itemEditor);
-        $input.data('control', this);
-        $input.keypress(function (event) { Control.get(this).handleEnterKey(event); });
+        // list editor
+        this.listEditor.render(this.container);
     }
 }
 
-FolderManager.prototype.handleEnterKey = function (event) {
-    if (event.which == 13) {
-        if (this.currentItem == null || this.currentItem.IsList) {
-            this.addItem(false);
-        } else {
-            this.updateItem();
-        }
-    }
-}
-
-FolderManager.prototype.addItem = function (isList) {
-    var value = $('#txtName').val();
-    if (this.currentItem != null) {
-        this.currentItem.InsertItem({ Name: value, IsList: isList });
-    } else {
-        this.currentFolder.InsertItem({ Name: value, IsList: isList });
-    }
-    $('#txtName').val('');
-}
-
-FolderManager.prototype.updateItem = function () {
-    var value = $('#txtName').val();
-    if (this.currentItem != null) {
-        var updatedItem = $.extend({}, this.currentItem);
-        updatedItem.Name = value;
-        this.currentItem.Update(updatedItem);
-    }
-}
-
-FolderManager.prototype.deleteItem = function () {
-    if (this.currentItem != null) {
-        // WARN USER when deleting a List
-        if (this.currentItem.IsList && !confirm('Are you sure?\n\nThis will delete the list and all items contained within!')) {
-            return;
-        }
-        this.currentItem.Delete();
-    } else {
-        // WARN USER when deleting a Folder
-        //if (confirm('Are you sure?\n\nThis will delete the folder and all items contained within!')) {
-        //    this.currentFolder.Delete();
-        //}
-    }
-}
 
 FolderManager.prototype.selectFolder = function (folder) {
     this.currentFolder = folder;
     if (this.currentFolder != null) {
-        this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
-        this.$itemPath.empty();
-        this.$itemPath.append('<span>' + folder.Name + '</span>');
+        if (this.currentFolder.IsDefault) {
+            this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
+        } else {
+            this.toolbar.disableTools([Toolbar.UpdateItem]);
+        }
         this.managerHelp.hide();
-        this.$itemEditor.show();
+        this.listEditor.render(this.container);
+        this.listEditor.inputValue('');
+        this.listEditor.show();
     } else {
+        this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
+        this.listEditor.hide();
         this.managerHelp.show();
-        this.$itemEditor.hide();
     }
 }
 
-// TEMPORARY
 FolderManager.prototype.selectItem = function (item) {
     this.currentItem = item;
     if (this.currentItem != null) {
         if (this.currentItem.IsList) {
-            $('#txtName').val('');
-            this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList ]);
-            this.$itemPath.empty();
-            this.$itemPath.append('<span>' + this.currentFolder.Name + '</span>');
-            this.$itemPath.append('<span>.' + item.Name + '</span>');
+            this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
+            this.listEditor.render(this.container);
+            this.listEditor.inputValue('');
         } else {
-            $('#txtName').val(item.Name);
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
-
-            this.$itemPath.empty();
-            this.$itemPath.append('<span>' + this.currentFolder.Name + '</span>');
-            if (this.currentItem.ParentID != null) {
-                this.$itemPath.append('<span>.' + item.GetParent().Name + '</span>');
-            }
+            this.listEditor.render(this.container);
+            this.listEditor.inputValue(this.currentItem.Name);
         }
     } else {
-        $('#txtName').val('');
-        this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
         this.selectFolder(this.currentFolder);
     }
 }
@@ -242,23 +188,117 @@ ToolButton.prototype.show = function () {
 }
 
 // ---------------------------------------------------------
-// ItemEditor control
-function ItemEditor(parentControl) {
+// ListEditor control
+function ListEditor(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
 }
 
-ItemEditor.prototype.render = function (container) {
-    this.$element = $('<div class="manager-help"><h1>Welcome to Zaplify!</h1></div>').appendTo($(container));
+ListEditor.prototype.render = function (container) {
+    var folder = this.parentControl.currentFolder;
+    var item = this.parentControl.currentItem;
+    var $itemPath, $input;
+    if (this.$element == null) {
+        this.$element = $('<div class="list-editor"></div>').appendTo(container);
+        $itemPath = $('<div class="item-path"></div>').appendTo(this.$element);
+        $input = $('<div><input type="text" class="new-item_input" /></div>').appendTo(this.$element);
+        $input.data('control', this);
+        $input.keypress(function (event) { Control.get(this).handleEnterKey(event); });
+    }
+
+    $itemPath = this.$element.find('.item-path');
+    $itemPath.empty();
+    $itemPath.append('<span>' + folder.Name + '</span>');
+    if (item != null) {
+        if (item.IsList) {
+            $itemPath.append('<span>.' + item.Name + '</span>');
+        } else if (item.ParentID != null) {
+            $itemPath.append('<span>.' + item.GetParent().Name + '</span>');
+        }
+    }
+
+    $input = this.$element.find('.new-item_input');
+    //if (item == null || item.IsList) { $input.show(); } 
+    //else { $input.hide(); }
 }
 
-ItemEditor.prototype.hide = function () {
+ListEditor.prototype.inputValue = function (value) {
+    if (value != null) {
+        this.$element.find('.new-item_input').val(value);
+    }
+    return (this.$element.find('.new-item_input').val());
+}
+
+ListEditor.prototype.hide = function () {
     this.$element.hide();
 }
 
-ItemEditor.prototype.show = function () {
+ListEditor.prototype.show = function () {
     this.$element.show();
 }
+
+ListEditor.prototype.handleEnterKey = function (event) {
+    var item = this.parentControl.currentItem;
+    if (event.which == 13) {
+        if (item == null || item.IsList) {
+            this.addItem(false);
+        } else {
+            this.updateItem();
+        }
+    }
+}
+
+ListEditor.prototype.addFolder = function () {
+    var value = this.inputValue();
+
+    // TODO: let user define ItemType (temporary for test purposes)
+    var dataModel = this.parentControl.dataModel;
+    var itemType = dataModel.FoldersMap.array[1].ItemTypeID;
+    dataModel.InsertFolder({ Name: value, ItemTypeID: itemType });
+    this.inputValue('');
+}
+
+ListEditor.prototype.addItem = function (isList) {
+    var folder = this.parentControl.currentFolder;
+    var item = this.parentControl.currentItem;
+    var value = this.inputValue();
+
+    if (item != null) {
+        item.InsertItem({ Name: value, IsList: isList });
+    } else if (folder != null) {
+        folder.InsertItem({ Name: value, IsList: isList });
+    } 
+    this.inputValue('');
+}
+
+ListEditor.prototype.updateItem = function () {
+    var item = this.parentControl.currentItem;
+    var value = this.inputValue();
+    if (item != null) {
+        var updatedItem = $.extend({}, item);
+        updatedItem.Name = value;
+        item.Update(updatedItem);
+    }
+}
+
+ListEditor.prototype.deleteItem = function () {
+    var item = this.parentControl.currentItem;
+    if (item != null) {
+        // WARN USER when deleting a List
+        if (item.IsList && !confirm('Are you sure?\n\nThis will delete the list and all items contained within!')) {
+            return;
+        }
+        item.Delete();
+    } else {
+        if (this.parentControl.currentFolder.IsDefault) {
+            alert('This is a default folder and cannot be deleted.');
+        } else if (confirm('Are you sure?\n\nThis will delete the folder and all items contained within!')) {
+            // WARN USER when deleting a Folder
+            this.parentControl.currentFolder.Delete();
+        }
+    }
+}
+
 
 // ---------------------------------------------------------
 // FolderManagerHelp control

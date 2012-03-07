@@ -82,7 +82,7 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
         var resource = 'items';
         if (containerItem == null) {                                        // inserting a new folder
             resource = 'folders';
-        } else if (containerItem.FolderID == null) {                        // inserting into a folder 
+        } else if (containerItem.IsFolder) {             // inserting into a folder 
             newItem.FolderID = containerItem.ID;
             newItem.ParentID = null;
             newItem.ItemTypeID = (newItem.ItemTypeID == null) ? containerItem.ItemTypeID : newItem.ItemTypeID;
@@ -94,13 +94,14 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
             return false;                                                   // do not insert into item that is not a list
         }
 
-        // TODO: sort order
+        // TODO: support insertions (always appends)
         if (adjacentItem == null) {                                         // append to end
             if (containerItem == null) {                                    // append new Folder to end
-                var lastFolder = DataModel.itemAt(DataModel.Folders, -1);
+                //var lastFolder = DataModel.itemAt(DataModel.Folders, -1);
+                var lastFolder = DataModel.FoldersMap.itemAt(-1);
                 newItem.SortOrder = (lastFolder == null) ? 1000 : lastFolder.SortOrder + 1000;
             } else {                                                        // append new Item to end
-                var lastItem = DataModel.itemAt(containerItem.GetItems(), -1);
+                var lastItem = ItemMap.itemAt(containerItem.GetItems(), -1);
                 newItem.SortOrder = (lastItem == null) ? 1000 : lastItem.SortOrder + 1000;
             }
         }
@@ -120,13 +121,13 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
 }
 
 DataModel.InsertFolder = function (newFolder, adjacentFolder, insertBefore) {
-    return DataModel.InsertItem(null, newFolder, adjacentFolder, insertBefore);
+    return DataModel.InsertItem(newFolder, null, adjacentFolder, insertBefore);
 };
 
 // generic helper for updating a folder or item, invokes server and updates local data model
 DataModel.UpdateItem = function DataModel$UpateItem(originalItem, updatedItem) {
     if (originalItem != null && updatedItem != null) {
-        var resource = (originalItem.FolderID == null) ? 'folders' : 'items';
+        var resource = (originalItem.IsFolder) ? 'folders' : 'items';
         var data = [originalItem, updatedItem];
         Service.UpdateResource(resource, originalItem.ID, data,
             function (responseState) {                                      // successHandler
@@ -142,18 +143,19 @@ DataModel.UpdateItem = function DataModel$UpateItem(originalItem, updatedItem) {
 // generic helper for deleting a folder or item, invokes server and updates local data model
 DataModel.DeleteItem = function DataModel$DeleteItem(item) {
     if (item != null) {
-        var resource = (item.FolderID == null) ? 'folders' : 'items';
+        var resource = (item.IsFolder) ? 'folders' : 'items';
         Service.DeleteResource(resource, item.ID, item,
             function (responseState) {                                      // successHandler
                 var deletedItem = responseState.result;
                 // delete item from local data model
-                if (item.FolderID == null) {
-                    delete DataModel.Folders[item.ID];                      // delete Folder
-                } else {
+                if (item.IsFolder) {                                        // remove Folder
+                    DataModel.FoldersMap.remove(item);
+                    DataModel.fireDataChanged(item.ID);
+                } else {                                                    // remove Item
                     item.selectNextItem();
-                    delete DataModel.Folders[item.FolderID].Items[item.ID]; // delete Item
+                    DataModel.Folders[item.FolderID].ItemsMap.remove(item); 
+                    DataModel.fireDataChanged(item.FolderID, item.ID);
                 }
-                DataModel.fireDataChanged(item.FolderID, item.ID);
             });
         return true;
     }
@@ -163,36 +165,20 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
 // ---------------------------------------------------------
 // private methods
 
-DataModel.fireDataChanged = function (type, id) {
+DataModel.fireDataChanged = function (folderID, itemID) {
     for (var name in DataModel.onDataChangedHandlers) {
         var handler = DataModel.onDataChangedHandlers[name];
         if (typeof (handler) == "function") {
-            handler(type, id);
+            handler(folderID, itemID);
         }
     }
 }
 
-// Consider using a Map for Folders and Items to lookup by name or index
-DataModel.indexOf = function (dict, id) {
-    var index = -1, i = 0;
-    for (var key in dict) {
-        if (key == id) { index = i; break; }
-        i++;     
-    }
-    return index;
-}
-
-DataModel.itemAt = function (dict, index) {
-    for (var key in dict) {
-        var item = dict[key];
-        if (index-- == 0) { return item; }
-    }
-    return null;
-}
-
 DataModel.addFolder = function (newFolder) {
-    DataModel.Folders[newFolder.ID] = newFolder;
-    DataModel.fireDataChanged('Folders');
+    DataModel.attachItemFunctions(newFolder);
+    DataModel.attachViewState(newFolder);
+    DataModel.FoldersMap.append(newFolder);
+    DataModel.fireDataChanged(newFolder.ID);
 };
 
 DataModel.processConstants = function DataModel$processConstants(jsonParsed) {
@@ -249,42 +235,32 @@ DataModel.processUserData = function DataModel$processUserData(jsonParsed) {
 
 }
 
-DataModel.processFolders = function DataModel$processFolders(jsonParsed) {
-    var folders = {}
-    // transform Folder and Item index arrays into named arrays where name is ID
-    for (var i in jsonParsed) {
-        var folder = jsonParsed[i];
-        var fid = folder.ID;
-
-        // attach helper functions and view state to folders
-        DataModel.attachItemFunctions(folder);
-        DataModel.attachViewState(folder);
-
-        var items = folder.Items;
-        folder.Items = {};
-        var listCount = 0;
+DataModel.processFolders = function DataModel$processFolders(folders) {
+    // attach ItemMap objects for Folders and Items
+    // the ItemMap retains original storage array
+    // the ItemMap.Items property provides associative array over storage
+    for (var i in folders) {
+        var items = folders[i].Items;
         for (var j in items) {
-            var item = items[j];
-            var iid = item.ID;
-
-            // attach helper functions and view state to items
-            DataModel.attachItemFunctions(item);
-            DataModel.attachViewState(item);
-
-            if (item.IsList) {
-                listCount++;
-            }
-            folder.Items[iid] = item;
+            DataModel.attachItemFunctions(items[j]);
+            DataModel.attachViewState(items[j]);
         }
-        folders[fid] = folder;
+        folders[i].ItemsMap = new ItemMap(items);
+        folders[i].Items = folders[i].ItemsMap.Items;
+        DataModel.attachItemFunctions(folders[i]);
+        DataModel.attachViewState(folders[i]);
+        // TODO: mark 'default' folders in database
+        folders[i].IsDefault = (i < 4);
     }
-    DataModel.Folders = folders;
+    DataModel.FoldersMap = new ItemMap(folders);
+    DataModel.Folders = DataModel.FoldersMap.Items;
 }
 
 DataModel.attachItemFunctions = function DataModel$attachItemFunctions(item) {
     if (item.FolderID === undefined) {
         // attach helper functions to Folder
         var folder = item;
+        folder.IsFolder = true;
         folder.GetItems = function () { return DataModel.GetItems(this.ID, null); };
         folder.InsertItem = function (newItem, adjacentItem, insertBefore) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore); };
         folder.Update = function (updatedFolder) { return DataModel.UpdateItem(this, updatedFolder); };
@@ -292,16 +268,20 @@ DataModel.attachItemFunctions = function DataModel$attachItemFunctions(item) {
         folder.addItem = function (newItem) {
             DataModel.attachItemFunctions(newItem);
             DataModel.attachViewState(newItem);
-            newItem.ViewState.Select = newItem.IsList; 
-            if (this.Items == null) this.Items = {};
-            this.Items[newItem.ID] = newItem;
+            newItem.ViewState.Select = newItem.IsList;
+            if (this.ItemsMap == null) {
+                this.ItemsMap = new ItemMap([newItem]);
+                this.Items = this.ItemsMap.Items;
+            } else {
+                this.ItemsMap.append(newItem);
+            }
             DataModel.fireDataChanged(this.ID, newItem.ID);
         };
         folder.update = function (updatedFolder) {
             if (this.ID == updatedFolder.ID) {
                 DataModel.attachItemFunctions(updatedFolder);
                 DataModel.attachViewState(updatedFolder, this.ViewState);
-                DataModel.Folders[updatedFolder.ID] = updatedFolder;
+                DataModel.FoldersMap.update(updatedFolder);
                 DataModel.fireDataChanged(this.ID);
                 return true;
             }
@@ -309,14 +289,13 @@ DataModel.attachItemFunctions = function DataModel$attachItemFunctions(item) {
         };
     } else {
         // add helper functions to Item
+        item.IsFolder = false;
         item.GetParent = function () { return (this.ParentID == null) ? null : DataModel.Folders[this.FolderID].Items[this.ParentID]; };
         item.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
         item.InsertItem = function (newItem, adjacentItem, insertBefore) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore); };
         item.Update = function (updatedItem) { return DataModel.UpdateItem(this, updatedItem); };
         item.Delete = function () { return DataModel.DeleteItem(this); };
         item.addItem = function (newItem) {
-            DataModel.attachItemFunctions(newItem);
-            DataModel.attachViewState(newItem);
             var folder = DataModel.Folders[this.FolderID];
             folder.addItem(newItem);
         };
@@ -325,10 +304,10 @@ DataModel.attachItemFunctions = function DataModel$attachItemFunctions(item) {
                 DataModel.attachItemFunctions(updatedItem);
                 DataModel.attachViewState(updatedItem, this.ViewState);
                 if (this.FolderID == updatedItem.FolderID) {
-                    DataModel.Folders[this.FolderID].Items[this.ID] = updatedItem;
+                    DataModel.Folders[this.FolderID].ItemsMap.update(updatedItem);
                 } else {
-                    delete DataModel.Folders[this.FolderID].Items[this.ID];
-                    DataModel.Folders[updatedItem.FolderID].Items[updatedItem.ID];
+                    DataModel.Folders[this.FolderID].ItemsMap.remove(this);
+                    DataModel.Folders[updatedItem.FolderID].ItemsMap.append(updatedItem);
                 }
                 DataModel.fireDataChanged(this.FolderID, this.ID);
                 return true;
@@ -338,19 +317,16 @@ DataModel.attachItemFunctions = function DataModel$attachItemFunctions(item) {
         item.selectNextItem = function () {
             var parent = this.GetParent();
             var parentItems = (parent == null) ? DataModel.Folders[this.FolderID].GetItems() : parent.GetItems();
-            var myIndex = DataModel.indexOf(parentItems, this.ID);
-            var nextItem = DataModel.itemAt(parentItems, myIndex + 1);
+            var myIndex = ItemMap.indexOf(parentItems, this.ID);
+            var nextItem = ItemMap.itemAt(parentItems, myIndex + 1);
             if (nextItem != null) {
                 nextItem.ViewState.Select = true;
+            } else if (myIndex == 0) {
+                if (parent != null) { parent.ViewState.Select = true; }
             } else {
-                var prevItem = DataModel.itemAt(parentItems, myIndex - 1);
-                if (prevItem != null) {
-                    prevItem.ViewState.Select = true;
-                } else if (parent != null) {
-                    parent.ViewState.Select = true;
-                }
+                var prevItem = ItemMap.itemAt(parentItems, myIndex - 1);
+                if (prevItem != null) { prevItem.ViewState.Select = true; }
             }
-
         }
     }
 }
@@ -359,3 +335,106 @@ DataModel.attachViewState = function DataModel$attachViewState(item, viewState) 
     viewState = (viewState == null) ? {} : viewState;
     item.ViewState = viewState;
 }
+
+
+// ---------------------------------------------------------
+// ItemMap object - provides associative array over array
+// (all items in array MUST have an ID property)
+//
+// NOTE: 
+// Maintains original storage of array
+// Items property is associative array with ID access
+//
+function ItemMap(array) {
+    this.array = array;
+    this.Items = {};
+    for (var i in array) {
+        if (array[i].hasOwnProperty('ID')) {
+            this.Items[array[i].ID] = array[i];
+        } else {
+            throw ItemMap.errorMustHaveID;
+        }
+    }
+}
+
+ItemMap.prototype.indexOf = function (item) {
+    for (var i in this.array) {
+        if (this.array[i].ID == item.ID) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+ItemMap.prototype.itemAt = function (index) {
+    if (index < 0) {                            // return last item for negative index
+        return this.array[this.array.length - 1];
+    }
+    if (index < this.array.length) {           
+        return this.array[index];
+    }
+    return null;                                // return null if index out of range
+}
+
+ItemMap.prototype.append = function (item) {
+    if (item.hasOwnProperty('ID')) {
+        this.array = this.array.concat(item);
+        this.Items[item.ID] = this.array[this.array.length - 1];
+    } else {
+        throw ItemMap.errorMustHaveID;
+    }
+}
+
+ItemMap.prototype.update = function (item) {
+    if (item.hasOwnProperty('ID')) {
+        // TODO: check SortOrder and reorder if necessary
+        var index = this.indexOf(item);
+        this.array[index] = item;
+        this.Items[item.ID] = this.array[index];
+    } else {
+        throw ItemMap.errorMustHaveID;
+    }
+}
+
+ItemMap.prototype.remove = function (item) {
+    if (item.hasOwnProperty('ID')) {
+        var index = this.indexOf(item);
+        if (index >= 0) {
+            this.array.splice(index, 1);
+            delete this.Items[item.ID];
+        }
+    } else {
+        throw ItemMap.errorMustHaveID;
+    }
+}
+
+// ---------------------------------------------------------
+// static members
+
+ItemMap.count = function (map) {
+    var i = 0, key;
+    for (key in map) {
+        if (map.hasOwnProperty(key)) i++;
+    }
+    return i;
+}
+
+ItemMap.indexOf = function (map, id) {
+    var index = -1, i = 0;
+    for (var key in map) {
+        if (key == id) { index = i; break; }
+        i++;
+    }
+    return index;
+}
+
+ItemMap.itemAt = function (map, index) {
+    for (var key in map) {
+        var item = map[key];
+        if (index-- == 0) { return item; }
+    }
+    // negative index will return last item
+    return (index < 0) ? item : null;
+}
+
+ItemMap.errorMustHaveID = 'ItemMap requires all items in array to have an ID property.';

@@ -67,7 +67,7 @@ Default site styling
 ----------------------------------------------------------*/
 .site-default 
 {
-    overflow-y: hidden;
+    Xoverflow-y: hidden;
     font-size: 0.8em;
     font-family: "segoe ui", tahoma, verdana, arial, sans-serif;
     color: #202030;
@@ -100,7 +100,8 @@ Layout elements
 }
 
 .header-region {   
-    min-width: 600px;
+    position: relative;
+    min-width: 840px;
     width: 100%;
     height: 60px;
     background: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
@@ -110,7 +111,7 @@ Layout elements
 }
 
 .header-content img {
-    position: fixed;
+    position: absolute;
     left: 20px;
     top: 0px;
     height: 65px;
@@ -119,7 +120,7 @@ Layout elements
 
 .main-content-region {
     min-width: 600px;
-    min-height: 450px;
+    min-height: 400px;
     margin: 20px 20px 20px 20px;
 }
 
@@ -144,7 +145,7 @@ Layout elements
 
 .signin-control
 {
-    position: fixed;
+    position: absolute;
     right:15px;
     top: 15px;
 }

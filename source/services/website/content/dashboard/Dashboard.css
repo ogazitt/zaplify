@@ -10,7 +10,7 @@ Dashboard elements
     display: inline-block;
     padding: 5px 0 5px 0;
     width: 200px;
-    min-height: 400px;
+    min-height: 360px;
     background-color: #EEECE1;
     border-width: 0px 1px 1px 0px;
     border-style: solid;
@@ -67,6 +67,8 @@ Dashboard Folders elements
     width: 178px;
     min-height: 132px;
     border: 1px solid #C4BD97;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     background-color: white;
     overflow-x: hidden;
     overflow-y: auto;
@@ -173,12 +175,12 @@ Dashboard Toolbar elements
     Xborder: 1px dashed red;
 }
 
-.item-editor {
+.list-editor {
     width: 100%;
     Xborder: 1px dashed green;
 }
 
-.input_item-name {
+.new-item_input {
     min-width: 98%;
     display: block;
 }
