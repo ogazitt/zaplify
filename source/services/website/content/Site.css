@@ -101,6 +101,7 @@ Layout elements
 
 .header-region {   
     min-width: 600px;
+    width: 100%;
     height: 60px;
     background: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
 }
