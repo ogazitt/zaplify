@@ -49,18 +49,17 @@ var Dashboard = function Dashboard$() {
 // public methods
 
 Dashboard.Init = function Dashboard$Init(dataModel) {
-    this.dataModel = dataModel;
-    this.dataModel.AddDataChangedHandler('dashboard', Dashboard.render);
+    Dashboard.dataModel = dataModel;
+    Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.render);
 
     // folders list
-    this.folderList = new FolderList(this.dataModel.Folders);
-    this.folderList.render(".dashboard-folders");
-    this.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
+    Dashboard.folderList = new FolderList(this.dataModel.Folders);
+    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
 
     // folder manager
-    this.folderManager = new FolderManager(this.dataModel);
-    this.folderManager.currentFolder = 0;
-    this.ManageFolder();
+    Dashboard.folderManager = new FolderManager(this.dataModel);
+    Dashboard.ManageFolder();
 
     // suggestions list
 
@@ -73,14 +72,14 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     var currentFolder = Dashboard.folderManager.currentFolder;
-    if (folder != currentFolder) {
+    if (folder == null || folder != currentFolder) {
         Dashboard.folderManager.render(".dashboard-manager");
         Dashboard.folderManager.selectFolder(folder);
     }
 
     var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
     var currentItem = Dashboard.folderManager.currentItem;
-    if (item != currentItem) {
+    if (item == null || item != currentItem) {
         Dashboard.folderManager.selectItem(item);
     }
 }
