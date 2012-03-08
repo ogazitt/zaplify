@@ -34,8 +34,10 @@
                     return (storage.SaveChanges() > 0);
                 }
             }
-            catch (Exception)
-            { }
+            catch (Exception ex)
+            {
+                LoggingHelper.TraceError("ChangePassword: ex: " + ex.Message);
+            }
             return false;
         }
 
@@ -53,21 +55,21 @@
             if (!Regex.IsMatch(email.ToLower(), emailPattern))
             {   // not valid email address
                 status = MembershipCreateStatus.InvalidEmail;
-                LoggingHelper.TraceInfo("Failed to create user account due to invalid email: " + email);
+                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
                 return null;
             }
 
             if (password.Length < MinRequiredPasswordLength)
             {   // not a valid password
                 status = MembershipCreateStatus.InvalidPassword;
-                LoggingHelper.TraceInfo("Failed to create user account due to invalid password: " + password);
+                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
                 return null;
             }
 
             if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
-                LoggingHelper.TraceInfo("Failed to create duplicate user account: " + username);
+                LoggingHelper.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
                 return null;
             }
 
@@ -92,7 +94,7 @@
             status = MembershipCreateStatus.Success;
 
             // Log creation of new user account
-            LoggingHelper.TraceInfo("Created new user account: " + username);
+            LoggingHelper.TraceInfo("CreateUser: Created new user account: " + username);
 
             return AsMembershipUser(user);
         }

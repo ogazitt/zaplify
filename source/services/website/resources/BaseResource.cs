@@ -67,19 +67,22 @@
             {
                 if (HttpContext.Current.Request.Headers[authRequestHeader] != null)
                 {   // cookie is no longer valid, return 401 Unauthorized
-                    LoggingHelper.TraceError("Unauthorized: cookie is expired or invalid");
+                    LoggingHelper.TraceError("AuthenticateUser: Unauthorized: cookie is expired or invalid");
                     return HttpStatusCode.Unauthorized;
                 }
                 
                 // auth headers not found, return 400 Bad Request
-                LoggingHelper.TraceError("Bad request: no user information found");
+                LoggingHelper.TraceError("AuthenticateUser: Bad request: no user information found");
                 return HttpStatusCode.BadRequest;
             }
 
             try
             {   // authenticate the user
                 if (Membership.ValidateUser(credentials.Name, credentials.Password) == false)
+                {
+                    LoggingHelper.TraceError("AuthenticateUser: Unauthorized: invalid username or password for user " + credentials.Name);
                     return HttpStatusCode.Forbidden;
+                }
 
                 this.currentUser = credentials.AsUser();
                 if (this.currentUser.ID == null || this.currentUser.ID == Guid.Empty)
@@ -94,10 +97,12 @@
                     HttpContext.Current.Response.Cookies.Add(authCookie);
                 }
 
+                LoggingHelper.TraceInfo(String.Format("AuthenticateUser: User {0} successfully logged in", credentials.Name));
                 return HttpStatusCode.OK;
             }
-            catch (Exception)
+            catch (Exception ex)
             {   // username not found - return 404 Not Found
+                LoggingHelper.TraceError(String.Format("AuthenticateUser: Username not found: {0}; ex: {1}", credentials.Name, ex.Message));
                 return HttpStatusCode.NotFound;
             }
         }
@@ -132,23 +137,29 @@
                 return null;
 
             object value = null;
-            string contentType = req.Content.Headers.ContentType.MediaType;
-            switch (contentType)
-            {
-                case "application/json":
-                    DataContractJsonSerializer dcjs = new DataContractJsonSerializer(t);
-                    value = dcjs.ReadObject(req.Content.ReadAsStreamAsync().Result);
-                    break;
-                case "text/xml":
-                case "application/xml":
-                    DataContractSerializer dc = new DataContractSerializer(t);
-                    value = dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
-                    break;
-            }
 
-            if (value == null)
-            {   
-                LoggingHelper.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
+            try
+            {
+                string contentType = req.Content.Headers.ContentType.MediaType;
+                switch (contentType)
+                {
+                    case "application/json":
+                        DataContractJsonSerializer dcjs = new DataContractJsonSerializer(t);
+                        value = dcjs.ReadObject(req.Content.ReadAsStreamAsync().Result);
+                        break;
+                    case "text/xml":
+                    case "application/xml":
+                        DataContractSerializer dc = new DataContractSerializer(t);
+                        value = dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
+                        break;
+                    default:
+                        LoggingHelper.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.TraceError("ProcessRequestBody: deserialization failed: " + ex.Message);
             }
 
             try
