@@ -27,53 +27,80 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private StringElement stringElement;
         private List<Item> currentList;
         private Section section;
+        private ItemPage itemPage;
 		
-        public ListPickerPage(UINavigationController c, StringElement stringElement, PropertyInfo pi, object container, string caption, Item valueList, Item pickFromList)
+        public ListPickerPage(ItemPage itemPage, UINavigationController c, StringElement stringElement, PropertyInfo pi, object container, string caption, Item valueList, Item pickFromList)
         {
             // trace event
             TraceHelper.AddMessage("ListPicker: constructor");
-            controller = c;
+            this.controller = c;
+            this.itemPage = itemPage;
+            this.stringElement = stringElement;
+            this.pi = pi;
+            this.container = container;
             this.caption = caption;
             this.valueList = valueList;
             this.pickList = pickFromList;
-            this.pi = pi;
-            this.container = container;
-            this.stringElement = stringElement;
         }
      
         public void PushViewController()
         {
             // trace event
             TraceHelper.AddMessage("ListPicker: PushViewController");
+            
+            // if the sublist hasn't been created, do so now
+            if (valueList.ID == Guid.Empty)
+            {
+                Guid id = Guid.NewGuid();
+                valueList.ID = id;                
+                foreach (var it in valueList.Items)
+                    it.ParentID = id;
+
+                // enqueue the Web Request Record
+                RequestQueue.EnqueueRequestRecord(
+                    new RequestQueue.RequestRecord()
+                        {
+                            ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                            Body = valueList
+                        });
+
+                // add the list to the folder
+                Folder folder = App.ViewModel.Folders.Single(f => f.ID == valueList.FolderID);
+                folder.Items.Add(valueList);
+
+                // store the list's Guid in the item's property 
+                pi.SetValue(container, id.ToString(), null);
+
+                // save the item change, which will queue up the update item operation
+                itemPage.SaveButton_Click(null, null);
+            }
          
             // build the current picker list and render it
             currentList = BuildCurrentList(valueList, pickList);
             root = RenderPicker(valueList, pickList);            
             var dvc = new DialogViewController (root, true);
-         
-            // push the "view item" view onto the nav stack
             controller.PushViewController (dvc, true);
         }
 			        
         #region Event Handlers
-
-        private void CancelButton_Click(object sender, EventArgs e)
-        {
-            // trace page navigation
-            TraceHelper.StartMessage("ListPicker: Navigate back");
-
-            // Navigate back to the list page
-            NavigateBack();
-        }
        
         private void Checkbox_Click(object sender, EventArgs e)
         {
-            var booleanImage = sender as BooleanImageElement;
-            if (booleanImage == null)
-                return;
-            
-            bool isChecked = booleanImage.Value;
-            int index = section.Elements.IndexOf(booleanImage);
+            var element = sender as Element;
+            bool isChecked;
+            var cie = element as CheckboxImageElement;
+            if (cie == null)
+            {
+                var ce = element as CheckboxElement;
+                if (ce == null)
+                    return;
+                else
+                    isChecked = ce.Value;
+            }
+            else
+                isChecked = cie.Value;
+        
+            int index = section.Elements.IndexOf(element);
             if (index < 0)
                 return;
             
@@ -84,82 +111,32 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 // add the clicked item to the value list
                 valueList.Items.Add(currentItem);
-            }
-            else
-            {
-                // remove the clicked item from the value list
-                valueList.Items.Remove(currentItem);
-            }
-            
-            // re-render the comma-delimited list in the Element that was passed in
-            RenderCommaList(stringElement, valueList);
-            stringElement.GetImmediateRootElement().Reload(stringElement, UITableViewRowAnimation.None);
-        }
-        
-        private void SaveButton_Click(object sender, EventArgs e)
-        {
-            /*
-            // update the LastModified timestamp
-            itemCopy.LastModified = DateTime.UtcNow;
-                     
-            // remove any NEW FieldValues (i.e. ones which didn't exist on the original item) 
-            // which contain null Values (we don't want to burden the item with
-            // extraneous null fields)
-            List<FieldValue> fieldValues = new List<FieldValue>(itemCopy.FieldValues);
-            foreach (var fv in fieldValues)
-                if (fv.Value == null && (thisItem == null || thisItem.GetFieldValue(fv.FieldID, false) == null))
-                    itemCopy.FieldValues.Remove(fv);                       
-
-            // if this is a new item, create it
-            if (thisItem == null)
-            {
+                
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                            Body = itemCopy
+                            Body = currentItem
                         });
-
-                // add the item to the local itemType
-                folder.Items.Add(itemCopy);
-                thisItem = itemCopy;
             }
-            else // this is an update
+            else
             {
+                // remove the clicked item from the value list
+                valueList.Items.Remove(currentItem);
+
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
-                    {
-                        ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                        Body = new List<Item>() { thisItem, itemCopy },
-                        BodyTypeName = "Item",
-                        ID = thisItem.ID
-                    });
-
-                // save the changes to the existing item
-                int index = IndexOf(folder, thisItem);
-                if (index < 0)
-                    return; 
-                folder.Items[index] = itemCopy;
-                thisItem = itemCopy;
+                        {
+                            ReqType = RequestQueue.RequestRecord.RequestType.Delete,
+                            Body = currentItem
+                        });
             }
             
-            // save the changes to local storage
-            //StorageHelper.WriteFolders(App.ViewModel.Folders);
-            StorageHelper.WriteFolder(folder);
-
-            // trigger a sync with the Service 
-            App.ViewModel.SyncWithService();
-
-            // signal the folder that the FirstDue property needs to be recomputed
-            folder.NotifyPropertyChanged("FirstDue");
-             */
-            // trace page navigation
-            TraceHelper.StartMessage("ListPicker: Navigate back");
-
-            // Navigate back to the list page
-            NavigateBack();
+            // re-render the comma-delimited list in the Element that was passed in
+            RenderCommaList(stringElement, valueList);
+            stringElement.GetImmediateRootElement().Reload(stringElement, UITableViewRowAnimation.None);
         }
         
         #endregion
@@ -175,9 +152,18 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             
             // add all the valid picker values excluding the already selected values
             foreach (var item in pickerValues.Items)
-                if (values.Items.IndexOf(item) < 0)
-                    curr.Add(item);   
-            
+            {
+                try
+                {
+                    // try to match the current item against the list of currently selected items
+                    values.Items.Single(it => it.ItemRef == item.ItemRef);
+                }
+                catch
+                {
+                    // an exception indicates this item wasn't found - therefore we need to add it
+                    curr.Add(item);
+                }
+            }            
             return curr;
         }
         
@@ -208,32 +194,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
         private RootElement RenderPicker(Item values, Item pickerValues)
         {
-            UIImage checkedImage = UIImage.FromFile("Images/checkbox.on.png");
-            UIImage uncheckedImage = UIImage.FromFile("Images/checkbox.off.png");
-            
             // build a list of selections excluding the already selected values
             Item selections = new Item(pickerValues);
             selections.Items = new ObservableCollection<Item>();
             foreach (var item in pickerValues.Items)
-                if (values.Items.IndexOf(item) < 0)
+            {
+                try
+                {
+                    // try to match the current item against the list of currently selected items
+                    values.Items.Single(it => it.ItemRef == item.ItemRef);
+                }
+                catch
+                {
+                    // an exception indicates this item wasn't found - therefore we need to add it
                     selections.Items.Add(item);
+                }
+            }
             
-            // build a section with all the selected items
+            // build a section with all the items in the current list 
             section = new Section();
-            foreach (var item in values.Items)
+            foreach (var item in currentList)
             {
-                BooleanImageElement bie = new BooleanImageElement(item.Name, true, checkedImage, uncheckedImage);
-                bie.Tapped += delegate { Checkbox_Click(bie, new EventArgs()); };
-                section.Add(bie);
+                CheckboxElement ce = new CheckboxElement(item.Name);
+                // set the value to true if the current item is in the values list
+                ce.Value = values.Items.IndexOf(item) < 0 ? false : true;
+                ce.Tapped += delegate { Checkbox_Click(ce, new EventArgs()); };
+                section.Add(ce);
             }
             
-            // add elements for all the unselected items
-            foreach (var item in selections.Items)
-            {
-                BooleanImageElement bie = new BooleanImageElement(item.Name, false, checkedImage, uncheckedImage);
-                bie.Tapped += delegate { Checkbox_Click(bie, new EventArgs()); };
-                section.Add(bie);
-            }
             return new RootElement(caption) { section };
         }
         

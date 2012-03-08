@@ -88,9 +88,10 @@
                     }
                 }
 
+                // SMILLET: delete cascade will delete FolderUsers (this throws exception)
                 // remove the folderusers associated with this folder
-                foreach (FolderUser fu in requestedFolder.FolderUsers)
-                    this.StorageContext.FolderUsers.Remove(fu);
+                //foreach (FolderUser fu in requestedFolder.FolderUsers)
+                //    this.StorageContext.FolderUsers.Remove(fu);
 
                 // remove the current folder 
                 this.StorageContext.Folders.Remove(requestedFolder);                

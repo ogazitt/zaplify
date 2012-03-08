@@ -206,6 +206,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		            }
 		            else
 		            {
+                        // if the item is a reference, traverse to the target
+                        while (item.ItemRef != null)
+                        {
+                            try 
+                            {
+                                item = App.ViewModel.Items.Single(it => it.ID == item.ItemRef);
+                            }
+                            catch
+                            {
+                                TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
+                                                                     item.Name, item.ID, item.ItemRef));
+                                return;
+                            }
+                        }
 		                ItemPage itemPage = new ItemPage(controller.NavigationController, item);
 						TraceHelper.StartMessage("ListPage: Navigate to Item");
 						itemPage.PushViewController();

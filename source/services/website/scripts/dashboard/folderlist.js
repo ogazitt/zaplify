@@ -8,12 +8,21 @@
 function FolderList(folders) {
     // fires notification when selected folder changes
     this.onSelectionChangedHandlers = {};
+    this.folders = folders;
     this.$element = null;
 
     this.folderButtons = [];
-    for (var id in folders) {
-        this.folderButtons = this.folderButtons.concat(new FolderButton(this, folders[id]));
+}
+
+FolderList.prototype.getFolderButtons = function () {
+    // create buttons if number of buttons and folders do not match
+    if (this.folderButtons.length != ItemMap.count(this.folders)) {
+        this.folderButtons = [];
+        for (var id in this.folders) {
+            this.folderButtons = this.folderButtons.concat(new FolderButton(this, this.folders[id]));
+        }
     }
+    return this.folderButtons;
 }
 
 FolderList.prototype.addSelectionChangedHandler = function (name, handler) {
@@ -35,6 +44,7 @@ FolderList.prototype.fireSelectionChanged = function (folderID, itemID) {
 
 FolderList.prototype.render = function (container) {
     this.$element = $(container).empty();
+    this.getFolderButtons();
     for (var i in this.folderButtons) {
         this.folderButtons[i].render(container);
     }
@@ -86,7 +96,9 @@ FolderButton.prototype.select = function () {
 FolderButton.prototype.deselectAll = function () {
     var folderButtons = this.parentControl.folderButtons;
     for (i in folderButtons) {
-        folderButtons[i].$element.removeClass('selected');
+        if (folderButtons[i].$element != null) {
+            folderButtons[i].$element.removeClass('selected');
+        }
         folderButtons[i].folder.ViewState.Select = false;
     }
 }
@@ -111,7 +123,7 @@ FolderButton.prototype.expandItems = function () {
 }
 
 FolderButton.prototype.collapseItems = function () {
-    if (this.$element.next().hasClass('folder-items')) {
+    if (this.$element != null && this.$element.next().hasClass('folder-items')) {
         this.$element.next().remove();
     }
 }

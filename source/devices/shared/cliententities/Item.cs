@@ -432,7 +432,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Complete", false);
+                FieldValue fv = GetFieldValue(FieldNames.Complete, false);
                 if (fv != null)
                     return (bool?)Convert.ToBoolean(fv.Value);
                 else
@@ -440,11 +440,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Complete", true);
+                FieldValue fv = GetFieldValue(FieldNames.Complete, true);
                 if (fv != null)
                 {
                     fv.Value = (value == null) ? null : ((bool)value).ToString();
-                    NotifyPropertyChanged("Complete");
+                    NotifyPropertyChanged(FieldNames.Complete);
                 }
             }
         }
@@ -453,7 +453,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Description", false);
+                FieldValue fv = GetFieldValue(FieldNames.Description, false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -461,11 +461,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Description", true);
+                FieldValue fv = GetFieldValue(FieldNames.Description, true);
                 if (fv != null)
                 {
                     fv.Value = value;
-                    NotifyPropertyChanged("Description");
+                    NotifyPropertyChanged(FieldNames.Description);
                 }
             }
         }
@@ -479,7 +479,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             set
             {
                 DueDate = (value == null) ? null : ((DateTime)value).ToString("yyyy/MM/dd");
-                NotifyPropertyChanged("DueDate");
+                NotifyPropertyChanged(FieldNames.DueDate);
                 NotifyPropertyChanged("Due");
                 NotifyPropertyChanged("DueDisplay");
                 NotifyPropertyChanged("DueDisplayColor");
@@ -491,7 +491,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("DueDate", false);
+                FieldValue fv = GetFieldValue(FieldNames.DueDate, false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -499,11 +499,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("DueDate", true);
+                FieldValue fv = GetFieldValue(FieldNames.DueDate, true);
                 if (fv != null)
                 {
                     fv.Value = value;
-                    NotifyPropertyChanged("DueDate");
+                    NotifyPropertyChanged(FieldNames.DueDate);
                     NotifyPropertyChanged("Due");
                     NotifyPropertyChanged("DueDisplay");
                     NotifyPropertyChanged("DueDisplayColor");
@@ -544,7 +544,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Email", false);
+                FieldValue fv = GetFieldValue(FieldNames.Email, false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -552,14 +552,35 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Email", true);
+                FieldValue fv = GetFieldValue(FieldNames.Email, true);
                 if (fv != null)
                 {
                     fv.Value = value;
-                    NotifyPropertyChanged("Email");
+                    NotifyPropertyChanged(FieldNames.Email);
                 }
             }
         }
+                
+        public Guid? ItemRef
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.ItemRef, false);
+                if (fv != null)
+                    return new Guid(fv.Value);
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.ItemRef, true);
+                if (fv != null)
+                {
+                    fv.Value = value.ToString();
+                    NotifyPropertyChanged(FieldNames.ItemRef);
+                }
+            }
+        }        
         
         private ObservableCollection<Item> items;
         /// <summary>
@@ -582,30 +603,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         } 
 
-        // boolean property for LinkedFolderID
-        //public bool LinkedFolderIDBool { get { return linkedFolderID == null ? false : true; } }
-
-        public string Location
-        {
-            get
-            {
-                FieldValue fv = GetFieldValue("Location", false);
-                if (fv != null)
-                    return fv.Value;
-                else
-                    return null;
-            }
-            set
-            {
-                FieldValue fv = GetFieldValue("Location", true);
-                if (fv != null)
-                {
-                    fv.Value = value;
-                    NotifyPropertyChanged("Location");
-                }
-            }
-        }
-
         // display color property for Name
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
 
@@ -613,7 +610,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Priority", false);
+                FieldValue fv = GetFieldValue(FieldNames.Priority, false);
                 if (fv != null)
                     return (int?)Convert.ToInt32(fv.Value);
                 else
@@ -621,11 +618,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Priority", true);
+                FieldValue fv = GetFieldValue(FieldNames.Priority, true);
                 if (fv != null)
                 {
                     fv.Value = (value == null) ? null : ((int)value).ToString();
-                    NotifyPropertyChanged("Priority");
+                    NotifyPropertyChanged(FieldNames.Priority);
                 }
             }
         }
@@ -634,7 +631,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("Phone", false);
+                FieldValue fv = GetFieldValue(FieldNames.Phone, false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -642,11 +639,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("Phone", true);
+                FieldValue fv = GetFieldValue(FieldNames.Phone, true);
                 if (fv != null)
                 {
                     fv.Value = value;
-                    NotifyPropertyChanged("Phone");
+                    NotifyPropertyChanged(FieldNames.Phone);
                 }
             }
         }
@@ -702,7 +699,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue("WebLink", false);
+                FieldValue fv = GetFieldValue(FieldNames.WebLink, false);
                 if (fv != null)
                     return fv.Value;
                 else
@@ -710,11 +707,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue("WebLink", true);
+                FieldValue fv = GetFieldValue(FieldNames.WebLink, true);
                 if (fv != null)
                 {
                     fv.Value = value;
-                    NotifyPropertyChanged("Website");
+                    NotifyPropertyChanged(FieldNames.WebLink);
                 }
             }
         }
