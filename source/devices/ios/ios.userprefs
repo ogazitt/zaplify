@@ -1,25 +1,27 @@
 ﻿<Properties GitUserInfo="UsingGIT">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhoneSimulator" ActiveRuntime="Mono 2.10.8" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|iPhone" ActiveRuntime="Mono 2.10.8" />
   <MonoDevelop.Ide.Workbench ActiveDocument="iphone/ItemPage.cs">
     <Files>
       <File FileName="iphone/AddPage.cs" Line="185" Column="15" />
       <File FileName="iphone/NuanceHelper-ios.cs" Line="1" Column="1" />
       <File FileName="../shared/clienthelpers/StorageHelper.cs" Line="1" Column="1" />
       <File FileName="../shared/clienthelpers/IsolatedStorageSettings-ios.cs" Line="1" Column="1" />
-      <File FileName="../shared/cliententities/Item.cs" Line="1" Column="1" />
+      <File FileName="../shared/cliententities/Item.cs" Line="563" Column="9" />
       <File FileName="iphone/CalendarPage.cs" Line="1" Column="1" />
       <File FileName="iphone/DebugPage.cs" Line="1" Column="1" />
-      <File FileName="iphone/SettingsPage.cs" Line="1" Column="1" />
+      <File FileName="iphone/SettingsPage.cs" Line="22" Column="11" />
       <File FileName="../shared/clienthelpers/HttpWrappers-ios.cs" Line="1" Column="1" />
       <File FileName="iphone/controls/MultilineEntryElement.cs" Line="1" Column="1" />
-      <File FileName="iphone/ItemPage.cs" Line="771" Column="50" />
+      <File FileName="iphone/ItemPage.cs" Line="915" Column="1" />
       <File FileName="iphone/controls/ButtonListElement.cs" Line="1" Column="1" />
-      <File FileName="iphone/ListViewController.cs" Line="1" Column="1" />
-      <File FileName="iphone/ListPickerPage.cs" Line="1" Column="1" />
+      <File FileName="iphone/ListViewController.cs" Line="282" Column="25" />
+      <File FileName="iphone/ListPickerPage.cs" Line="198" Column="1" />
       <File FileName="iphone/controls/UICheckbox.cs" Line="1" Column="1" />
       <File FileName="iphone/controls/UIImageButton.cs" Line="1" Column="1" />
       <File FileName="iphone/App.cs" Line="1" Column="1" />
-      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="838" Column="1" />
+      <File FileName="../shared/clientviewmodels/MainViewModel.cs" Line="1" Column="1" />
+      <File FileName="../../shared/entities/EntityConstants.cs" Line="113" Column="41" />
+      <File FileName="iphone/controls/CheckboxImageElement.cs" Line="9" Column="20" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -27,10 +29,8 @@
           <Node name="ClientEntities-ios" expanded="True" />
           <Node name="ClientHelpers-ios" expanded="True" />
           <Node name="ClientViewModels-ios" expanded="True" />
-          <Node name="iphone" expanded="True">
+          <Node name="iphone" expanded="True" selected="True">
             <Node name="controls" expanded="True" />
-            <Node name="Images" expanded="True" />
-            <Node name="ItemPage.cs" selected="True" />
           </Node>
         </State>
       </Pad>
@@ -45,8 +45,8 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/ogazitt/zaplify/source/devices/ios/iphone/App.cs" line="52" />
-      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/cliententities/Item.cs" line="885" />
       <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/clienthelpers/HttpWrappers-ios.cs" line="95" />
+      <Breakpoint file="/Users/ogazitt/zaplify/source/devices/shared/cliententities/Item.cs" line="861" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
