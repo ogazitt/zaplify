@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
-  <Role name="mailworker">
+  <Role name="WorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Connection" value="SQLAzure" />
       <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_030112;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
+      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -23,6 +24,7 @@
       <Setting name="Connection" value="SQLAzure" />
       <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_030112;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
+      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

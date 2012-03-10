@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ServiceDefinition name="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
-  <WorkerRole name="mailworker" vmsize="ExtraSmall">
+  <WorkerRole name="WorkerRole" vmsize="ExtraSmall">
     <Imports>
       <Import moduleName="Diagnostics" />
       <Import moduleName="RemoteAccess" />
@@ -10,6 +10,7 @@
       <Setting name="Connection" />
       <Setting name="SQLAzure" />
       <Setting name="SQLExpress" />
+      <Setting name="DataConnectionString" />
     </ConfigurationSettings>
   </WorkerRole>
   <WebRole name="Website" vmsize="ExtraSmall">
@@ -31,6 +32,7 @@
       <Setting name="Connection" />
       <Setting name="SQLAzure" />
       <Setting name="SQLExpress" />
+      <Setting name="DataConnectionString" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
