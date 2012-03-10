@@ -42,7 +42,6 @@ FolderManager.prototype.render = function (container) {
     }
 }
 
-
 FolderManager.prototype.selectFolder = function (folder) {
     this.currentFolder = folder;
     if (this.currentFolder != null) {
@@ -53,7 +52,7 @@ FolderManager.prototype.selectFolder = function (folder) {
         }
         this.managerHelp.hide();
         this.listEditor.render(this.container);
-        this.listEditor.inputValue('');
+        //this.listEditor.inputValue('');
         this.listEditor.show();
     } else {
         this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
@@ -68,15 +67,37 @@ FolderManager.prototype.selectItem = function (item) {
         if (this.currentItem.IsList) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);
-            this.listEditor.inputValue('');
+            //this.listEditor.inputValue('');
         } else {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
             this.listEditor.render(this.container);
-            this.listEditor.inputValue(this.currentItem.Name);
+            //this.listEditor.inputValue(this.currentItem.Name);
         }
     } else {
         this.selectFolder(this.currentFolder);
     }
+}
+
+// ---------------------------------------------------------
+// FolderManagerHelp control
+function FolderManagerHelp(parentControl) {
+    this.parentControl = parentControl;
+    this.$element = null;
+}
+
+FolderManagerHelp.prototype.render = function (container) {
+    this.$element = $('<div class="manager-help"><h1>Welcome to Zaplify!</h1></div>').appendTo($(container));
+}
+
+FolderManagerHelp.prototype.hide = function () {
+    this.$element.hide();
+}
+
+FolderManagerHelp.prototype.show = function () {
+    if (this.$element == null) {
+        this.render(this.parentControl.container);
+    }
+    this.$element.show();
 }
 
 // ---------------------------------------------------------
@@ -192,41 +213,20 @@ ToolButton.prototype.show = function () {
 function ListEditor(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
+
+    this.itemPath = new ItemPath(this);
+    this.itemEditor = new ItemEditor(this);
 }
 
 ListEditor.prototype.render = function (container) {
     var folder = this.parentControl.currentFolder;
     var item = this.parentControl.currentItem;
-    var $itemPath, $input;
     if (this.$element == null) {
         this.$element = $('<div class="list-editor"></div>').appendTo(container);
-        $itemPath = $('<div class="item-path"></div>').appendTo(this.$element);
-        $input = $('<div><input type="text" class="new-item_input" /></div>').appendTo(this.$element);
-        $input.data('control', this);
-        $input.keypress(function (event) { Control.get(this).handleEnterKey(event); });
     }
 
-    $itemPath = this.$element.find('.item-path');
-    $itemPath.empty();
-    $itemPath.append('<span>' + folder.Name + '</span>');
-    if (item != null) {
-        if (item.IsList) {
-            $itemPath.append('<span>.' + item.Name + '</span>');
-        } else if (item.ParentID != null) {
-            $itemPath.append('<span>.' + item.GetParent().Name + '</span>');
-        }
-    }
-
-    $input = this.$element.find('.new-item_input');
-    //if (item == null || item.IsList) { $input.show(); } 
-    //else { $input.hide(); }
-}
-
-ListEditor.prototype.inputValue = function (value) {
-    if (value != null) {
-        this.$element.find('.new-item_input').val(value);
-    }
-    return (this.$element.find('.new-item_input').val());
+    this.itemPath.render(this.$element, folder, item);
+    this.itemEditor.render(this.$element, folder, item);
 }
 
 ListEditor.prototype.hide = function () {
@@ -235,6 +235,11 @@ ListEditor.prototype.hide = function () {
 
 ListEditor.prototype.show = function () {
     this.$element.show();
+}
+
+ListEditor.prototype.editItem = function () {
+    // TODO: track active editor
+    return this.itemEditor.editItem();
 }
 
 ListEditor.prototype.handleEnterKey = function (event) {
@@ -249,34 +254,31 @@ ListEditor.prototype.handleEnterKey = function (event) {
 }
 
 ListEditor.prototype.addFolder = function () {
-    var value = this.inputValue();
+    var newFolder = this.editItem();
 
     // TODO: let user define ItemType (temporary for test purposes)
     var dataModel = this.parentControl.dataModel;
-    var itemType = dataModel.FoldersMap.array[1].ItemTypeID;
-    dataModel.InsertFolder({ Name: value, ItemTypeID: itemType });
-    this.inputValue('');
+    newFolder.ItemTypeID = dataModel.FoldersMap.array[1].ItemTypeID;
+    dataModel.InsertFolder(newFolder);
 }
 
 ListEditor.prototype.addItem = function (isList) {
     var folder = this.parentControl.currentFolder;
     var item = this.parentControl.currentItem;
-    var value = this.inputValue();
+    var newItem = this.editItem();
+    newItem.IsList = isList;
 
     if (item != null) {
-        item.InsertItem({ Name: value, IsList: isList });
+        item.InsertItem(newItem);
     } else if (folder != null) {
-        folder.InsertItem({ Name: value, IsList: isList });
-    } 
-    this.inputValue('');
+        folder.InsertItem(newItem);
+    }
 }
 
 ListEditor.prototype.updateItem = function () {
     var item = this.parentControl.currentItem;
-    var value = this.inputValue();
+    var updatedItem = this.editItem();
     if (item != null) {
-        var updatedItem = $.extend({}, item);
-        updatedItem.Name = value;
         item.Update(updatedItem);
     }
 }
@@ -299,25 +301,102 @@ ListEditor.prototype.deleteItem = function () {
     }
 }
 
-
 // ---------------------------------------------------------
-// FolderManagerHelp control
-function FolderManagerHelp(parentControl) {
+// ItemPath control
+function ItemPath(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
 }
 
-FolderManagerHelp.prototype.render = function (container) {
-    this.$element = $('<div class="manager-help"><h1>Welcome to Zaplify!</h1></div>').appendTo($(container));
+ItemPath.prototype.render = function (container, folder, item) {
+    if (this.$element == null) {
+        this.$element = $('<div class="item-path"></div>').appendTo(container);
+    }
+
+    this.$element.empty();
+    if (folder != null) {
+        this.$element.append('<span>' + folder.Name + '</span>');
+    }
+    if (item != null) {
+        if (item.IsList) {
+            this.$element.append('<span> : ' + item.Name + '</span>');
+        } else if (item.ParentID != null) {
+            this.$element.append('<span> : ' + item.GetParent().Name + '</span>');
+        }
+    }
 }
 
-FolderManagerHelp.prototype.hide = function () {
+ItemPath.prototype.hide = function () {
     this.$element.hide();
 }
 
-FolderManagerHelp.prototype.show = function () {
-    if (this.$element == null) {
-        this.render(this.parentControl.container);
-    }
+ItemPath.prototype.show = function () {
     this.$element.show();
 }
+
+// ---------------------------------------------------------
+// ItemEditor control
+function ItemEditor(parentControl) {
+    this.parentControl = parentControl;
+    this.$element = null;
+    this.mode = ItemEditor.Modes.NotSet;
+    this.item;
+    this.itemType;
+}
+
+ItemEditor.Modes = { NotSet: 0, NewItem: 1, Item: 2 };
+
+ItemEditor.prototype.render = function (container, folder, item) {
+    if (this.$element == null) {
+        this.$element = $('<div class="item-editor"></div>').appendTo(container);
+    }
+
+    if (folder == null && item == null)
+        return;
+
+    var $txtName;
+    var mode = (item != null && !item.IsList) ? ItemEditor.Modes.Item : ItemEditor.Modes.New;
+
+    this.item = (mode == ItemEditor.Modes.Item) ? $.extend({}, item) : { Name: '' };
+    this.itemType = (item != null) ? item.GetItemType() : folder.GetItemType();
+    this.item.ItemTypeID = this.itemType.ID;
+
+    if (this.mode != mode) {
+        this.mode = mode;
+        this.$element.empty();
+        if (this.mode == ItemEditor.Modes.Item) {
+            $txtName = $('<input type="text" class="item-name_input" />').appendTo(this.$element);
+            $txtName.data('control', this.parentControl);
+            $txtName.keypress(function (event) { Control.get(this).handleEnterKey(event); });
+        } else {
+            $txtName = $('<input type="text" class="item-name_input" />').appendTo(this.$element);
+            $txtName.data('control', this.parentControl);
+            $txtName.keypress(function (event) { Control.get(this).handleEnterKey(event); });
+        }
+    }
+
+    $txtName = this.$element.find('.item-name_input');
+    $txtName.val(this.item.Name);
+    $txtName.focus();
+    $txtName.select();
+
+}
+
+ItemEditor.prototype.editItem = function () {
+    if (this.$element != null) {
+        var $txtName = this.$element.find('.item-name_input');
+        if ($txtName != null) {
+            this.item.Name = $txtName.val();
+        }
+    }
+    return this.item;
+}
+
+ItemEditor.prototype.hide = function () {
+    this.$element.hide();
+}
+
+ItemEditor.prototype.show = function () {
+    this.$element.show();
+}
+

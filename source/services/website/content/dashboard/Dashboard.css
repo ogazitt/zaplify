@@ -15,6 +15,7 @@ Dashboard elements
     border-width: 0px 1px 1px 0px;
     border-style: solid;
     border-color: #C4BD97;
+    border-bottom-right-radius: 6px;
 }
 
 .dashboard-manager {
@@ -110,6 +111,7 @@ Dashboard Toolbar elements
     border-width: 0px 1px 1px 0px;
     border-style: solid;
     border-color: #C4BD97;
+    border-bottom-right-radius: 6px;
 }
 
 .toolbar-button {
@@ -180,7 +182,12 @@ Dashboard Toolbar elements
     Xborder: 1px dashed green;
 }
 
-.new-item_input {
+.item-editor {
+    width: 100%;
+    Xborder: 1px dashed red;
+}
+
+.item-name_input {
     min-width: 98%;
     display: block;
 }
