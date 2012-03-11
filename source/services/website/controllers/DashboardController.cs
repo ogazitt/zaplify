@@ -26,7 +26,7 @@
             return View(model);
         }
 
-        public ActionResult Initialize()
+        public ActionResult Initialize(int retry = 0)
         {
             UserDataModel model = new UserDataModel(this);
             try
@@ -36,10 +36,12 @@
                     CreateDefaultFolders(model);
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return RedirectToAction("Initialize", "Dashboard");
-                //return RedirectToAction("SignOut", "Account");
+                if (retry++ < 3)
+                    return RedirectToAction("Initialize", "Dashboard", retry);
+                //else
+                //    throw e;
             } 
             return RedirectToAction("Home", "Dashboard");
         }

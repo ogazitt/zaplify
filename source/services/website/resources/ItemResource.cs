@@ -294,6 +294,11 @@
             if (newItem.ParentID == Guid.Empty)
                 newItem.ParentID = null;
 
+            if (newItem.LastModified.Year == 1970)
+            {   // web client will set LastModified year to 1970 to get server timestamp
+                newItem.LastModified = DateTime.Now;
+            }
+
             // get the folder for the item
             try
             {

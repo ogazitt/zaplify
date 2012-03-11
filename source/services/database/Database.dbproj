@@ -130,5 +130,8 @@
     <Build Include="dbo.WorkflowInstances.Table.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="dbo.UserCredentials.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
   </ItemGroup>
 </Project>
