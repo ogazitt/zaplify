@@ -37,7 +37,6 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         // system item types
         public static Guid Reference = new Guid("00000000-0000-0000-0000-000000000081");
         public static Guid NameValue = new Guid("00000000-0000-0000-0000-000000000082");
- 
     }
 
     public class ActionNames
@@ -75,6 +74,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ItemRef = "ItemRef";            // ItemID
         public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
+        public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
     }
 
     public class FieldTypes

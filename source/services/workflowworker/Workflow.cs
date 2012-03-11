@@ -81,7 +81,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                 ItemTypeID = SystemItemTypes.NameValue,
                                 FieldValues = new List<FieldValue>()
                                 {
-                                    new FieldValue() { ID = Guid.NewGuid(), FieldID = valueField.ID, ItemID = item.ID, Value = suggestionID.ToString() }
+                                    new FieldValue() { FieldID = valueField.ID, ItemID = item.ID, Value = suggestionID.ToString() }
                                 }
                             };
                         }

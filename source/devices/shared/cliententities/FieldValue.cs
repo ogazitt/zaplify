@@ -8,7 +8,7 @@ using System.Reflection;
 namespace BuiltSteady.Zaplify.Devices.ClientEntities
 {
     [DataContract(Namespace = "")]
-    public class FieldValue : ClientEntity, INotifyPropertyChanged
+    public class FieldValue : INotifyPropertyChanged
     {
         public FieldValue() : base() { }
 
@@ -31,9 +31,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid id;
+        private long id;
         [DataMember]
-        public override Guid ID
+        public long ID
         {
             get
             {
