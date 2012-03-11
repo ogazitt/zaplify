@@ -272,7 +272,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
+                    /*ID = Guid.NewGuid(),*/
                     ItemID = item.ID,
                     FieldID = PhoneField,
                     Value = m.Value
@@ -283,7 +283,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
+                    /*ID = Guid.NewGuid(),*/
                     ItemID = item.ID,
                     FieldID = EmailField,
                     Value = m.Value
@@ -294,7 +294,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
+                    /*ID = Guid.NewGuid(),*/
                     ItemID = item.ID,
                     FieldID = WebsiteField,
                     Value = m.Value
@@ -307,7 +307,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 // convert to datetime, then back to string.  this is to canonicalize all dates into yyyy/MM/dd.
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
+                    /*ID = Guid.NewGuid(),*/
                     ItemID = item.ID,
                     FieldID = DueDateField,
                     Value = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd")
@@ -405,7 +405,7 @@ namespace BuiltSteady.Zaplify.MailWorker
 
                     FieldValue fv = new FieldValue()
                     {
-                        ID = Guid.NewGuid(),
+                        /*ID = Guid.NewGuid(),*/
                         ItemID = item.ID,
                         FieldID = CompleteField,
                         Value = "False"

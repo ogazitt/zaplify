@@ -182,11 +182,8 @@ ToolButton.prototype.render = function (container) {
     $('<div class="' + this.tool.css + '"></div>').appendTo(this.$element);
 
     if (this.tool.separator) {
-        this.$element.css('padding-right', '5px');
-        this.$element.css('margin-right', '10px');
-        this.$element.css('border-right', '1px solid #C4BD97');
+        this.$element.addClass('tool-separator');
     }
-
     if (this.tool.disabled) {
         this.$element.addClass('disabled');
     }
@@ -237,24 +234,14 @@ ListEditor.prototype.show = function () {
     this.$element.show();
 }
 
-ListEditor.prototype.editItem = function () {
+ListEditor.prototype.activeItem = function () {
     // TODO: track active editor
-    return this.itemEditor.editItem();
-}
-
-ListEditor.prototype.handleEnterKey = function (event) {
-    var item = this.parentControl.currentItem;
-    if (event.which == 13) {
-        if (item == null || item.IsList) {
-            this.addItem(false);
-        } else {
-            this.updateItem();
-        }
-    }
+    var item = this.itemEditor.activeItem();
+    return item;
 }
 
 ListEditor.prototype.addFolder = function () {
-    var newFolder = this.editItem();
+    var newFolder = this.activeItem();
 
     // TODO: let user define ItemType (temporary for test purposes)
     var dataModel = this.parentControl.dataModel;
@@ -265,7 +252,7 @@ ListEditor.prototype.addFolder = function () {
 ListEditor.prototype.addItem = function (isList) {
     var folder = this.parentControl.currentFolder;
     var item = this.parentControl.currentItem;
-    var newItem = this.editItem();
+    var newItem = this.activeItem();
     newItem.IsList = isList;
 
     if (item != null) {
@@ -277,7 +264,7 @@ ListEditor.prototype.addItem = function (isList) {
 
 ListEditor.prototype.updateItem = function () {
     var item = this.parentControl.currentItem;
-    var updatedItem = this.editItem();
+    var updatedItem = this.activeItem();
     if (item != null) {
         item.Update(updatedItem);
     }
@@ -344,54 +331,6 @@ function ItemEditor(parentControl) {
     this.itemType;
 }
 
-ItemEditor.Modes = { NotSet: 0, NewItem: 1, Item: 2 };
-
-ItemEditor.prototype.render = function (container, folder, item) {
-    if (this.$element == null) {
-        this.$element = $('<div class="item-editor"></div>').appendTo(container);
-    }
-
-    if (folder == null && item == null)
-        return;
-
-    var $txtName;
-    var mode = (item != null && !item.IsList) ? ItemEditor.Modes.Item : ItemEditor.Modes.New;
-
-    this.item = (mode == ItemEditor.Modes.Item) ? $.extend({}, item) : { Name: '' };
-    this.itemType = (item != null) ? item.GetItemType() : folder.GetItemType();
-    this.item.ItemTypeID = this.itemType.ID;
-
-    if (this.mode != mode) {
-        this.mode = mode;
-        this.$element.empty();
-        if (this.mode == ItemEditor.Modes.Item) {
-            $txtName = $('<input type="text" class="item-name_input" />').appendTo(this.$element);
-            $txtName.data('control', this.parentControl);
-            $txtName.keypress(function (event) { Control.get(this).handleEnterKey(event); });
-        } else {
-            $txtName = $('<input type="text" class="item-name_input" />').appendTo(this.$element);
-            $txtName.data('control', this.parentControl);
-            $txtName.keypress(function (event) { Control.get(this).handleEnterKey(event); });
-        }
-    }
-
-    $txtName = this.$element.find('.item-name_input');
-    $txtName.val(this.item.Name);
-    $txtName.focus();
-    $txtName.select();
-
-}
-
-ItemEditor.prototype.editItem = function () {
-    if (this.$element != null) {
-        var $txtName = this.$element.find('.item-name_input');
-        if ($txtName != null) {
-            this.item.Name = $txtName.val();
-        }
-    }
-    return this.item;
-}
-
 ItemEditor.prototype.hide = function () {
     this.$element.hide();
 }
@@ -400,3 +339,164 @@ ItemEditor.prototype.show = function () {
     this.$element.show();
 }
 
+ItemEditor.prototype.activeItem = function () {
+    return this.item;
+}
+
+// New:     single text input for Name field
+// Edit:    display all primary fields of existing item for edit
+// Expand:  display ALL fields of existing item for edit
+// View:    display primary fields in read-only format
+ItemEditor.Modes = { NotSet: 0, New: 1, Edit: 2, Expand: 3, View: 4 };
+
+ItemEditor.prototype.render = function (container, folder, item, mode) {
+    if (this.$element == null) {
+        this.$element = $('<div class="item-editor"></div>').appendTo(container);
+    }
+    if (folder == null && item == null)
+        return;
+    if (mode == null) {
+        mode = (item != null && !item.IsList) ? ItemEditor.Modes.Edit : ItemEditor.Modes.New;
+    }
+
+    this.item = (mode != ItemEditor.Modes.New) ? $.extend({}, item) : { Name: '' };
+    this.itemType = (item != null) ? item.GetItemType() : folder.GetItemType();
+    this.item.ItemTypeID = this.itemType.ID;
+
+    //if (this.mode != mode) {                            // regenerate fields if mode changed
+    this.mode = mode;
+    this.$element.empty();
+
+    if (this.mode == ItemEditor.Modes.New) {
+        $field = this.renderField(this.$element, this.itemType.Fields[FieldNames.Name]);
+        $field.val('');
+    } else {
+        this.renderFields(this.$element, this.mode);
+    }
+    //}
+
+    $fldName = this.$element.find('.fn-name');
+    $fldName.focus();
+    $fldName.select();
+}
+
+ItemEditor.prototype.renderFields = function (container, mode) {
+    for (var name in this.itemType.Fields) {
+        var field = this.itemType.Fields[name];
+        if ((field.IsPrimary || mode == ItemEditor.Modes.Edit)) {
+            this.renderField(container, field);
+        }
+    }
+}
+
+ItemEditor.prototype.renderField = function (container, field) {
+    var $field, $wrapper;
+    var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
+
+    switch (field.DisplayType) {
+        case DisplayTypes.Reference:
+            break;
+        case DisplayTypes.Checkbox:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.find('.item-field-label').addClass('inline');
+            $field = $('<input type="checkbox" />').appendTo($wrapper);
+            $field.addClass(field.Class);
+            $field.data('control', this);
+            if (this.getFieldValue(field) == 'true') {
+                $field.attr('checked', 'checked');
+            }
+            $field.change(function (event) { Control.get(this).handleChange(event); });
+            break;
+        case DisplayTypes.Text:
+            if (field.Name == FieldNames.Name) {            // special-case Name field
+                $field = $('<input type="text" />').appendTo(container);
+                $field.addClass(field.Class);
+                $field.data('control', this);
+                $field.val(this.getFieldValue(field));
+                $field.change(function (event) { Control.get(this).handleChange(event); });
+                $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+                break;
+            }
+        default:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = $('<input type="text" />').appendTo($wrapper);
+            $field.addClass(field.Class);
+            $field.data('control', this);
+            $field.val(this.getFieldValue(field));
+            $field.change(function (event) { Control.get(this).handleChange(event); });
+            break;
+    }
+    return $field;
+}
+
+ItemEditor.prototype.updateField = function ($srcElement) {
+    for (var name in this.itemType.Fields) {
+        var field = this.itemType.Fields[name];
+        if ($srcElement.hasClass(field.ClassName)) {
+            var value = $srcElement.val();
+            if (field.DisplayType == DisplayTypes.Checkbox) {
+                value = false;
+                if ($srcElement.attr('checked') == 'checked') {
+                    value = true;
+                }
+            }
+            this.setFieldValue(field, value);
+        }
+    }
+}
+
+ItemEditor.prototype.getFieldValue = function (field) {
+    if (field.Name == FieldNames.Name) {
+        return this.item.Name;
+    }
+    for (var i in this.item.FieldValues) {
+        var fv = this.item.FieldValues[i];
+        if (fv.FieldID == field.ID) {
+            return fv.Value;
+        }
+    }
+    //TODO: return default value based on FieldType
+    if (field.FieldType == "Boolean")
+        return false;
+    return null;
+}
+
+ItemEditor.prototype.setFieldValue = function (field, value) {
+    if (field.Name == FieldNames.Name) {
+        this.item.Name = value;
+        return;
+    }
+    if (this.item.FieldValues == null) {
+        this.item.FieldValues = [];
+    }
+    var updated = false;
+    for (var i in this.item.FieldValues) {
+        var fv = this.item.FieldValues[i];
+        if (fv.FieldID == field.ID) {
+            fv.Value = value;
+            this.item.LastModified = '/Date(0)/';
+            updated = true;
+            break;
+        }
+    }
+    if (!updated) {
+        this.item.FieldValues = this.item.FieldValues.concat(
+                { FieldID: field.ID, ItemID: this.item.ID, Value: value });
+        this.item.LastModified = '/Date(0)/';
+    }
+}
+
+ItemEditor.prototype.handleChange = function (event) {
+    this.updateField($(event.srcElement));
+}
+
+ItemEditor.prototype.handleEnterPress = function (event) {
+    if (event.which == 13) {
+        this.updateField($(event.srcElement));
+        if (this.mode == ItemEditor.Modes.New) {
+            this.parentControl.addItem(false);
+        } else {
+            this.parentControl.updateItem();
+        }
+    }
+}

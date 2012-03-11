@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------
-Dashboard elements
+Dashboard
 ----------------------------------------------------------*/
 
 .dashboard-region {
@@ -100,7 +100,7 @@ Dashboard Folders elements
 .indent-1 { padding-left: 12px; }
 
 /*----------------------------------------------------------
-Dashboard Toolbar elements
+Dashboard Toolbar
 ----------------------------------------------------------*/
 
 .manager-toolbar {
@@ -127,12 +127,9 @@ Dashboard Toolbar elements
 .toolbar-button.disabled { opacity:0.4; filter:alpha(opacity=40); }
 .toolbar-button.disabled:hover { background-color: transparent; border-color: transparent; }
 
-.tool-separator {
-    display:inline-block;
-    width: 1px;
-    height: 28px;
-    border-left: 1px solid #C4BD97;
-}
+.tool-separator { padding-right: 5px; margin-right: 10px; border-right: 1px solid #C4BD97; }
+.tool-separator.disabled { border-right: 1px solid #C4BD97; }
+.tool-separator.disabled:hover { border-right: 1px solid #C4BD97; }
 
 .add-folder {
     display: inline-block; width: 32px; height: 32px;
@@ -158,6 +155,10 @@ Dashboard Toolbar elements
     display: inline-block; width: 32px; height: 32px;
     background: transparent url(images/delete-item.png) no-repeat;
 }
+
+/*----------------------------------------------------------
+Dashboard Manager
+----------------------------------------------------------*/
 
 .manager-region {
     width: 100% - 12px;
@@ -187,9 +188,45 @@ Dashboard Toolbar elements
     Xborder: 1px dashed red;
 }
 
-.item-name_input {
+/*----------------------------------------------------------
+Item Fields
+    dt-    DisplayTypes
+    fn-     FieldNames
+----------------------------------------------------------*/
+
+.item-field {
+    position: relative; 
+    display: inline-block;
+    padding-top: 10px;   
+    padding-bottom: 2px;   
+    margin-right: 12px;
+    Xborder: 1px solid red;
+}
+
+.item-field-label {
+    position: absolute;    
+    top: 0; left: 8px;
+    font-size: 8pt;
+    color: #50738A;
+}
+.item-field-label.inline {
+    position: relative; 
+    top: -2px; left: 0;
+    margin-right: 6px;
+    Xborder: 1px solid green; 
+}
+
+input[type=text].Xdt-text {
+
+}
+
+input[type=text].dt-text.fn-name {
     min-width: 98%;
     display: block;
+}
+
+.dt-checkbox {
+    margin-right: 6px;
 }
 
 

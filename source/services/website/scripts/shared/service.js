@@ -138,7 +138,7 @@ Service.getResponseState = function Service$getResponseState(jqXHR) {
     var contentType = jqXHR.getResponseHeader("Content-Type");
     if ((jqXHR.responseText != null) && (contentType.search(/application\/json/i) >= 0)) {
         response = jQuery.parseJSON(jqXHR.responseText);
-        if (response.StatusCode != undefined && HttpStatusCode.IsError(StatusCode)) {
+        if (response.StatusCode != undefined && HttpStatusCode.IsError(response.StatusCode)) {
             responseState.status = response.StatusCode;
             if (response.Message != null) {
                 responseState.message = response.Message;
