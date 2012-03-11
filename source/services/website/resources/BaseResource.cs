@@ -193,8 +193,8 @@
                     EntityName = name,
                     EntityType = bodyType.Name,
                     OperationType = req.Method.Method,
-                    Body = JsonSerialize(body),
-                    OldBody = JsonSerialize(oldBody),
+                    Body = SerializationHelper.JsonSerialize(body),
+                    OldBody = SerializationHelper.JsonSerialize(oldBody),
                     Timestamp = DateTime.Now
                 };
                 storage.Operations.Add(op);
@@ -209,11 +209,6 @@
             }
 
             return value;
-        }
-
-        private static string JsonSerialize(object body)
-        {
-            return JsonConvert.SerializeObject(body);
         }
     }
 }

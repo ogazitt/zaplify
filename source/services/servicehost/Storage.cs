@@ -61,8 +61,12 @@
         public DbSet<ItemTag> ItemTags { get; set; }
         public DbSet<ItemType> ItemTypes { get; set; }
         public DbSet<Operation> Operations { get; set; }
+        public DbSet<Suggestion> Suggestions { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
+
+        // workflow
+        public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
     }
 
     public class CredentialStorageContext : DbContext

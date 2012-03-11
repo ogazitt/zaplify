@@ -124,5 +124,11 @@
     <Build Include="dbo.Users.Table.sql">
       <SubType>Code</SubType>
     </Build>
+    <Build Include="dbo.Suggestions.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="dbo.WorkflowInstances.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
   </ItemGroup>
 </Project>

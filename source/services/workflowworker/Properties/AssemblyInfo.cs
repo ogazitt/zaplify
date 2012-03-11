@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BuiltSteady.Zaplify.ServiceHost")]
+[assembly: AssemblyTitle("BuiltSteady.Zaplify.WorkflowWorker")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("BuiltSteady")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("973beea5-77b3-4dd8-b0f7-524752c63219")]
+[assembly: Guid("15dab16a-c6eb-4651-8245-c7e424ff24da")]
 
 // Version information for an assembly consists of the following four values:
 //

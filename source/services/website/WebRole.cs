@@ -26,6 +26,9 @@ namespace Website
             // don't need to start diagnostics since it's automatically started with the Import Diagnostics in in ServiceDefinition.csdef
             DiagnosticMonitor.Start("Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString", config);
 
+            // initialize the Queue 
+            MessageQueue.Initialize();
+
             return base.OnStart();
         }
     }

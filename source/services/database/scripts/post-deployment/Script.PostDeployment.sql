@@ -38,12 +38,18 @@ INSERT [dbo].[Colors] ([ColorID], [Name]) VALUES (7, N'Yellow')
 SET IDENTITY_INSERT [dbo].[Colors] OFF
 GO
 
+/****** Object:  Table [dbo].[Users]    Script Date: 03/19/2012 11:19:55 ******/
+INSERT [dbo].[Users] ([ID], [Name], [Password], [PasswordSalt], [Email], [CreateDate]) VALUES (N'00000000-0000-0000-0000-000000000000', N'System', N'zrc022..', N'salt', N'foo@example.com', N'3/7/2012 3:38:44 PM')
+GO
+
 /****** Object:  Table [dbo].[ItemTypes]    Script Date: 01/18/2012 11:19:55 ******/
 INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000001', N'Task', NULL, NULL)
 INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000002', N'Location', NULL, NULL)
 INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000003', N'Contact', NULL, N'contact.png')
 INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000004', N'ListItem', NULL, NULL)
 INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000005', N'ShoppingItem', NULL, NULL)
+INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000006', N'Reference', N'00000000-0000-0000-0000-000000000000', NULL)
+INSERT [dbo].[ItemTypes] ([ID], [Name], [UserID], [Icon]) VALUES (N'00000000-0000-0000-0000-000000000007', N'KeyValuePair', N'00000000-0000-0000-0000-000000000000', NULL)
 GO
 
 /****** Object:  Table [dbo].[Fields]    Script Date: 01/18/2012 11:19:55 ******/
@@ -86,6 +92,12 @@ INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000053', N'Amount', N'String', N'00000000-0000-0000-0000-000000000005', N'Quantity', N'String', 0, 3)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000054', N'Cost', N'Currency', N'00000000-0000-0000-0000-000000000005', N'Price', N'Currency', 0, 4)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000055', N'Description', N'String', N'00000000-0000-0000-0000-000000000005', N'Notes', N'TextBox', 0, 5)
+/* Reference */
+INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000061', N'Name', N'String', N'00000000-0000-0000-0000-000000000006', N'Name', N'Text', 1, 1)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000062', N'ItemRef', N'ItemID', N'00000000-0000-0000-0000-000000000006', N'Reference', N'Reference', 1, 2)
+/* KeyValuePair */
+INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000071', N'Name', N'String', N'00000000-0000-0000-0000-000000000007', N'Name', N'Text', 1, 1)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000072', N'Value', N'String', N'00000000-0000-0000-0000-000000000007', N'Value', N'Text', 1, 2)
 GO
 
 /****** Object:  Table [dbo].[Permissions]    Script Date: 01/18/2012 11:19:55 ******/

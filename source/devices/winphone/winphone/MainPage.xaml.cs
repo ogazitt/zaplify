@@ -25,6 +25,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows.Navigation;
 using System.Collections.ObjectModel;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -151,16 +152,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         // FieldValue on the item
                         if (pi == null)
                         {
-                            FieldValue fieldValue = null;
                             // get current item's value for this field
-                            try
-                            {
-                                fieldValue = item.FieldValues.Single(fv => fv.FieldID == f.ID);
+                            FieldValue fieldValue = item.GetFieldValue(f.ID, false);
+                            if (fieldValue != null)
                                 currentValue = fieldValue.Value;
-                            }
-                            catch (Exception)
-                            {
-                            }
                         }
 
                         // if this property wasn't found or is null, no need to print anything
@@ -168,7 +163,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             continue;
 
                         // already printed out the item name
-                        if (f.DisplayName == "Name")
+                        if (f.Name == FieldNames.Name)
                             continue;
 
                         // format the field value properly
@@ -176,10 +171,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         {
                             switch (f.DisplayType)
                             {
-                                case "Date":
+                                case DisplayTypes.DatePicker:
                                     sb.AppendFormat("        {0}: {1}\n", f.DisplayName, ((DateTime)currentValue).ToString("d"));
                                     break;
-                                case "Priority":
+                                case DisplayTypes.Priority:
                                     sb.AppendFormat("        {0}: {1}\n", f.DisplayName, Item.PriorityNames[(int)currentValue]);
                                     break;
                                 default:

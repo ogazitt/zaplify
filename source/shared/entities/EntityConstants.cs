@@ -32,8 +32,10 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000003");
         public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000004");
         public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000005");
+        public static Guid ReferenceItem = new Guid("00000000-0000-0000-0000-000000000006");
+        public static Guid NameValue = new Guid("00000000-0000-0000-0000-000000000007");
 
-        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem};
+        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem, ReferenceItem, NameValue };
     }
 
     public class ActionNames
@@ -71,6 +73,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ItemRef = "ItemRef";            // ItemID
         public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
+        public const string Value = "Value";                // String (used for name/value pairs, e.g. SuggestionID)
     }
 
     public class FieldTypes

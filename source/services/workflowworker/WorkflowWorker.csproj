@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</ProjectGuid>
+    <ProjectGuid>{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BuiltSteady.Zaplify.ServerEntities</RootNamespace>
-    <AssemblyName>BuiltSteady.Zaplify.ServerEntities</AssemblyName>
+    <RootNamespace>BuiltSteady.Zaplify.WorkflowWorker</RootNamespace>
+    <AssemblyName>BuiltSteady.Zaplify.WorkflowWorker</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,11 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,33 +47,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\shared\entities\EntityConstants.cs">
-      <Link>EntityConstants.cs</Link>
-    </Compile>
-    <Compile Include="ActionType.cs" />
-    <Compile Include="Color.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="WorkflowInstance.cs" />
-    <Compile Include="Suggestion.cs" />
-    <Compile Include="FieldValue.cs" />
-    <Compile Include="Folder.cs" />
-    <Compile Include="FolderUser.cs" />
-    <Compile Include="Operation.cs" />
-    <Compile Include="Field.cs" />
-    <Compile Include="ItemType.cs" />
-    <Compile Include="Permission.cs" />
-    <Compile Include="Priority.cs" />
+    <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\StartWorkflow.cs" />
+    <Compile Include="Tasks.cs" />
+    <Compile Include="workflows\NewItem.cs" />
+    <Compile Include="workflows\Workflows.cs" />
+    <Compile Include="activities\GetSuggestions.cs" />
+    <Compile Include="WorkflowActivity.cs" />
+    <Compile Include="WorkflowState.cs" />
+    <Compile Include="workflows\BuyGift.cs" />
+    <Compile Include="workflows\FindTask.cs" />
+    <Compile Include="Workflow.cs" />
+    <Compile Include="WorkflowWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tag.cs" />
-    <Compile Include="Item.cs" />
-    <Compile Include="ItemTag.cs" />
-    <Compile Include="User.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\serverentities\ServerEntities.csproj">
+      <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
+      <Name>ServerEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\servicehost\ServiceHost.csproj">
+      <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
+      <Name>ServiceHost</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>rd "$(ProjectDir)obj" /S /Q
-</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -219,6 +219,8 @@
                     }
                     else
                     {
+                        // queue up the item for processing by the workflow worker
+                        MessageQueue.EnqueueMessage(item.ID);
                         LoggingHelper.TraceInfo("ItemResource.Insert: Created");
                         return new HttpResponseMessageWrapper<Item>(req, item, HttpStatusCode.Created);     // return 201 Created
                     }
