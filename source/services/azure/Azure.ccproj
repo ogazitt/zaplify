@@ -39,12 +39,12 @@
     <ServiceConfiguration Include="ServiceConfiguration.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\mailworker\mailworker.csproj">
-      <Name>mailworker</Name>
+    <ProjectReference Include="..\mailworker\MailWorker.csproj">
+      <Name>MailWorker</Name>
       <Project>{583653ff-2e30-43f5-a4ed-9cbab3218d7d}</Project>
       <Private>True</Private>
       <RoleType>Worker</RoleType>
-      <RoleName>mailworker</RoleName>
+      <RoleName>MailWorker</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
     <ProjectReference Include="..\website\Website.csproj">

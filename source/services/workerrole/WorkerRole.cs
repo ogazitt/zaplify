@@ -128,6 +128,23 @@ namespace BuiltSteady.Zaplify.MailWorker
             // no idle support means we need to poll the mailbox
             while (true)
             {
+                if (workflowService = null)
+                // start a thread for the workflow service
+                Thread workflowService = new Thread(() =>
+                {
+                    try
+                    {
+                        WorkflowService workflowService = new WorkflowService();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        LoggingHelper.TraceFatal("Workflow Service died; ex: " + ex.Message);
+                        workflowService = null;
+                    }
+                }) { Name = "WorkflowService" };
+                workflowService.Start();
+
                 try
                 {
                     using (var imap = new ImapClient(hostname, username, password, ImapClient.AuthMethods.Login, port, true))
