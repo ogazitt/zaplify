@@ -10,11 +10,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.StartWorkflow; } }
         public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, Item, object, List<Guid>> Function
+        public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
         {
             get
             {
-                return ((workflowInstance, item, state) =>
+                return ((workflowInstance, item, state, list) =>
                 {
                     try
                     {
@@ -39,7 +39,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     {
                         LoggingHelper.TraceError("StartWorkflow Activity failed; ex: " + ex.Message);
                     }
-                    return null;
+                    return true;
                 });
             }
         }

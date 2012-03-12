@@ -45,11 +45,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // get current state, invoke action
                 WorkflowState state = instance.State == null ? States[0] : States.Single(s => s.Name == instance.State);
                 var action = ActivityList.Activities[state.Activity];
-                List<Guid> result = action.Function.Invoke(instance, item, obj);
+                List<Guid> results = new List<Guid>();
+                bool completed = action.Function.Invoke(instance, item, obj, results);
 
-                if (result != null)
+                if (results.Count > 0)
                 {
-                    // save the result in the suggestions sublist on the item
+                    // save the results in the suggestions sublist on the item
                     Item suggestionsList = null;
                     try
                     {
@@ -69,7 +70,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     try
                     {
                         Field valueField = WorkflowWorker.StorageContext.Fields.Single(f => f.ItemTypeID == SystemItemTypes.NameValue && f.Name == FieldNames.Value);
-                        foreach (var suggestionID in result)
+                        foreach (var suggestionID in results)
                         {
                             // create a new NameValue item with the Name being the target field for the suggestion, 
                             // and the Value being the suggestionID in the Suggesions table
@@ -98,10 +99,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // store next state and terminate the workflow if next state is null
                 instance.State = state.NextState;
                 if (instance.State == null)
+                {
                     WorkflowWorker.StorageContext.WorkflowInstances.Remove(instance);
+                    completed = false;
+                }
 
                 WorkflowWorker.StorageContext.SaveChanges();
-                return true;
+                return completed;
             }
             catch (Exception ex)
             {

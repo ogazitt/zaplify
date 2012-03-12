@@ -15,9 +15,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
-            new WorkflowState() { Name = "DetermineSubject", Activity = ActivityNames.GetPossibleSubjects, NextState = "GetSubjectAttributes" },
-            new WorkflowState() { Name = "GetSubjectAttributes", Activity = ActivityNames.GetSubjectAttributes, NextState = "DetermineDate" },
-            new WorkflowState() { Name = "DetermineDate", Activity = ActivityNames.GetPossibleDates, NextState = "GetSuggestions" },
+//            new WorkflowState() { Name = "DetermineSubject", Activity = ActivityNames.GetPossibleSubjects, NextState = "GetSubjectAttributes" },
+//            new WorkflowState() { Name = "GetSubjectAttributes", Activity = ActivityNames.GetSubjectAttributes, NextState = "DetermineDate" },
+//            new WorkflowState() { Name = "DetermineDate", Activity = ActivityNames.GetPossibleDates, NextState = "GetSuggestions" },
             new WorkflowState() { Name = "GetSuggestions", Activity = ActivityNames.GetSuggestions, NextState = null },
         };
     }

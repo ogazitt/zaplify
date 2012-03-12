@@ -20,11 +20,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public static Dictionary<string, WorkflowActivity> Activities = new Dictionary<string, WorkflowActivity>()
         {
-            { ActivityNames.GetPossibleTasks, new GetSuggestions() },
-            { ActivityNames.GetPossibleDates, new GetSuggestions() },
-            { ActivityNames.GetPossibleLocations, new GetSuggestions() },
-            { ActivityNames.GetPossibleSubjects, new GetSuggestions() },
-            { ActivityNames.GetSubjectAttributes, new GetSuggestions() },
+            { ActivityNames.GetPossibleTasks, new GetPossibleTasks() },
+            { ActivityNames.GetPossibleDates, null },
+            { ActivityNames.GetPossibleLocations, null },
+            { ActivityNames.GetPossibleSubjects, new GetPossibleSubjects() },
+            { ActivityNames.GetSubjectAttributes, null },
             { ActivityNames.GetSuggestions, new GetSuggestions() },
             { ActivityNames.StartWorkflow, new StartWorkflow() },
         };

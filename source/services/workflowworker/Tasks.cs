@@ -8,9 +8,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 {
     public class TaskNames
     {
-        public const string BuyGift = "Buy a Gift";
-        public const string ChangeOil = "Change the Oil";
-        public const string CleanGutters = "Clean the Gutters";
+        public const string BuyGift = "buy gift";
+        public const string ChangeOil = "change oil";
+        public const string CleanGutters = "clean gutters";
     }
 
     public class TaskList

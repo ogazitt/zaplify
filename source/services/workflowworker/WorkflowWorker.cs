@@ -59,11 +59,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         if (wis.Count > 0)
                         {
                             // loop over the workflow instances and dispatch the new message
-                            foreach (var wi in wis)
+                            foreach (var instance in wis)
                             {
-                                string workflowType = wi.WorkflowType;
+                                string workflowType = instance.WorkflowType;
                                 Workflow workflow = WorkflowList.Workflows[workflowType];
-                                workflow.Process(wi, item);
+
+                                // invoke the workflow and process steps until workflow is blocked for user input
+                                bool completed = true;
+                                while (completed)
+                                {
+                                    completed = workflow.Process(instance, item);
+                                }
                             }
                         }
                         else
@@ -86,9 +92,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                             StorageContext.WorkflowInstances.Add(instance);
                             StorageContext.SaveChanges();
 
-                            // invoke the workflow
+                            // invoke the workflow and process steps until workflow is blocked for user input
                             Workflow workflow = WorkflowList.Workflows[WorkflowNames.NewItem];
-                            workflow.Process(instance, item);
+                            bool completed = true;
+                            while (completed)
+                            {
+                                completed = workflow.Process(instance, item);
+                            }
                         }
 
                         // remove the message from the queue
