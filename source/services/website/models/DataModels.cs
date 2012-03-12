@@ -56,7 +56,7 @@
         public static FieldValue CreateFieldValue(Guid itemID, Guid itemTypeID, string fieldName, string value)
         {
             ItemType itemType = Constants.ItemTypes.Single<ItemType>(item => item.ID == itemTypeID);
-            Field field = itemType.Fields.Single<Field>(fld => fld.DisplayName == fieldName);
+            Field field = itemType.Fields.Single<Field>(fld => fld.Name == fieldName);
             return new FieldValue() { /*ID = Guid.NewGuid(),*/ ItemID = itemID, FieldID = field.ID, Value = value };
         }
     }
