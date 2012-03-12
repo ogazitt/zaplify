@@ -6,20 +6,20 @@ using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
-    public class TaskNames
+    public class IntentNames
     {
         public const string BuyGift = "buy gift";
         public const string ChangeOil = "change oil";
         public const string CleanGutters = "clean gutters";
     }
 
-    public class TaskList
+    public class IntentList
     {
-        public static Dictionary<string, string> Tasks = new Dictionary<string, string>()
+        public static Dictionary<string, string> Intents = new Dictionary<string, string>()
         {
-            { TaskNames.BuyGift, WorkflowNames.BuyGift },
-            { TaskNames.ChangeOil, WorkflowNames.BuyGift },
-            { TaskNames.CleanGutters, WorkflowNames.BuyGift },
+            { IntentNames.BuyGift, WorkflowNames.BuyGift },
+            { IntentNames.ChangeOil, WorkflowNames.BuyGift },
+            { IntentNames.CleanGutters, WorkflowNames.BuyGift },
         };
     }
 }

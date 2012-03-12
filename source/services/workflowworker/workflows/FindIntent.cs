@@ -8,14 +8,14 @@ using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
-    public class FindTask : Workflow
+    public class FindIntent : Workflow
     {
-        public override string Name { get { return WorkflowNames.FindTask; } }
+        public override string Name { get { return WorkflowNames.FindIntent; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
-            new WorkflowState() { Name = "DetermineTask", Activity = ActivityNames.GetPossibleTasks, NextState = null },
+            new WorkflowState() { Name = "DetermineIntent", Activity = ActivityNames.GetPossibleIntents, NextState = null },
         };
     }
 }

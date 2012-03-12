@@ -9,7 +9,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
     {
         public const string ContactsChanged = "Contacts Changed";
         public const string BuyGift = "Buy Gift";
-        public const string FindTask = "Find Task";
+        public const string FindIntent = "Find Intent";
         public const string NameChanged = "Name Changed";
         public const string NewItem = "New Item";
     }
@@ -20,7 +20,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         {
             { WorkflowNames.BuyGift, new BuyGift() },
             { WorkflowNames.ContactsChanged, new ContactsChanged() },
-            { WorkflowNames.FindTask, new FindTask() },
+            { WorkflowNames.FindIntent, new FindIntent() },
             { WorkflowNames.NameChanged, new NameChanged() },
             { WorkflowNames.NewItem, new NewItem() },
         };

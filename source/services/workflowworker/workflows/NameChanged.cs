@@ -10,12 +10,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class NameChanged : Workflow
     {
-        public override string Name { get { return WorkflowNames.NewItem; } }
+        public override string Name { get { return WorkflowNames.NameChanged; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
-            new WorkflowState() { Name = "FindTask", Activity = ActivityNames.GetPossibleTasks, NextState = null },
+            new WorkflowState() { Name = "FindIntent", Activity = ActivityNames.GetPossibleIntents, NextState = null },
         };
     }
 }

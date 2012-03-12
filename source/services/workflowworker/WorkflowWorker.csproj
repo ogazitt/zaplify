@@ -48,15 +48,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\GetPossibleSubjects.cs" />
+    <Compile Include="activities\GetPossibleIntents.cs" />
     <Compile Include="activities\StartWorkflow.cs" />
-    <Compile Include="Tasks.cs" />
+    <Compile Include="Intents.cs" />
+    <Compile Include="workflows\ContactsChanged.cs" />
+    <Compile Include="workflows\NameChanged.cs" />
     <Compile Include="workflows\NewItem.cs" />
     <Compile Include="workflows\Workflows.cs" />
     <Compile Include="activities\GetSuggestions.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowState.cs" />
     <Compile Include="workflows\BuyGift.cs" />
-    <Compile Include="workflows\FindTask.cs" />
+    <Compile Include="workflows\FindIntent.cs" />
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

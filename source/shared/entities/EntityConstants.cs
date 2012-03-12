@@ -75,6 +75,10 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
+
+        // non user-visible FieldNames
+        public const string Intent = "Intent";              // String
+        public const string SuggestedLink = "SuggestedLink"; // URL
     }
 
     public class FieldTypes

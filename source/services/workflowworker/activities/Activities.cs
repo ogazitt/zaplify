@@ -7,7 +7,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class ActivityNames
     {
-        public const string GetPossibleTasks = "Get Possible Tasks";
+        public const string GetPossibleIntents = "Get Possible Intents";
         public const string GetPossibleDates = "Get Possible Dates";
         public const string GetPossibleLocations = "Get Possible Locations";
         public const string GetPossibleSubjects = "Get Possible Subjects";
@@ -20,7 +20,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public static Dictionary<string, WorkflowActivity> Activities = new Dictionary<string, WorkflowActivity>()
         {
-            { ActivityNames.GetPossibleTasks, new GetPossibleTasks() },
+            { ActivityNames.GetPossibleIntents, new GetPossibleIntents() },
             { ActivityNames.GetPossibleDates, null },
             { ActivityNames.GetPossibleLocations, null },
             { ActivityNames.GetPossibleSubjects, new GetPossibleSubjects() },

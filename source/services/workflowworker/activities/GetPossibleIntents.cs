@@ -1,46 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
-    public class GetPossibleTasks : WorkflowActivity
+    public class GetPossibleIntents : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleTasks; } }
-        //public override string TargetFieldName { get { return "Task"; } }
+        public override string Name { get { return ActivityNames.GetPossibleIntents; } }
+        public override string TargetFieldName { get { return FieldNames.Intent; } }
         public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
         {
             get
             {
                 return ((workflowInstance, item, state, list) =>
                 {
-                    List<string> possibleTasks = new List<string>();
-                    if (GetTasks(item.Name, possibleTasks))
+                    List<string> possibleIntents = new List<string>();
+                    if (GetIntents(item.Name, possibleIntents))
                     {
                         // exact match
 
-                        // set the Task type on the Item model
+                        // set the Intent type on the Item model
                         return true;
                     }
 
-                    // received a list of suggestions in possibleTasks
+                    // received a list of suggestions in possibleIntents
                     try
                     {
-                        foreach (var s in possibleTasks)
+                        foreach (var s in possibleIntents)
                         {
                             var sugg = new Suggestion()
                             {
                                 ID = Guid.NewGuid(),
                                 ItemID = item.ID,
-                                Type = "Text",
-                                Name = s,
-                                Value = null,
-                                Retrieved = false,
-                                Created = DateTime.Now
+                                WorkflowName = workflowInstance.Name,
+                                WorkflowInstanceID = workflowInstance.ID,
+                                State = workflowInstance.State,
+                                FieldName = TargetFieldName, 
+                                DisplayName = s,
+                                Value = s,
+                                TimeChosen = DateTime.Now
                             };
                             WorkflowWorker.StorageContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
@@ -57,7 +57,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GetTasks(string name, List<string> possibleTasks)
+        private bool GetIntents(string name, List<string> possibleIntents)
         {
             string sentence = name.ToLower();
             // remove filler words
@@ -67,22 +67,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             string workflow = null;
-            bool exists = TaskList.Tasks.TryGetValue(sentence, out workflow);
+            bool exists = IntentList.Intents.TryGetValue(sentence, out workflow);
             if (exists)
             {
-                possibleTasks.Add(sentence);
+                possibleIntents.Add(sentence);
                 return true;  // exact match
             }
 
-            // populate suggestions by looping over the list of Tasks
+            // populate suggestions by looping over the list of Intents
             // and picking ones that have at least one word in common with the sentence
-            foreach (var task in TaskList.Tasks.Keys)
+            foreach (var task in IntentList.Intents.Keys)
             {
                 foreach (var word in sentence.Split(' '))
                 {
                     if (task.Contains(word))
                     {
-                        possibleTasks.Add(task);
+                        possibleIntents.Add(task);
                         break;
                     }
                 }

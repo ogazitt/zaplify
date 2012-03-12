@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleSubjects : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleTasks; } }
-        //public override string TargetFieldName { get { return "Task"; } }
+        public override string Name { get { return ActivityNames.GetPossibleSubjects; } }
+        public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
         {
             get
@@ -36,11 +34,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             {
                                 ID = Guid.NewGuid(),
                                 ItemID = item.ID,
-                                Type = "Text",
-                                Name = s,
-                                Value = null,
-                                Retrieved = false,
-                                Created = DateTime.Now
+                                WorkflowName = workflowInstance.Name,
+                                WorkflowInstanceID = workflowInstance.ID,
+                                State = workflowInstance.State,
+                                FieldName = TargetFieldName, 
+                                DisplayName = s,
+                                Value = s,
+                                TimeChosen = DateTime.Now
                             };
                             WorkflowWorker.StorageContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
