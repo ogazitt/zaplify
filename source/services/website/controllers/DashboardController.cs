@@ -30,18 +30,18 @@
         {
             UserDataModel model = new UserDataModel(this);
             try
-            {    
+            {
                 if (model.UserData.Folders.Count == 0)
                 {   // only create default folders if no folders exist
                     CreateDefaultFolders(model);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 if (id++ < 3)
-                    return RedirectToAction("Initialize", "Dashboard", id);
-                else
-                    throw e;
+                {   // retry upto 3 times before giving up
+                    return RedirectToAction("Initialize", "Dashboard", new { id = id });
+                }
             } 
             return RedirectToAction("Home", "Dashboard");
         }

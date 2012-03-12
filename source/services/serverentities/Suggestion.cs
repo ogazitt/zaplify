@@ -10,10 +10,12 @@ namespace BuiltSteady.Zaplify.ServerEntities
     {
         public Guid ID { get; set; }
         public Guid ItemID { get; set; }
-        public string Type { get; set; }  // "URL", "ItemRef"
-        public string Name { get; set; }  // Type == "URL": anchor text; Type == "ItemRef": FieldName
-        public string Value { get; set; } // Type == "URL": URL;         Type == "ItemRef": GUID
-        public bool Retrieved { get; set; }
-        public DateTime Created { get; set; }
+        public string WorkflowName { get; set; }
+        public Guid WorkflowInstanceID { get; set; }
+        public string State { get; set; }
+        public string FieldName { get; set; }
+        public string DisplayName { get; set; }
+        public string Value { get; set; }
+        public DateTime? TimeChosen { get; set; }
     }
 }
