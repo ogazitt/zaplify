@@ -143,7 +143,7 @@
         {
             if (Membership.Provider is UserMembershipProvider)
             {
-                UserCredential user = new UserCredential { Name = username };
+                User user = new User { Name = username };
                 HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(user);
                 this.Response.Cookies.Add(authCookie);
             }

@@ -31,9 +31,9 @@
         {
             HttpStatusCode status = HttpStatusCode.BadRequest;
             // get the new user from the message body (password is not deserialized)
-            UserCredential newUser = ProcessRequestBody(req, typeof(UserCredential)) as UserCredential;
+            BasicAuthCredentials newUser = ProcessRequestBody(req, typeof(BasicAuthCredentials)) as BasicAuthCredentials;
             // get password from message headers
-            UserCredential userCreds = GetUserFromMessageHeaders(req);
+            BasicAuthCredentials userCreds = GetUserFromMessageHeaders(req);
 
             if (newUser.Name == userCreds.Name)
             {   // verify same name in both body and header
@@ -49,7 +49,7 @@
                 return new HttpResponseMessageWrapper<User>(req, status);
         }
 
-        private HttpStatusCode CreateUser(UserCredential user)
+        private HttpStatusCode CreateUser(BasicAuthCredentials user)
         {
             MembershipCreateStatus createStatus;
             TraceLog.TraceFunction();  // log function entrance
@@ -225,15 +225,15 @@
             }
 
             // verify body contains two sets of user data - the original values and the new values
-            List<UserCredential> userData = ProcessRequestBody(req, typeof(List<UserCredential>)) as List<UserCredential>;
-            if (userData.Count != 2)
+            List<BasicAuthCredentials> userCreds = ProcessRequestBody(req, typeof(List<BasicAuthCredentials>)) as List<BasicAuthCredentials>;
+            if (userCreds.Count != 2)
             {
                 return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
             }
 
             // get the original and new items out of the message body
-            UserCredential originalUserData = userData[0];
-            UserCredential newUserData = userData[1];
+            BasicAuthCredentials originalUserData = userCreds[0];
+            BasicAuthCredentials newUserData = userCreds[1];
 
             // make sure the item ID's match
             if (originalUserData.ID != newUserData.ID || originalUserData.ID != id)

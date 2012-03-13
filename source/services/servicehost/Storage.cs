@@ -14,11 +14,6 @@
             get { return new StorageContext(); }
         }
 
-        public static CredentialStorageContext NewCredentialContext
-        {
-            get { return new CredentialStorageContext(); }
-        }
-
         public static StorageContext StaticContext
         {   // use a static context to access static data (serving values out of EF cache)
             get
@@ -69,16 +64,4 @@
         public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
     }
 
-    public class CredentialStorageContext : DbContext
-    {
-        public CredentialStorageContext() : base(HostEnvironment.UserAccountConnection) { }
-        public CredentialStorageContext(string connection) : base(connection) { }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<UserCredential>().Map(m => { m.ToTable("Users"); });
-        }
-        
-        public DbSet<UserCredential> Credentials { get; set; }
-    }
 }

@@ -296,7 +296,7 @@
 
             if (newItem.LastModified.Year == 1970)
             {   // web client will set LastModified year to 1970 to get server timestamp
-                newItem.LastModified = DateTime.Now;
+                newItem.LastModified = DateTime.UtcNow;
             }
 
             // get the folder for the item

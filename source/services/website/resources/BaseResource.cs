@@ -24,6 +24,19 @@
         protected StorageContext storageContext = null;
         User currentUser = null;
 
+        public class BasicAuthCredentials 
+        {
+            public Guid ID { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string Password { get; set; }
+
+            public User AsUser()
+            {
+                return new User() { ID = this.ID, Name = this.Name, Email = this.Email };
+            }
+        }
+
         public User CurrentUser
         {
             get
@@ -61,7 +74,7 @@
                 return HttpStatusCode.OK;                
             }
 
-            UserCredential credentials = GetUserFromMessageHeaders(req);
+            BasicAuthCredentials credentials = GetUserFromMessageHeaders(req);
             if (credentials == null)
             {
                 if (HttpContext.Current.Request.Headers[authRequestHeader] != null)
@@ -83,16 +96,12 @@
                     return HttpStatusCode.Forbidden;
                 }
 
-                this.currentUser = credentials.AsUser();
-                if (this.currentUser.ID == null || this.currentUser.ID == Guid.Empty)
-                {   // ensure ID is included
-                    mu = Membership.GetUser(currentUser.Name, true);
-                    this.currentUser = UserMembershipProvider.AsUser(mu);
-                }
+                mu = Membership.GetUser(credentials.Name, true);
+                this.currentUser = UserMembershipProvider.AsUser(mu);
 
                 if (Membership.Provider is UserMembershipProvider)
                 {   // add auth cookie to response (cookie includes user id)
-                    HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(credentials);
+                    HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(this.currentUser);
                     HttpContext.Current.Response.Cookies.Add(authCookie);
                 }
 
@@ -107,7 +116,7 @@
         }
 
         // extract username and password from authorization header (passed by devices)
-        protected UserCredential GetUserFromMessageHeaders(HttpRequestMessage req)
+        protected BasicAuthCredentials GetUserFromMessageHeaders(HttpRequestMessage req)
         {
             TraceLog.TraceFunction();
 
@@ -121,7 +130,7 @@
                     int firstColonIndex = credentials.IndexOf(':');
                     string username = credentials.Substring(0, firstColonIndex);
                     string password = credentials.Substring(firstColonIndex + 1);
-                    return new UserCredential() { Name = username.ToLower(), Password = password };
+                    return new BasicAuthCredentials() { Name = username.ToLower(), Password = password };
                 }
             }
             return null;
