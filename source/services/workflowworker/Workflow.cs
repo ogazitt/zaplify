@@ -79,7 +79,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     }
                     catch (Exception ex)
                     {
-                        LoggingHelper.TraceError("Workflow.ProcessAction: error adding results to Item; ex: " + ex.Message);
+                        TraceLog.TraceError("Workflow.ProcessAction: error adding results to Item; ex: " + ex.Message);
                         return false;
                     }
                 }
@@ -102,7 +102,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("Workflow.ProcessAction failed; ex: " + ex.Message);
+                TraceLog.TraceError("Workflow.ProcessAction failed; ex: " + ex.Message);
                 return false;
             }
         }

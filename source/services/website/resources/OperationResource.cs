@@ -36,7 +36,7 @@
                 clientOperation = clientOperation = ProcessRequestBody(req, typeof(Operation), out operation) as Operation;
                 if (clientOperation.ID != id)
                 {   // IDs must match
-                    LoggingHelper.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
+                    TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
@@ -49,14 +49,14 @@
                 }
                 catch (Exception)
                 {   // operation not found - it may have been deleted by someone else.  Return 200 OK.
-                    LoggingHelper.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
+                    TraceLog.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.OK);
                 }
             }
 
             if (clientOperation.UserID != CurrentUser.ID)
             {   // requested operation does not belong to the authenticated user, return 403 Forbidden
-                LoggingHelper.TraceError("TagResource.Delete: Forbidden (entity does not belong to current user)");
+                TraceLog.TraceError("TagResource.Delete: Forbidden (entity does not belong to current user)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.Forbidden);
             }
 
@@ -66,19 +66,19 @@
                 this.StorageContext.Operations.Remove(requestedOperation);
                 if (this.StorageContext.SaveChanges() < 1)
                 {
-                    LoggingHelper.TraceError("TagResource.Delete: Internal Server Error (database operation did not succeed)");
+                    TraceLog.TraceError("TagResource.Delete: Internal Server Error (database operation did not succeed)");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Delete: Accepted");
+                    TraceLog.TraceInfo("TagResource.Delete: Accepted");
                     return ReturnResult<Operation>(req, operation, requestedOperation, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // operation not found - it may have been deleted by someone else.  Return 200 OK.
-                LoggingHelper.TraceInfo(String.Format("TagResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
+                TraceLog.TraceInfo(String.Format("TagResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.OK);
             }
         }
@@ -102,7 +102,7 @@
                 // if the requested operation does not belong to the authenticated user, return 403 Forbidden, otherwise return the operation
                 if (requestedOperation.UserID != CurrentUser.ID)
                 {
-                    LoggingHelper.TraceError("TagResource.GetItemType: Forbidden (entity does not belong to current user)");
+                    TraceLog.TraceError("TagResource.GetItemType: Forbidden (entity does not belong to current user)");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.Forbidden);
                 }
                 
@@ -111,7 +111,7 @@
             catch (Exception ex)
             {
                 // operation not found - return 404 Not Found
-                LoggingHelper.TraceError("TagResource.GetItemType: Not Found; ex: " + ex.Message);
+                TraceLog.TraceError("TagResource.GetItemType: Not Found; ex: " + ex.Message);
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -139,7 +139,7 @@
                 clientOperation.UserID = CurrentUser.ID;
             if (clientOperation.UserID != CurrentUser.ID)
             {
-                LoggingHelper.TraceError("TagResource.Insert: Forbidden (entity does not belong to current user)");
+                TraceLog.TraceError("TagResource.Insert: Forbidden (entity does not belong to current user)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.Forbidden);
             }
 
@@ -158,12 +158,12 @@
                 var currentOperation = this.StorageContext.Operations.Add(clientOperation);
                 if (currentOperation == null || this.StorageContext.SaveChanges() < 1)
                 {
-                    LoggingHelper.TraceError("TagResource.Insert: Internal Server Error (database operation did not succeed)");
+                    TraceLog.TraceError("TagResource.Insert: Internal Server Error (database operation did not succeed)");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Insert: Created");
+                    TraceLog.TraceInfo("TagResource.Insert: Created");
                     return ReturnResult<Operation>(req, operation, currentOperation, HttpStatusCode.Created);  // return 201 Created
                 }
             }
@@ -176,19 +176,19 @@
                     var dbOperation = this.StorageContext.Operations.Single(t => t.ID == clientOperation.ID);
                     if (dbOperation.EntityName == clientOperation.EntityName)
                     {
-                        LoggingHelper.TraceInfo("TagResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
+                        TraceLog.TraceInfo("TagResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
                         return ReturnResult<Operation>(req, operation, dbOperation, HttpStatusCode.Accepted);
                     }
                     else
                     {
-                        LoggingHelper.TraceError("TagResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
+                        TraceLog.TraceError("TagResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
                         return ReturnResult<Operation>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {
                     // operation not inserted - return 409 Conflict
-                    LoggingHelper.TraceError(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
+                    TraceLog.TraceError(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.Conflict);
                 }
             }
@@ -209,7 +209,7 @@
             List<Operation> clientOperations = ProcessRequestBody(req, typeof(List<Operation>), out operation) as List<Operation>;
             if (clientOperations.Count != 2)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (malformed body)");
+                TraceLog.TraceError("TagResource.Update: Bad Request (malformed body)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.BadRequest);
             }
 
@@ -220,19 +220,19 @@
             // make sure the operation ID's match
             if (originalOperation.ID != newOperation.ID)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (original and new entity ID's do not match)");
+                TraceLog.TraceError("TagResource.Update: Bad Request (original and new entity ID's do not match)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.BadRequest);
             }
             if (originalOperation.ID != id)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (ID in URL does not match entity body)");
+                TraceLog.TraceError("TagResource.Update: Bad Request (ID in URL does not match entity body)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.BadRequest);
             }
 
             // if the operation does not belong to the authenticated user, return 403 Forbidden
             if (originalOperation.UserID != CurrentUser.ID || newOperation.UserID != CurrentUser.ID)
             {
-                LoggingHelper.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
+                TraceLog.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.Forbidden);
             }
 
@@ -243,7 +243,7 @@
                 // if the Operation does not belong to the authenticated user, return 403 Forbidden
                 if (requestedOperation.UserID != CurrentUser.ID)
                 {
-                    LoggingHelper.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
+                    TraceLog.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
                     return ReturnResult<Operation>(req, operation, HttpStatusCode.Forbidden);
                 }
 
@@ -253,25 +253,25 @@
                 {
                     if (this.StorageContext.SaveChanges() < 1)
                     {
-                        LoggingHelper.TraceError("TagResource.Update: Internal Server Error (database operation did not succeed)");
+                        TraceLog.TraceError("TagResource.Update: Internal Server Error (database operation did not succeed)");
                         return ReturnResult<Operation>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
                     {
-                        LoggingHelper.TraceInfo("TagResource.Update: Accepted");
+                        TraceLog.TraceInfo("TagResource.Update: Accepted");
                         return ReturnResult<Operation>(req, operation, requestedOperation, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Update: Accepted (no changes)");
+                    TraceLog.TraceInfo("TagResource.Update: Accepted (no changes)");
                     return ReturnResult<Operation>(req, operation, requestedOperation, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // operation not found - return 404 Not Found
-                LoggingHelper.TraceError("TagResource.Update: Not Found; ex: " + ex.Message);
+                TraceLog.TraceError("TagResource.Update: Not Found; ex: " + ex.Message);
                 return ReturnResult<Operation>(req, operation, HttpStatusCode.NotFound);
             }
         }

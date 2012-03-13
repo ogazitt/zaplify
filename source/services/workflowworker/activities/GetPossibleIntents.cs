@@ -49,7 +49,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     }
                     catch (Exception ex)
                     {
-                        LoggingHelper.TraceError("GetSuggestions Activity failed; ex: " + ex.Message);
+                        TraceLog.TraceError("GetSuggestions Activity failed; ex: " + ex.Message);
                     }
                     return false;
                 });

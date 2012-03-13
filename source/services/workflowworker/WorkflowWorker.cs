@@ -49,7 +49,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
-                            LoggingHelper.TraceError("WorkflowWorker: could not retrieve operation; ex: " + ex.Message);
+                            TraceLog.TraceError("WorkflowWorker: could not retrieve operation; ex: " + ex.Message);
                             throw;  // caught by the outer try block, so as to execute the sleep call
                         }
 
@@ -63,7 +63,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
-                            LoggingHelper.TraceError("WorkflowWorker: could not retrieve item; ex: " + ex.Message);
+                            TraceLog.TraceError("WorkflowWorker: could not retrieve item; ex: " + ex.Message);
                         }
 
                         // launch new workflows based on the changes to the item
@@ -88,7 +88,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 catch (Exception ex)
                 {
-                    LoggingHelper.TraceError("WorkflowWorker: message processing failed; ex: " + ex.Message);
+                    TraceLog.TraceError("WorkflowWorker: message processing failed; ex: " + ex.Message);
                 }
 
                 // sleep for the timeout period
@@ -169,7 +169,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 WorkflowType = type,
                 State = null,
                 Name = name,
-                Body = SerializationHelper.JsonSerialize(entity),
+                Body = JsonSerializer.Serialize(entity),
                 Created = now,
                 LastModified = now,
             };

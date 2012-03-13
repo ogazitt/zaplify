@@ -92,7 +92,7 @@
             // this call returns false if the queue was already created 
             if (Queue.CreateIfNotExist())
             {
-                LoggingHelper.TraceInfo(String.Format("MessageQueue.Initialize: created queue named '{0}'", queueName));
+                TraceLog.TraceInfo(String.Format("MessageQueue.Initialize: created queue named '{0}'", queueName));
             }
         }
     }

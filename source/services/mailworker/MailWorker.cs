@@ -76,7 +76,7 @@ namespace BuiltSteady.Zaplify.MailWorker
 
         public void Start()
         {
-            LoggingHelper.TraceInfo("BuiltSteady.Zaplify.MailWorker started");
+            TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker started");
             string hostname = ConfigurationManager.AppSettings["Hostname"];
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"]);
             string username = ConfigurationManager.AppSettings["Username"];
@@ -110,7 +110,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                             MailMessage[] messages = imap.GetMessages(0, count, false);
                             foreach (var m in messages)
                             {
-                                LoggingHelper.TraceInfo("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject);
+                                TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject);
                                 ProcessMessage(m);
                                 imap.MoveMessage(m.Uid, "processed");
                             }
@@ -119,7 +119,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 }
                 catch (Exception ex)
                 {
-                    LoggingHelper.TraceError("Can't contact mail server; ex: " + ex.Message);
+                    TraceLog.TraceError("Can't contact mail server; ex: " + ex.Message);
                 }
 
                 // sleep for the timeout period
@@ -226,7 +226,7 @@ namespace BuiltSteady.Zaplify.MailWorker
         {
             var imap = (sender as ImapClient);
             var msg = imap.GetMessage(e.MessageCount - 1);
-            LoggingHelper.TraceInfo(String.Format("Retrieved message {0}", msg.Subject));
+            TraceLog.TraceInfo(String.Format("Retrieved message {0}", msg.Subject));
         }
 
         static void ParseFields(Item item, string body)
@@ -348,7 +348,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("Exception while Printing Item: " + ex.Message);
+                TraceLog.TraceError("Exception while Printing Item: " + ex.Message);
                 return "no fields parsed";
             }
         }
@@ -403,7 +403,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                     int rows = Storage.StaticContext.SaveChanges();
 
                     if (rows > 0)
-                        LoggingHelper.TraceInfo(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)));
+                        TraceLog.TraceInfo(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)));
                 }
             }
         }

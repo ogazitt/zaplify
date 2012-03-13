@@ -13,7 +13,7 @@ namespace Website
         public override bool OnStart()
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
