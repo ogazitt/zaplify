@@ -51,7 +51,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
-                            LoggingHelper.TraceError("WorkflowWorker: could not retrieve item; ex: " + ex.Message);
+                            TraceLog.TraceError("WorkflowWorker: could not retrieve item; ex: " + ex.Message);
                         }
 
                         // get all the workflow instances for this Item
@@ -85,7 +85,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                 WorkflowType = WorkflowNames.NewItem,
                                 State = null,
                                 Name = item.Name,
-                                Body = SerializationHelper.JsonSerialize(item),
+                                Body = JsonSerializer.Serialize(item),
                                 Created = now,
                                 LastModified = now,
                             };
@@ -107,7 +107,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 catch (Exception ex)
                 {
-                    LoggingHelper.TraceError("WorkflowWorker: message processing failed; ex: " + ex.Message);
+                    TraceLog.TraceError("WorkflowWorker: message processing failed; ex: " + ex.Message);
                 }
 
                 // sleep for the timeout period

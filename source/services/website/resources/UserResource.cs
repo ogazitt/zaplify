@@ -52,7 +52,7 @@
         private HttpStatusCode CreateUser(UserCredential user)
         {
             MembershipCreateStatus createStatus;
-            LoggingHelper.TraceFunction();  // log function entrance
+            TraceLog.TraceFunction();  // log function entrance
 
             try
             {   // create new user account using the membership provider
@@ -75,7 +75,7 @@
             catch (Exception)
             { }
 
-            LoggingHelper.TraceError("Failed to create new user account: " + user.Name);
+            TraceLog.TraceError("Failed to create new user account: " + user.Name);
             return HttpStatusCode.Conflict;
         }
 

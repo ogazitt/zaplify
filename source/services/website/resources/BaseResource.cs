@@ -12,7 +12,6 @@
     using System.Web;
     using System.Web.Security;
 
-    using Newtonsoft.Json;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Models;
@@ -52,7 +51,7 @@
 
         protected HttpStatusCode AuthenticateUser(HttpRequestMessage req)
         {
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // this should work if auth cookie has been provided
             MembershipUser mu = Membership.GetUser();
@@ -67,12 +66,12 @@
             {
                 if (HttpContext.Current.Request.Headers[authRequestHeader] != null)
                 {   // cookie is no longer valid, return 401 Unauthorized
-                    LoggingHelper.TraceError("AuthenticateUser: Unauthorized: cookie is expired or invalid");
+                    TraceLog.TraceError("AuthenticateUser: Unauthorized: cookie is expired or invalid");
                     return HttpStatusCode.Unauthorized;
                 }
                 
                 // auth headers not found, return 400 Bad Request
-                LoggingHelper.TraceError("AuthenticateUser: Bad request: no user information found");
+                TraceLog.TraceError("AuthenticateUser: Bad request: no user information found");
                 return HttpStatusCode.BadRequest;
             }
 
@@ -80,7 +79,7 @@
             {   // authenticate the user
                 if (Membership.ValidateUser(credentials.Name, credentials.Password) == false)
                 {
-                    LoggingHelper.TraceError("AuthenticateUser: Unauthorized: invalid username or password for user " + credentials.Name);
+                    TraceLog.TraceError("AuthenticateUser: Unauthorized: invalid username or password for user " + credentials.Name);
                     return HttpStatusCode.Forbidden;
                 }
 
@@ -97,12 +96,12 @@
                     HttpContext.Current.Response.Cookies.Add(authCookie);
                 }
 
-                LoggingHelper.TraceInfo(String.Format("AuthenticateUser: User {0} successfully logged in", credentials.Name));
+                TraceLog.TraceInfo(String.Format("AuthenticateUser: User {0} successfully logged in", credentials.Name));
                 return HttpStatusCode.OK;
             }
             catch (Exception ex)
             {   // username not found - return 404 Not Found
-                LoggingHelper.TraceError(String.Format("AuthenticateUser: Username not found: {0}; ex: {1}", credentials.Name, ex.Message));
+                TraceLog.TraceError(String.Format("AuthenticateUser: Username not found: {0}; ex: {1}", credentials.Name, ex.Message));
                 return HttpStatusCode.NotFound;
             }
         }
@@ -110,7 +109,7 @@
         // extract username and password from authorization header (passed by devices)
         protected UserCredential GetUserFromMessageHeaders(HttpRequestMessage req)
         {
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             IEnumerable<string> header = new List<string>();
             if (!req.Headers.TryGetValues(authorizationHeader, out header) == false)
@@ -131,7 +130,7 @@
         // base code to process message and deserialize body to expected type
         protected object ProcessRequestBody(HttpRequestMessage req, Type t)
         {
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             if (req == null)
                 return null;
@@ -153,13 +152,13 @@
                         value = dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
                         break;
                     default:
-                        LoggingHelper.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
+                        TraceLog.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("ProcessRequestBody: deserialization failed: " + ex.Message);
+                TraceLog.TraceError("ProcessRequestBody: deserialization failed: " + ex.Message);
             }
 
             try
@@ -193,19 +192,19 @@
                     EntityName = name,
                     EntityType = bodyType.Name,
                     OperationType = req.Method.Method,
-                    Body = SerializationHelper.JsonSerialize(body),
-                    OldBody = SerializationHelper.JsonSerialize(oldBody),
+                    Body = JsonSerializer.Serialize(body),
+                    OldBody = JsonSerializer.Serialize(oldBody),
                     Timestamp = DateTime.Now
                 };
                 storage.Operations.Add(op);
                 if (storage.SaveChanges() < 1)
                 {   // log failure to record operation
-                    LoggingHelper.TraceError("ProcessRequestBody: failed to record operation: " + req.Method.Method);
+                    TraceLog.TraceError("ProcessRequestBody: failed to record operation: " + req.Method.Method);
                 }
             }
             catch (Exception ex)
             {   // log failure to record operation
-                LoggingHelper.TraceError("ProcessRequestBody: failed to record operation: " + ex.Message);
+                TraceLog.TraceError("ProcessRequestBody: failed to record operation: " + ex.Message);
             }
 
             return value;

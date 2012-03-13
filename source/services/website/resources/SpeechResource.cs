@@ -42,7 +42,7 @@
         public SpeechResource()
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         [WebInvoke(UriTemplate = "", Method = "POST")]
         public HttpResponseMessageWrapper<string> SpeechToText(HttpRequestMessage req)
         {
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
@@ -103,7 +103,7 @@
 
                 // trace the recognized speech
                 string timing = String.Format(" {0}.{1} seconds", ts.Seconds.ToString(), ts.Milliseconds.ToString());
-                LoggingHelper.TraceLine(String.Format("Recognized '{0}' in{1}", responseString, timing), LoggingHelper.LogLevel.Detail);
+                TraceLog.TraceLine(String.Format("Recognized '{0}' in{1}", responseString, timing), TraceLog.LogLevel.Detail);
 
                 // construct the response
                 responseString += timing;
@@ -124,7 +124,7 @@
             catch (Exception ex)
             {
                 // speech failed
-                LoggingHelper.TraceError("Speech recognition failed: " + ex.Message);
+                TraceLog.TraceError("Speech recognition failed: " + ex.Message);
 
                 // release engine instance
                 ReleaseSpeechEngine(sre);
@@ -138,7 +138,7 @@
         private static Stream DecodeSpeexStream(Stream stream)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             try
             {
@@ -166,7 +166,7 @@
                     len = stream.Read(speexBuffer, 0, count);
                     if (len < count)
                     {
-                        LoggingHelper.TraceError(String.Format("Corrupted speex stream: len {0}, count {1}", len, count));
+                        TraceLog.TraceError(String.Format("Corrupted speex stream: len {0}, count {1}", len, count));
                         return ms;
                     }
 
@@ -196,7 +196,7 @@
                 }
 
                 // Log decoding stats
-                LoggingHelper.TraceDetail(String.Format("Decoded {0} bytes into {1} bytes", totalEncoded, totalDecoded));
+                TraceLog.TraceDetail(String.Format("Decoded {0} bytes into {1} bytes", totalEncoded, totalDecoded));
                 
                 // reset and return the new memory stream
                 ms.Position = 0;
@@ -204,7 +204,7 @@
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError(String.Format("Corrupted speex stream: {0}", ex.Message));
+                TraceLog.TraceError(String.Format("Corrupted speex stream: {0}", ex.Message));
                 return null;
             }
         }
@@ -212,7 +212,7 @@
         SpeechRecognitionEngine GetSpeechEngine()
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // this code must be thread safe
             lock (sreLock)
@@ -235,7 +235,7 @@
                 sreInUseArray[i] = true;
 
                 // log the speech engine used
-                LoggingHelper.TraceLine(String.Format("Using SpeechEngine[{0}]", i), LoggingHelper.LogLevel.Detail);
+                TraceLog.TraceLine(String.Format("Using SpeechEngine[{0}]", i), TraceLog.LogLevel.Detail);
 
                 // return speech engine
                 return sreArray[i];
@@ -278,7 +278,7 @@
         void InitializeGrammar(string grammarPath, string appDataPath, string fileName)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // construct App Root directory using drive letter from appDataPath and the approot path
             string appRootDir = appDataPath.Substring(0, 1) + @":\approot\Content\grammars";
@@ -290,11 +290,11 @@
             }
             catch (DirectoryNotFoundException)
             {
-                LoggingHelper.TraceError("InitializeGrammar: Directory " + appDataPath + " not found");
+                TraceLog.TraceError("InitializeGrammar: Directory " + appDataPath + " not found");
                 // if the directory doesn't exist, move it over from the approot
                 if (Directory.Exists(appRootDir))
                 {
-                    LoggingHelper.TraceInfo("InitializeGrammar: Creating " + appDataPath);
+                    TraceLog.TraceInfo("InitializeGrammar: Creating " + appDataPath);
                     try
                     {
                         Directory.CreateDirectory(appDataPath);
@@ -302,53 +302,53 @@
                     }
                     catch (Exception ex)
                     {
-                        LoggingHelper.TraceError("InitializeGrammar: Create Directory " + appDataPath + " failed: " + ex.Message);
+                        TraceLog.TraceError("InitializeGrammar: Create Directory " + appDataPath + " failed: " + ex.Message);
                     }
                 }
                 else
-                    LoggingHelper.TraceError("InitializeGrammar: Directory " + appRootDir + " does not exist - cannot initialize grammar");
+                    TraceLog.TraceError("InitializeGrammar: Directory " + appRootDir + " does not exist - cannot initialize grammar");
             }
             catch (FileNotFoundException)
             {
-                LoggingHelper.TraceError("InitializeGrammar: File " + grammarPath + " not found");
+                TraceLog.TraceError("InitializeGrammar: File " + grammarPath + " not found");
                 InitializeGrammarCopyFiles(appDataPath, fileName, appRootDir);
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("InitializeGrammar: Cannot find grammars: " + ex.Message);
+                TraceLog.TraceError("InitializeGrammar: Cannot find grammars: " + ex.Message);
             }
         }
 
         private static void InitializeGrammarCopyFiles(string appDataPath, string fileName, string appRootDir)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             if (File.Exists(Path.Combine(appRootDir, fileName)))
             {
-                LoggingHelper.TraceInfo("InitializeGrammarCopyFiles: Copying " + appRootDir + " to " + appDataPath);
+                TraceLog.TraceInfo("InitializeGrammarCopyFiles: Copying " + appRootDir + " to " + appDataPath);
                 try
                 {
                     foreach (var file in Directory.EnumerateFiles(appRootDir))
                     {
                         string fname = Path.GetFileName(file);
-                        LoggingHelper.TraceInfo("InitializeGrammarCopyFiles: Copying " + Path.Combine(appRootDir, fname) + " to " + Path.Combine(appDataPath, fname));
+                        TraceLog.TraceInfo("InitializeGrammarCopyFiles: Copying " + Path.Combine(appRootDir, fname) + " to " + Path.Combine(appDataPath, fname));
                         File.Copy(Path.Combine(appRootDir, fname), Path.Combine(appDataPath, fname));
                     }
                 }
                 catch (Exception ex)
                 {
-                    LoggingHelper.TraceError("InitializeGrammarCopyFiles: Copy file failed: " + ex.Message);
+                    TraceLog.TraceError("InitializeGrammarCopyFiles: Copy file failed: " + ex.Message);
                 }
             }
             else
-                LoggingHelper.TraceError("InitializeGrammarCopyFiles: File " + Path.Combine(appRootDir, fileName) + " does not exist - cannot initialize grammar");
+                TraceLog.TraceError("InitializeGrammarCopyFiles: File " + Path.Combine(appRootDir, fileName) + " does not exist - cannot initialize grammar");
         }
 
         void InitializeSpeechEngine(SpeechRecognitionEngine sre)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             try
             {
@@ -361,7 +361,7 @@
                 string fileName = @"TELLME-SMS-LM.cfgp";
                 string appDataPath = HttpContext.Current.Server.MapPath("~/Content/grammars");
                 string grammarPath = Path.Combine(appDataPath, fileName);
-                LoggingHelper.TraceInfo("InitializeGrammarCopyFiles: Grammar path: " + grammarPath);
+                TraceLog.TraceInfo("InitializeGrammarCopyFiles: Grammar path: " + grammarPath);
 
                 // make sure the grammar files are copied over from the approot directory to the appDataPath
                 InitializeGrammar(grammarPath, appDataPath, fileName);
@@ -373,14 +373,14 @@
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("InitializeGrammarCopyFiles: Speech Engine initialization failed: " + ex.Message);            
+                TraceLog.TraceError("InitializeGrammarCopyFiles: Speech Engine initialization failed: " + ex.Message);            
             }
         }
 
         static void ReleaseSpeechEngine(SpeechRecognitionEngine sre)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // this code must be thread safe
             lock (sreLock)
@@ -402,7 +402,7 @@
         static void ResetSpeechEngine(object obj)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             SpeechInfo si = (SpeechInfo)obj;
             SpeechRecognitionEngine sre = si.Engine;
@@ -419,7 +419,7 @@
         string WriteSpeechFile(string username, Stream stream)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             try
             {
@@ -451,7 +451,7 @@
                 fs.Close();
 
                 // trace the size of the file
-                LoggingHelper.TraceDetail(String.Format("WriteSpeechFile: Write speech file: {0} bytes", stream.Position));
+                TraceLog.TraceDetail(String.Format("WriteSpeechFile: Write speech file: {0} bytes", stream.Position));
 
                 // reset the stream position
                 stream.Position = 0;
@@ -460,7 +460,7 @@
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("WriteSpeechFile: Write speech file failed: " + ex.Message);
+                TraceLog.TraceError("WriteSpeechFile: Write speech file failed: " + ex.Message);
                 return ex.Message;
             }
         }

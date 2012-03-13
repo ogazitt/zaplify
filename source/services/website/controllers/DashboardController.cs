@@ -173,7 +173,7 @@
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("CreateDefaultFolders failed; ex: " + ex.Message);
+                TraceLog.TraceError("CreateDefaultFolders failed; ex: " + ex.Message);
                 throw;
             }
         }

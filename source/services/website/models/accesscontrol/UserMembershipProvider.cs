@@ -36,7 +36,7 @@
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("ChangePassword: ex: " + ex.Message);
+                TraceLog.TraceError("ChangePassword: ex: " + ex.Message);
             }
             return false;
         }
@@ -55,21 +55,21 @@
             if (!Regex.IsMatch(email.ToLower(), emailPattern))
             {   // not valid email address
                 status = MembershipCreateStatus.InvalidEmail;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
+                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
                 return null;
             }
 
             if (password.Length < MinRequiredPasswordLength)
             {   // not a valid password
                 status = MembershipCreateStatus.InvalidPassword;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
+                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
                 return null;
             }
 
             if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
+                TraceLog.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
                 return null;
             }
 
@@ -94,7 +94,7 @@
             status = MembershipCreateStatus.Success;
 
             // Log creation of new user account
-            LoggingHelper.TraceInfo("CreateUser: Created new user account: " + username);
+            TraceLog.TraceInfo("CreateUser: Created new user account: " + username);
 
             return AsMembershipUser(user);
         }

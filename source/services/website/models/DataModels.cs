@@ -46,8 +46,7 @@
             {
                 if (jsonConstants == null)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    jsonConstants = serializer.Serialize(Constants);
+                    jsonConstants = JsonSerializer.Serialize(Constants);
                 }
                 return jsonConstants;
             }
@@ -131,7 +130,7 @@
                 if (jsonUserData == null)
                 {
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    jsonUserData = serializer.Serialize(UserData);
+                    jsonUserData = JsonSerializer.Serialize(UserData);
                 }
                 return jsonUserData;
             }

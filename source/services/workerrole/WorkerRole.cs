@@ -19,7 +19,7 @@ namespace BuiltSteady.Zaplify.WorkerRole
         public override bool OnStart()
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // Set the maximum number of concurrent connections 
             ServicePointManager.DefaultConnectionLimit = 12;
@@ -32,7 +32,7 @@ namespace BuiltSteady.Zaplify.WorkerRole
 
         public override void Run()
         {
-            LoggingHelper.TraceInfo("BuiltSteady.Zaplify.WorkerRole started");
+            TraceLog.TraceInfo("BuiltSteady.Zaplify.WorkerRole started");
 
             // run an infinite loop doing the following:
             //   check whether the worker services have stopped (indicated by a null reference)
@@ -52,7 +52,7 @@ namespace BuiltSteady.Zaplify.WorkerRole
                         }
                         catch (Exception ex)
                         {
-                            LoggingHelper.TraceFatal("WorkflowWorker died; ex: " + ex.Message);
+                            TraceLog.TraceFatal("WorkflowWorker died; ex: " + ex.Message);
                             workflowWorker = null;
                         }
                     }) { Name = "WorkflowWorker" };
@@ -71,7 +71,7 @@ namespace BuiltSteady.Zaplify.WorkerRole
                         }
                         catch (Exception ex)
                         {
-                            LoggingHelper.TraceFatal("MailWorker died; ex: " + ex.Message);
+                            TraceLog.TraceFatal("MailWorker died; ex: " + ex.Message);
                             mailWorker = null;
                         }
                     }) { Name = "MailWorker" };

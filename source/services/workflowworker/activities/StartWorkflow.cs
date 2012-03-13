@@ -28,7 +28,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             State = null,
                             ItemID = item.ID,
                             Name = item.Name,
-                            Body = SerializationHelper.JsonSerialize(item),
+                            Body = JsonSerializer.Serialize(item),
                             Created = now,
                             LastModified = now
                         };
@@ -37,7 +37,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     }
                     catch (Exception ex)
                     {
-                        LoggingHelper.TraceError("StartWorkflow Activity failed; ex: " + ex.Message);
+                        TraceLog.TraceError("StartWorkflow Activity failed; ex: " + ex.Message);
                     }
                     return true;
                 });
