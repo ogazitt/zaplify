@@ -32,8 +32,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             Created = now,
                             LastModified = now
                         };
-                        WorkflowWorker.StorageContext.WorkflowInstances.Add(instance);
-                        WorkflowWorker.StorageContext.SaveChanges();
+                        WorkflowWorker.SuggestionsContext.WorkflowInstances.Add(instance);
+                        WorkflowWorker.SuggestionsContext.SaveChanges();
                     }
                     catch (Exception ex)
                     {

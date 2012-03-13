@@ -11,16 +11,29 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         const int timeout = 30000;  // 30 seconds
 
-        private static StorageContext storageContext;
-        public static StorageContext StorageContext
+        private static UserStorageContext userContext;
+        public static UserStorageContext UserContext
         {
             get
             {
-                if (storageContext == null)
+                if (userContext == null)
                 {
-                    storageContext = Storage.NewContext;
+                    userContext = Storage.NewUserContext;
                 }
-                return storageContext;
+                return userContext;
+            }
+        }
+
+        private static SuggestionsStorageContext suggestionsContext;
+        public static SuggestionsStorageContext SuggestionsContext
+        {
+            get
+            {
+                if (suggestionsContext == null)
+                {
+                    suggestionsContext = Storage.NewSuggestionsContext;
+                }
+                return suggestionsContext;
             }
         }
 
@@ -45,7 +58,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         Operation operation = null;
                         try
                         {
-                            operation = StorageContext.Operations.Single(o => o.ID == operationID);
+                            operation = UserContext.Operations.Single(o => o.ID == operationID);
                         }
                         catch (Exception ex)
                         {
@@ -59,7 +72,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         // try to get the item
                         try
                         {
-                            item = StorageContext.Items.Single(i => i.ID == entityID);
+                            item = UserContext.Items.Single(i => i.ID == entityID);
                         }
                         catch (Exception ex)
                         {
@@ -99,22 +112,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         void DeleteWorkflows(Guid entityID)
         {
             // get all the workflow instances for this Item
-            var wis = StorageContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
+            var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
             if (wis.Count > 0)
             {
                 // loop over the workflow instances and dispatch the new message
                 foreach (var instance in wis)
                 {
-                    StorageContext.WorkflowInstances.Remove(instance);
+                    SuggestionsContext.WorkflowInstances.Remove(instance);
                 }
-                StorageContext.SaveChanges();
+                SuggestionsContext.SaveChanges();
             }
         }
 
         void ExecuteWorkflows(Guid entityID, Item item)
         {
             // get all the workflow instances for this Item
-            var wis = StorageContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
+            var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
             if (wis.Count > 0)
             {
                 // loop over the workflow instances and dispatch the new message
@@ -127,7 +140,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     object data = null;
                     try
                     {
-                        data = StorageContext.
+                        data = SuggestionsContext.
                             Suggestions.
                             Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeChosen != null).
                             Value;
@@ -173,8 +186,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 Created = now,
                 LastModified = now,
             };
-            StorageContext.WorkflowInstances.Add(instance);
-            StorageContext.SaveChanges();
+            SuggestionsContext.WorkflowInstances.Add(instance);
+            SuggestionsContext.SaveChanges();
         }
     }
 }

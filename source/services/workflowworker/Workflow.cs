@@ -92,8 +92,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     instance.State = state.NextState;
                     if (instance.State == null)
                     {
-                        WorkflowWorker.StorageContext.WorkflowInstances.Remove(instance);
-                        WorkflowWorker.StorageContext.SaveChanges();
+                        WorkflowWorker.SuggestionsContext.WorkflowInstances.Remove(instance);
+                        WorkflowWorker.SuggestionsContext.SaveChanges();
                         completed = false;
                     }
                 }

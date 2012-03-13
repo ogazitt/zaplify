@@ -26,7 +26,7 @@
         {
             try
             {
-                StorageContext storage = Storage.NewContext;
+                UserStorageContext storage = Storage.NewUserContext;
                 User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username.ToLower());
 
                 // verify old password
@@ -52,7 +52,7 @@
         public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
             status = MembershipCreateStatus.Success;
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
 
             const string emailPattern = "^[a-z0-9_\\+-]+([\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
             if (!Regex.IsMatch(email.ToLower(), emailPattern))
@@ -122,7 +122,7 @@
 
         public override bool DeleteUser(string username, bool deleteAllRelatedData)
         {   // always delete all related data
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             User dbUser = storage.Users.
                 Include("ItemTypes.Fields").
                 Include("Tags").
@@ -246,7 +246,7 @@
 
         public override void UpdateUser(MembershipUser mu)
         {   // TODO: allow update of more than just email?
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             User user = storage.Users.Single<User>(u => u.Name == mu.UserName);
             user.Email = mu.Email;
             storage.SaveChanges();
@@ -297,7 +297,7 @@
         static User LookupUserByName(string username, bool includeCredentials = false)
         {
             username = username.ToLower();
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             if (storage.Users.Any<User>(u => u.Name == username))
             {
                 if (includeCredentials)
@@ -315,7 +315,7 @@
         static User LookupUserByEmail(string email, bool includeCredentials = false)
         {
             email = email.ToLower();
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             if (storage.Users.Any<User>(u => u.Email == email))
             {
                 if (includeCredentials)
@@ -332,7 +332,7 @@
 
         static User LookupUserByID(Guid id, bool includeCredentials = false)
         {
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             if (storage.Users.Any<User>(u => u.ID == id))
             {
                 if (includeCredentials)

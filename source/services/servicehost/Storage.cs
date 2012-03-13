@@ -7,24 +7,29 @@
 
     public static class Storage
     {
-        private static StorageContext staticContext;
+        private static UserStorageContext staticUserContext;
 
-        public static StorageContext NewContext
+        public static SuggestionsStorageContext NewSuggestionsContext
         {
-            get { return new StorageContext(); }
+            get { return new SuggestionsStorageContext(); }
         }
 
-        public static StorageContext StaticContext
+        public static UserStorageContext NewUserContext
+        {
+            get { return new UserStorageContext(); }
+        }
+
+        public static UserStorageContext StaticUserContext
         {   // use a static context to access static data (serving values out of EF cache)
             get
             {
-                if (staticContext == null)
+                if (staticUserContext == null)
                 {
-                    staticContext = new StorageContext();
+                    staticUserContext = new UserStorageContext();
                 }
 #if DEBUG
                 // if in a debug build, always go to the database
-                return new StorageContext();
+                return new UserStorageContext();
 #else
                 return staticContext;
 #endif
@@ -32,10 +37,25 @@
         }
     }
 
-    public class StorageContext : DbContext
+    // DbContext for the suggestions DB
+    public class SuggestionsStorageContext : DbContext
     {
-        public StorageContext() : base(HostEnvironment.UserDataConnection) { }
-        public StorageContext(string connection) : base(connection) { }
+        public SuggestionsStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public SuggestionsStorageContext(string connection) : base(connection) { }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+
+        public DbSet<Suggestion> Suggestions { get; set; }
+        public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
+    }
+
+    // DbContext for the user DB
+    public class UserStorageContext : DbContext
+    {
+        public UserStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public UserStorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -56,12 +76,8 @@
         public DbSet<ItemTag> ItemTags { get; set; }
         public DbSet<ItemType> ItemTypes { get; set; }
         public DbSet<Operation> Operations { get; set; }
-        public DbSet<Suggestion> Suggestions { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
-
-        // workflow
-        public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
     }
 
 }

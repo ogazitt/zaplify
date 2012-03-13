@@ -42,10 +42,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 Value = s,
                                 TimeChosen = DateTime.Now
                             };
-                            WorkflowWorker.StorageContext.Suggestions.Add(sugg);
+                            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
                         }
-                        WorkflowWorker.StorageContext.SaveChanges();
+                        WorkflowWorker.SuggestionsContext.SaveChanges();
                         return false;
                     }
                     catch (Exception ex)

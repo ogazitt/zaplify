@@ -22,7 +22,7 @@
     {
         const string authorizationHeader = "Authorization";
         const string authRequestHeader = "Cookie";
-        protected StorageContext storageContext = null;
+        protected UserStorageContext storageContext = null;
         User currentUser = null;
 
         public class BasicAuthCredentials 
@@ -51,13 +51,13 @@
             }
         }
 
-        public StorageContext StorageContext
+        public UserStorageContext StorageContext
         {
             get
             {
                 if (storageContext == null)
                 {
-                    storageContext = Storage.NewContext;
+                    storageContext = Storage.NewUserContext;
                 }
                 return storageContext;
             }

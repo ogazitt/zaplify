@@ -25,7 +25,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (completeField == Guid.Empty)
-                    completeField = Storage.StaticContext.Fields.Single(f => f.Name == FieldNames.Complete && f.ItemTypeID == SystemItemTypes.Task).ID;
+                    completeField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Complete && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return completeField;
             }
         }
@@ -36,7 +36,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (phoneField == Guid.Empty)
-                    phoneField = Storage.StaticContext.Fields.Single(f => f.Name == FieldNames.Phone && f.ItemTypeID == SystemItemTypes.Task).ID;
+                    phoneField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Phone && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return phoneField;
             }
         }
@@ -47,7 +47,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (emailField == Guid.Empty)
-                    emailField = Storage.StaticContext.Fields.Single(f => f.Name == FieldNames.Email && f.ItemTypeID == SystemItemTypes.Task).ID;
+                    emailField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Email && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return phoneField;
             }
         }
@@ -58,7 +58,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (websiteField == Guid.Empty)
-                    websiteField = Storage.StaticContext.Fields.Single(f => f.Name == FieldNames.WebLink && f.ItemTypeID == SystemItemTypes.Task).ID;
+                    websiteField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.WebLink && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return websiteField;
             }
         }
@@ -69,7 +69,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (dueDateField == Guid.Empty)
-                    dueDateField = Storage.StaticContext.Fields.Single(f => f.Name == FieldNames.DueDate && f.ItemTypeID == SystemItemTypes.Task).ID;
+                    dueDateField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.DueDate && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return dueDateField;
             }
         }
@@ -146,13 +146,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     folderName = folderName.Substring(0, folderNameEnd);
                     folderName = folderName.Trim();
-                    folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
+                    folder = Storage.StaticUserContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
                     if (folder != null)
                         return folder.ID;
                 }
             }
 
-            folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
+            folder = Storage.StaticUserContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
             if (folder != null)
                 return folder.ID;
             else
@@ -175,13 +175,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     listName = listName.Substring(0, listNameEnd);
                     listName = listName.Trim();
-                    list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
+                    list = Storage.StaticUserContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
                     if (list != null)
                         return list.ID;
                 }
             }
 
-            list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == SystemItemTypes.Task);
+            list = Storage.StaticUserContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == SystemItemTypes.Task);
             if (list != null)
                 return list.ID;
             else
@@ -287,7 +287,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             bool comma = false;
             try
             {
-                ItemType itemType = Storage.StaticContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
+                ItemType itemType = Storage.StaticUserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
 
                 foreach (Field field in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
@@ -369,7 +369,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 html = true;
             }
 
-            var users = Storage.StaticContext.Users.Where(u => u.Email == from).ToList();
+            var users = Storage.StaticUserContext.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)
             {
                 Guid? folder = GetFolder(u, body, html);
@@ -399,8 +399,8 @@ namespace BuiltSteady.Zaplify.MailWorker
                     // extract structured fields such as due date, e-mail, website, phone number
                     ParseFields(item, body);
 
-                    var newItem = Storage.StaticContext.Items.Add(item);
-                    int rows = Storage.StaticContext.SaveChanges();
+                    var newItem = Storage.StaticUserContext.Items.Add(item);
+                    int rows = Storage.StaticUserContext.SaveChanges();
 
                     if (rows > 0)
                         TraceLog.TraceInfo(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)));

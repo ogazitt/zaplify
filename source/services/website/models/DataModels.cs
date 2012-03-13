@@ -21,7 +21,7 @@
             {
                 if (constants == null)
                 {
-                    StorageContext storageContext = Storage.StaticContext;
+                    UserStorageContext storageContext = Storage.StaticUserContext;
                     var actionTypes = storageContext.ActionTypes.OrderBy(a => a.SortOrder).ToList<ActionType>();
                     var colors = storageContext.Colors.OrderBy(c => c.ColorID).ToList<Color>();
                     var itemTypes = storageContext.ItemTypes.Where(l => l.UserID == null).Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
@@ -62,12 +62,12 @@
 
     public class UserDataModel
     {
-        StorageContext storageContext;
+        UserStorageContext storageContext;
         User currentUser;
         User userData;
         string jsonUserData;
 
-        public UserDataModel(StorageContext storage, User user)
+        public UserDataModel(UserStorageContext storage, User user)
         {
             this.storageContext = storage;
             this.currentUser = user;
@@ -85,7 +85,7 @@
             this.currentUser = resource.CurrentUser;
         }
 
-        public StorageContext StorageContext
+        public UserStorageContext StorageContext
         {
             get { return this.storageContext; }
         }

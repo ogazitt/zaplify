@@ -59,12 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />
     <Compile Include="ConfigurationSettings.cs" />
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="MessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Storage.cs" />
     <Compile Include="TraceLog.cs" />
   </ItemGroup>
   <ItemGroup>

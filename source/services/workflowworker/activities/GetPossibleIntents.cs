@@ -37,14 +37,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 Value = s,
                                 TimeChosen = null
                             };
-                            WorkflowWorker.StorageContext.Suggestions.Add(sugg);
+                            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
                         }
 
                         // if an exact match, set the TimeChosen to indicate the match
                         if (completed && possibleIntents.Count == 1)
                             sugg.TimeChosen = DateTime.Now;
-                        WorkflowWorker.StorageContext.SaveChanges();
+                        WorkflowWorker.SuggestionsContext.SaveChanges();
                         return completed;
                     }
                     catch (Exception ex)
