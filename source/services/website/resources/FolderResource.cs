@@ -24,19 +24,20 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Folder> DeleteFolder(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Folder>(req, code);  // user not authenticated
+                return ReturnResult<Folder>(req, operation, code);  // user not authenticated
 
             // get the folder from the message body if one was passed
             Folder clientFolder;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientFolder = ProcessRequestBody(req, typeof(Folder)) as Folder;
+                clientFolder = ProcessRequestBody(req, typeof(Folder), out operation) as Folder;
                 if (clientFolder.ID != id)
                 {   // IDs must match
                     LoggingHelper.TraceError("FolderResource.Delete: Bad Request (ID in URL does not match entity body)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.BadRequest);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
             else
@@ -49,7 +50,7 @@
                 catch (Exception)
                 {   // item not found - it may have been deleted by someone else.  Return 200 OK.
                     LoggingHelper.TraceInfo("FolderResource.Delete: entity not found; returned OK anyway");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.OK);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.OK);
                 }
             }
 
@@ -65,7 +66,7 @@
                 if (requestedFolder.UserID != CurrentUser.ID)
                 {
                     LoggingHelper.TraceError("FolderResource.Delete: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 // remove the itemtags associated with each of the items in this folder
@@ -98,19 +99,19 @@
                 if (this.StorageContext.SaveChanges() < 1)
                 {
                     LoggingHelper.TraceError("FolderResource.Delete: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.InternalServerError);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("FolderResource.Delete: Accepted");
-                    return new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.Accepted);
+                    return ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // Folder not found - it may have been deleted by someone else.  Return 200 OK.
                 LoggingHelper.TraceInfo(String.Format("FolderResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.OK);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.OK);
             }
         }
 
@@ -118,9 +119,10 @@
         [LogMessages]
         public HttpResponseMessageWrapper<List<Folder>> GetFolders(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)  // user not authenticated
-                return new HttpResponseMessageWrapper<List<Folder>>(req, code);
+                return ReturnResult<List<Folder>>(req, operation, code);
 
             try
             {
@@ -129,7 +131,7 @@
                     Include("Items.FieldValues").
                     Where(f => f.UserID == CurrentUser.ID).ToList();
 
-                var response = new HttpResponseMessageWrapper<List<Folder>>(req, folders, HttpStatusCode.OK);
+                var response = ReturnResult<List<Folder>>(req, operation, folders, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                 return response;
             }
@@ -137,7 +139,7 @@
             {
                 // folders not found - return 404 Not Found
                 LoggingHelper.TraceError("FolderResource.GetFolders: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.NotFound);
+                return ReturnResult<List<Folder>>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -145,9 +147,10 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Folder> GetFolder(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)  // user not authenticated
-                return new HttpResponseMessageWrapper<Folder>(req, code);
+                return ReturnResult<Folder>(req, operation, code);
 
             try
             {
@@ -157,11 +160,11 @@
                 if (requestedFolder.UserID != CurrentUser.ID)
                 {
                     LoggingHelper.TraceError("FolderResource.GetFolder: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.Forbidden);
                 }
                 else
                 {
-                    var response = new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.OK);
+                    var response = ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.OK);
                     response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                     return response;
                 }
@@ -170,7 +173,7 @@
             {
                 // folder not found - return 404 Not Found
                 LoggingHelper.TraceError("FolderResource.GetFolder: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.NotFound);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -178,11 +181,12 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Folder> InsertFolder(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)  // user not authenticated
-                return new HttpResponseMessageWrapper<Folder>(req, code);
+                return ReturnResult<Folder>(req, operation, code);
 
-            Folder clientFolder = ProcessRequestBody(req, typeof(Folder)) as Folder;
+            Folder clientFolder = ProcessRequestBody(req, typeof(Folder), out operation) as Folder;
 
             // check to make sure the userid in the new folder is the same userid for the current user
             if (clientFolder.UserID == null || clientFolder.UserID == Guid.Empty)
@@ -190,7 +194,7 @@
             if (clientFolder.UserID != CurrentUser.ID)
             {
                 LoggingHelper.TraceError("FolderResource.Insert: Forbidden (entity does not belong to current user)");
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.Forbidden);
             }
 
             // fill out the ID if it's not set (e.g. from a javascript client)
@@ -236,12 +240,12 @@
                 if (folder == null || this.StorageContext.SaveChanges() < 1)
                 {
                     LoggingHelper.TraceError("FolderResource.Insert: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.InternalServerError);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("FolderResource.Insert: Created");
-                    return new HttpResponseMessageWrapper<Folder>(req, folder, HttpStatusCode.Created);
+                    return ReturnResult<Folder>(req, operation, folder, HttpStatusCode.Created);
                 }
             }
             catch (Exception ex)
@@ -255,19 +259,19 @@
                         dbFolder.UserID == clientFolder.UserID)
                     {
                         LoggingHelper.TraceInfo("FolderResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<Folder>(req, dbFolder, HttpStatusCode.Accepted);
+                        return ReturnResult<Folder>(req, operation, dbFolder, HttpStatusCode.Accepted);
                     }
                     else
                     {
                         LoggingHelper.TraceError("FolderResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Conflict);
+                        return ReturnResult<Folder>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {
                     // folder not inserted - return 409 Conflict
                     LoggingHelper.TraceError(String.Format("FolderResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Conflict);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.Conflict);
                 }
             }
         }
@@ -276,16 +280,17 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Folder> UpdateFolder(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return new HttpResponseMessageWrapper<Folder>(req, code);  // user not authenticated
+                return ReturnResult<Folder>(req, operation, code);  // user not authenticated
 
             // the body will be two Folders - the original and the new values.  Verify this
-            List<Folder> clientFolders = ProcessRequestBody(req, typeof(List<Folder>)) as List<Folder>;
+            List<Folder> clientFolders = ProcessRequestBody(req, typeof(List<Folder>), out operation) as List<Folder>;
             if (clientFolders.Count != 2)
             {
                 LoggingHelper.TraceError("FolderResource.Update: Bad Request (malformed body)");
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
             }
 
             // get the original and new Folders out of the message body
@@ -296,12 +301,12 @@
             if (originalFolder.ID != newFolder.ID)
             {
                 LoggingHelper.TraceError("FolderResource.Update: Bad Request (original and new entity ID's do not match)");
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
             }
             if (originalFolder.ID != id)
             {
                 LoggingHelper.TraceError("FolderResource.Update: Bad Request (ID in URL does not match entity body)");
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
             }
 
             try
@@ -312,7 +317,7 @@
                 if (requestedFolder.UserID != CurrentUser.ID)
                 {
                     LoggingHelper.TraceError("FolderResource.Update: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
@@ -325,25 +330,25 @@
                     if (this.StorageContext.SaveChanges() < 1)
                     {
                         LoggingHelper.TraceError("FolderResource.Update: Internal Server Error (database operation did not succeed)");
-                        return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.InternalServerError);
+                        return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
                     {
                         LoggingHelper.TraceInfo("FolderResource.Update: Accepted");
-                        return new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.Accepted);
+                        return ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("FolderResource.Update: Accepted (no changes)");
-                    return new HttpResponseMessageWrapper<Folder>(req, requestedFolder, HttpStatusCode.Accepted);
+                    return ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // Folder not found - return 404 Not Found
                 LoggingHelper.TraceError("FolderResource.Update: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<Folder>(req, HttpStatusCode.NotFound);
+                return ReturnResult<Folder>(req, operation, HttpStatusCode.NotFound);
             }
         }
 

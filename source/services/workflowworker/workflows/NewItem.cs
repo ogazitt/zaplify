@@ -18,13 +18,5 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
             new WorkflowState() { Name = "FindIntent", Activity = ActivityNames.GetPossibleIntents, NextState = "InvokeWorkflow" },
             new WorkflowState() { Name = "InvokeWorkflow", Activity = ActivityNames.StartWorkflow, NextState = null },
         };
-
-        public override bool Process(WorkflowInstance instance, Item item)
-        {
-            if (instance.State == "InvokeWorkflow")
-                return ProcessActivity(instance, item, IntentNames.BuyGift); // hardcode for now - this should come from the previous step!
-            else
-                return ProcessActivity(instance, item, null);
-        }
     }
 }

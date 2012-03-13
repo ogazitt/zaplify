@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -17,6 +18,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string OperationType { get; set; }
         public string Body { get; set; }
         public string OldBody { get; set; }
+        public HttpStatusCode StatusCode { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

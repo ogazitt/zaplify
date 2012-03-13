@@ -22,21 +22,22 @@
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> DeleteItemType(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<ItemType>(req, code);  
+                return ReturnResult<ItemType>(req, operation, code);  
             }
 
             // get the itemtype from the message body if one was passed
             ItemType clientItemType;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientItemType = ProcessRequestBody(req, typeof(ItemType)) as ItemType;
+                clientItemType = ProcessRequestBody(req, typeof(ItemType), out operation) as ItemType;
                 if (clientItemType.ID != id)
                 {   // IDs must match
                     LoggingHelper.TraceError("ItemTypeResource.Delete: Bad Request (ID in URL does not match entity body)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
             else
@@ -49,7 +50,7 @@
                 catch (Exception)
                 {   // itemtype not found - it may have been deleted by someone else.  Return 200 OK.
                     LoggingHelper.TraceInfo("ItemTypeResource.Delete: entity not found; returned OK anyway");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.OK);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.OK);
                 }
             }
 
@@ -59,26 +60,26 @@
                 if (requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to the authenticated user, return 403 Forbidden
                     LoggingHelper.TraceError("ItemTypeResource.Delete: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 this.StorageContext.ItemTypes.Remove(requestedItemType);
                 if (this.StorageContext.SaveChanges() < 1)
                 {
                     LoggingHelper.TraceError("ItemTypeResource.Delete: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.InternalServerError);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("ItemTypeResource.Delete: Accepted");
-                    return new HttpResponseMessageWrapper<ItemType>(req, requestedItemType, HttpStatusCode.Accepted);
+                    return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {   
                 // itemtype not found - it may have been deleted by someone else.  Return 200 OK.
                 LoggingHelper.TraceInfo(String.Format("ItemTypeResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.OK);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.OK);
             }
         }
 
@@ -86,10 +87,11 @@
         [LogMessages]
         public HttpResponseMessageWrapper<List<ItemType>> GetItemTypes(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<List<ItemType>>(req, code);
+                return ReturnResult<List<ItemType>>(req, operation, code);
             } 
 
             try
@@ -99,12 +101,12 @@
                     Where(lt => lt.UserID == null || lt.UserID == CurrentUser.ID).
                     OrderBy(lt => lt.Name).
                     ToList<ItemType>();
-                return new HttpResponseMessageWrapper<List<ItemType>>(req, itemTypes, HttpStatusCode.OK);
+                return ReturnResult<List<ItemType>>(req, operation, itemTypes, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
                 LoggingHelper.TraceError("ItemTypeResource.GetItemTypes: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<List<ItemType>>(req, HttpStatusCode.NotFound);
+                return ReturnResult<List<ItemType>>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -112,10 +114,11 @@
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> GetItemType(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<ItemType>(req, code);
+                return ReturnResult<ItemType>(req, operation, code);
             } 
 
             // get the requested itemType
@@ -126,15 +129,15 @@
                 if (requestedItemType.UserID != null && requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to system or authenticated user, return 403 Forbidden
                     LoggingHelper.TraceError("ItemTypeResource.GetItemType: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
                 }
 
-                return new HttpResponseMessageWrapper<ItemType>(req, requestedItemType, HttpStatusCode.OK);
+                return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
                 LoggingHelper.TraceError("ItemTypeResource.GetItemType: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.NotFound);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -142,14 +145,15 @@
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> InsertItemType(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<ItemType>(req, code);
+                return ReturnResult<ItemType>(req, operation, code);
             } 
 
             // get the new itemType from the message body
-            ItemType clientItemType = ProcessRequestBody(req, typeof(ItemType)) as ItemType;
+            ItemType clientItemType = ProcessRequestBody(req, typeof(ItemType), out operation) as ItemType;
 
             if (clientItemType.UserID == null || clientItemType.UserID == Guid.Empty)
             {   // changing a system itemType to a user itemType
@@ -158,7 +162,7 @@
             if (clientItemType.UserID != CurrentUser.ID)
             {   // requested itemType does not belong to authenticated user, return 403 Forbidden
                 LoggingHelper.TraceError("ItemTypeResource.Insert: Forbidden (entity does not belong to current user)");
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
             }
 
             try
@@ -167,12 +171,12 @@
                 if (itemType == null || this.StorageContext.SaveChanges() < 1)
                 {
                     LoggingHelper.TraceError("ItemTypeResource.Insert: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.InternalServerError);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("ItemTypeResource.Insert: Created");
-                    return new HttpResponseMessageWrapper<ItemType>(req, itemType, HttpStatusCode.Created);
+                    return ReturnResult<ItemType>(req, operation, itemType, HttpStatusCode.Created);
                 }
             }
             catch (Exception ex)
@@ -184,18 +188,18 @@
                     if (dbItemType.Name == clientItemType.Name)
                     {
                         LoggingHelper.TraceInfo("ItemTypeResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<ItemType>(req, dbItemType, HttpStatusCode.Accepted);
+                        return ReturnResult<ItemType>(req, operation, dbItemType, HttpStatusCode.Accepted);
                     }
                     else
                     {
                         LoggingHelper.TraceError("ItemTypeResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Conflict);
+                        return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {   // itemtype not inserted - return 409 Conflict
                     LoggingHelper.TraceError(String.Format("ItemTypeResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
-                    return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Conflict);
+                    return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                 }
             }
         }
@@ -204,18 +208,19 @@
         [LogMessages]
         public HttpResponseMessageWrapper<ItemType> UpdateItemType(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<ItemType>(req, code);
+                return ReturnResult<ItemType>(req, operation, code);
             } 
 
             // the body will contain two ItemTypes - the original and the new values
-            List<ItemType> itemTypes = ProcessRequestBody(req, typeof(List<ItemType>)) as List<ItemType>;
+            List<ItemType> itemTypes = ProcessRequestBody(req, typeof(List<ItemType>), out operation) as List<ItemType>;
             if (itemTypes.Count != 2)
             {   // body should contain two ItemTypes, the original and new values
                 LoggingHelper.TraceError("ItemTypeResource.Update: Bad Request (malformed body)");
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
             }
 
             ItemType originalItemType = itemTypes[0];
@@ -225,18 +230,18 @@
             if (originalItemType.ID != newItemType.ID)
             {
                 LoggingHelper.TraceError("ItemTypeResource.Update: Bad Request (original and new entity ID's do not match)");
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
             }
             if (originalItemType.ID != id)
             {
                 LoggingHelper.TraceError("ItemTypeResource.Update: Bad Request (ID in URL does not match entity body)");
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
             }
 
             if (originalItemType.UserID != CurrentUser.ID || newItemType.UserID != CurrentUser.ID)
             {   // itemtype does not belong to the authenticated user, return 403 Forbidden
                 LoggingHelper.TraceError("ItemTypeResource.Update: Forbidden (entity does not belong to current user)");
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.Forbidden);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
             }
 
             try
@@ -248,24 +253,24 @@
                     if (this.StorageContext.SaveChanges() < 1)
                     {
                         LoggingHelper.TraceError("ItemTypeResource.Update: Internal Server Error (database operation did not succeed)");
-                        return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.InternalServerError);
+                        return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
                     {
                         LoggingHelper.TraceInfo("ItemTypeResource.Update: Accepted");
-                        return new HttpResponseMessageWrapper<ItemType>(req, requestedItemType, HttpStatusCode.Accepted);
+                        return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
                     LoggingHelper.TraceInfo("ItemTypeResource.Update: Accepted (no changes)");
-                    return new HttpResponseMessageWrapper<ItemType>(req, requestedItemType, HttpStatusCode.Accepted);
+                    return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {   // itemtype not found - return 404 Not Found
                 LoggingHelper.TraceError("ItemTypeResource.Update: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<ItemType>(req, HttpStatusCode.NotFound);
+                return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }
 

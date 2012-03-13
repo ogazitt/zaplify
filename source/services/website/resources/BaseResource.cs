@@ -17,6 +17,7 @@
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.Website.Models.AccessControl;
+    using BuiltSteady.Zaplify.Website.Helpers;
 
     public class BaseResource
     {
@@ -129,9 +130,10 @@
         }
 
         // base code to process message and deserialize body to expected type
-        protected object ProcessRequestBody(HttpRequestMessage req, Type t)
+        protected object ProcessRequestBody(HttpRequestMessage req, Type t, out Operation operation)
         {
             LoggingHelper.TraceFunction();
+            operation = null;
 
             if (req == null)
                 return null;
@@ -184,7 +186,7 @@
                 string name = (string)bodyType.GetProperty("Name").GetValue(body, null);
 
                 // record the operation in the Operations table
-                Operation op = new Operation()
+                operation = new Operation()
                 {
                     ID = Guid.NewGuid(),
                     UserID = CurrentUser.ID,
@@ -197,7 +199,7 @@
                     OldBody = SerializationHelper.JsonSerialize(oldBody),
                     Timestamp = DateTime.Now
                 };
-                storage.Operations.Add(op);
+                storage.Operations.Add(operation);
                 if (storage.SaveChanges() < 1)
                 {   // log failure to record operation
                     LoggingHelper.TraceError("ProcessRequestBody: failed to record operation: " + req.Method.Method);
@@ -209,6 +211,26 @@
             }
 
             return value;
+        }
+
+        protected HttpResponseMessageWrapper<T> ReturnResult<T>(HttpRequestMessage req, Operation operation, HttpStatusCode code)
+        {
+            if (operation != null)
+            {
+                operation.StatusCode = code;
+                this.StorageContext.SaveChanges();
+            }
+            return new HttpResponseMessageWrapper<T>(req, code);
+        }
+
+        protected HttpResponseMessageWrapper<T> ReturnResult<T>(HttpRequestMessage req, Operation operation, T t, HttpStatusCode code)
+        {
+            if (operation != null)
+            {
+                operation.StatusCode = code;
+                this.StorageContext.SaveChanges();
+            }
+            return new HttpResponseMessageWrapper<T>(req, t, code);
         }
     }
 }

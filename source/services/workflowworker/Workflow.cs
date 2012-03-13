@@ -16,38 +16,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
         /// <summary>
         /// Default implementation for the Workflow's Process method.
-        /// A workflow can override this method to supply extra state to the ProcessActivity method
-        /// or replace with a completely different implementation
-        /// </summary>
-        /// <param name="instance">Workflow instance</param>
-        /// <param name="item">Item to process</param>
-        /// <returns>true for success, false for failure</returns>
-        public virtual bool Process(WorkflowInstance instance, Item item)
-        {
-            return ProcessActivity(instance, item, null);
-        }
-
-        /// <summary>
-        /// This is a helper routine that does all the work to:
         ///     Get the current state
-        ///     Invoke the corresponding action (with the extra state object passed in)
+        ///     Invoke the corresponding action (with the data object passed in)
         ///     Add any results to the Item's SuggestionsList
         ///     Move to the next state and terminate the workflow if it is at the end
         /// </summary>
         /// <param name="instance">Workflow instance</param>
         /// <param name="item">Item to process</param>
-        /// <param name="obj">Extra state to pass to Activity</param>
+        /// <param name="data">Extra data to pass to Activity</param>
         /// <returns>true for success, false for failure</returns>
-        protected virtual bool ProcessActivity(WorkflowInstance instance, Item item, object obj)
+        public virtual bool Process(WorkflowInstance instance, Item item, object data)
         {
             try
             {
                 // get current state, invoke action
                 WorkflowState state = instance.State == null ? States[0] : States.Single(s => s.Name == instance.State);
-                var action = ActivityList.Activities[state.Activity];
+                var activity = ActivityList.Activities[state.Activity];
                 List<Guid> results = new List<Guid>();
-                bool completed = action.Function.Invoke(instance, item, obj, results);
+                bool completed = activity.Function.Invoke(instance, item, data, results);
 
+                /*
                 if (results.Count > 0)
                 {
                     // save the results in the suggestions sublist on the item
@@ -95,16 +83,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         return false;
                     }
                 }
+                 */
 
-                // store next state and terminate the workflow if next state is null
-                instance.State = state.NextState;
-                if (instance.State == null)
+                // if the activity completed, advance the workflow state
+                if (completed)
                 {
-                    WorkflowWorker.StorageContext.WorkflowInstances.Remove(instance);
-                    completed = false;
+                    // store next state and terminate the workflow if next state is null
+                    instance.State = state.NextState;
+                    if (instance.State == null)
+                    {
+                        WorkflowWorker.StorageContext.WorkflowInstances.Remove(instance);
+                        WorkflowWorker.StorageContext.SaveChanges();
+                        completed = false;
+                    }
                 }
 
-                WorkflowWorker.StorageContext.SaveChanges();
                 return completed;
             }
             catch (Exception ex)

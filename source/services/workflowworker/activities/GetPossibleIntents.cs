@@ -17,20 +17,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return ((workflowInstance, item, state, list) =>
                 {
                     List<string> possibleIntents = new List<string>();
-                    if (GetIntents(item.Name, possibleIntents))
-                    {
-                        // exact match
+                    bool completed = GetIntents(item.Name, possibleIntents);
 
-                        // set the Intent type on the Item model
-                        return true;
-                    }
-
-                    // received a list of suggestions in possibleIntents
                     try
                     {
+                        // add suggestions received in possibleIntents
+                        Suggestion sugg = null;
                         foreach (var s in possibleIntents)
                         {
-                            var sugg = new Suggestion()
+                            sugg = new Suggestion()
                             {
                                 ID = Guid.NewGuid(),
                                 ItemID = item.ID,
@@ -40,13 +35,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 FieldName = TargetFieldName, 
                                 DisplayName = s,
                                 Value = s,
-                                TimeChosen = DateTime.Now
+                                TimeChosen = null
                             };
                             WorkflowWorker.StorageContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
                         }
+
+                        // if an exact match, set the TimeChosen to indicate the match
+                        if (completed && possibleIntents.Count == 1)
+                            sugg.TimeChosen = DateTime.Now;
                         WorkflowWorker.StorageContext.SaveChanges();
-                        return false;
+                        return completed;
                     }
                     catch (Exception ex)
                     {

@@ -29,9 +29,10 @@
         [LogMessages]
         public HttpResponseMessageWrapper<User> CreateUser(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode status = HttpStatusCode.BadRequest;
             // get the new user from the message body (password is not deserialized)
-            UserCredential newUser = ProcessRequestBody(req, typeof(UserCredential)) as UserCredential;
+            UserCredential newUser = ProcessRequestBody(req, typeof(UserCredential), out operation) as UserCredential;
             // get password from message headers
             UserCredential userCreds = GetUserFromMessageHeaders(req);
 
@@ -43,10 +44,10 @@
 
             if (status == HttpStatusCode.Created)
             {
-                return new HttpResponseMessageWrapper<User>(req, newUser.AsUser(), HttpStatusCode.Created);
+                return ReturnResult<User>(req, operation, newUser.AsUser(), HttpStatusCode.Created);
             }
             else
-                return new HttpResponseMessageWrapper<User>(req, status);
+                return ReturnResult<User>(req, operation, status);
         }
 
         private HttpStatusCode CreateUser(UserCredential user)
@@ -84,24 +85,25 @@
         [WebInvoke(UriTemplate = "{id}", Method = "DELETE")]
         public HttpResponseMessageWrapper<User> DeleteUser(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user is not authenticated
-                return new HttpResponseMessageWrapper<User>(req, code);
+                return ReturnResult<User>(req, operation, code);
             }
 
             // get current user from the message body
-            User requestedUser = ProcessRequestBody(req, typeof(User)) as User;
+            User requestedUser = ProcessRequestBody(req, typeof(User), out operation) as User;
             if (requestedUser.ID != id)
             {   // verify user id in request body matches id being deleted
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
             }
 
             // verify credentials passed in headers match the user in request body
             // disallows one user deleting another user (may want to allow in future with proper permissions)
             if (requestedUser.Name.Equals(CurrentUser.Name, StringComparison.OrdinalIgnoreCase))
             {
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
             }
 
             try
@@ -110,41 +112,41 @@
                 User storedUser = this.StorageContext.Users.Single<User>(u => u.Name == requestedUser.Name.ToLower());
                 if (storedUser.ID != requestedUser.ID)
                 {
-                    return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<User>(req, operation, HttpStatusCode.Forbidden);
                 }
                 
                 if (Membership.DeleteUser(CurrentUser.Name))
                 {   // delete user and all related data
-                    return new HttpResponseMessageWrapper<User>(req, requestedUser, HttpStatusCode.Accepted);
+                    return ReturnResult<User>(req, operation, requestedUser, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception)
             { }
-            return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
+            return ReturnResult<User>(req, operation, HttpStatusCode.InternalServerError);
         }
 
         [WebGet(UriTemplate = "")]
         [LogMessages]
         public HttpResponseMessageWrapper<User> GetCurrentUser(HttpRequestMessage req)
         {
-
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<User>(req, code);  
+                return ReturnResult<User>(req, operation, code);  
             }
 
             try
             {
                 UserDataModel model = new UserDataModel(this);
                 // make sure the response isn't cached
-                var response = new HttpResponseMessageWrapper<User>(req, model.UserData, HttpStatusCode.OK);
+                var response = ReturnResult<User>(req, operation, model.UserData, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                 return response;
             }
             catch (Exception)
             {   // no such user account - return 404 Not Found
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.NotFound);               
+                return ReturnResult<User>(req, operation, HttpStatusCode.NotFound);               
             }
         }
 
@@ -153,20 +155,21 @@
         [LogMessages]
         public HttpResponseMessageWrapper<User> GetUser(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<User>(req, code);
+                return ReturnResult<User>(req, operation, code);
             }
 
             try
             {
                 User requestedUser = this.StorageContext.Users.Single<User>(u => u.ID == id);
-                return new HttpResponseMessageWrapper<User>(req, requestedUser, code);
+                return ReturnResult<User>(req, operation, requestedUser, code);
             }
             catch (Exception)
             {   // no such user account - return 404 Not Found
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.NotFound);
+                return ReturnResult<User>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -174,10 +177,11 @@
         [LogMessages]
         public HttpResponseMessageWrapper<List<Folder>> GetFoldersForUser(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<List<Folder>>(req, code);  
+                return ReturnResult<List<Folder>>(req, operation, code);  
             }
 
             try
@@ -187,7 +191,7 @@
                 // if the requested user is not the same as the authenticated user, return 403 Forbidden
                 if (requestedUser.ID != CurrentUser.ID)
                 {
-                    return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<List<Folder>>(req, operation, HttpStatusCode.Forbidden);
                 }
                 else
                 {
@@ -199,36 +203,37 @@
                             Include("Items.FieldValues").
                             Where(f => f.FolderUsers.Any(fu => fu.UserID == id)).
                             ToList();
-                        var response = new HttpResponseMessageWrapper<List<Folder>>(req, folderitems, HttpStatusCode.OK);
+                        var response = ReturnResult<List<Folder>>(req, operation, folderitems, HttpStatusCode.OK);
                         response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                         return response;
                     }
                     catch (Exception)
                     {   // items not found - return 404 Not Found
-                        return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.NotFound);
+                        return ReturnResult<List<Folder>>(req, operation, HttpStatusCode.NotFound);
                     }
                 }
             }
             catch (Exception)
             {   // no such user account - return 404 Not Found
-                return new HttpResponseMessageWrapper<List<Folder>>(req, HttpStatusCode.NotFound);
+                return ReturnResult<List<Folder>>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
         [WebInvoke(UriTemplate = "{id}", Method = "PUT")]
         public HttpResponseMessageWrapper<User> UpdateUser(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<User>(req, code);
+                return ReturnResult<User>(req, operation, code);
             }
 
             // verify body contains two sets of user data - the original values and the new values
-            List<UserCredential> userData = ProcessRequestBody(req, typeof(List<UserCredential>)) as List<UserCredential>;
+            List<UserCredential> userData = ProcessRequestBody(req, typeof(List<UserCredential>), out operation) as List<UserCredential>;
             if (userData.Count != 2)
             {
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
             }
 
             // get the original and new items out of the message body
@@ -238,7 +243,7 @@
             // make sure the item ID's match
             if (originalUserData.ID != newUserData.ID || originalUserData.ID != id)
             {
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.BadRequest);
+                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
             }
        
             try
@@ -247,7 +252,7 @@
                 // check to make sure the old password passed in the message is valid
                 if (!Membership.ValidateUser(CurrentUser.Name, originalUserData.Password))
                 {   
-                    return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.Forbidden);
+                    return ReturnResult<User>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 MembershipUser mu = Membership.GetUser(originalUserData.Name);
@@ -262,11 +267,11 @@
                 }
 
                 User currentUser = this.StorageContext.Users.Single<User>(u => u.ID == CurrentUser.ID);
-                return new HttpResponseMessageWrapper<User>(req, currentUser, HttpStatusCode.Accepted);
+                return ReturnResult<User>(req, operation, currentUser, HttpStatusCode.Accepted);
             }
             catch (Exception)
             {
-                return new HttpResponseMessageWrapper<User>(req, HttpStatusCode.InternalServerError);
+                return ReturnResult<User>(req, operation, HttpStatusCode.InternalServerError);
             }
         }
     }
