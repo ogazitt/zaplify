@@ -9,7 +9,8 @@
 
 <%
     var requestUrl = this.Context.Request.Url;
-    var siteUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
+    //var siteUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
+    var siteUrl = ResolveUrl("~/");
     var resourceUrl = siteUrl;
 %>
     <script type="text/javascript">
