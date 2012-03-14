@@ -10,14 +10,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.GetPossibleSubjects; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
-        public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
         {
             get
             {
-                return ((workflowInstance, item, state, list) =>
+                return ((workflowInstance, entity, data, list) =>
                 {
+                    Item item = entity as Item;
+                    if (item == null)
+                    {
+                        TraceLog.TraceError("GetPossibleSubjects: non-Item passed in to Function");
+                        return false;
+                    }
+
                     List<string> possibleSubjects = new List<string>();
-                    if (GetSubjects(item.Name, possibleSubjects))
+                    if (GetSubjects(entity.Name, possibleSubjects))
                     {
                         // exact match
 

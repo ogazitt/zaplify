@@ -12,6 +12,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         public const string FindIntent = "Find Intent";
         public const string NameChanged = "Name Changed";
         public const string NewItem = "New Item";
+        public const string NewUser = "New User";
     }
 
     public class WorkflowList
@@ -23,6 +24,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
             { WorkflowNames.FindIntent, new FindIntent() },
             { WorkflowNames.NameChanged, new NameChanged() },
             { WorkflowNames.NewItem, new NewItem() },
+            { WorkflowNames.NewUser, new NewUser() },
         };
     }
 }

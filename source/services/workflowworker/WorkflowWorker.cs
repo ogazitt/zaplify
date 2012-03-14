@@ -4,6 +4,8 @@ using System.Threading;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 using BuiltSteady.Zaplify.ServerEntities;
+using System.Reflection;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -62,36 +64,64 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
+                            // this shouldn't happen unless there is a weird race between the Operation getting saved and this message getting processed
                             TraceLog.TraceError("WorkflowWorker: could not retrieve operation; ex: " + ex.Message);
-                            throw;  // caught by the outer try block, so as to execute the sleep call
+                            throw;  // caught by the outer try block, so as to execute the sleep call 
                         }
 
                         Guid entityID = operation.EntityID;
-                        Item item = null;
+                        string entityType = operation.EntityType.Trim();
+                        string operationType = operation.OperationType.Trim();
 
-                        // try to get the item
-                        try
+                        // try to get a strongly-typed entity (item, folder, user...)
+                        ServerEntity entity = null, oldEntity = null;
+                        if (operationType != "DELETE")
                         {
-                            item = UserContext.Items.Single(i => i.ID == entityID);
-                        }
-                        catch (Exception ex)
-                        {
-                            TraceLog.TraceError("WorkflowWorker: could not retrieve item; ex: " + ex.Message);
+                            try
+                            {
+                                switch (entityType)
+                                {
+                                    case "Item":
+                                        Item item = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
+                                        Item oldItem = JsonSerializer.Deserialize<Item>(operation.OldBody);
+                                        entity = item;
+                                        oldEntity = oldItem;
+                                        break;
+                                    case "Folder":
+                                        Folder folder = UserContext.Folders.Single(i => i.ID == entityID);
+                                        entity = folder;
+                                        break;
+                                    case "User":
+                                        User user = UserContext.Users.Single(i => i.ID == entityID);
+                                        entity = user;
+                                        break;
+                                    default:
+                                        TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
+                                        break;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                TraceLog.TraceError(String.Format("WorkflowWorker: could not retrieve {0}; ex: {1}", entityType, ex.Message));
+                            }
                         }
 
                         // launch new workflows based on the changes to the item
-                        switch (operation.OperationType)
+                        switch (operationType)
                         {
                             case "DELETE":
                                 DeleteWorkflows(entityID);
                                 break;
                             case "POST":
-                                StartNewWorkflows(entityID, item);
-                                ExecuteWorkflows(entityID, item);
+                                StartNewWorkflows(entity);
+                                ExecuteWorkflows(entity);
                                 break;
                             case "PUT":
-                                StartTriggerWorkflows(entityID, item);
-                                ExecuteWorkflows(entityID, item);
+                                StartTriggerWorkflows(entity, oldEntity);
+                                ExecuteWorkflows(entity);
+                                break;
+                            default:
+                                TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
                                 break;
                         }
 
@@ -109,85 +139,179 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
         }
 
+        #region Helpers
+
+        object GetFieldValue(Item item, Field field)
+        {
+            PropertyInfo pi = null;
+            object currentValue = null;
+
+            // get the current field value.
+            // the value can either be in a strongly-typed property on the item (e.g. Name),
+            // or in one of the FieldValues 
+            try
+            {
+                // get the strongly typed property
+                pi = item.GetType().GetProperty(field.Name);
+                if (pi != null)
+                    currentValue = pi.GetValue(item, null);
+            }
+            catch (Exception)
+            {
+                // an exception indicates this isn't a strongly typed property on the Item
+                // this is NOT an error condition
+            }
+
+            // if couldn't find a strongly typed property, this property could be stored as a 
+            // FieldValue on the item
+            if (pi == null)
+            {
+                FieldValue fieldValue = null;
+                // get current item's value for this field
+                try
+                {
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                    currentValue = fieldValue.Value;
+                }
+                catch (Exception)
+                {
+                    // we can't do anything with this property since we don't have it on this item
+                    // but that's ok - we can keep going
+                    return null;
+                }
+            }
+
+            return currentValue;
+        }
+
         void DeleteWorkflows(Guid entityID)
         {
-            // get all the workflow instances for this Item
-            var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
-            if (wis.Count > 0)
+            try
             {
-                // loop over the workflow instances and dispatch the new message
-                foreach (var instance in wis)
+                // get all the workflow instances for this Item
+                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
+                if (wis.Count > 0)
                 {
-                    SuggestionsContext.WorkflowInstances.Remove(instance);
+                    // loop over the workflow instances and dispatch the new message
+                    foreach (var instance in wis)
+                    {
+                        SuggestionsContext.WorkflowInstances.Remove(instance);
+                    }
+                    SuggestionsContext.SaveChanges();
                 }
-                SuggestionsContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("DeleteWorkflows failed; ex: " + ex.Message);
             }
         }
 
-        void ExecuteWorkflows(Guid entityID, Item item)
+        void ExecuteWorkflows(ServerEntity entity)
         {
-            // get all the workflow instances for this Item
-            var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
-            if (wis.Count > 0)
+            if (entity == null)
+                return;
+
+            try
             {
-                // loop over the workflow instances and dispatch the new message
-                foreach (var instance in wis)
+                // get all the workflow instances for this Item
+                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entity.ID).ToList();
+                if (wis.Count > 0)
                 {
-                    string workflowType = instance.WorkflowType;
-                    Workflow workflow = WorkflowList.Workflows[workflowType];
+                    // loop over the workflow instances and dispatch the new message
+                    foreach (var instance in wis)
+                    {
+                        Workflow workflow = WorkflowList.Workflows[instance.WorkflowType];
 
-                    // get the data from the just-completed state (if any is available)
-                    object data = null;
-                    try
-                    {
-                        data = SuggestionsContext.
-                            Suggestions.
-                            Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeChosen != null).
-                            Value;
+                        // execute each state of the workflow until workflow is blocked for input
+                        bool completed = true;
+                        while (completed)
+                        {
+                            completed = workflow.Execute(instance, entity);
+                        }
                     }
-                    catch
-                    {
-                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("ExecuteWorkflows: failed; ex: " + ex.Message);
+            }
+        }
 
-                    // invoke the workflow and process steps until workflow is blocked for user input
-                    bool completed = true;
-                    while (completed)
+        void StartNewWorkflows(ServerEntity entity)
+        {
+            if (entity == null)
+                return;
+
+            // figure out what kind of entity this is
+            Item item = entity as Item;
+            Folder folder = entity as Folder;
+            User user = entity as User;
+
+            if (item != null)
+            {
+                Workflow.StartWorkflow(WorkflowNames.NewItem, item);
+            }
+
+            if (folder != null)
+            {
+            }
+
+            if (user != null)
+            {
+                Workflow.StartWorkflow(WorkflowNames.NewUser, user);
+            }
+        }
+
+        void StartTriggerWorkflows(ServerEntity entity, ServerEntity oldEntity)
+        {
+            if (entity == null || oldEntity == null)
+                return;
+
+            // only Item property triggers are supported at this time
+            Item item = entity as Item;
+            Item oldItem = oldEntity as Item;
+            if (item != null)
+            {
+                // go through field by field, and if a field has changed, trigger the appropriate workflow 
+                ItemType itemType = UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
+
+                foreach (var field in itemType.Fields)
+                {
+                    object newValue = GetFieldValue(item, field);
+                    object oldValue = GetFieldValue(oldItem, field);
+
+                    // skip fields that haven't changed
+                    if (newValue.Equals(oldValue))
+                        continue;
+
+                    // do field-specific processing for select fields
+                    switch (field.Name)
                     {
-                        completed = workflow.Process(instance, item, data);
+                        case FieldNames.Name:
+                            StartWorkflowIfNotRunning(item, WorkflowNames.FindIntent);
+                            break;
                     }
                 }
             }
         }
 
-        void StartNewWorkflows(Guid entityID, Item item)
+        void StartWorkflowIfNotRunning(ServerEntity entity, string workflowType)
         {
-            // go through field by field, and if a field is empty, trigger the appropraite workflow
-            StartWorkflow(WorkflowNames.NewItem, entityID, item.Name, item);
-        }
+            if (entity == null || workflowType == null)
+                return;
 
-        void StartTriggerWorkflows(Guid entityID, Item item)
-        {
-            // go through field by field, and if a field has changed, trigger the appropriate workflow 
-        }
-
-        void StartWorkflow(string type, Guid entityID, string name, object entity)
-        {
-            DateTime now = DateTime.Now;
-
-            // create the new workflow instance and store in the workflow DB
-            var instance = new WorkflowInstance()
+            try
             {
-                ID = Guid.NewGuid(),
-                ItemID = entityID,
-                WorkflowType = type,
-                State = null,
-                Name = name,
-                Body = JsonSerializer.Serialize(entity),
-                Created = now,
-                LastModified = now,
-            };
-            SuggestionsContext.WorkflowInstances.Add(instance);
-            SuggestionsContext.SaveChanges();
+                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.ItemID == entity.ID && wi.WorkflowType == workflowType).ToList();
+                if (runningWFs.Count == 0)
+                    Workflow.StartWorkflow(workflowType, entity);
+            }
+            catch (Exception)
+            {
+                Workflow.StartWorkflow(workflowType, entity);
+            }
         }
+
+        #endregion Helpers
     }
 }

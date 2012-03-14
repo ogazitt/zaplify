@@ -51,6 +51,7 @@
     <Compile Include="ActionType.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="ServerEntity.cs" />
     <Compile Include="WorkflowInstance.cs" />
     <Compile Include="Suggestion.cs" />
     <Compile Include="FieldValue.cs" />

@@ -5,10 +5,12 @@ using System.Web;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Folder
+    public class Folder : ServerEntity
     {
-        public Guid ID { get; set; }
-        public string Name { get; set; }
+        // ServerEntity properties
+        public override Guid ID { get; set; }
+        public override string Name { get; set; }
+
         public Guid UserID { get; set; }
         public Guid ItemTypeID { get; set; }
         public float SortOrder { get; set; }

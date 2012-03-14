@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BuiltSteady.Zaplify.ServerEntities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -13,6 +14,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         public const string GetPossibleSubjects = "Get Possible Subjects";
         public const string GetSubjectAttributes = "Get Subject Attributes";
         public const string GetSuggestions = "Get Suggestions";
+        public const string NoOp = "NoOp";
         public const string StartWorkflow = "Start Workflow";
     }
 
@@ -26,6 +28,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             { ActivityNames.GetPossibleSubjects, new GetPossibleSubjects() },
             { ActivityNames.GetSubjectAttributes, null },
             { ActivityNames.GetSuggestions, new GetSuggestions() },
+            { ActivityNames.NoOp, new NoOp() },
             { ActivityNames.StartWorkflow, new StartWorkflow() },
         };
     }

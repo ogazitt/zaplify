@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using System.Text;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -10,14 +11,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.GetPossibleIntents; } }
         public override string TargetFieldName { get { return FieldNames.Intent; } }
-        public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
         {
             get
             {
-                return ((workflowInstance, item, state, list) =>
+                return ((workflowInstance, entity, data, list) =>
                 {
+                    // check for user data
+                    if (data != null)
+                    {
+                        workflowInstance.Body = (string) data;
+                        return true;
+                    }
+
                     List<string> possibleIntents = new List<string>();
-                    bool completed = GetIntents(item.Name, possibleIntents);
+                    bool completed = GetIntents(entity.Name, possibleIntents);
 
                     try
                     {
@@ -28,7 +36,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             sugg = new Suggestion()
                             {
                                 ID = Guid.NewGuid(),
-                                ItemID = item.ID,
+                                ItemID = entity.ID,
                                 WorkflowName = workflowInstance.Name,
                                 WorkflowInstanceID = workflowInstance.ID,
                                 State = workflowInstance.State,
@@ -43,7 +51,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                         // if an exact match, set the TimeChosen to indicate the match
                         if (completed && possibleIntents.Count == 1)
+                        {
                             sugg.TimeChosen = DateTime.Now;
+                            workflowInstance.Body = sugg.Value;
+                        }
                         WorkflowWorker.SuggestionsContext.SaveChanges();
                         return completed;
                     }
@@ -58,30 +69,33 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
         private bool GetIntents(string name, List<string> possibleIntents)
         {
+            // lowercase, remove filler words
             string sentence = name.ToLower();
-            // remove filler words
             foreach (var word in "a;the".Split(';'))
-            {
-                sentence = sentence.Replace(" " + word + " ", "");
-            }
+                sentence = sentence.Replace(word, "");
+            // remove extra whitespace
+            StringBuilder sb = new StringBuilder();
+            foreach (var word in sentence.Split(new char[] { ' ', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+                sb.AppendFormat("{0} ", word);
+            sentence = sb.ToString().Trim();
 
             string workflow = null;
             bool exists = IntentList.Intents.TryGetValue(sentence, out workflow);
             if (exists)
             {
-                possibleIntents.Add(sentence);
+                possibleIntents.Add(workflow);
                 return true;  // exact match
             }
 
             // populate suggestions by looping over the list of Intents
             // and picking ones that have at least one word in common with the sentence
-            foreach (var task in IntentList.Intents.Keys)
+            foreach (var intent in IntentList.Intents.Keys)
             {
                 foreach (var word in sentence.Split(' '))
                 {
-                    if (task.Contains(word))
+                    if (intent.Contains(word))
                     {
-                        possibleIntents.Add(task);
+                        possibleIntents.Add(IntentList.Intents[intent]);
                         break;
                     }
                 }

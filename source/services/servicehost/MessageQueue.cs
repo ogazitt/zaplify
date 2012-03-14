@@ -8,7 +8,7 @@
 
     public class MessageQueue
     {
-        const string queueName = "queue";
+        static string queueName = MakeQueueName();
         static CloudStorageAccount storageAccount;
         static CloudQueueClient queueClient;
         static CloudQueue queue;
@@ -94,6 +94,14 @@
             {
                 TraceLog.TraceInfo(String.Format("MessageQueue.Initialize: created queue named '{0}'", queueName));
             }
+        }
+
+        private static string MakeQueueName()
+        {
+            string deploymentID = HostEnvironment.AzureDeploymentId;
+            deploymentID = deploymentID.Replace("(", "");
+            deploymentID = deploymentID.Replace(")", "");
+            return "queue-" + deploymentID; 
         }
     }
 

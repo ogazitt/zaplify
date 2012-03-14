@@ -10,12 +10,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.GetSuggestions; } }
         public override string TargetFieldName { get { return FieldNames.SuggestedLink; } }
-        public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
         {
             get
             {
-                return ((workflowInstance, item, state, list) =>
+                return ((workflowInstance, entity, data, list) =>
                 {
+                    Item item = entity as Item;
+                    if (item == null)
+                    {
+                        TraceLog.TraceError("GetSuggestions: non-Item passed in to Function");
+                        return false;
+                    }
+
                     try
                     {
                         foreach (var s in "golf club;sounders jersey;outliers".Split(';'))

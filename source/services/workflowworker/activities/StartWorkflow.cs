@@ -10,30 +10,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.StartWorkflow; } }
         public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, Item, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
         {
             get
             {
-                return ((workflowInstance, item, state, list) =>
+                return ((workflowInstance, entity, data, list) =>
                 {
                     try
                     {
-                        string workflowName = (string)state;
-                        Workflow wf = WorkflowList.Workflows[workflowName];
-                        DateTime now = DateTime.Now;
-                        WorkflowInstance instance = new WorkflowInstance()
-                        {
-                            ID = Guid.NewGuid(),
-                            WorkflowType = wf.Name,
-                            State = null,
-                            ItemID = item.ID,
-                            Name = item.Name,
-                            Body = JsonSerializer.Serialize(item),
-                            Created = now,
-                            LastModified = now
-                        };
-                        WorkflowWorker.SuggestionsContext.WorkflowInstances.Add(instance);
-                        WorkflowWorker.SuggestionsContext.SaveChanges();
+                        string workflowName = null;
+                        if (data != null)
+                            workflowName = (string)data;
+                        else if (workflowInstance.Body != "")
+                            workflowName = workflowInstance.Body;
+                        
+                        if (workflowName != null)
+                            Workflow.StartWorkflow(workflowName, entity);
                     }
                     catch (Exception ex)
                     {

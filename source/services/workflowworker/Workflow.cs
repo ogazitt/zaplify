@@ -6,6 +6,7 @@ using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -15,6 +16,36 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         public abstract List<WorkflowState> States { get; }
 
         /// <summary>
+        /// This is the typical way to execute a workflow.  This implementation
+        /// will retrieve any data (e.g. user selection, or a result of a previous Activity)
+        /// and pass it into the Process method.
+        /// </summary>
+        /// <param name="instance">Workflow instance</param>
+        /// <param name="entity">Entity to process</param>
+        /// <returns>true if completed, false if not</returns>
+        public virtual bool Execute(WorkflowInstance instance, ServerEntity entity)
+        {
+            // get the data for the current state (if any is available)
+            // this data will be fed into the Process method as its argument
+            object data = null;
+            try
+            {
+                data = WorkflowWorker.
+                    SuggestionsContext.
+                    Suggestions.
+                    Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeChosen != null).
+                    Value;
+            }
+            catch
+            {
+                // this is not an error state - the user may not have chosen a suggestion
+            }
+
+            // return the result of processing the state with the data
+            return Process(instance, entity, data);
+        }
+
+        /// <summary>
         /// Default implementation for the Workflow's Process method.
         ///     Get the current state
         ///     Invoke the corresponding action (with the data object passed in)
@@ -22,68 +53,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         ///     Move to the next state and terminate the workflow if it is at the end
         /// </summary>
         /// <param name="instance">Workflow instance</param>
-        /// <param name="item">Item to process</param>
+        /// <param name="entity">Entity to process</param>
         /// <param name="data">Extra data to pass to Activity</param>
-        /// <returns>true for success, false for failure</returns>
-        public virtual bool Process(WorkflowInstance instance, Item item, object data)
+        /// <returns>true if completed, false if not</returns>
+        protected virtual bool Process(WorkflowInstance instance, ServerEntity entity, object data) 
         {
             try
             {
                 // get current state, invoke action
-                WorkflowState state = instance.State == null ? States[0] : States.Single(s => s.Name == instance.State);
+                WorkflowState state = States.Single(s => s.Name == instance.State);
                 var activity = ActivityList.Activities[state.Activity];
                 List<Guid> results = new List<Guid>();
-                bool completed = activity.Function.Invoke(instance, item, data, results);
-
-                /*
-                if (results.Count > 0)
-                {
-                    // save the results in the suggestions sublist on the item
-                    Item suggestionsList = null;
-                    try
-                    {
-                        suggestionsList = WorkflowWorker.StorageContext.Items.Single(i => i.ParentID == item.ID && i.Name == "SuggestionsList");
-                    }
-                    catch (Exception)
-                    {
-                        suggestionsList = new Item()
-                        {
-                            ID = Guid.NewGuid(),
-                            Name = "SuggestionsList",
-                            ParentID = item.ID,
-                            ItemTypeID = SystemItemTypes.NameValue,
-                        };
-                    }
-
-                    try
-                    {
-                        Field valueField = WorkflowWorker.StorageContext.Fields.Single(f => f.ItemTypeID == SystemItemTypes.NameValue && f.Name == FieldNames.Value);
-                        foreach (var suggestionID in results)
-                        {
-                            // create a new NameValue item with the Name being the target field for the suggestion, 
-                            // and the Value being the suggestionID in the Suggesions table
-                            var i = new Item()
-                            {
-                                ID = Guid.NewGuid(),
-                                Name = action.TargetFieldName,
-                                ParentID = suggestionsList.ID,
-                                ItemTypeID = SystemItemTypes.NameValue,
-                                FieldValues = new List<FieldValue>()
-                                {
-                                    new FieldValue() { FieldID = valueField.ID, ItemID = item.ID, Value = suggestionID.ToString() }
-                                }
-                            };
-                        }
-
-                        WorkflowWorker.StorageContext.SaveChanges();
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceError("Workflow.ProcessAction: error adding results to Item; ex: " + ex.Message);
-                        return false;
-                    }
-                }
-                 */
+                bool completed = activity.Function.Invoke(instance, entity, data, results);
+                instance.LastModified = DateTime.Now;
 
                 // if the activity completed, advance the workflow state
                 if (completed)
@@ -93,9 +75,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     if (instance.State == null)
                     {
                         WorkflowWorker.SuggestionsContext.WorkflowInstances.Remove(instance);
-                        WorkflowWorker.SuggestionsContext.SaveChanges();
                         completed = false;
                     }
+                    WorkflowWorker.SuggestionsContext.SaveChanges();
                 }
 
                 return completed;
@@ -104,6 +86,44 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 TraceLog.TraceError("Workflow.ProcessAction failed; ex: " + ex.Message);
                 return false;
+            }
+        }
+
+        public static void StartWorkflow(string type, ServerEntity entity)
+        {
+            try
+            {
+                // don't start a workflow with no states
+                Workflow workflow = WorkflowList.Workflows[type];
+                if (workflow.States.Count == 0)
+                    return;
+
+                // create the new workflow instance and store in the workflow DB
+                DateTime now = DateTime.Now;
+                var instance = new WorkflowInstance()
+                {
+                    ID = Guid.NewGuid(),
+                    ItemID = entity.ID,
+                    WorkflowType = type,
+                    State = workflow.States[0].Name,
+                    Name = entity.Name,
+                    Body = "",
+                    Created = now,
+                    LastModified = now,
+                };
+                WorkflowWorker.SuggestionsContext.WorkflowInstances.Add(instance);
+                WorkflowWorker.SuggestionsContext.SaveChanges();
+
+                // invoke the workflow and process steps until workflow is blocked for user input
+                bool completed = true;
+                while (completed)
+                {
+                    completed = workflow.Execute(instance, entity);
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("StartWorkflow failed; ex: " + ex.Message);
             }
         }
     }

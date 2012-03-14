@@ -235,6 +235,15 @@
             if (operation != null)
             {
                 operation.StatusCode = (int?) code;
+
+                // fix the EntityID (some clients like the web-client have the server assign the ID for new entities)
+                if (operation.EntityID == Guid.Empty)
+                {
+                    ServerEntity entity = t as ServerEntity;
+                    if (entity != null)
+                        operation.EntityID = entity.ID;
+                }
+
                 this.StorageContext.SaveChanges();
             }
             return new HttpResponseMessageWrapper<T>(req, t, code);

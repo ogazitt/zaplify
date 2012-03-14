@@ -7,10 +7,12 @@ using System.Web;
 namespace BuiltSteady.Zaplify.ServerEntities
 {
 
-    public class User
+    public class User : ServerEntity
     {
+        // ServerEntity properties
         public Guid ID { get; set; }
         public string Name { get; set; }
+
         public string Email { get; set; }
         public DateTime CreateDate { get; set; }
 

@@ -12,10 +12,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         public abstract string TargetFieldName { get; }
         public abstract Func<
             WorkflowInstance, 
-            Item,       // item to operate over
-            object,     // extra state to send to the execution Function
-            List<Guid>, // an empty list of suggestion ID's that the function can populate
-            bool        // true for "completed", false for "not completed" (needs user input)
+            ServerEntity, // item to operate over
+            object,       // extra state to send to the execution Function
+            List<Guid>,   // an empty list of suggestion ID's that the function can populate
+            bool          // true for "completed", false for "not completed" (needs user input)
             > Function { get; }
     }
 }
