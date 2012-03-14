@@ -14,7 +14,7 @@
 
     public class UserMembershipProvider : MembershipProvider
     {
-        const int authTicketLifetime = 120;      // minutes
+        const int authTicketLifetime = 48;      // hours
 
         public override string ApplicationName
         {
@@ -281,10 +281,10 @@
                 userData += "|" + user.Email;
             }
             FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(1, user.Name, 
-                DateTime.Now, DateTime.Now.AddMinutes(authTicketLifetime), true, userData);
+                DateTime.Now, DateTime.Now.AddHours(authTicketLifetime), true, userData);
 
             HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(authTicket));
-            authCookie.Expires = DateTime.Now.AddMinutes(authTicketLifetime);
+            authCookie.Expires = DateTime.Now.AddHours(authTicketLifetime);
             return authCookie;
         }
 

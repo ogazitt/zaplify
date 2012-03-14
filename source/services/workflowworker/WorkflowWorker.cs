@@ -189,7 +189,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             try
             {
                 // get all the workflow instances for this Item
-                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entityID).ToList();
+                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entityID).ToList();
                 if (wis.Count > 0)
                 {
                     // loop over the workflow instances and dispatch the new message
@@ -214,7 +214,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             try
             {
                 // get all the workflow instances for this Item
-                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.ItemID == entity.ID).ToList();
+                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
                 if (wis.Count > 0)
                 {
                     // loop over the workflow instances and dispatch the new message
@@ -302,7 +302,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             try
             {
-                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.ItemID == entity.ID && wi.WorkflowType == workflowType).ToList();
+                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID && wi.WorkflowType == workflowType).ToList();
                 if (runningWFs.Count == 0)
                     Workflow.StartWorkflow(workflowType, entity);
             }

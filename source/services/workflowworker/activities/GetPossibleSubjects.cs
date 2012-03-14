@@ -40,14 +40,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             var sugg = new Suggestion()
                             {
                                 ID = Guid.NewGuid(),
-                                ItemID = item.ID,
+                                EntityID = item.ID,
+                                EntityType = entity.GetType().Name,
                                 WorkflowName = workflowInstance.Name,
                                 WorkflowInstanceID = workflowInstance.ID,
                                 State = workflowInstance.State,
                                 FieldName = TargetFieldName, 
                                 DisplayName = s,
                                 Value = s,
-                                TimeChosen = DateTime.Now
+                                TimeSelected = DateTime.UtcNow,
+                                // TODO: define Reasons and use to distinguish Chosen, Exclude, Like, etc.
+                                // ReasonSelected = Reasons.Chosen;                            
                             };
                             WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);

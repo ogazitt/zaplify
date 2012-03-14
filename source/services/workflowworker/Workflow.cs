@@ -33,7 +33,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 data = WorkflowWorker.
                     SuggestionsContext.
                     Suggestions.
-                    Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeChosen != null).
+                    Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeSelected != null).
                     Value;
             }
             catch
@@ -103,11 +103,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 var instance = new WorkflowInstance()
                 {
                     ID = Guid.NewGuid(),
-                    ItemID = entity.ID,
+                    EntityID = entity.ID,
                     WorkflowType = type,
                     State = workflow.States[0].Name,
                     Name = entity.Name,
-                    Body = "",
+                    InstanceData = "",
                     Created = now,
                     LastModified = now,
                 };

@@ -20,7 +20,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     // check for user data
                     if (data != null)
                     {
-                        workflowInstance.Body = (string) data;
+                        workflowInstance.InstanceData = (string)data;
                         return true;
                     }
 
@@ -36,14 +36,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             sugg = new Suggestion()
                             {
                                 ID = Guid.NewGuid(),
-                                ItemID = entity.ID,
+                                EntityID = entity.ID,
+                                EntityType = entity.GetType().Name,
                                 WorkflowName = workflowInstance.Name,
                                 WorkflowInstanceID = workflowInstance.ID,
                                 State = workflowInstance.State,
                                 FieldName = TargetFieldName, 
                                 DisplayName = s,
                                 Value = s,
-                                TimeChosen = null
+                                TimeSelected = null
                             };
                             WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
                             list.Add(sugg.ID);
@@ -52,8 +53,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         // if an exact match, set the TimeChosen to indicate the match
                         if (completed && possibleIntents.Count == 1)
                         {
-                            sugg.TimeChosen = DateTime.Now;
-                            workflowInstance.Body = sugg.Value;
+                            sugg.TimeSelected = DateTime.UtcNow;
+                            workflowInstance.InstanceData = sugg.Value;
                         }
                         WorkflowWorker.SuggestionsContext.SaveChanges();
                         return completed;
