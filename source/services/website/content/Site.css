@@ -110,12 +110,11 @@ Layout elements
 .header-content {
 }
 
-.header-content img {
+.header-content .logo {
     position: absolute;
     left: 20px;
     top: 0px;
-    Xheight: 65px;
-    Xwidth: 157;
+    cursor: pointer;
 }
 
 .main-content-region {

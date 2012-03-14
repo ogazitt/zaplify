@@ -4,21 +4,15 @@
 <asp:Content ContentPlaceHolderID="MasterHead" runat="server">
     <title>Dashboard</title>
     <link href="<%: Url.Content("~/content/dashboard/dashboard.css") %>" rel="stylesheet" type="text/css" />
-    <script src="<%: Url.Content("~/scripts/shared/service.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/shared/datamodel.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/controls.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/folderlist.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/foldermanager.js") %>" type="text/javascript"></script>
-
-<%
-    var siteUrl = this.ResolveUrl("~/");
-    var resourceUrl = siteUrl;
-%>
+    <script src="<%: Url.Content("~/scripts/dashboard/suggestionlist.js") %>" type="text/javascript"></script>
 
     <script type="text/javascript">
         // document ready handler
         $(function () {
-            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>")
             DataModel.Init('<%= ConstantsModel.JsonConstants %>', '<%= Model.JsonUserData %>');
             Dashboard.Init(DataModel);
         });

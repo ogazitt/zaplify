@@ -266,6 +266,12 @@ ListEditor.prototype.updateItem = function () {
     var item = this.parentControl.currentItem;
     var updatedItem = this.activeItem();
     if (item != null) {
+        // TEMPORARY: until List editor is added
+        if (item.IsList) {
+            var updatedItem = $.extend({}, item);
+            updatedItem.Name = this.$element.find('.fn-name').val();
+        }
+
         item.Update(updatedItem);
     }
 }

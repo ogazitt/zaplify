@@ -34,7 +34,7 @@ Dashboard
 }
 
 /*----------------------------------------------------------
-Dashboard Folders elements
+Dashboard Folders
 ----------------------------------------------------------*/
 
 .folder-button {
@@ -95,9 +95,53 @@ Dashboard Folders elements
     overflow:hidden;
     max-height: 34px;
 }
-.item-button.selected { background-color: #F5F0D2; }
+.item-button.selected, .item-button:hover { background-color: #F5F0D2; }
 
 .indent-1 { padding-left: 12px; }
+
+/*----------------------------------------------------------
+Dashboard Suggestions
+----------------------------------------------------------*/
+
+.group-button {
+    cursor: pointer;
+    font-weight: bold;
+    color: #E2E6E6;
+    margin: 4px 10px 0 10px;
+    padding: 4px 0 2px 0;
+    width: 180px;
+    height: 20px;
+    position: relative;
+    text-align: center;
+    background-color: #AEC2D0;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.group-button:hover {
+    font-weight: bold;
+}
+
+.group-choices {
+    cursor: pointer;
+    margin: 1px 10px 0 10px;
+    width: 178px;
+    Xmin-height: 132px;
+    border: 1px solid #C4BD97;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    background-color: white;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.choice-button {
+    padding: 2px;
+    border-bottom: 1px solid #DDD9C3;
+    overflow:hidden;
+    max-height: 34px;
+}
+.choice-button:hover { background-color: #F5F0D2; }
 
 /*----------------------------------------------------------
 Dashboard Toolbar

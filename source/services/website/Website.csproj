@@ -178,6 +178,7 @@
     <Content Include="content\images\zaplogo.png" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
+    <Content Include="scripts\dashboard\suggestionlist.js" />
     <Content Include="scripts\dashboard\foldermanager.js" />
     <Content Include="scripts\dashboard\folderlist.js" />
     <Content Include="scripts\jquery-1.7.1-vsdoc.js" />

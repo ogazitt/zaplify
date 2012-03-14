@@ -43,6 +43,7 @@ var Dashboard = function Dashboard$() {
     this.dataModel = null;
     this.folderList = null;
     this.folderManager = null;
+    this.suggestionList = null;
 }
 
 // ---------------------------------------------------------
@@ -54,7 +55,7 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
-    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderList.render('.dashboard-folders');
     Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
 
     // folder manager
@@ -62,13 +63,15 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
     Dashboard.ManageFolder();
 
     // suggestions list
+    Dashboard.suggestionList = new SuggestionList();
+    Dashboard.suggestionList.addSelectionChangedHandler('dashboard', this.ManageChoice);
 
     // bind events
     $(window).bind('load', Dashboard.resize);
     $(window).bind('resize', Dashboard.resize);
 }
 
-// event handler, do not reference this to access static Dashboard
+// event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     var currentFolder = Dashboard.folderManager.currentFolder;
@@ -81,6 +84,27 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var currentItem = Dashboard.folderManager.currentItem;
     if (item == null || item != currentItem) {
         Dashboard.folderManager.selectItem(item);
+    }
+
+    // get suggestions for currently selected user, folder, or item
+    Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+}
+
+// event handler, do not reference 'this' to access static Dashboard
+Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
+    if (suggestion.FieldName == FieldNames.FacebookConsent) {
+        var msg = 'You may be directed to Facebook to give consent.\r Do you want to continue?';
+        if (confirm(msg)) {
+            Service.GetFacebookConsent();
+        }
+    }
+
+    if (suggestion.FieldName == FieldNames.CloudADConsent) {
+        var msg = 'You may be directed the Cloud Directory to give consent.\r Do you want to continue?';
+        if (confirm(msg)) {
+            alert('Not yet implemented!');
+            //Service.GetCloudADConsent();
+        }
     }
 }
 
@@ -120,4 +144,22 @@ Dashboard.resize = function Dashboard$resize() {
 
     $(window).bind('resize', Dashboard.resize);
     Dashboard.resizing = false;
+}
+
+Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
+    // TODO: get suggestions for user, folder, or item
+    if (item != null) {
+        if (!item.IsList) {
+            // TODO: should we get suggestions for Lists?
+            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item.ID);
+        }
+    } else if (folder != null) {
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder.ID);
+    } else {
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
+    }
+}
+
+Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
+    Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
 }

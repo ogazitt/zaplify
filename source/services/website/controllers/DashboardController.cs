@@ -2,10 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Web;
     using System.Web.Mvc;
 
-    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Models;
 
@@ -45,6 +49,53 @@
             } 
             return RedirectToAction("Home", "Dashboard");
         }
+
+        // redirect for getting facebook consent access token
+        // TODO: should define these constants is configuration
+        private const string fbAppId = "411772288837103";
+        private const string fbSecretKey = "88a4f4d70a8c4060aa15c593a36062ff";
+        private const string fbRedirectPath = "dashboard/facebook";
+
+        public ActionResult Facebook(string code)
+        {
+            string uriTemplate = "https://graph.facebook.com/oauth/access_token?client_id={0}&redirect_uri={1}&client_secret={2}&code={3}";
+
+            var requestUrl = this.HttpContext.Request.Url;
+            var redirectUrl = string.Format("{0}://{1}/{2}", requestUrl.Scheme, requestUrl.Authority, fbRedirectPath);
+            string encodedRedirect = HttpUtility.UrlEncode(redirectUrl);
+            string uri = string.Format(uriTemplate, fbAppId, encodedRedirect, fbSecretKey, code);
+
+            WebRequest req = WebRequest.Create(uri);
+            WebResponse resp = req.GetResponse();
+
+            string token = null;
+            DateTime expires;
+
+            using (Stream stream = resp.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string data = reader.ReadToEnd();
+
+                string[] parts = data.Split('&');
+                foreach (var s in parts)
+                {
+                    string[] kv = s.Split('=');
+                    if (kv[0].Equals("access_token", StringComparison.Ordinal))
+                        token = kv[1];
+                    else if (kv[0].Equals("expires"))
+                        expires = DateTime.Now.AddSeconds(int.Parse(kv[1]));
+                }
+            }
+
+            // TODO: encrypt token, store expiration
+            UserStorageContext storage = Storage.NewUserContext;
+            User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == this.CurrentUser.Name);
+            user.UserCredentials[0].FBConsentToken = token;
+            storage.SaveChanges();
+
+            return RedirectToAction("Home", "Dashboard");
+        }
+
 
         void CreateDefaultFolders(UserDataModel model)
         {
@@ -177,5 +228,6 @@
                 throw;
             }
         }
+
     }
 }

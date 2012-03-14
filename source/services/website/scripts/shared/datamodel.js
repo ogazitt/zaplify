@@ -12,6 +12,7 @@ var DataModel = function DataModel$() { };
 DataModel.Constants = {};
 DataModel.User = {};
 DataModel.Folders = {};
+DataModel.Suggestions = {};
 
 // ---------------------------------------------------------
 // private members
@@ -118,12 +119,12 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
     return false;
 }
 
-DataModel.InsertFolder = function (newFolder, adjacentFolder, insertBefore) {
+DataModel.InsertFolder = function DataModel$InsertFolder(newFolder, adjacentFolder, insertBefore) {
     return DataModel.InsertItem(newFolder, null, adjacentFolder, insertBefore);
 };
 
 // generic helper for updating a folder or item, invokes server and updates local data model
-DataModel.UpdateItem = function DataModel$UpateItem(originalItem, updatedItem) {
+DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem) {
     if (originalItem != null && updatedItem != null) {
         var resource = (originalItem.IsFolder()) ? 'folders' : 'items';
         var data = [originalItem, updatedItem];
@@ -158,6 +159,29 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
         return true;
     }
     return false;
+}
+
+// helper for retrieving suggestions, invokes server and updates local data model
+DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entityID, fieldName) {
+    if (entityID == null) { entityID = DataModel.User.ID; }
+    var resourceID = (fieldName == null) ? entityID : entityID + '/' + fieldName;
+    Service.GetResource('suggestions', resourceID,
+        function (responseState) {                                      // successHandler
+            var suggestions = responseState.result;
+            DataModel.processSuggestions(suggestions);
+            if (handler != null) {
+                handler(DataModel.Suggestions);
+            }
+        },
+    // TEMPORARY: mock suggestions
+        function (responseState) {
+            DataModel.Suggestions = {};
+            if (entityID == DataModel.User.ID) {
+                DataModel.Suggestions = DataModel.mockUserSuggestions;
+            }
+            handler(DataModel.Suggestions);
+        }
+        );
 }
 
 // ---------------------------------------------------------
@@ -474,7 +498,11 @@ var FieldNames = {
     ItemTags : "ItemTags",          // TagIDs
     ItemRef : "ItemRef",            // ItemID
     Locations : "Locations",        // ItemID
-    Contacts : "Contacts"           // ItemID
+    Contacts: "Contacts",           // ItemID
+
+
+    FacebookConsent: "FacebookConsent",
+    CloudADConsent: "CloudADConsent"
 };
 
 // ---------------------------------------------------------
@@ -494,5 +522,15 @@ var DisplayTypes = {
     TagList : "TagList",
     Reference : "Reference",
     LocationList : "LocationList",
-    ContactList : "ContactList"   
+    ContactList : "ContactList"
 };
+
+// TEMPORARY
+DataModel.mockUserSuggestions = { Group1: { ID: 'Group1', DisplayName: 'Get Connected', Suggestions:
+        {
+            Suggestion1: { ID: 'Suggestion1', GroupID: 'Group1', DisplayName: 'Connect to Facebook', FieldName: FieldNames.FacebookConsent },
+            Suggestion2: { ID: 'Suggestion2', GroupID: 'Group1', DisplayName: 'Connect to Cloud Directory', FieldName: FieldNames.CloudADConsent }
+        }
+}
+};
+

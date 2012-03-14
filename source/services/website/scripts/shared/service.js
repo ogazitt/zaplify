@@ -13,28 +13,42 @@ Service.siteUrl = null;
 Service.resourceUrl = null;
 Service.requestQueue = [];
 
+Service.fbAppId = "411772288837103";
+Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
+Service.fbRedirectPath = "dashboard/facebook";
+
 // ---------------------------------------------------------
 // public methods
 
 Service.Init = function Service$Init(siteUrl, resourceUrl) {
     this.siteUrl = siteUrl;
     this.resourceUrl = resourceUrl;
+    $('.header-content .logo').click(Service.NavigateToDashboard);
 }
 
 Service.GetResource = function Service$GetResource(resource, id, successHandler, errorHandler) {
-    this.invokeResource(resource, id, "GET", null, successHandler, errorHandler);
+    Service.invokeResource(resource, id, "GET", null, successHandler, errorHandler);
 }
 
 Service.InsertResource = function Service$InsertResource(resource, data, successHandler, errorHandler) {
-    this.invokeResource(resource, null, "POST", data, successHandler, errorHandler);
+    Service.invokeResource(resource, null, "POST", data, successHandler, errorHandler);
 }
 
 Service.UpdateResource = function Service$UpdateResource(resource, id, data, successHandler, errorHandler) {
-    this.invokeResource(resource, id, "PUT", data, successHandler, errorHandler);
+    Service.invokeResource(resource, id, "PUT", data, successHandler, errorHandler);
 }
 
 Service.DeleteResource = function Service$DeleteResource(resource, id, data, successHandler, errorHandler) {
-    this.invokeResource(resource, id, "DELETE", data, successHandler, errorHandler);
+    Service.invokeResource(resource, id, "DELETE", data, successHandler, errorHandler);
+}
+
+Service.NavigateToDashboard = function Service$NavigateToDashboard() {
+    window.navigate(Service.siteUrl);
+}
+
+Service.GetFacebookConsent = function Service$GetFacebookConsent() {
+    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.siteUrl + Service.fbRedirectPath);
+    window.navigate(uri);
 }
 
 // ---------------------------------------------------------
