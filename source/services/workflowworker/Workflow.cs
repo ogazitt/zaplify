@@ -29,13 +29,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         {
             // get the data for the current state (if any is available)
             // this data will be fed into the Process method as its argument
-            object data = null;
+            List<Suggestion> data = null;
             try
             {
                 data = WorkflowWorker.
                     SuggestionsContext.
                     Suggestions.
                     Where(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State).ToList();
+                
+                // if there is no suggestion data, indicate this with a null reference instead
+                if (data.Count == 0)
+                    data = null;
             }
             catch
             {
@@ -107,7 +111,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     WorkflowType = type,
                     State = workflow.States[0].Name,
                     Name = entity.Name,
-                    InstanceData = instanceData ?? "",
+                    InstanceData = instanceData ?? "{}",
                     Created = now,
                     LastModified = now,
                 };

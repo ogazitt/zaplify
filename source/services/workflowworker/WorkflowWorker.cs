@@ -54,7 +54,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     // get a message from the queue.  note that the Dequeue call doesn't block
                     // on the availability of a message
                     MQMessage<Guid> msg = MessageQueue.DequeueMessage<Guid>();
-                    if (msg != null)
+                    while (msg != null)
                     {
                         Guid operationID = msg.Content;
                         Operation operation = null;
@@ -127,6 +127,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
                         // remove the message from the queue
                         MessageQueue.DeleteMessage(msg.MessageRef);
+
+                        // dequeue the next message
+                        msg = MessageQueue.DequeueMessage<Guid>();
                     }
                 }
                 catch (Exception ex)

@@ -74,17 +74,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     }
 
                     // analyze the item for possible subjects
-                    var possibleSubjects = new Dictionary<string, Guid>();
+                    var possibleSubjects = new Dictionary<string, string>();
                     bool completed = GetSubjects(item, possibleSubjects);
 
                     // if a subject was deciphered without user input, store it now and return
                     if (completed && possibleSubjects.Count == 1)
                     {
-                        string subjectID = null;
+                        string serializedSubject = null;
                         foreach (var value in possibleSubjects.Values)
-                            subjectID = value.ToString();
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, subjectID);
-                        StoreInstanceData(workflowInstance, FieldNames.Contacts, subjectID);
+                            serializedSubject = value;
+                        StoreInstanceData(workflowInstance, Workflow.LastStateData, serializedSubject);
+                        StoreInstanceData(workflowInstance, FieldNames.Contacts, serializedSubject);
                         return true;
                     }
 
@@ -103,7 +103,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 State = workflowInstance.State,
                                 FieldName = TargetFieldName, 
                                 DisplayName = s,
-                                Value = possibleSubjects[s].ToString(),
+                                Value = possibleSubjects[s],
                                 TimeSelected = null
                             };
                             WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
@@ -121,19 +121,96 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GetSubjects(Item item, Dictionary<string, Guid> possibleSubjects)
+        private FieldValue GetFieldValue(Item item, string fieldName, bool create)
+        {
+            Field field = null;
+            try
+            {
+                ItemType itemType = WorkflowWorker.UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
+                field = itemType.Fields.Single(f => f.Name == fieldName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            try 
+	        {	        
+                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                return contactsField;
+	        }
+	        catch (Exception)
+            {
+                if (create == true)
+                {
+                    FieldValue fv = new FieldValue()
+                    {
+                        FieldID = field.ID,
+                        ItemID = item.ID,
+                    };
+                    item.FieldValues.Add(fv);
+                    return fv;
+                }
+                return null;
+            }
+        }
+
+        private bool GetSubjects(Item item, Dictionary<string, string> possibleSubjects)
         {
             // TODO: get contacts from the Contacts folder, Facebook, and Cloud AD
             // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
-            
-            // HACK: hardcode names for now.  The guids associated with these are random and not in the Contacts!!
+
+            // HACK: hardcode names for now until the graph queries are in place
             foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
             {
-                possibleSubjects[subject] = Guid.NewGuid();
+                Item contact = CreateContact(item, subject);
+                possibleSubjects[subject] = JsonSerializer.Serialize(contact);
             }
 
             // inexact match
             return false;
+        }
+
+        private Item CreateContact(Item item, string name)
+        {
+            DateTime now = DateTime.UtcNow;
+            FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
+            Guid listID = contactsField.Value != null ? new Guid(contactsField.Value) : Guid.NewGuid();
+
+            // if the contacts sublist under the item doesn't exist, create it now
+            if (contactsField.Value == null)
+            {
+                Item list = new Item()
+                {
+                    ID = listID,
+                    Name = TargetFieldName,
+                    IsList = true,
+                    FolderID = item.FolderID,
+                    ItemTypeID = SystemItemTypes.Contact,
+                    ParentID = item.ID,
+                    UserID = item.UserID,
+                    Created = now,
+                    LastModified = now,
+                };
+                contactsField.Value = listID.ToString();
+                WorkflowWorker.UserContext.Items.Add(list);
+                WorkflowWorker.UserContext.SaveChanges();
+            }
+
+            // create the new contact (detached) - it will be JSON-serialized and placed into 
+            // the suggestion value field
+            Item contact = new Item()
+            {
+                ID = Guid.NewGuid(),
+                Name = name,
+                FolderID = item.FolderID,
+                ItemTypeID = SystemItemTypes.Contact,
+                ParentID = listID,
+                UserID = item.ID,
+                Created = now,
+                LastModified = now,
+            };
+
+            return contact;
         }
     }
 }
