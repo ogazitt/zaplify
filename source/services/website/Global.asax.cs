@@ -29,7 +29,7 @@ namespace Website
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Dashboard", action = "Home", id = UrlParameter.Optional }, // Parameter defaults
-                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "tags", "trace", "users" }) }
+                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "suggestions", "tags", "trace", "users" }) }
             );
 
             // map the WCF WebApi service routes
@@ -44,6 +44,7 @@ namespace Website
                     MaxReceivedMessageSize = 1048576, // 1MB == 32seconds of speech
                     MaxBufferSize = 1048576, // 1MB == 32seconds of speech
                 });
+            RouteTable.Routes.MapServiceRoute<SuggestionResource>("suggestions", null);
             RouteTable.Routes.MapServiceRoute<TagResource>("tags", null);
             RouteTable.Routes.MapServiceRoute<TraceResource>("trace", null);
             RouteTable.Routes.MapServiceRoute<UserResource>("users", null);

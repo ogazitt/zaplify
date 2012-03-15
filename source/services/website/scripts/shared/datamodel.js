@@ -162,26 +162,25 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
 }
 
 // helper for retrieving suggestions, invokes server and updates local data model
-DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entityID, fieldName) {
-    if (entityID == null) { entityID = DataModel.User.ID; }
-    var resourceID = (fieldName == null) ? entityID : entityID + '/' + fieldName;
-    Service.GetResource('suggestions', resourceID,
+DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entity, fieldName) {
+    var filter = {};
+    if (entity == null) { entity = DataModel.User; }
+    filter.EntityID = entity.ID;
+    filter.FieldName = fieldName;
+    filter.EntityType = 'User';
+    if (entity.hasOwnProperty('UserID')) {
+        filter.EntityType = (entity.hasOwnProperty('FolderID')) ? 'Item' : 'Folder';
+    }
+
+    // using POST to query for suggestions
+    Service.InsertResource('suggestions', filter,
         function (responseState) {                                      // successHandler
             var suggestions = responseState.result;
             DataModel.processSuggestions(suggestions);
             if (handler != null) {
                 handler(DataModel.Suggestions);
             }
-        },
-    // TEMPORARY: mock suggestions
-        function (responseState) {
-            DataModel.Suggestions = {};
-            if (entityID == DataModel.User.ID) {
-                DataModel.Suggestions = DataModel.mockUserSuggestions;
-            }
-            handler(DataModel.Suggestions);
-        }
-        );
+        });
 }
 
 // ---------------------------------------------------------
@@ -258,6 +257,27 @@ DataModel.processUserData = function DataModel$processUserData(jsonParsed) {
 
     // process custom ItemTypes and Tags (add to constants?)
 
+}
+
+
+DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed) {
+    var suggestions = {};
+    var groupNameMap = {};
+    var nGroup = 0;
+
+    for (var i in jsonParsed) {
+        var s = jsonParsed[i];
+        var groupKey = s.WorkflowInstanceID + s.State;
+        var groupID = groupNameMap[groupKey];
+        if (groupID === undefined) {
+            groupID = 'Group_' + (nGroup++).toString();
+            groupNameMap[groupKey] = groupID;
+            suggestions[groupID] = { GroupID: groupID, DisplayName: s.State, Suggestions: {} };
+        }
+        s.GroupID = groupID;
+        suggestions[groupID].Suggestions[s.ID] = s;
+    }
+    DataModel.Suggestions = suggestions;
 }
 
 DataModel.processFolders = function DataModel$processFolders(folders) {
@@ -525,12 +545,4 @@ var DisplayTypes = {
     ContactList : "ContactList"
 };
 
-// TEMPORARY
-DataModel.mockUserSuggestions = { Group1: { ID: 'Group1', DisplayName: 'Get Connected', Suggestions:
-        {
-            Suggestion1: { ID: 'Suggestion1', GroupID: 'Group1', DisplayName: 'Connect to Facebook', FieldName: FieldNames.FacebookConsent },
-            Suggestion2: { ID: 'Suggestion2', GroupID: 'Group1', DisplayName: 'Connect to Cloud Directory', FieldName: FieldNames.CloudADConsent }
-        }
-}
-};
 

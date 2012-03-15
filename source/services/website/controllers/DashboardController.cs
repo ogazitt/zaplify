@@ -93,6 +93,16 @@
             user.UserCredentials[0].FBConsentToken = token;
             storage.SaveChanges();
 
+            
+            try
+            {   // timestamp suggestion
+                SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
+                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.FieldName == FieldNames.FacebookConsent);
+                suggestion.TimeSelected = DateTime.UtcNow;
+                suggestionsContext.SaveChanges();
+            }
+            catch (Exception) { }
+
             return RedirectToAction("Home", "Dashboard");
         }
 
@@ -221,6 +231,26 @@
                 model.StorageContext.Folders.Add(folder);
 
                 model.StorageContext.SaveChanges();
+
+
+                // TEMPORARY: add "Get Connected" suggestions for User
+                SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
+                Suggestion connectToFacebook = new Suggestion() 
+                {
+                    ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
+                    State = "Get Connected", DisplayName = "Connect to Facebook", FieldName = FieldNames.FacebookConsent, 
+                    WorkflowInstanceID = Guid.NewGuid(), WorkflowName="InitializeUser"
+                };
+                suggestionsContext.Suggestions.Add(connectToFacebook);
+                Suggestion connectToCloudAD = new Suggestion() 
+                {
+                    ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
+                    State = "Get Connected", DisplayName = "Connect to Cloud Directory", FieldName = FieldNames.CloudADConsent, 
+                    WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowName = connectToFacebook.WorkflowName
+                };
+                suggestionsContext.Suggestions.Add(connectToCloudAD);
+
+                suggestionsContext.SaveChanges();
             }
             catch (Exception ex)
             {

@@ -9,14 +9,14 @@
 
 <%
     var requestUrl = this.Context.Request.Url;
-    //var siteUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
+    var domainUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
     var siteUrl = ResolveUrl("~/");
     var resourceUrl = siteUrl;
 %>
     <script type="text/javascript">
         // document ready handler
         $(function () {
-            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>")
+            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>", "<%=domainUrl %>")
         });
     </script>
 

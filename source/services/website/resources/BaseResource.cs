@@ -3,20 +3,20 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
-    using System.Runtime.Serialization.Json;
     using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Web;
     using System.Web.Security;
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
-    using BuiltSteady.Zaplify.Website.Models;
-    using BuiltSteady.Zaplify.Website.Models.AccessControl;
     using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
     public class BaseResource
     {
@@ -138,7 +138,7 @@
         }
 
         // base code to process message and deserialize body to expected type
-        protected object ProcessRequestBody(HttpRequestMessage req, Type t, out Operation operation)
+        protected object ProcessRequestBody(HttpRequestMessage req, Type t, out Operation operation, bool skipOperation = false)
         {
             TraceLog.TraceFunction();
             operation = null;
@@ -170,6 +170,8 @@
             {
                 TraceLog.TraceError("ProcessRequestBody: deserialization failed: " + ex.Message);
             }
+
+            if (skipOperation) return value;
 
             try
             {   

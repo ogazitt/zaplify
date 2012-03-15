@@ -151,10 +151,10 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
     if (item != null) {
         if (!item.IsList) {
             // TODO: should we get suggestions for Lists?
-            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item.ID);
+            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
         }
     } else if (folder != null) {
-        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder.ID);
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
     } else {
         this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
     }

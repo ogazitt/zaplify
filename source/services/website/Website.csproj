@@ -157,6 +157,9 @@
     <Compile Include="resources\ItemTypeResource.cs" />
     <Compile Include="resources\OperationResource.cs" />
     <Compile Include="resources\SpeechResource.cs" />
+    <Compile Include="resources\SuggestionResource.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="resources\TagResource.cs" />
     <Compile Include="resources\ItemResource.cs" />
     <Compile Include="resources\TraceResource.cs" />

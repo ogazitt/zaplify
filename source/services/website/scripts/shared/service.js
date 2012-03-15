@@ -11,6 +11,7 @@ var Service = function Service$() { }
 
 Service.siteUrl = null;
 Service.resourceUrl = null;
+Service.domainUrl = null;
 Service.requestQueue = [];
 
 Service.fbAppId = "411772288837103";
@@ -20,9 +21,10 @@ Service.fbRedirectPath = "dashboard/facebook";
 // ---------------------------------------------------------
 // public methods
 
-Service.Init = function Service$Init(siteUrl, resourceUrl) {
+Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl) {
     this.siteUrl = siteUrl;
     this.resourceUrl = resourceUrl;
+    this.domainUrl = domainUrl;
     $('.header-content .logo').click(Service.NavigateToDashboard);
 }
 
@@ -47,7 +49,7 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
 }
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
-    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.siteUrl + Service.fbRedirectPath);
+    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath);
     window.navigate(uri);
 }
 
