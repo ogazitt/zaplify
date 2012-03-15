@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
-using BuiltSteady.Zaplify.ServiceHost;
+using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using BuiltSteady.Zaplify.MailWorker;
-using BuiltSteady.Zaplify.WorkflowWorker;
-
+using BuiltSteady.Zaplify.ServiceHost;
 
 namespace BuiltSteady.Zaplify.WorkerRole
 {
@@ -18,14 +16,22 @@ namespace BuiltSteady.Zaplify.WorkerRole
 
         public override bool OnStart()
         {
-            // Log function entrance
-            TraceLog.TraceFunction();
-
             // Set the maximum number of concurrent connections 
             ServicePointManager.DefaultConnectionLimit = 12;
 
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
+
+            var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
+            config.Logs.ScheduledTransferPeriod = TimeSpan.FromMinutes(1.0);
+            config.Logs.BufferQuotaInMB = 1000;
+            config.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+
+            // don't need to start diagnostics since it's automatically started with the Import Diagnostics in in ServiceDefinition.csdef
+            DiagnosticMonitor.Start("Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString", config);
+
+            // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
+            TraceLog.TraceFunction();
 
             return base.OnStart();
         }
@@ -56,7 +62,9 @@ namespace BuiltSteady.Zaplify.WorkerRole
                             workflowWorker = null;
                         }
                     }) { Name = "WorkflowWorker" };
+                    
                     workflowThread.Start();
+                    TraceLog.TraceInfo("WorkflowWorker started");
                 }
 
                 if (mailWorker == null)
@@ -75,7 +83,9 @@ namespace BuiltSteady.Zaplify.WorkerRole
                             mailWorker = null;
                         }
                     }) { Name = "MailWorker" };
+
                     mailThread.Start();
+                    TraceLog.TraceInfo("MailWorker started");
                 }
 
                 // sleep for the timeout period

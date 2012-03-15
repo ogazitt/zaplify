@@ -11,25 +11,58 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.GetPossibleIntents; } }
         public override string TargetFieldName { get { return FieldNames.Intent; } }
-        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get
             {
-                return ((workflowInstance, entity, data, list) =>
+                return ((workflowInstance, entity, data) =>
                 {
-                    // check for user data
-                    if (data != null)
+                    // if the workflow has already computed an intent, store it now and return 
+                    string intent = GetInstanceData(workflowInstance, FieldNames.Intent);
+                    if (intent != null)
                     {
-                        workflowInstance.InstanceData = (string)data;
+                        StoreInstanceData(workflowInstance, Workflow.LastStateData, intent);
                         return true;
                     }
 
+                    // check for user input
+                    if (data != null)
+                    {
+                        var suggList = data as List<Suggestion>;
+                        if (suggList != null)
+                        {
+                            // return true if a user has selected an action
+                            foreach (var sugg in suggList)
+                            {
+                                if (sugg.TimeSelected != null)
+                                {
+                                    StoreInstanceData(workflowInstance, FieldNames.Intent, sugg.Value);
+                                    StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
+                                    return true;
+                                }
+                            }
+
+                            // return false if the user hasn't yet selected an action but suggestions were already generated
+                            // for the current state (we don't want a duplicate set of suggestions)
+                            return false;
+                        }
+                    }
+
+                    // analyze the entity name for possible intents
                     List<string> possibleIntents = new List<string>();
                     bool completed = GetIntents(entity.Name, possibleIntents);
 
+                    // if an intent was deciphered without user input, store it now and return
+                    if (completed && possibleIntents.Count == 1)
+                    {
+                        StoreInstanceData(workflowInstance, Workflow.LastStateData, possibleIntents[0]);
+                        StoreInstanceData(workflowInstance, FieldNames.Intent, possibleIntents[0]);
+                        return true;
+                    }
+
+                    // add suggestions received in possibleIntents
                     try
                     {
-                        // add suggestions received in possibleIntents
                         Suggestion sugg = null;
                         foreach (var s in possibleIntents)
                         {
@@ -47,23 +80,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 TimeSelected = null
                             };
                             WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                            list.Add(sugg.ID);
                         }
 
-                        // if an exact match, set the TimeChosen to indicate the match
-                        if (completed && possibleIntents.Count == 1)
-                        {
-                            sugg.TimeSelected = DateTime.UtcNow;
-                            workflowInstance.InstanceData = sugg.Value;
-                        }
                         WorkflowWorker.SuggestionsContext.SaveChanges();
                         return completed;
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceError("GetSuggestions Activity failed; ex: " + ex.Message);
+                        TraceLog.TraceError("GetPossibleIntents Activity failed; ex: " + ex.Message);
+                        return false;
                     }
-                    return false;
                 });
             }
         }

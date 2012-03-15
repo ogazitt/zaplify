@@ -10,27 +10,30 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.StartWorkflow; } }
         public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get
             {
-                return ((workflowInstance, entity, data, list) =>
+                return ((workflowInstance, entity, data) =>
                 {
                     try
                     {
-                        string workflowName = null;
+                        // get the last state's result as the workflow name
+                        string workflowName = GetInstanceData(workflowInstance, Workflow.LastStateData);
+                        
+                        // if the data passed in isn't null, use this instead
                         if (data != null)
                             workflowName = (string)data;
-                        else if (workflowInstance.InstanceData != "")
-                            workflowName = workflowInstance.InstanceData;
-                        
+                         
                         if (workflowName != null)
-                            Workflow.StartWorkflow(workflowName, entity);
+                            Workflow.StartWorkflow(workflowName, entity, workflowInstance.InstanceData);
                     }
                     catch (Exception ex)
                     {
                         TraceLog.TraceError("StartWorkflow Activity failed; ex: " + ex.Message);
                     }
+
+                    // the state should always move forward
                     return true;
                 });
             }

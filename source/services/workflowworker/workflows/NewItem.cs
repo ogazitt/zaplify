@@ -13,10 +13,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         public override string Name { get { return WorkflowNames.NewItem; } }
         public override List<WorkflowState> States { get { return states; } }
 
+        private static string DetermineIntent = "Is this what you're trying to do?";
+        private static string InvokeWorkflow = "Invoke Workflow";
+
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
-            new WorkflowState() { Name = "FindIntent", Activity = ActivityNames.GetPossibleIntents, NextState = "InvokeWorkflow" },
-            new WorkflowState() { Name = "InvokeWorkflow", Activity = ActivityNames.StartWorkflow, NextState = null },
+            new WorkflowState() { Name = DetermineIntent, Activity = ActivityNames.GetPossibleIntents, NextState = InvokeWorkflow },
+            new WorkflowState() { Name = InvokeWorkflow, Activity = ActivityNames.StartWorkflow, NextState = null },
         };
     }
 }

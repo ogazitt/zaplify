@@ -10,11 +10,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.GetSuggestions; } }
         public override string TargetFieldName { get { return FieldNames.SuggestedLink; } }
-        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get
             {
-                return ((workflowInstance, entity, data, list) =>
+                return ((workflowInstance, entity, data) =>
                 {
                     Item item = entity as Item;
                     if (item == null)
@@ -39,12 +39,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 FieldName = TargetFieldName, 
                                 DisplayName = s,
                                 Value = url,
-                                TimeSelected = DateTime.UtcNow,
+                                //TimeSelected = DateTime.UtcNow,
                                 // TODO: define Reasons and use to distinguish Chosen, Exclude, Like, etc.
                                 // ReasonSelected = Reasons.Chosen;                            
                             };
                             WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                            list.Add(sugg.ID);
                         }
                         WorkflowWorker.SuggestionsContext.SaveChanges();
                         return true;

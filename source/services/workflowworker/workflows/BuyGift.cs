@@ -13,12 +13,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         public override string Name { get { return WorkflowNames.BuyGift; } }
         public override List<WorkflowState> States { get { return states; } }
 
+        private static string DetermineSubject = "Who is this for?";
+        private static string GetSubjectAttributes = "Get the person's attributes";
+        private static string DetermineDate = "When is this due?";
+        private static string GetSuggestions = "Helpful links";
+
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
-//            new WorkflowState() { Name = "DetermineSubject", Activity = ActivityNames.GetPossibleSubjects, NextState = "GetSubjectAttributes" },
-//            new WorkflowState() { Name = "GetSubjectAttributes", Activity = ActivityNames.GetSubjectAttributes, NextState = "DetermineDate" },
-//            new WorkflowState() { Name = "DetermineDate", Activity = ActivityNames.GetPossibleDates, NextState = "GetSuggestions" },
-            new WorkflowState() { Name = "GetSuggestions", Activity = ActivityNames.GetSuggestions, NextState = null },
+            new WorkflowState() { Name = DetermineSubject, Activity = ActivityNames.GetPossibleSubjects, NextState = GetSubjectAttributes },
+            new WorkflowState() { Name = GetSubjectAttributes, Activity = ActivityNames.GetSubjectAttributes, NextState = DetermineDate },
+            new WorkflowState() { Name = DetermineDate, Activity = ActivityNames.GetPossibleDates, NextState = GetSuggestions },
+            new WorkflowState() { Name = GetSuggestions, Activity = ActivityNames.GetSuggestions, NextState = null },
         };
     }
 }

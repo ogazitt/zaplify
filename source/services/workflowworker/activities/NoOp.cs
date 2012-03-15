@@ -10,11 +10,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string Name { get { return ActivityNames.StartWorkflow; } }
         public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, ServerEntity, object, List<Guid>, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get
             {
-                return ((workflowInstance, entity, data, list) =>
+                return ((workflowInstance, entity, data) =>
                 {
                     return true;
                 });

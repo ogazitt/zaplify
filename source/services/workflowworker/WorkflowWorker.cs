@@ -249,7 +249,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             if (item != null)
             {
-                Workflow.StartWorkflow(WorkflowNames.NewItem, item);
+                Workflow.StartWorkflow(WorkflowNames.NewItem, item, null);
             }
 
             if (folder != null)
@@ -258,7 +258,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             if (user != null)
             {
-                Workflow.StartWorkflow(WorkflowNames.NewUser, user);
+                Workflow.StartWorkflow(WorkflowNames.NewUser, user, null);
             }
         }
 
@@ -304,11 +304,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID && wi.WorkflowType == workflowType).ToList();
                 if (runningWFs.Count == 0)
-                    Workflow.StartWorkflow(workflowType, entity);
+                    Workflow.StartWorkflow(workflowType, entity, null);
             }
             catch (Exception)
             {
-                Workflow.StartWorkflow(workflowType, entity);
+                Workflow.StartWorkflow(workflowType, entity, null);
             }
         }
 

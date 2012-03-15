@@ -15,6 +15,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         public abstract string Name { get; }
         public abstract List<WorkflowState> States { get; }
 
+        public static string LastStateData = "LastStateData";
+
         /// <summary>
         /// This is the typical way to execute a workflow.  This implementation
         /// will retrieve any data (e.g. user selection, or a result of a previous Activity)
@@ -33,8 +35,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 data = WorkflowWorker.
                     SuggestionsContext.
                     Suggestions.
-                    Single(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State && sugg.TimeSelected != null).
-                    Value;
+                    Where(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State).ToList();
             }
             catch
             {
@@ -63,8 +64,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // get current state, invoke action
                 WorkflowState state = States.Single(s => s.Name == instance.State);
                 var activity = ActivityList.Activities[state.Activity];
-                List<Guid> results = new List<Guid>();
-                bool completed = activity.Function.Invoke(instance, entity, data, results);
+                bool completed = activity.Function.Invoke(instance, entity, data);
                 instance.LastModified = DateTime.Now;
 
                 // if the activity completed, advance the workflow state
@@ -77,8 +77,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         WorkflowWorker.SuggestionsContext.WorkflowInstances.Remove(instance);
                         completed = false;
                     }
-                    WorkflowWorker.SuggestionsContext.SaveChanges();
                 }
+                WorkflowWorker.SuggestionsContext.SaveChanges();
 
                 return completed;
             }
@@ -89,7 +89,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
         }
 
-        public static void StartWorkflow(string type, ServerEntity entity)
+        public static void StartWorkflow(string type, ServerEntity entity, string instanceData)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     WorkflowType = type,
                     State = workflow.States[0].Name,
                     Name = entity.Name,
-                    InstanceData = "",
+                    InstanceData = instanceData ?? "",
                     Created = now,
                     LastModified = now,
                 };
