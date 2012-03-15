@@ -13,7 +13,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         public override string Name { get { return WorkflowNames.FindIntent; } }
         public override List<WorkflowState> States { get { return states; } }
 
-        private static string DetermineIntent = "Is this what you're trying to do?";
+        private static string DetermineIntent = "Are you trying to";
         
         private static List<WorkflowState> states = new List<WorkflowState>()
         {
