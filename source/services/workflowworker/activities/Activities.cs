@@ -13,7 +13,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         public const string GetPossibleLocations = "Get Possible Locations";
         public const string GetPossibleSubjects = "Get Possible Subjects";
         public const string GetSubjectAttributes = "Get Subject Attributes";
-        public const string GetSuggestions = "Get Suggestions";
+        public const string GetSubjectLikes = "Get Subject Likes";
+        public const string GetBingSuggestions = "Get Bing Suggestions";
         public const string NoOp = "NoOp";
         public const string StartWorkflow = "Start Workflow";
     }
@@ -22,12 +23,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public static Dictionary<string, WorkflowActivity> Activities = new Dictionary<string, WorkflowActivity>()
         {
+            { ActivityNames.GetBingSuggestions, new GetBingSuggestions() },
             { ActivityNames.GetPossibleIntents, new GetPossibleIntents() },
             { ActivityNames.GetPossibleDates, null },
             { ActivityNames.GetPossibleLocations, null },
             { ActivityNames.GetPossibleSubjects, new GetPossibleSubjects() },
-            { ActivityNames.GetSubjectAttributes, null },
-            { ActivityNames.GetSuggestions, new GetSuggestions() },
+            { ActivityNames.GetSubjectAttributes, new GetSubjectAttributes() },
+            { ActivityNames.GetSubjectLikes, new GetSubjectLikes() },
             { ActivityNames.NoOp, new NoOp() },
             { ActivityNames.StartWorkflow, new StartWorkflow() },
         };

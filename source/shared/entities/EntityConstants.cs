@@ -79,6 +79,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         // non user-visible FieldNames
         public const string Intent = "Intent";              // String
         public const string SuggestedLink = "SuggestedLink"; // URL
+        public const string Likes = "Likes";                // comma-delimited string
 
         // UX action FieldNames
         public const string FacebookConsent = "FacebookConsent";

@@ -6,9 +6,9 @@ using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
-    public class GetSuggestions : WorkflowActivity
+    public class GetBingSuggestions : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetSuggestions; } }
+        public override string Name { get { return ActivityNames.GetBingSuggestions; } }
         public override string TargetFieldName { get { return FieldNames.SuggestedLink; } }
         public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {

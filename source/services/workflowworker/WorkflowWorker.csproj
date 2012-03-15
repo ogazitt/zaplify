@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\GetSubjectLikes.cs" />
+    <Compile Include="activities\GetSubjectAttributes.cs" />
     <Compile Include="activities\NoOp.cs" />
     <Compile Include="activities\GetPossibleSubjects.cs" />
     <Compile Include="activities\GetPossibleIntents.cs" />
@@ -58,7 +60,7 @@
     <Compile Include="workflows\NameChanged.cs" />
     <Compile Include="workflows\NewItem.cs" />
     <Compile Include="workflows\Workflows.cs" />
-    <Compile Include="activities\GetSuggestions.cs" />
+    <Compile Include="activities\GetBingSuggestions.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowState.cs" />
     <Compile Include="workflows\BuyGift.cs" />
