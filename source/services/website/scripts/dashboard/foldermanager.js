@@ -374,7 +374,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     this.$element.empty();
 
     if (this.mode == ItemEditor.Modes.New) {
-        $field = this.renderField(this.$element, this.itemType.Fields[FieldNames.Name]);
+        $field = this.renderNameField(this.$element, mode);
         $field.val('');
     } else {
         this.renderFields(this.$element, this.mode);
@@ -387,6 +387,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
 }
 
 ItemEditor.prototype.renderFields = function (container, mode) {
+    this.renderNameField(container, mode);
     for (var name in this.itemType.Fields) {
         var field = this.itemType.Fields[name];
         if ((field.IsPrimary || mode == ItemEditor.Modes.Edit)) {
@@ -395,15 +396,48 @@ ItemEditor.prototype.renderFields = function (container, mode) {
     }
 }
 
-ItemEditor.prototype.renderField = function (container, field) {
+ItemEditor.prototype.renderNameField = function (container, mode) {
     var $field, $wrapper;
+    var field = this.itemType.Fields[FieldNames.Complete];
+    if (field != null && mode != ItemEditor.Modes.New) {
+        // optionally render complete field
+        $wrapper = $('<div class="item-field-complete"></div>').appendTo(container);
+        $field = $('<input type="checkbox" />').appendTo($wrapper);
+        $field.addClass(field.Class);
+        $field.attr('title', field.DisplayName);
+        $field.data('control', this);
+        if (this.getFieldValue(field) == 'true') {
+            $field.attr('checked', 'checked');
+        }
+        $field.change(function (event) { Control.get(this).handleChange(event); });
+    } else {
+        $wrapper = $('<div class="item-field-name"></div>').appendTo(container);
+    }
+
+    // render name field
+    field = this.itemType.Fields[FieldNames.Name];
+    var $field = $('<input type="text" />').appendTo($wrapper);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.getFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+
+    return $field;
+}
+
+ItemEditor.prototype.renderField = function (container, field) {
+    if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
+        return;
+
+    var $field;
     var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
+    var $wrapper = $(wrapper).appendTo(container);
 
     switch (field.DisplayType) {
         case DisplayTypes.Reference:
             break;
         case DisplayTypes.Checkbox:
-            $wrapper = $(wrapper).appendTo(container);
             $wrapper.find('.item-field-label').addClass('inline');
             $field = $('<input type="checkbox" />').appendTo($wrapper);
             $field.addClass(field.Class);
@@ -414,17 +448,7 @@ ItemEditor.prototype.renderField = function (container, field) {
             $field.change(function (event) { Control.get(this).handleChange(event); });
             break;
         case DisplayTypes.Text:
-            if (field.Name == FieldNames.Name) {            // special-case Name field
-                $field = $('<input type="text" />').appendTo(container);
-                $field.addClass(field.Class);
-                $field.data('control', this);
-                $field.val(this.getFieldValue(field));
-                $field.change(function (event) { Control.get(this).handleChange(event); });
-                $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
-                break;
-            }
         default:
-            $wrapper = $(wrapper).appendTo(container);
             $field = $('<input type="text" />').appendTo($wrapper);
             $field.addClass(field.Class);
             $field.data('control', this);
