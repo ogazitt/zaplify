@@ -10,8 +10,8 @@ namespace BuiltSteady.Zaplify.ServerEntities
     public class User : ServerEntity
     {
         // ServerEntity properties
-        public Guid ID { get; set; }
-        public string Name { get; set; }
+        public override Guid ID { get; set; }
+        public override string Name { get; set; }
 
         public string Email { get; set; }
         public DateTime CreateDate { get; set; }
