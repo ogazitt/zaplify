@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 {
     public class WorkflowWorker
     {
-        const int timeout = 30000;  // 30 seconds
+        const int timeout = 5000;  // 5 seconds
 
         private static UserStorageContext userContext;
         public static UserStorageContext UserContext
