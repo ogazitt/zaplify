@@ -78,6 +78,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             // add suggestions received in possibleLikes
             try
             {
+                int num = 0;
                 foreach (var s in suggestions.Keys)
                 {
                     var sugg = new Suggestion()
@@ -94,6 +95,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         TimeSelected = null
                     };
                     WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
+
+                    // limit to four suggestions
+                    if (num++ == 4)
+                        break;
                 }
 
                 WorkflowWorker.SuggestionsContext.SaveChanges();
