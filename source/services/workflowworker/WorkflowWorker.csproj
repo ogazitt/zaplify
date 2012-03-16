@@ -45,6 +45,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="zaplify.bing">
+      <HintPath>..\..\packages\Bing.1.0.0\lib\net40\zaplify.bing.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />

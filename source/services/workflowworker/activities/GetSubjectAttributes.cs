@@ -17,146 +17,27 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             {
                 return ((workflowInstance, entity, data) =>
                 {
-                    Item item = entity as Item;
-                    if (item == null)
-                    {
-                        TraceLog.TraceError("GetSubjectAttributes: non-Item passed in to Function");
-                        return true;  // this will terminate the state
-                    }
-
-                    if (item.ItemTypeID != SystemItemTypes.Contact)
-                    {
-                        TraceLog.TraceError("GetSubjectAttributes: non-Task Item passed in to Function");
-                        return true;  // this will terminate the state
-                    }
-
-                    // if the Contacts field has been set and there are actual contacts in that sublist, a subject is already selected
-                    // and this state can terminate
-                    try
-                    {
-                        FieldValue likesField = GetFieldValue(item, FieldNames.Likes, false);
-                        if (likesField != null && likesField.Value != null)
-                        {
-                            StoreInstanceData(workflowInstance, Workflow.LastStateData, likesField.Value);
-                            return true;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // not an error condition if the Contacts field wasn't found or the list is empty
-                    }
-
-                    // if a user selected a suggestion, this state can terminate
-                    if (data != null)
-                    {
-                        var suggList = data as List<Suggestion>;
-                        if (suggList != null)
-                        {
-                            // return true if a user has selected an action
-                            foreach (var sugg in suggList)
-                                if (sugg.TimeSelected != null)
-                                {
-                                    StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
-                                    return true;
-                                }
-
-                            // return false if the user hasn't yet selected an action but suggestions were already generated
-                            // for the current state (we don't want a duplicate set of suggestions)
-                            return false;
-                        }
-                    }
-
-                    // analyze the contact for possible likes
-                    var possibleLikes = new Dictionary<string, string>();
-                    bool completed = GetLikes(item, possibleLikes);
-
-                    // if a like was deciphered without user input, store it now and return
-                    if (completed && possibleLikes.Count == 1)
-                    {
-                        string like = null;
-                        foreach (var value in possibleLikes.Values)
-                            like = value;
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, like);
-                        StoreInstanceData(workflowInstance, FieldNames.Likes, like);
-                        return true;
-                    }
-
-                    // add suggestions received in possibleSubjects
-                    try
-                    {
-                        foreach (var s in possibleLikes.Keys)
-                        {
-                            var sugg = new Suggestion()
-                            {
-                                ID = Guid.NewGuid(),
-                                EntityID = item.ID,
-                                EntityType = entity.GetType().Name,
-                                WorkflowName = workflowInstance.Name,
-                                WorkflowInstanceID = workflowInstance.ID,
-                                State = workflowInstance.State,
-                                FieldName = TargetFieldName, 
-                                DisplayName = s,
-                                Value = possibleLikes[s],
-                                TimeSelected = null
-                            };
-                            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                        }
-                        
-                        WorkflowWorker.SuggestionsContext.SaveChanges();
-                        return false;
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceError("GetSubjectAttributes Activity failed; ex: " + ex.Message);
-                        return false;
-                    }
+                    return Execute(
+                        workflowInstance,
+                        entity,
+                        data,
+                        SystemItemTypes.Task,
+                        (instance, e, dict) => { return GenerateSuggestions(instance, e, dict); });
                 });
             }
         }
 
-        private FieldValue GetFieldValue(Item item, string fieldName, bool create)
+        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
-            Field field = null;
-            try
+            Item item = entity as Item;
+            if (item == null)
             {
-                ItemType itemType = WorkflowWorker.UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
-                field = itemType.Fields.Single(f => f.Name == fieldName);
+                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                return true;  // this will terminate the state
             }
-            catch (Exception)
-            {
-                return null;
-            }
-            try 
-	        {	        
-                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                return contactsField;
-	        }
-	        catch (Exception)
-            {
-                if (create == true)
-                {
-                    FieldValue fv = new FieldValue()
-                    {
-                        FieldID = field.ID,
-                        ItemID = item.ID,
-                    };
-                    item.FieldValues.Add(fv);
-                    return fv;
-                }
-                return null;
-            }
-        }
 
-        private bool GetLikes(Item item, Dictionary<string, string> possibleLikes)
-        {
-            // TODO: get likes from the Contacts folder, Facebook, and Cloud AD
-            // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
-
-            // HACK: hardcode names for now until the graph queries are in place
-            foreach (var like in "Golf;Seattle Sounders;Malcolm Gladwell".Split(';'))
-            {
-                possibleLikes[like] = like;
-            }
+            // TODO: get subject attributes from the Contacts folder, Facebook, and Cloud AD
+            // these will hang off of the contact as well as in the workflow InstanceData
 
             // inexact match
             return false;

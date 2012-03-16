@@ -108,9 +108,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 {
                     ID = Guid.NewGuid(),
                     EntityID = entity.ID,
+                    EntityName = entity.Name,
                     WorkflowType = type,
                     State = workflow.States[0].Name,
-                    Name = entity.Name,
                     InstanceData = instanceData ?? "{}",
                     Created = now,
                     LastModified = now,

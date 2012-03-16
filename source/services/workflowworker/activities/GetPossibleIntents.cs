@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
@@ -17,85 +18,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             {
                 return ((workflowInstance, entity, data) =>
                 {
-                    // if the workflow has already computed an intent, store it now and return 
-                    string intent = GetInstanceData(workflowInstance, FieldNames.Intent);
-                    if (intent != null)
-                    {
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, intent);
-                        return true;
-                    }
-
-                    // check for user input
-                    if (data != null)
-                    {
-                        var suggList = data as List<Suggestion>;
-                        if (suggList != null)
-                        {
-                            // return true if a user has selected an action
-                            foreach (var sugg in suggList)
-                            {
-                                if (sugg.TimeSelected != null)
-                                {
-                                    StoreInstanceData(workflowInstance, FieldNames.Intent, sugg.Value);
-                                    StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
-                                    return true;
-                                }
-                            }
-
-                            // return false if the user hasn't yet selected an action but suggestions were already generated
-                            // for the current state (we don't want a duplicate set of suggestions)
-                            return false;
-                        }
-                    }
-
-                    // analyze the entity name for possible intents
-                    List<string> possibleIntents = new List<string>();
-                    bool completed = GetIntents(entity.Name, possibleIntents);
-
-                    // if an intent was deciphered without user input, store it now and return
-                    if (completed && possibleIntents.Count == 1)
-                    {
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, possibleIntents[0]);
-                        StoreInstanceData(workflowInstance, FieldNames.Intent, possibleIntents[0]);
-                        return true;
-                    }
-
-                    // add suggestions received in possibleIntents
-                    try
-                    {
-                        Suggestion sugg = null;
-                        foreach (var s in possibleIntents)
-                        {
-                            sugg = new Suggestion()
-                            {
-                                ID = Guid.NewGuid(),
-                                EntityID = entity.ID,
-                                EntityType = entity.GetType().Name,
-                                WorkflowName = workflowInstance.Name,
-                                WorkflowInstanceID = workflowInstance.ID,
-                                State = workflowInstance.State,
-                                FieldName = TargetFieldName, 
-                                DisplayName = s,
-                                Value = s,
-                                TimeSelected = null
-                            };
-                            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                        }
-
-                        WorkflowWorker.SuggestionsContext.SaveChanges();
-                        return completed;
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceError("GetPossibleIntents Activity failed; ex: " + ex.Message);
-                        return false;
-                    }
+                    return Execute(
+                        workflowInstance,
+                        entity,
+                        data,
+                        SystemItemTypes.Task,
+                        (instance, e, dict) => { return GenerateSuggestions(instance, e, dict); });
                 });
             }
         }
 
-        private bool GetIntents(string name, List<string> possibleIntents)
+        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
+            Item item = entity as Item;
+            if (item == null)
+            {
+                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                return true;  // this will terminate the state
+            }
+
+            string name = item.Name;
             // lowercase, remove filler words
             string sentence = name.ToLower();
             foreach (var word in "a;the".Split(';'))
@@ -106,26 +48,37 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 sb.AppendFormat("{0} ", word);
             sentence = sb.ToString().Trim();
 
-            string workflow = null;
-            bool exists = IntentList.Intents.TryGetValue(sentence, out workflow);
-            if (exists)
+            // poor man's NLP - assume first word is verb, second word is noun
+            string[] parts = sentence.Split(' ');
+            string verb = parts[0];
+            string noun = parts[1];
+
+            try
             {
-                possibleIntents.Add(workflow);
-                return true;  // exact match
+                Intent intent = WorkflowWorker.SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
+                string workflow = null;
+                bool exists = IntentList.Intents.TryGetValue(intent.Name, out workflow);
+                if (exists)
+                {
+                    suggestionList[intent.Name] = workflow;
+                    return true;  // exact match
+                }
+            }
+            catch (Exception)
+            {
+                // this is not an error - the intent wasn't matched precisely
             }
 
-            // populate suggestions by looping over the list of Intents
-            // and picking ones that have at least one word in common with the sentence
-            foreach (var intent in IntentList.Intents.Keys)
+            try
             {
-                foreach (var word in sentence.Split(' '))
-                {
-                    if (intent.Contains(word))
-                    {
-                        possibleIntents.Add(IntentList.Intents[intent]);
-                        break;
-                    }
-                }
+                // get a list of all approximate matches
+                var intentList = WorkflowWorker.SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
+                foreach (var intent in intentList)
+                    suggestionList[intent.Name] = IntentList.Intents[intent.Name];
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("GenerateSuggestions: could not find database intent in IntentList dictionary; ex: " + ex.Message);
             }
 
             // inexact match

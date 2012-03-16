@@ -24,11 +24,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return true;  // this will terminate the state
                     }
 
-                    if (item.ItemTypeID != SystemItemTypes.Task)
-                    {
-                        TraceLog.TraceError("GetPossibleSubjects: non-Task Item passed in to Function");
+                    if (VerifyItemType(item, SystemItemTypes.Task) == false)
                         return true;  // this will terminate the state
-                    }
 
                     // if the Contacts field has been set and there are actual contacts in that sublist, a subject is already selected
                     // and this state can terminate
@@ -38,12 +35,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         if (contactsField != null && contactsField.Value != null)
                         {
                             Guid contactsListID = new Guid(contactsField.Value);
-                            var contactsList = WorkflowWorker.UserContext.Items.Where(c => c.ParentID == contactsListID).ToList();
-                            if (contactsList.Count > 0)
-                            {
-                                StoreInstanceData(workflowInstance, Workflow.LastStateData, contactsListID.ToString());
-                                return true;
-                            }
+
+                            // use the first contact as the subject
+                            var contact = WorkflowWorker.UserContext.Items.First(c => c.ParentID == contactsListID);
+                            StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
+                            StoreInstanceData(workflowInstance, TargetFieldName, JsonSerializer.Serialize(contact));
+                            return true;
                         }
                     }
                     catch (Exception)
@@ -53,107 +50,23 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                     // if a user selected a suggestion, this state can terminate
                     if (data != null)
-                    {
-                        var suggList = data as List<Suggestion>;
-                        if (suggList != null)
-                        {
-                            // return true if a user has selected an action
-                            foreach (var sugg in suggList)
-                                if (sugg.TimeSelected != null)
-                                {
-                                    StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
-                                    return true;
-                                }
+                        return ProcessActivityData(workflowInstance, data);
 
-                            // return false if the user hasn't yet selected an action but suggestions were already generated
-                            // for the current state (we don't want a duplicate set of suggestions)
-                            return false;
-                        }
-                    }
-
-                    // analyze the item for possible subjects
-                    var possibleSubjects = new Dictionary<string, string>();
-                    bool completed = GetSubjects(item, possibleSubjects);
-
-                    // if a subject was deciphered without user input, store it now and return
-                    if (completed && possibleSubjects.Count == 1)
-                    {
-                        string serializedSubject = null;
-                        foreach (var value in possibleSubjects.Values)
-                            serializedSubject = value;
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, serializedSubject);
-                        StoreInstanceData(workflowInstance, FieldNames.Contacts, serializedSubject);
-                        return true;
-                    }
-
-                    // add suggestions received in possibleSubjects
-                    try
-                    {
-                        foreach (var s in possibleSubjects.Keys)
-                        {
-                            var sugg = new Suggestion()
-                            {
-                                ID = Guid.NewGuid(),
-                                EntityID = item.ID,
-                                EntityType = entity.GetType().Name,
-                                WorkflowName = workflowInstance.Name,
-                                WorkflowInstanceID = workflowInstance.ID,
-                                State = workflowInstance.State,
-                                FieldName = TargetFieldName, 
-                                DisplayName = s,
-                                Value = possibleSubjects[s],
-                                TimeSelected = null
-                            };
-                            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                        }
-                        
-                        WorkflowWorker.SuggestionsContext.SaveChanges();
-                        return false;
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceError("GetPossibleSubjects Activity failed; ex: " + ex.Message);
-                        return false;
-                    }
+                    // generate suggestions for the possible subjects
+                    return CreateSuggestions(workflowInstance, entity, GenerateSuggestions);
                 });
             }
         }
 
-        private FieldValue GetFieldValue(Item item, string fieldName, bool create)
+        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
-            Field field = null;
-            try
+            Item item = entity as Item;
+            if (item == null)
             {
-                ItemType itemType = WorkflowWorker.UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
-                field = itemType.Fields.Single(f => f.Name == fieldName);
+                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                return true;  // this will terminate the state
             }
-            catch (Exception)
-            {
-                return null;
-            }
-            try 
-	        {	        
-                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                return contactsField;
-	        }
-	        catch (Exception)
-            {
-                if (create == true)
-                {
-                    FieldValue fv = new FieldValue()
-                    {
-                        FieldID = field.ID,
-                        ItemID = item.ID,
-                    };
-                    item.FieldValues.Add(fv);
-                    return fv;
-                }
-                return null;
-            }
-        }
 
-        private bool GetSubjects(Item item, Dictionary<string, string> possibleSubjects)
-        {
             // TODO: get contacts from the Contacts folder, Facebook, and Cloud AD
             // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
 
@@ -161,7 +74,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
             {
                 Item contact = CreateContact(item, subject);
-                possibleSubjects[subject] = JsonSerializer.Serialize(contact);
+                suggestionList[subject] = JsonSerializer.Serialize(contact);
             }
 
             // inexact match

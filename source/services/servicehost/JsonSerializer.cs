@@ -44,6 +44,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             set
             {
+                if (jobject[key] != null)
+                    jobject.Remove(key);
                 jobject.Add(new JProperty(key, value));
             }
         }

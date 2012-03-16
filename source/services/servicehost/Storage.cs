@@ -47,6 +47,7 @@
         {
         }
 
+        public DbSet<Intent> Intents { get; set; }
         public DbSet<Suggestion> Suggestions { get; set; }
         public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
     }

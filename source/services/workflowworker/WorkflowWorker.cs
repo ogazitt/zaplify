@@ -56,6 +56,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     MQMessage<Guid> msg = MessageQueue.DequeueMessage<Guid>();
                     while (msg != null)
                     {
+                        // make sure we get fresh database contexts to avoid EF caching stale data
+                        userContext = null;
+                        suggestionsContext = null;
+
+                        // get the operation ID passed in as the message content
                         Guid operationID = msg.Content;
                         Operation operation = null;
                         try
@@ -284,7 +289,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     object oldValue = GetFieldValue(oldItem, field);
 
                     // skip fields that haven't changed
-                    if (newValue.Equals(oldValue))
+                    if (newValue == null || newValue.Equals(oldValue))
                         continue;
 
                     // do field-specific processing for select fields
