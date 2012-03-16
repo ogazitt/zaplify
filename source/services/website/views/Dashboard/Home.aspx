@@ -29,6 +29,8 @@
         
         <div class="dashboard-manager">         
         </div>
+        <div class="working">         
+        </div>
       
         <div class="dashboard-suggestions dashboard-list">
             &nbsp;

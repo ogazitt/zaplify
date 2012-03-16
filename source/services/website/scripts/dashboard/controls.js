@@ -102,12 +102,14 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
+    $('.working').show();
     Dashboard.suggestionManager.select(suggestion);
     // refresh suggestions immediately and in 15 seconds
     Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
     setTimeout(function () {
         Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
-        }, 15000);
+        $('.working').hide();
+    }, 15000);
 }
 
 // ---------------------------------------------------------

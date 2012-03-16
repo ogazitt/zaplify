@@ -171,6 +171,7 @@
     <Content Include="content\dashboard\images\add-folder.png" />
     <Content Include="content\dashboard\images\add-item.png" />
     <Content Include="content\dashboard\images\add-list.png" />
+    <Content Include="content\dashboard\images\busy.gif" />
     <Content Include="content\dashboard\images\delete-item.png" />
     <Content Include="content\dashboard\images\update-item.png" />
     <Content Include="content\images\banner-bkgnd.png" />

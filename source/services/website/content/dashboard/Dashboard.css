@@ -3,6 +3,7 @@ Dashboard
 ----------------------------------------------------------*/
 
 .dashboard-region {
+    position: relative;
     min-width: 800px;
 }
 
@@ -102,6 +103,16 @@ Dashboard Folders
 /*----------------------------------------------------------
 Dashboard Suggestions
 ----------------------------------------------------------*/
+.working {
+    position:absolute;
+    top: -7px;
+    right: 35px;
+    display: none;
+    width: 128px;
+    height: 15px;
+    background: transparent url(images/busy.gif) no-repeat;
+}
+
 
 .group-button {
     Xcursor: pointer;
