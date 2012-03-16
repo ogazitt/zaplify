@@ -12,6 +12,8 @@ function SuggestionManager(dataModel) {
 SuggestionManager.prototype.select = function (suggestion) {
     switch (suggestion.FieldName) {
         case FieldNames.Contacts: { this.addContact(suggestion); break; }
+        // TODO: how to manage keeping Likes and have dependent sub-suggestions 
+        case FieldNames.Likes: { this.chooseSuggestion(suggestion); break; }
         case FieldNames.SuggestedLink: { this.navigateLink(suggestion); break; }
 
         case FieldNames.FacebookConsent: { this.getFacebookConsent(suggestion); break; }
@@ -26,25 +28,38 @@ SuggestionManager.prototype.chooseSuggestion = function (suggestion, callback) {
     dataModel.SelectSuggestion(suggestion, Reasons.Chosen,
         function (selected) {                              // success handler
             // chosen suggestions are removed
-            dataModel.RemoveSuggestion(selected);
             if (callback != null) { callback(); }
         });
+
+    this.ignoreSuggestions(suggestion);
+}
+
+// ignore all other suggestions in the same group as this one
+SuggestionManager.prototype.ignoreSuggestions = function (suggestion) {
+    var dataModel = this.dataModel;
+    var group = dataModel.Suggestions[suggestion.GroupID];
+    if (group != null) {
+        for (var id in group.Suggestions) {
+            var s = group.Suggestions[id];
+            if (s.ID != suggestion.ID) {
+                dataModel.SelectSuggestion(s, Reasons.Ignore);
+            }
+        }
+    }
 }
 
 SuggestionManager.prototype.likeSuggestion = function (suggestion, callback) {
     this.dataModel.SelectSuggestion(suggestion, Reasons.Like,
-        function (selected) {                              // success handler
-            // liked suggestions are not removed
-            if (callback != null) { callback(); }
-        });
+    function (selected) {                              // success handler
+        // liked suggestions are not removed
+        if (callback != null) { callback(); }
+    });
 }
 
 SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) {
     var dataModel = this.dataModel;
     dataModel.SelectSuggestion(suggestion, Reasons.Dislike,
         function (selected) {                              // success handler
-            // disliked suggestions are removed
-            dataModel.RemoveSuggestion(selected);
             if (callback != null) { callback(); }
         });
 }
@@ -52,11 +67,20 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
 SuggestionManager.prototype.addContact = function (suggestion) {
     var item = this.dataModel.FindItem(suggestion.EntityID);
     if (item != null) {
-        if (item.HasField(FieldName.Contacts)) {
+        if (item.HasField(FieldNames.Contacts)) {
             var contact = $.parseJSON(suggestion.Value);
         }
-        var contactsList = item.GetFieldValue(FieldName.Contacts);
+        var contactsList = item.GetFieldValue(FieldNames.Contacts,
+            function (list) {
+                if (list != null && list.IsList) {
+                    // TODO: get the UserID correct in the suggestion value
+                    contact.UserID = list.UserID;
+                    list.InsertItem(contact);
+                } 
+            });
         if (contactsList != null && contactsList.IsList) {
+            // TODO: get the UserID correct in the suggestion value
+            contact.UserID = contactsList.UserID;
             contactsList.InsertItem(contact);
         }
     }

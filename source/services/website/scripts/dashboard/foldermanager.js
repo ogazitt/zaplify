@@ -67,11 +67,9 @@ FolderManager.prototype.selectItem = function (item) {
         if (this.currentItem.IsList) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);
-            //this.listEditor.inputValue('');
         } else {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
             this.listEditor.render(this.container);
-            //this.listEditor.inputValue(this.currentItem.Name);
         }
     } else {
         this.selectFolder(this.currentFolder);
@@ -474,6 +472,7 @@ ItemEditor.prototype.renderContactList = function (container, field) {
         for (var id in contacts) {
             text += contacts[id].Name + ', ';
         }
+        if (text.length > 0) { text = text.slice(0, text.length - 2); }
     }
     $field.val(text);
     return $field;

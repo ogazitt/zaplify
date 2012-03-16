@@ -302,10 +302,10 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
 
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
-        var groupKey = (s.State == FieldNames.RefreshEntity) ? s.State : s.WorkflowInstanceID + s.State;
+        var groupKey = s.WorkflowInstanceID + s.State;
         var groupID = groupNameMap[groupKey];
         if (groupID === undefined) {
-            groupID = 'Group_' + (nGroup++).toString();
+            groupID = (s.State == FieldNames.RefreshEntity) ? s.State : 'Group_' + (nGroup++).toString();
             groupNameMap[groupKey] = groupID;
             suggestions[groupID] = { GroupID: groupID, DisplayName: s.State, Suggestions: {} };
         }
@@ -389,7 +389,10 @@ Item.prototype.Refresh = function () {
         function (responseState) {
             var refreshItem = responseState.result;
             if (refreshItem != null) {
-                thisItem.update(refreshItem);
+                // REVIEW: not calling update to avoid firing data change
+                //thisItem.update(refreshItem);
+                refreshItem = $.extend(new Item(thisItem.ViewState), refreshItem);
+                thisItem.GetFolder().ItemsMap.update(refreshItem);
             }
         });
 }

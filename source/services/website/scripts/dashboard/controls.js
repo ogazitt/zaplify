@@ -78,28 +78,36 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
+    var selectionChanged = false;
+    var currentFolderID = (Dashboard.folderManager.currentFolder != null) ? Dashboard.folderManager.currentFolder.ID : null;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
-    var currentFolder = Dashboard.folderManager.currentFolder;
-    if (folder == null || folder != currentFolder) {
+    if (folderID == null || folderID != currentFolderID) {
         Dashboard.folderManager.render(".dashboard-manager");
         Dashboard.folderManager.selectFolder(folder);
+        selectionChanged = true;
     }
 
-    var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
-    var currentItem = Dashboard.folderManager.currentItem;
-    if (item == null || item != currentItem) {
+    var currentItemID = (Dashboard.folderManager.currentItem != null) ? Dashboard.folderManager.currentItem.ID : null;
+    if (itemID == null || itemID != currentItemID) {
+        var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
+        selectionChanged = true;
     }
 
-    if (!Dashboard.resizing) {
+    if (!Dashboard.resizing /*&& selectionChanged*/) {
         // get suggestions for currently selected user, folder, or item
         Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
-    } 
+    }
 }
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
     Dashboard.suggestionManager.select(suggestion);
+    // refresh suggestions immediately and in 15 seconds
+    Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+    setTimeout(function () {
+        Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+        }, 15000);
 }
 
 // ---------------------------------------------------------
@@ -141,12 +149,8 @@ Dashboard.resize = function Dashboard$resize() {
 }
 
 Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
-    // TODO: get suggestions for user, folder, or item
     if (item != null) {
-        if (!item.IsList) {
-            // TODO: should we get suggestions for Lists?
-            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
-        }
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
     } else if (folder != null) {
         this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
     } else {
@@ -155,5 +159,19 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
 }
 
 Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
+    // process RefreshEntity suggestions
+    var group = suggestions[FieldNames.RefreshEntity];
+    if (group != null) {
+        for (var id in group.Suggestions) {
+            var suggestion = group.Suggestions[id];
+            var item = Dashboard.dataModel.FindItem(suggestion.EntityID);
+            if (item != null && !item.IsFolder()) {
+                item.Refresh();
+            }
+            Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Ignore);
+        }
+        delete suggestions[FieldNames.RefreshEntity];
+    }
+
     Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
 }
