@@ -9,6 +9,7 @@
     <script src="<%: Url.Content("~/scripts/dashboard/folderlist.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/foldermanager.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/suggestionlist.js") %>" type="text/javascript"></script>
+    <script src="<%: Url.Content("~/scripts/dashboard/suggestionmanager.js") %>" type="text/javascript"></script>
 
     <script type="text/javascript">
         // document ready handler

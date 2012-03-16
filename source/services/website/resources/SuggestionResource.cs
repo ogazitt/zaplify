@@ -12,6 +12,7 @@
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     [ServiceContract]
     [LogMessages]
@@ -106,14 +107,14 @@
                 if (filter.FieldName == null)
                 {
                     suggestions = this.SuggestionsStorageContext.Suggestions.
-                        Where(s => s.EntityID == filter.EntityID && s.TimeSelected == null).
+                        Where(s => s.EntityID == filter.EntityID && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
                         OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.State).
                         ToList<Suggestion>();
                 }
                 else
                 {
                     suggestions = this.SuggestionsStorageContext.Suggestions.
-                        Where(s => s.EntityID == filter.EntityID && s.FieldName == filter.FieldName && s.TimeSelected == null).
+                        Where(s => s.EntityID == filter.EntityID && s.FieldName == filter.FieldName && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
                         OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.State).
                         ToList<Suggestion>();
                 }
@@ -138,7 +139,7 @@
             } 
 
             // the body will contain two Suggestions - the original and the new values
-            List<Suggestion> suggestions = ProcessRequestBody(req, typeof(List<Suggestion>), out operation, true) as List<Suggestion>;
+            List<Suggestion> suggestions = ProcessRequestBody(req, typeof(List<Suggestion>), out operation) as List<Suggestion>;
             if (suggestions.Count != 2)
             {   // body should contain two Suggestions, the original and new values
                 TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Bad Request (malformed body)");
@@ -183,6 +184,7 @@
                     }
                     else
                     {
+                        if (HostEnvironment.IsAzure) { MessageQueue.EnqueueMessage(operation.ID); }
                         TraceLog.TraceInfo("SuggestionResource.UpdateSuggestion: Accepted");
                         return ReturnResult<Suggestion>(req, operation, current, HttpStatusCode.Accepted);
                     }
@@ -205,18 +207,34 @@
             bool updated = false;
             // only allow update of TimeSelected and ReasonSelected
             if (original.TimeSelected == null && current.TimeSelected == null && modified.TimeSelected.HasValue)
-            {
-                current.TimeSelected = modified.TimeSelected;
+            {   // web client sets Date(0) to get server timestamp (ticks since 1970)
+                if (modified.TimeSelected.Value.Year == 1970)
+                {   current.TimeSelected = DateTime.UtcNow; }
+                else
+                {   current.TimeSelected = modified.TimeSelected; }
                 updated = true;
             }
-            if (original.TimeSelected.HasValue && current.TimeSelected.HasValue)
+            if (original.TimeSelected.HasValue && current.TimeSelected.HasValue &&
+                (original.TimeSelected == current.TimeSelected))
             {
-                if (original.TimeSelected == current.TimeSelected &&
-                    (modified.TimeSelected == null || modified.TimeSelected > current.TimeSelected))
-                {
-                    current.TimeSelected = modified.TimeSelected;
-                    updated = true;
+                if (modified.TimeSelected.HasValue)
+                {   // web client sets Date(0) to get server timestamp (ticks since 1970)
+                    if (modified.TimeSelected.Value.Year == 1970)
+                    { 
+                        current.TimeSelected = DateTime.UtcNow;
+                        updated = true;
+                    }
+                    else if (modified.TimeSelected.Value > current.TimeSelected.Value)
+                    { 
+                        current.TimeSelected = modified.TimeSelected;
+                        updated = true;
+                    }
                 }
+                else
+                {
+                    current.TimeSelected = null;
+                    updated = true;
+               }
             }
             if (original.ReasonSelected == current.ReasonSelected &&
                 current.ReasonSelected != modified.ReasonSelected)

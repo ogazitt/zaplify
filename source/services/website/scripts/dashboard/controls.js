@@ -44,6 +44,7 @@ var Dashboard = function Dashboard$() {
     this.folderList = null;
     this.folderManager = null;
     this.suggestionList = null;
+    this.suggestionManager = null;
 }
 
 // ---------------------------------------------------------
@@ -58,13 +59,17 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
     Dashboard.folderList.render('.dashboard-folders');
     Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
 
+    // suggestions list
+    Dashboard.suggestionList = new SuggestionList();
+    Dashboard.suggestionList.addSelectionChangedHandler('dashboard', this.ManageChoice);
+
+    // suggestions manager
+    Dashboard.suggestionManager = new SuggestionManager(this.dataModel);
+
     // folder manager
     Dashboard.folderManager = new FolderManager(this.dataModel);
     Dashboard.ManageFolder();
 
-    // suggestions list
-    Dashboard.suggestionList = new SuggestionList();
-    Dashboard.suggestionList.addSelectionChangedHandler('dashboard', this.ManageChoice);
 
     // bind events
     $(window).bind('load', Dashboard.resize);
@@ -94,20 +99,7 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
-    if (suggestion.FieldName == FieldNames.FacebookConsent) {
-        var msg = 'You may be directed to Facebook to give consent.\r Do you want to continue?';
-        if (confirm(msg)) {
-            Service.GetFacebookConsent();
-        }
-    }
-
-    if (suggestion.FieldName == FieldNames.CloudADConsent) {
-        var msg = 'You may be directed the Cloud Directory to give consent.\r Do you want to continue?';
-        if (confirm(msg)) {
-            alert('Not yet implemented!');
-            //Service.GetCloudADConsent();
-        }
-    }
+    Dashboard.suggestionManager.select(suggestion);
 }
 
 // ---------------------------------------------------------

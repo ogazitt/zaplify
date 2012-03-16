@@ -23,10 +23,16 @@ SuggestionList.prototype.removeSelectionChangedHandler = function (name) {
 }
 
 SuggestionList.prototype.fireSelectionChanged = function (groupID, suggestionID) {
+    var suggestion;
+    if (this.suggestions != null && this.suggestions[groupID] != null) {
+        suggestion = this.suggestions[groupID].Suggestions[suggestionID]
+    }
     for (var name in this.onSelectionChangedHandlers) {
         var handler = this.onSelectionChangedHandlers[name];
         if (typeof (handler) == "function") {
-            handler(this.suggestions[groupID].Suggestions[suggestionID]);
+            if (suggestion != null) {
+                handler(suggestion);
+            }
         }
     }
 }
@@ -65,7 +71,7 @@ GroupButton.prototype.render = function (container) {
 
         var choiceList = new ChoiceList(this, this.group.Suggestions);
         var $container = $('<div class="group-choices"></div>').insertAfter(this.$element);
-        choiceList.render('.group-choices');
+        choiceList.render($container);
     }
 }
 

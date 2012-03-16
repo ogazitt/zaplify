@@ -191,8 +191,17 @@
                     bodyType = body.GetType();
                 }
 
+                string name;
                 Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
-                string name = (string)bodyType.GetProperty("Name").GetValue(body, null);
+                if (body is Suggestion)
+                {   // Suggestion does not have a Name property, use State property
+                    name = (string)bodyType.GetProperty("State").GetValue(body, null);
+                }
+                else
+                {
+                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
+                }
+
 
                 // record the operation in the Operations table
                 operation = new Operation()

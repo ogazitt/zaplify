@@ -99,6 +99,7 @@
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
                 Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.FieldName == FieldNames.FacebookConsent);
                 suggestion.TimeSelected = DateTime.UtcNow;
+                suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
             }
             catch (Exception) { }

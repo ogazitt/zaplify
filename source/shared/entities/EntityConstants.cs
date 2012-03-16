@@ -86,6 +86,13 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string CloudADConsent = "CloudADConsent";
     }
 
+    public class Reasons
+    {
+        public const string Chosen = "Chosen";
+        public const string Like = "Like";
+        public const string Dislike = "Dislike";
+    }
+
     public class FieldTypes
     {
         public const string String = "String";
