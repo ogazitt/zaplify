@@ -73,7 +73,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // HACK: hardcode names for now until the graph queries are in place
             foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
             {
-                Item contact = CreateContact(item, subject);
+                Item contact = CreateContact(workflowInstance, item, subject);
                 suggestionList[subject] = JsonSerializer.Serialize(contact);
             }
 
@@ -81,7 +81,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             return false;
         }
 
-        private Item CreateContact(Item item, string name)
+        private Item CreateContact(WorkflowInstance workflowInstance, Item item, string name)
         {
             DateTime now = DateTime.UtcNow;
             FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
@@ -105,6 +105,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 contactsField.Value = listID.ToString();
                 WorkflowWorker.UserContext.Items.Add(list);
                 WorkflowWorker.UserContext.SaveChanges();
+
+                // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
+                // workflow changed the Item
+                SignalEntityRefresh(workflowInstance, item);
             }
 
             // create the new contact (detached) - it will be JSON-serialized and placed into 

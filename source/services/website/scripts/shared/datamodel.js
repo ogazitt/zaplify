@@ -431,7 +431,7 @@ Item.prototype.SetFieldValue = function (field, value) {
         }
         if (!updated) {                     // add field value
             this.FieldValues = this.FieldValues.concat(
-                { FieldID: field.ID, ItemID: this.item.ID, Value: value });
+                { FieldID: field.ID, ItemID: this.ID, Value: value });
         }
         this.LastModified = '/Date(0)/';
         return true;

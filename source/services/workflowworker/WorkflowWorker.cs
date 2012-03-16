@@ -78,6 +78,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         string entityType = operation.EntityType.Trim();
                         string operationType = operation.OperationType.Trim();
 
+                        // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
+                        // ID and type
+                        if (entityType == "Suggestion")
+                        {
+                            Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
+                            entityID = suggestion.EntityID;
+                            entityType = suggestion.EntityType;
+                            // operationType should be PUT which is appropriate for the underlying Entity operation as well
+                        }
+
                         // try to get a strongly-typed entity (item, folder, user...)
                         ServerEntity entity = null, oldEntity = null;
                         if (operationType != "DELETE")

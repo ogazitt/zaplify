@@ -239,6 +239,33 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         }
 
         /// <summary>
+        /// This method will add a Suggestion with a RefreshEntity FieldName and State to the Suggestions
+        /// for this ServerEntity.  By convention, this will tell the UI to refresh the Entity.  This method
+        /// is called when an Activity changes the Item (e.g. a DueDate is parsed out of the Name, a Contacts 
+        /// FieldName is created, etc).
+        /// </summary>
+        /// <param name="workflowInstance"></param>
+        /// <param name="entity"></param>
+        protected void SignalEntityRefresh(WorkflowInstance workflowInstance, ServerEntity entity)
+        {
+            var sugg = new Suggestion()
+            {
+                ID = Guid.NewGuid(),
+                EntityID = entity.ID,
+                EntityType = entity.GetType().Name,
+                WorkflowType = workflowInstance.WorkflowType,
+                WorkflowInstanceID = workflowInstance.ID,
+                State = FieldNames.RefreshEntity,
+                FieldName = FieldNames.RefreshEntity,
+                DisplayName = FieldNames.RefreshEntity,
+                Value = null,
+                TimeSelected = null
+            };
+            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
+            WorkflowWorker.SuggestionsContext.SaveChanges();
+        }
+
+        /// <summary>
         /// Store a value for a key on the instance data bag
         /// </summary>
         /// <param name="workflowInstance">Instance to retrieve the data from</param>
