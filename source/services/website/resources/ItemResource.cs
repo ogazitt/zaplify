@@ -302,7 +302,7 @@
                 newItem.ParentID = null;
 
             if (newItem.LastModified.Year == 1970)
-            {   // web client will set LastModified year to 1970 to get server timestamp
+            {   // web client sets Date(0) to get server timestamp (ticks since 1970)
                 newItem.LastModified = DateTime.UtcNow;
             }
 

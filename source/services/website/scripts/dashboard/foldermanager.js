@@ -334,7 +334,6 @@ function ItemEditor(parentControl) {
     this.$element = null;
     this.mode = ItemEditor.Modes.NotSet;
     this.item;
-    this.itemType;
 }
 
 ItemEditor.prototype.hide = function () {
@@ -365,21 +364,18 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
         mode = (item != null && !item.IsList) ? ItemEditor.Modes.Edit : ItemEditor.Modes.New;
     }
 
-    this.item = (mode != ItemEditor.Modes.New) ? $.extend({}, item) : { Name: '' };
-    this.itemType = (item != null) ? item.GetItemType() : folder.GetItemType();
-    this.item.ItemTypeID = this.itemType.ID;
-
-    //if (this.mode != mode) {                            // regenerate fields if mode changed
+    var itemTypeID = (item != null) ? item.ItemTypeID : folder.ItemTypeID;
+    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item) 
+        : $.extend(new Item(), { Name: '', ItemTypeID: itemTypeID });
     this.mode = mode;
     this.$element.empty();
 
     if (this.mode == ItemEditor.Modes.New) {
-        $field = this.renderField(this.$element, this.itemType.Fields[FieldNames.Name]);
+        $field = this.renderNameField(this.$element, mode);
         $field.val('');
     } else {
         this.renderFields(this.$element, this.mode);
     }
-    //}
 
     $fldName = this.$element.find('.fn-name');
     $fldName.focus();
@@ -387,57 +383,106 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
 }
 
 ItemEditor.prototype.renderFields = function (container, mode) {
-    for (var name in this.itemType.Fields) {
-        var field = this.itemType.Fields[name];
+    this.renderNameField(container, mode);
+    var fields = this.item.GetItemType().Fields;
+    for (var name in fields) {
+        var field = fields[name];
         if ((field.IsPrimary || mode == ItemEditor.Modes.Edit)) {
             this.renderField(container, field);
         }
     }
 }
 
-ItemEditor.prototype.renderField = function (container, field) {
+ItemEditor.prototype.renderNameField = function (container, mode) {
     var $field, $wrapper;
+    var fields = this.item.GetItemType().Fields;
+    var field = fields[FieldNames.Complete];
+    if (field != null && mode != ItemEditor.Modes.New) {
+        // optionally render complete field
+        $wrapper = $('<div class="item-field-complete"></div>').appendTo(container);
+        this.renderCheckbox($wrapper, field);
+    } else {
+        $wrapper = $('<div class="item-field-name"></div>').appendTo(container);
+    }
+
+    // render name field
+    field = fields[FieldNames.Name];
+    $field = this.renderText($wrapper, field);
+
+    return $field;
+}
+
+ItemEditor.prototype.renderField = function (container, field) {
+    if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
+        return;
+
+    var $field;
     var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
+    var $wrapper = $(wrapper).appendTo(container);
 
     switch (field.DisplayType) {
         case DisplayTypes.Reference:
             break;
         case DisplayTypes.Checkbox:
-            $wrapper = $(wrapper).appendTo(container);
             $wrapper.find('.item-field-label').addClass('inline');
-            $field = $('<input type="checkbox" />').appendTo($wrapper);
-            $field.addClass(field.Class);
-            $field.data('control', this);
-            if (this.getFieldValue(field) == 'true') {
-                $field.attr('checked', 'checked');
-            }
-            $field.change(function (event) { Control.get(this).handleChange(event); });
+            $field = this.renderCheckbox($wrapper, field);
+            break;
+        case DisplayTypes.ContactList:
+            $field = this.renderContactList($wrapper, field);
             break;
         case DisplayTypes.Text:
-            if (field.Name == FieldNames.Name) {            // special-case Name field
-                $field = $('<input type="text" />').appendTo(container);
-                $field.addClass(field.Class);
-                $field.data('control', this);
-                $field.val(this.getFieldValue(field));
-                $field.change(function (event) { Control.get(this).handleChange(event); });
-                $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
-                break;
-            }
         default:
-            $wrapper = $(wrapper).appendTo(container);
-            $field = $('<input type="text" />').appendTo($wrapper);
-            $field.addClass(field.Class);
-            $field.data('control', this);
-            $field.val(this.getFieldValue(field));
-            $field.change(function (event) { Control.get(this).handleChange(event); });
+            $field = this.renderText($wrapper, field);
             break;
     }
     return $field;
 }
 
+ItemEditor.prototype.renderText = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.item.GetFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    return $field;
+}
+
+ItemEditor.prototype.renderCheckbox = function (container, field) {
+    $field = $('<input type="checkbox" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.attr('title', field.DisplayName);
+    $field.data('control', this);
+    if (this.item.GetFieldValue(field) == 'true') {
+        $field.attr('checked', 'checked');
+    }
+    $field.change(function (event) { Control.get(this).handleChange(event); });
+    return $field;
+}
+
+ItemEditor.prototype.renderContactList = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    //$field.change(function (event) { Control.get(this).handleChange(event); });
+    //$field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.attr('disabled', 'disabled');
+    var text = '';
+    var value = this.item.GetFieldValue(field);
+    if (value != null && value.IsList) {
+        var contacts = value.GetItems();
+        for (var id in contacts) {
+            text += contacts[id].Name + ', ';
+        }
+    }
+    $field.val(text);
+    return $field;
+}
+
 ItemEditor.prototype.updateField = function ($srcElement) {
-    for (var name in this.itemType.Fields) {
-        var field = this.itemType.Fields[name];
+    var fields = this.item.GetItemType().Fields;
+    for (var name in fields) {
+        var field = fields[name];
         if ($srcElement.hasClass(field.ClassName)) {
             var value = $srcElement.val();
             if (field.DisplayType == DisplayTypes.Checkbox) {
@@ -446,49 +491,8 @@ ItemEditor.prototype.updateField = function ($srcElement) {
                     value = true;
                 }
             }
-            this.setFieldValue(field, value);
+            this.item.SetFieldValue(field, value);
         }
-    }
-}
-
-ItemEditor.prototype.getFieldValue = function (field) {
-    if (field.Name == FieldNames.Name) {
-        return this.item.Name;
-    }
-    for (var i in this.item.FieldValues) {
-        var fv = this.item.FieldValues[i];
-        if (fv.FieldID == field.ID) {
-            return fv.Value;
-        }
-    }
-    //TODO: return default value based on FieldType
-    if (field.FieldType == "Boolean")
-        return false;
-    return null;
-}
-
-ItemEditor.prototype.setFieldValue = function (field, value) {
-    if (field.Name == FieldNames.Name) {
-        this.item.Name = value;
-        return;
-    }
-    if (this.item.FieldValues == null) {
-        this.item.FieldValues = [];
-    }
-    var updated = false;
-    for (var i in this.item.FieldValues) {
-        var fv = this.item.FieldValues[i];
-        if (fv.FieldID == field.ID) {
-            fv.Value = value;
-            this.item.LastModified = '/Date(0)/';
-            updated = true;
-            break;
-        }
-    }
-    if (!updated) {
-        this.item.FieldValues = this.item.FieldValues.concat(
-                { FieldID: field.ID, ItemID: this.item.ID, Value: value });
-        this.item.LastModified = '/Date(0)/';
     }
 }
 

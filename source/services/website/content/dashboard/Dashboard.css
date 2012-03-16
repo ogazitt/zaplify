@@ -104,7 +104,8 @@ Dashboard Suggestions
 ----------------------------------------------------------*/
 
 .group-button {
-    cursor: pointer;
+    Xcursor: pointer;
+    white-space: nowrap;
     font-weight: bold;
     color: #E2E6E6;
     margin: 4px 10px 0 10px;
@@ -260,14 +261,11 @@ Item Fields
     Xborder: 1px solid green; 
 }
 
-input[type=text].Xdt-text {
-
-}
-
-input[type=text].dt-text.fn-name {
-    min-width: 98%;
-    display: block;
-}
+.item-field-name { width: 100%; display: block; position: relative; height: 32px }
+.item-field-complete { width: 100%; display: block; position: relative; height: 32px; margin-top: 4px; }
+.item-field-name .dt-text { width: 100%; position: absolute; right: -4px; }
+.item-field-complete .dt-text { width:  95%; position: absolute; right: -4px; top: -4px; }
+.item-field-complete .dt-checkbox { position: absolute; left: 0px; top: 4px; }
 
 .dt-checkbox {
     margin-right: 6px;
