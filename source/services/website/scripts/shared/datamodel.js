@@ -57,7 +57,7 @@ DataModel.FindItem = function DataModel$FindItem(itemID) {
 
     for (id in DataModel.Folders) {
         folder = DataModel.Folders[id];
-        var item = folder[itemID];
+        var item = folder.Items[itemID];
         if (item != null) { return item; }
     }
     return null;
@@ -302,7 +302,7 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
 
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
-        var groupKey = s.WorkflowInstanceID + s.State;
+        var groupKey = (s.State == FieldNames.RefreshEntity) ? s.State : s.WorkflowInstanceID + s.State;
         var groupID = groupNameMap[groupKey];
         if (groupID === undefined) {
             groupID = 'Group_' + (nGroup++).toString();
@@ -382,7 +382,19 @@ Item.prototype.Update = function (updatedItem) { return DataModel.UpdateItem(thi
 Item.prototype.Delete = function () { return DataModel.DeleteItem(this); };
 Item.prototype.HasField = function (name) { return this.GetItemType().HasField(name); };
 Item.prototype.GetField = function (name) { return this.GetItemType().Fields[name]; };
-Item.prototype.GetFieldValue = function (field) {
+
+Item.prototype.Refresh = function () {
+    var thisItem = this;
+    Service.GetResource('items', this.ID,
+        function (responseState) {
+            var refreshItem = responseState.result;
+            if (refreshItem != null) {
+                thisItem.update(refreshItem);
+            }
+        });
+}
+
+Item.prototype.GetFieldValue = function (field, handler) {
     // field parameter can be either field name or field object
     if (typeof (field) == 'string') {
         field = this.GetField(field);
@@ -395,7 +407,18 @@ Item.prototype.GetFieldValue = function (field) {
             var fv = this.FieldValues[i];
             if (fv.FieldID == field.ID) {
                 if (fv.Value != null && field.FieldType == FieldTypes.ItemID) {
-                    return DataModel.FindItem(fv.Value);
+                    var item = DataModel.FindItem(fv.Value);
+                    if (item != null) { return item; }
+                    // try to fetch referenced item from server
+                    Service.GetResource('items', fv.Value,
+                        function (responseState) {
+                            var newItem = responseState.result;
+                            if (newItem != null) {
+                                newItem = $.extend(new Item(), newItem);        // extend with Item functions
+                                DataModel.Folders[newItem.FolderID].ItemsMap.append(newItem);
+                                if (handler != null) { handler(newItem); }
+                            }
+                        });
                 } else {
                     return fv.Value;
                 }
@@ -431,7 +454,7 @@ Item.prototype.SetFieldValue = function (field, value) {
         }
         if (!updated) {                     // add field value
             this.FieldValues = this.FieldValues.concat(
-                { FieldID: field.ID, ItemID: this.item.ID, Value: value });
+                { FieldID: field.ID, ItemID: this.ID, Value: value });
         }
         this.LastModified = '/Date(0)/';
         return true;
@@ -606,6 +629,7 @@ var FieldNames = {
     SuggestedLink: "SuggestedLink",         // URL
     Likes: "Likes",                         // comma-delimited string
 
+    RefreshEntity: "RefreshEntity",         // Action
     FacebookConsent: "FacebookConsent",     // Action
     CloudADConsent: "CloudADConsent"        // Action
 };
@@ -652,7 +676,8 @@ var DisplayTypes = {
 
 var Reasons = {
     Chosen : "Chosen",
-    Like : "Like",
-    Dislike : "Dislike"
+    Ignore: "Ignore",
+    Like: "Like",
+    Dislike: "Dislike"
 };
 
