@@ -84,6 +84,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         // UX action FieldNames
         public const string FacebookConsent = "FacebookConsent";
         public const string CloudADConsent = "CloudADConsent";
+        public const string RefreshEntity = "RefreshEntity"; // indicates that the UI should refresh this item
     }
 
     public class Reasons

@@ -56,6 +56,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     MQMessage<Guid> msg = MessageQueue.DequeueMessage<Guid>();
                     while (msg != null)
                     {
+                        // make sure we get fresh database contexts to avoid EF caching stale data
+                        userContext = null;
+                        suggestionsContext = null;
+
+                        // get the operation ID passed in as the message content
                         Guid operationID = msg.Content;
                         Operation operation = null;
                         try
@@ -72,6 +77,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         Guid entityID = operation.EntityID;
                         string entityType = operation.EntityType.Trim();
                         string operationType = operation.OperationType.Trim();
+
+                        // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
+                        // ID and type
+                        if (entityType == "Suggestion")
+                        {
+                            Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
+                            entityID = suggestion.EntityID;
+                            entityType = suggestion.EntityType;
+                            // operationType should be PUT which is appropriate for the underlying Entity operation as well
+                        }
 
                         // try to get a strongly-typed entity (item, folder, user...)
                         ServerEntity entity = null, oldEntity = null;
@@ -284,7 +299,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     object oldValue = GetFieldValue(oldItem, field);
 
                     // skip fields that haven't changed
-                    if (newValue.Equals(oldValue))
+                    if (newValue == null || newValue.Equals(oldValue))
                         continue;
 
                     // do field-specific processing for select fields
