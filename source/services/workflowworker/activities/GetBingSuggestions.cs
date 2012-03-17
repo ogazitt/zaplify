@@ -43,7 +43,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 string intent = GetInstanceData(workflowInstance, FieldNames.Intent);
                 string query = String.Format("{0} {1}", intent.Trim(), searchTerm.Trim());
 
-                IEnumerable<SearchResult> results = bingSearch.Query(query);
+                // make a synchronous webservice call to bing 
+                //
+                // Async has the problem that the caller of this method assumes that a 
+                // populated suggestionList will come out.  If it doesn't, the state will execute 
+                // again and trigger a fresh set of suggestions to be generated.  Eventually all 
+                // queries will return and populate the suggestions DB with duplicate data.
+                // This can be fixed once we move to a "real" workflow system such as WF.
+                var results = bingSearch.Query(query);
                 foreach (var r in results)
                 {
                     WebResult result = r as WebResult;
