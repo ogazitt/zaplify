@@ -78,16 +78,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         string entityType = operation.EntityType.Trim();
                         string operationType = operation.OperationType.Trim();
 
-                        // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
-                        // ID and type
-                        if (entityType == "Suggestion")
-                        {
-                            Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
-                            entityID = suggestion.EntityID;
-                            entityType = suggestion.EntityType;
-                            // operationType should be PUT which is appropriate for the underlying Entity operation as well
-                        }
-
                         // try to get a strongly-typed entity (item, folder, user...)
                         ServerEntity entity = null, oldEntity = null;
                         if (operationType != "DELETE")
@@ -109,6 +99,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                     case "User":
                                         User user = UserContext.Users.Single(i => i.ID == entityID);
                                         entity = user;
+                                        break;
+                                    case "Suggestion":
+                                        // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
+                                        // ID and type
+                                        Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
+                                        entityID = suggestion.EntityID;
+                                        entityType = suggestion.EntityType;
+                                        Item suggestionItem = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
+                                        entity = suggestionItem;
+                                        operationType = "SUGGESTION";
                                         break;
                                     default:
                                         TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
@@ -133,6 +133,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                 break;
                             case "PUT":
                                 StartTriggerWorkflows(entity, oldEntity);
+                                ExecuteWorkflows(entity);
+                                break;
+                            case "SUGGESTION":
                                 ExecuteWorkflows(entity);
                                 break;
                             default:
@@ -267,7 +270,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             if (item != null)
             {
-                Workflow.StartWorkflow(WorkflowNames.NewItem, item, null);
+                if (item.ItemTypeID == SystemItemTypes.Task)
+                    Workflow.StartWorkflow(WorkflowNames.NewTask, item, null);
             }
 
             if (folder != null)
@@ -306,23 +310,32 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     switch (field.Name)
                     {
                         case FieldNames.Name:
-                            StartWorkflowIfNotRunning(item, WorkflowNames.FindIntent);
+                            //disable for now
+                            //RestartWorkflow(item, WorkflowNames.NewTask);
                             break;
                     }
                 }
             }
         }
 
-        void StartWorkflowIfNotRunning(ServerEntity entity, string workflowType)
+        void RestartWorkflow(ServerEntity entity, string workflowType)
         {
             if (entity == null || workflowType == null)
                 return;
 
             try
             {
-                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID && wi.WorkflowType == workflowType).ToList();
-                if (runningWFs.Count == 0)
-                    Workflow.StartWorkflow(workflowType, entity, null);
+                // kill all existing workflows associated with this Item
+                // TODO: also need to mark the suggestions associated with this workflow as stale so that they don't
+                // show up for the item again.
+                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
+                if (runningWFs.Count > 0)
+                {
+                    foreach (var wf in runningWFs)
+                        SuggestionsContext.WorkflowInstances.Remove(wf);
+                    SuggestionsContext.SaveChanges();
+                }
+                Workflow.StartWorkflow(workflowType, entity, null);
             }
             catch (Exception)
             {

@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
         public const string BuyGift = "Buy Gift";
         public const string FindIntent = "Find Intent";
         public const string NameChanged = "Name Changed";
-        public const string NewItem = "New Item";
+        public const string NewTask = "New Task";
         public const string NewUser = "New User";
     }
 
@@ -23,7 +23,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
             { WorkflowNames.ContactsChanged, new ContactsChanged() },
             { WorkflowNames.FindIntent, new FindIntent() },
             { WorkflowNames.NameChanged, new NameChanged() },
-            { WorkflowNames.NewItem, new NewItem() },
+            { WorkflowNames.NewTask, new NewTask() },
             { WorkflowNames.NewUser, new NewUser() },
         };
     }

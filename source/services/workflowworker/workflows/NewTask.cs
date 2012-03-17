@@ -8,9 +8,9 @@ using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
-    public class NewItem : Workflow
+    public class NewTask : Workflow
     {
-        public override string Name { get { return WorkflowNames.NewItem; } }
+        public override string Name { get { return WorkflowNames.NewTask; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static string DetermineIntent = "Are you trying to";

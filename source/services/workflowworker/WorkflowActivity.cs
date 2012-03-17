@@ -224,7 +224,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // return true if a user has selected an action
                 foreach (var sugg in suggList)
                 {
-                    if (sugg.ReasonSelected == Reasons.Chosen)
+                    if (sugg.ReasonSelected == Reasons.Chosen || sugg.ReasonSelected == Reasons.Like)
                     {
                         StoreInstanceData(workflowInstance, TargetFieldName, sugg.Value);
                         StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);

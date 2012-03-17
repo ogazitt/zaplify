@@ -92,6 +92,9 @@
                             this.StorageContext.FieldValues.Remove(fv);
                     }
 
+                    // remove all the items whose ParentID is this item (and do this recursively, from the bottom up)
+                    DeleteItemChildrenRecursively(requestedItem);
+
                     this.StorageContext.Items.Remove(requestedItem);
                     if (this.StorageContext.SaveChanges() < 1)
                     {
@@ -383,6 +386,22 @@
                 TraceLog.TraceError("ItemResource.Update: Not Found (folder); ex: " + ex.Message);
                 return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
             }
+        }
+
+        void DeleteItemChildrenRecursively(Item item)
+        {
+            var children = this.StorageContext.Items.Where(i => i.ParentID == item.ID).ToList();
+            bool removed = false;
+            foreach (var c in children)
+            {
+                DeleteItemChildrenRecursively(c);
+                this.StorageContext.Items.Remove(c);
+                removed = true;
+            }
+
+            // remove all of the children at the same layer together
+            if (removed)
+                this.StorageContext.SaveChanges();
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)
