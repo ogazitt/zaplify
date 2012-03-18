@@ -413,23 +413,28 @@ ItemEditor.prototype.renderNameField = function (container, mode) {
 ItemEditor.prototype.renderField = function (container, field) {
     if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
         return;
+    if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
+        return;
 
-    var $field;
+    var $field, $wrapper;
     var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
-    var $wrapper = $(wrapper).appendTo(container);
 
     switch (field.DisplayType) {
         case DisplayTypes.Reference:
+        case DisplayTypes.TagList:
             break;
         case DisplayTypes.Checkbox:
+            $wrapper = $(wrapper).appendTo(container);
             $wrapper.find('.item-field-label').addClass('inline');
             $field = this.renderCheckbox($wrapper, field);
             break;
         case DisplayTypes.ContactList:
+            $wrapper = $(wrapper).appendTo(container);
             $field = this.renderContactList($wrapper, field);
             break;
         case DisplayTypes.Text:
         default:
+            $wrapper = $(wrapper).appendTo(container);
             $field = this.renderText($wrapper, field);
             break;
     }

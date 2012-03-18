@@ -10,17 +10,19 @@ function SuggestionManager(dataModel) {
 }
 
 SuggestionManager.prototype.select = function (suggestion) {
+    var refresh = false;        // return true to indicate additional suggestions should be retrieved
     switch (suggestion.FieldName) {
-        case FieldNames.Contacts: { this.addContact(suggestion); break; }
-        // TODO: how to manage keeping Likes and have dependent sub-suggestions 
-        case FieldNames.Likes: { this.chooseSuggestion(suggestion); break; }
-        case FieldNames.SuggestedLink: { this.navigateLink(suggestion); break; }
+        case FieldNames.Contacts: { refresh = this.addContact(suggestion); break; }
+            // TODO: how to manage keeping Likes and have dependent sub-suggestions 
+        case FieldNames.Likes: { refresh = this.chooseSuggestion(suggestion); break; }
+        case FieldNames.SuggestedLink: { refresh = this.navigateLink(suggestion); break; }
 
-        case FieldNames.FacebookConsent: { this.getFacebookConsent(suggestion); break; }
-        case FieldNames.CloudADConsent: { this.getCloudADConsent(suggestion); break; }
+        case FieldNames.FacebookConsent: { refresh = this.getFacebookConsent(suggestion); break; }
+        case FieldNames.CloudADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
 
-        default: { this.chooseSuggestion(suggestion); break; }
+        default: { refresh = this.chooseSuggestion(suggestion); break; }
     }
+    return refresh;
 }
 
 SuggestionManager.prototype.chooseSuggestion = function (suggestion, callback) {
@@ -32,6 +34,7 @@ SuggestionManager.prototype.chooseSuggestion = function (suggestion, callback) {
         });
 
     this.ignoreSuggestions(suggestion);
+    return true;
 }
 
 // ignore all other suggestions in the same group as this one
@@ -54,6 +57,7 @@ SuggestionManager.prototype.likeSuggestion = function (suggestion, callback) {
         // liked suggestions are not removed
         if (callback != null) { callback(); }
     });
+    return false;
 }
 
 SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) {
@@ -62,6 +66,7 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
         function (selected) {                              // success handler
             if (callback != null) { callback(); }
         });
+    return false;
 }
 
 SuggestionManager.prototype.addContact = function (suggestion) {
@@ -84,11 +89,11 @@ SuggestionManager.prototype.addContact = function (suggestion) {
             contactsList.InsertItem(contact);
         }
     }
-    this.chooseSuggestion(suggestion);
+    return this.chooseSuggestion(suggestion);
 }
 
 SuggestionManager.prototype.navigateLink = function (suggestion) {
-    this.likeSuggestion(suggestion,
+    return this.likeSuggestion(suggestion,
         function () {
             window.open(suggestion.Value);
         });
@@ -99,6 +104,7 @@ SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
     if (confirm(msg)) {
         Service.GetFacebookConsent();
     }
+    return false;
 }
 
 SuggestionManager.prototype.getCloudADConsent = function (suggestion) {
@@ -107,4 +113,5 @@ SuggestionManager.prototype.getCloudADConsent = function (suggestion) {
         alert('Not yet implemented!');
         //Service.GetCloudADConsent();
     }
+    return false;
 }

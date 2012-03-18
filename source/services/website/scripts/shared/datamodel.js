@@ -189,6 +189,9 @@ DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entity, fi
     Service.InsertResource('suggestions', filter,
         function (responseState) {                                      // successHandler
             var suggestions = responseState.result;
+            if (suggestions.length > 0) {
+                DataModel.SuggestionsRetrieved = new Date();            // timestamp
+            }
             DataModel.processSuggestions(suggestions);
             if (handler != null) {
                 handler(DataModel.Suggestions);

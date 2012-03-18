@@ -105,12 +105,13 @@ Dashboard Suggestions
 ----------------------------------------------------------*/
 .working {
     position:absolute;
-    top: -7px;
+    top: -8px;
     right: 35px;
     display: none;
     width: 128px;
     height: 15px;
     background: transparent url(images/busy.gif) no-repeat;
+    opacity:0.5; filter:alpha(opacity=50);
 }
 
 

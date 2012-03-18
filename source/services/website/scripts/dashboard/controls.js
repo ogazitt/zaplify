@@ -102,14 +102,23 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
-    $('.working').show();
-    Dashboard.suggestionManager.select(suggestion);
-    // refresh suggestions immediately and in 15 seconds
-    Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
-    setTimeout(function () {
-        Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
-        $('.working').hide();
-    }, 15000);
+    var refresh = Dashboard.suggestionManager.select(suggestion);
+    if (refresh) {      // refresh more suggestions
+        // check for more suggestions every 5 seconds for 20 seconds
+        $('.working').show();
+        var nTries = 0;
+        var checkPoint = new Date();
+
+        var checkForSuggestions = function () {
+            if (checkPoint > Dashboard.dataModel.SuggestionsRetrieved && nTries++ < 5) {
+                Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+                setTimeout(checkForSuggestions, 5000);
+            } else {
+                $('.working').hide();
+            }
+        }
+        checkForSuggestions();
+    }
 }
 
 // ---------------------------------------------------------
@@ -176,4 +185,7 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
     }
 
     Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
+    if (suggestions['Group_0'] != null) {
+        $('.working').hide(); 
+    }
 }
