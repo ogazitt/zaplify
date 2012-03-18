@@ -59,9 +59,9 @@
     <Compile Include="activities\StartWorkflow.cs" />
     <Compile Include="Intents.cs" />
     <Compile Include="workflows\ContactsChanged.cs" />
+    <Compile Include="workflows\NewTask.cs" />
     <Compile Include="workflows\NewUser.cs" />
     <Compile Include="workflows\NameChanged.cs" />
-    <Compile Include="workflows\NewItem.cs" />
     <Compile Include="workflows\Workflows.cs" />
     <Compile Include="activities\GetBingSuggestions.cs" />
     <Compile Include="WorkflowActivity.cs" />
