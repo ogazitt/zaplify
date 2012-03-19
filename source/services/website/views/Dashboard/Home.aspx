@@ -1,4 +1,5 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage<UserDataModel>" %>
+<%@ Import Namespace="System.Web" %>
 <%@ Import Namespace="BuiltSteady.Zaplify.Website.Models" %>
 
 <asp:Content ContentPlaceHolderID="MasterHead" runat="server">
@@ -14,7 +15,8 @@
     <script type="text/javascript">
         // document ready handler
         $(function () {
-            DataModel.Init('<%= ConstantsModel.JsonConstants %>', '<%= Model.JsonUserData %>');
+            DataModel.Init('<%= Ajax.JavaScriptStringEncode(ConstantsModel.JsonConstants) %>',
+                '<%= Ajax.JavaScriptStringEncode(Model.JsonUserData) %>');
             Dashboard.Init(DataModel);
         });
 
