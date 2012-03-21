@@ -220,7 +220,8 @@
                 try
                 {   // add the new item to the database
                     var item = this.StorageContext.Items.Add(clientItem);
-                    if (this.StorageContext.SaveChanges() < 1 || item == null)
+                    int rows = this.StorageContext.SaveChanges();
+                    if (rows < 1 || item == null)
                     {
                         TraceLog.TraceError("ItemResource.Insert: Internal Server Error (database operation did not succeed)");
                         return ReturnResult<Item>(req, operation, HttpStatusCode.InternalServerError);  // return 500 Internal Server Error

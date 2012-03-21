@@ -91,6 +91,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         State = workflowInstance.State,
                         FieldName = TargetFieldName,
                         DisplayName = s,
+                        GroupDisplayName = workflowInstance.State,
                         Value = suggestions[s],
                         TimeSelected = null
                     };
@@ -108,6 +109,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 TraceLog.TraceError("Execute: Activity execution failed; ex: " + ex.Message);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Get the User that owns the current Item
+        /// </summary>
+        /// <param name="item">Item to get the user for</param>
+        /// <returns>User that owns the item</returns>
+        public User CurrentUser(Item item)
+        {
+            if (item == null)
+                return null;
+            try
+            {
+                return WorkflowWorker.UserContext.Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError(String.Format("CurrentUser: User for item {0} not found; ex: {1}", item.Name, ex.Message));
+                return null;
             }
         }
 
@@ -203,7 +224,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             try
             {
-                return dict[key];
+                return (string) dict[key];
             }
             catch (Exception)
             {
@@ -263,6 +284,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 State = FieldNames.RefreshEntity,
                 FieldName = FieldNames.RefreshEntity,
                 DisplayName = FieldNames.RefreshEntity,
+                GroupDisplayName = FieldNames.RefreshEntity,
                 Value = null,
                 TimeSelected = null
             };

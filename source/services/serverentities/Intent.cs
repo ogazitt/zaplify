@@ -11,5 +11,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Name { get; set; }
         public string Verb { get; set; }
         public string Noun { get; set; }
+        public string SearchFormatString { get; set; }
     }
 }

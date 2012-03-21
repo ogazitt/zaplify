@@ -1,6 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
@@ -36,11 +37,21 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return new JsonValue(JObject.Parse(str));
         }
 
-        public string this[string key]
+        public object this[string key]
         {
             get
             {
-                return (string) jobject[key];
+                object obj = jobject[key];
+                JArray list = obj as JArray;
+                if (list != null)
+                {
+                    var query = from jobj in list select new JsonValue(new JObject(jobj));
+                    var jlist = new JsonList();
+                    jlist.AddRange(query);
+                    return jlist;
+                }
+
+                return (string)jobject[key];
             }
             set
             {
@@ -54,5 +65,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
         {
             return jobject.ToString();
         }
+    }
+
+    public class JsonList : List<JsonValue>
+    {
     }
 }

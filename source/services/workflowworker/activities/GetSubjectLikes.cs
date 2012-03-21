@@ -4,6 +4,7 @@ using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -36,13 +37,65 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return true;  // this will terminate the state
             }
 
-            // TODO: get likes from the Contacts folder, Facebook, and Cloud AD
-            // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
+            // make sure the subject was identified
+            string subjectItem = GetInstanceData(workflowInstance, FieldNames.Contacts);
+            if (subjectItem == null)
+                return true;  // this will terminate the state
 
-            // HACK: hardcode names for now until the graph queries are in place
-            foreach (var like in "Golf;Seattle Sounders;Malcolm Gladwell".Split(';'))
+            // set up the FB API context
+            FBGraphAPI fbApi = new FBGraphAPI();
+
+            // get the current user
+            User user = CurrentUser(item);
+            if (user == null)
             {
-                suggestionList[like] = like;
+                TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
+                return true;  // this will terminate the state
+            }
+
+            try 
+	        {	        
+                UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
+                fbApi.AccessToken = cred.FBConsentToken;
+	        }
+	        catch (Exception)
+	        {
+                // the user not having a FB token isn't an error condition, but there's no way to generate suggestions,
+                // so we need to move forward from this state
+                return true;
+	        }
+
+            Item subject = null;
+            try
+            {
+                subject = JsonSerializer.Deserialize<Item>(subjectItem);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("GenerateSuggestions: could not deserialize subject Item; ex: " + ex.Message);
+                return true;
+            }
+
+            FieldValue fbID = GetFieldValue(subject, FieldNames.Email, false);
+            if (fbID == null || fbID.Value == null)
+            {
+                TraceLog.TraceError(String.Format("GenerateSuggestions: could not find Facebook ID for contact {0}", subject.Name));
+                return true;
+            }
+
+            try
+            {
+                // issue the query against the Facebook Graph API
+                var results = fbApi.Query(fbID.Value, FBQueries.Likes);
+                foreach (var like in results)
+                {
+                    string name = like.Name;
+                    suggestionList[name] = name;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("GenerateSuggestions: Error calling Facebook Graph API; ex: " + ex.Message);
             }
 
             // inexact match

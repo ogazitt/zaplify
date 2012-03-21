@@ -8,6 +8,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class ActivityNames
     {
+        public const string FakeGetPossibleSubjects = "Fake Get Possible Subjects";
+        public const string FakeGetSubjectLikes = "Fake Get Subject Likes";
         public const string GetPossibleIntents = "Get Possible Intents";
         public const string GetPossibleDates = "Get Possible Dates";
         public const string GetPossibleLocations = "Get Possible Locations";
@@ -23,6 +25,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public static Dictionary<string, WorkflowActivity> Activities = new Dictionary<string, WorkflowActivity>()
         {
+            { ActivityNames.FakeGetPossibleSubjects, new FakeGetPossibleSubjects() },
+            { ActivityNames.FakeGetSubjectLikes, new FakeGetSubjectLikes() },
             { ActivityNames.GetBingSuggestions, new GetBingSuggestions() },
             { ActivityNames.GetPossibleIntents, new GetPossibleIntents() },
             { ActivityNames.GetPossibleDates, null },

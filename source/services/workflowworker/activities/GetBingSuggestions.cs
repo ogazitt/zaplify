@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using zaplify.bing;
+using BuiltSteady.Zaplify.ServiceUtilities.Bing;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {

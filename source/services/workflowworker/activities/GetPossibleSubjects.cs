@@ -4,6 +4,9 @@ using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using Microsoft.IdentityModel.Protocols.OAuth;
+using Microsoft.IdentityModel.Protocols.OAuth.Client;
+using BuiltSteady.Zaplify.ServiceUtilities.ADGraph;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -37,7 +40,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             Guid contactsListID = new Guid(contactsField.Value);
 
                             // use the first contact as the subject
-                            var contact = WorkflowWorker.UserContext.Items.First(c => c.ParentID == contactsListID);
+                            var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
                             StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
                             StoreInstanceData(workflowInstance, TargetFieldName, JsonSerializer.Serialize(contact));
                             return true;
@@ -67,21 +70,82 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return true;  // this will terminate the state
             }
 
-            // TODO: get contacts from the Contacts folder, Facebook, and Cloud AD
-            // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
-
-            // HACK: hardcode names for now until the graph queries are in place
-            foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
+            User user = CurrentUser(item);
+            if (user == null)
             {
-                Item contact = CreateContact(workflowInstance, item, subject);
-                suggestionList[subject] = JsonSerializer.Serialize(contact);
+                TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
+                return true;  // this will terminate the state
+            }
+
+            ADGraphAPI adApi = new ADGraphAPI();
+            string adRefreshToken = null;
+
+            // try to retrieve FB and/or AD credentials
+            try
+            {
+                UserCredential creds = user.UserCredentials.Single(uc => uc.ADConsentToken != null || uc.FBConsentToken != null);
+                adApi.FacebookAccessToken = creds.FBConsentToken;
+                adRefreshToken = creds.ADConsentToken;
+            }
+            catch (Exception)
+            {
+                // the user not having either token isn't an error condition, but there's no way to generate suggestions,
+                // so we need to move forward from this state
+                return true;
+            }
+
+            // if a refresh token exists for AD, get an access token from Azure ACS for the Azure AD service
+            if (adRefreshToken != null)
+            {
+                try
+                {
+                    AccessTokenRequestWithRefreshToken request = new AccessTokenRequestWithRefreshToken(new Uri(AzureOAuthConfiguration.GetTokenUri()))
+                    {
+                        RefreshToken = adRefreshToken,
+                        ClientId = AzureOAuthConfiguration.ClientIdentity,
+                        ClientSecret = AzureOAuthConfiguration.ClientSecret,
+                        Scope = AzureOAuthConfiguration.RelyingPartyRealm,
+                    };
+                    OAuthMessage message = OAuthClient.GetAccessToken(request);
+                    AccessTokenResponse authzResponse = message as AccessTokenResponse;
+                    adApi.ADAccessToken = authzResponse.AccessToken;
+
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceError("GenerateSuggestions: could not contact ACS to get an access token; ex: " + ex.Message);
+                    
+                    // if the FB credentials aren't available, there is nothing the Person service can do for us
+                    if (adApi.FacebookAccessToken == null)
+                        return false;  // this could be a temporary outage, so don't move off this state
+                }
+            }
+
+            // get contacts from Cloud AD and Facebook via the AD Graph Person service
+            // TODO: also get local contacts from the Contacts folder
+
+            try
+            {
+                var results = adApi.Query("Mike");  // HACK: hardcode "Mike" for now (this ought to come from the SubjectHint)
+                foreach (var subject in results)
+                {
+                    // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
+                    // TODO: for now this code assumes that all contacts are new and so it creates a new Contact
+                    Item contact = CreateContact(workflowInstance, item, subject);
+                    suggestionList[contact.Name] = JsonSerializer.Serialize(contact);
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("GenerateSuggestions: could not contact Person Service; ex: " + ex.Message);
+                return true;  // move forward from this state
             }
 
             // inexact match
             return false;
         }
 
-        private Item CreateContact(WorkflowInstance workflowInstance, Item item, string name)
+        private Item CreateContact(WorkflowInstance workflowInstance, Item item, ADQueryResult subject)
         {
             DateTime now = DateTime.UtcNow;
             FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
@@ -113,14 +177,24 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             // create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
+            var itemID = Guid.NewGuid();
             Item contact = new Item()
             {
-                ID = Guid.NewGuid(),
-                Name = name,
+                ID = itemID,
+                Name = String.Format("{0} {1}", subject.FirstName, subject.LastName),
                 FolderID = item.FolderID,
                 ItemTypeID = SystemItemTypes.Contact,
                 ParentID = listID,
-                UserID = item.ID,
+                UserID = item.UserID,
+                FieldValues = new List<FieldValue>()
+                {
+                    new FieldValue() // facebook ID of the person
+                    { 
+                        FieldID = new Guid("00000000-0000-0000-0000-000000000032"), // hardcode email 
+                        ItemID = itemID,
+                        Value = "100003631822064"  // hardcode to Mike Abbott for now
+                    }
+                },
                 Created = now,
                 LastModified = now,
             };

@@ -12,6 +12,7 @@
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Models;
+    using Microsoft.IdentityModel.Protocols.OAuth.Client;
 
     public class DashboardController : BaseController
     {
@@ -107,6 +108,17 @@
             return RedirectToAction("Home", "Dashboard");
         }
 
+        public ActionResult CloudAD()
+        {
+            OAuthClient.RedirectToEndUserEndpoint(
+                AzureOAuthConfiguration.ProtectedResourceUrl,
+                AuthorizationResponseType.Code,
+                new Uri(AzureOAuthConfiguration.RedirectUrlAfterEndUserConsent),
+                CurrentUser.ID.ToString(),
+                null);
+
+            return new EmptyResult();
+        }
 
         void CreateDefaultFolders(UserDataModel model)
         {
@@ -239,14 +251,14 @@
                 Suggestion connectToFacebook = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Facebook", FieldName = FieldNames.FacebookConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", FieldName = FieldNames.FacebookConsent, 
                     WorkflowInstanceID = Guid.NewGuid(), WorkflowType="InitializeUser"
                 };
                 suggestionsContext.Suggestions.Add(connectToFacebook);
                 Suggestion connectToCloudAD = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Cloud Directory", FieldName = FieldNames.CloudADConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Cloud Directory", GroupDisplayName = "Get Connected", FieldName = FieldNames.CloudADConsent, 
                     WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowType = connectToFacebook.WorkflowType
                 };
                 suggestionsContext.Suggestions.Add(connectToCloudAD);

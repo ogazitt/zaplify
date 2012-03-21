@@ -1,13 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost;
+using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.Website.Resources;
 using Microsoft.ApplicationServer.Http;
+using Microsoft.IdentityModel.Protocols.OAuth;
+using Microsoft.IdentityModel.Protocols.OAuth.Client;
 
-namespace Website
+namespace BuiltSteady.Zaplify.Website
 {
     // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
     // visit http://go.microsoft.com/?LinkId=9394801
@@ -29,7 +34,7 @@ namespace Website
                 "Default", // Route name
                 "{controller}/{action}/{id}", // URL with parameters
                 new { controller = "Dashboard", action = "Home", id = UrlParameter.Optional }, // Parameter defaults
-                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "suggestions", "tags", "trace", "users" }) }
+                new { controller = new NotInValuesConstraint(new[] { "constants", "folders", "items", "itemtypes", "operations", "speech", "suggestions", "tags", "trace", "users", "OAuthHandler.ashx" }) }
             );
 
             // map the WCF WebApi service routes
@@ -67,6 +72,108 @@ namespace Website
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
+
+            RegisterOAuthHandler();
+        }
+
+        private void RegisterOAuthHandler()
+        {
+            Uri tokenUri = new Uri(AzureOAuthConfiguration.GetTokenUri());
+
+            // set up the ServerRegistry
+            InMemoryAuthorizationServerRegistry serverRegistry = new InMemoryAuthorizationServerRegistry();
+            AuthorizationServerRegistration registrationInfo = new AuthorizationServerRegistration(
+                tokenUri,
+                new Uri(AzureOAuthConfiguration.EndUserEndPoint),
+                AzureOAuthConfiguration.ClientIdentity,
+                AzureOAuthConfiguration.ClientSecret);
+
+            serverRegistry.AddOrUpdate(registrationInfo);
+            OAuthClientSettings.AuthorizationServerRegistry = serverRegistry;
+
+            // set up the ResourceRegistry
+            InMemoryResourceScopeMappingRegistry resourceRegistry = new InMemoryResourceScopeMappingRegistry();
+
+            resourceRegistry.AddOrUpdate(AzureOAuthConfiguration.ProtectedResourceUrl,
+                tokenUri,
+                new Uri(AzureOAuthConfiguration.EndUserEndPoint),
+                null);
+            OAuthClientSettings.ResourceScopeMappingRegistry = resourceRegistry;
+
+            // Handle the requesting access token event
+            OAuthClientSettings.RequestingAccessToken += new EventHandler<RequestingAccessTokenEventArgs>(OAuthClientSettings_RequestingAccessToken);
+
+            // Handle the token received event
+            OAuthClientSettings.AccessTokenReceived += new EventHandler<AccessTokenReceivedEventArgs>(OAuthClientSettings_AccessTokenReceived);
+
+            // Handle the event when the user denies consent.
+            OAuthClientSettings.EndUserAuthorizationFailed += new EventHandler<EndUserAuthorizationFailedEventArgs>(OAuthClientSettings_EndUserAuthorizationFailed);
+
+            OAuthClientSettings.AuthorizationCodeReceived += new EventHandler<AuthorizationCodeReceivedEventArgs>(OAuthClientSettings_AuthorizationCodeReceived);
+
+            //register the Authentication Module
+            AuthenticationManager.Register(new OAuthAuthenticationModule());
+        }
+
+        void OAuthClientSettings_AuthorizationCodeReceived(object sender, AuthorizationCodeReceivedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Event handler for the enduser authorization failed event. This method should take any corrective measure needed.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="authorizationFailedEventArgs">Event arguments.</param>
+        void OAuthClientSettings_EndUserAuthorizationFailed(object sender, EndUserAuthorizationFailedEventArgs authorizationFailedEventArgs)
+        {
+            // cancelling this event will cause the user to be redirected to the initial page.
+            authorizationFailedEventArgs.Cancel = true;
+        }
+
+        /// <summary>
+        /// Event handler for the requesting access token event. This method can modify the outgoing 
+        /// token request before it is sent.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="requestingTokenEventArgs">Event arguments.</param>
+        void OAuthClientSettings_RequestingAccessToken(object sender, RequestingAccessTokenEventArgs requestingTokenEventArgs)
+        {
+            requestingTokenEventArgs.AccessTokenRequest.Scope = AzureOAuthConfiguration.RelyingPartyRealm;
+        }
+
+        /// <summary>
+        /// Event handler for the  access token received event. This method should save the tokens so that
+        /// they can be used by the application in its requests.
+        /// </summary>
+        /// <param name="sender">Sender of the event.</param>
+        /// <param name="tokenReceivedEventArgs">Event arguments.</param>
+        void OAuthClientSettings_AccessTokenReceived(object sender, AccessTokenReceivedEventArgs tokenReceivedEventArgs)
+        {
+            string accessToken = tokenReceivedEventArgs.AuthorizationResponse.Parameters[OAuthConstants.AccessToken];
+            Uri tokenUri = tokenReceivedEventArgs.TokenUri;
+            string refreshToken = tokenReceivedEventArgs.AuthorizationResponse.Parameters[OAuthConstants.RefreshToken];
+
+            if (tokenReceivedEventArgs.Resource.StartsWith(AzureOAuthConfiguration.ProtectedResourceUrl))
+            {
+                // TODO: encrypt token, store expiration
+                var storage = Storage.NewUserContext;
+                var userid = new Guid(tokenReceivedEventArgs.State);
+                var user = storage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
+                user.UserCredentials[0].ADConsentToken = refreshToken;
+                storage.SaveChanges();
+
+                try
+                {   // timestamp suggestion
+                    SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
+                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.FieldName == FieldNames.CloudADConsent);
+                    suggestion.TimeSelected = DateTime.UtcNow;
+                    suggestion.ReasonSelected = Reasons.Chosen;
+                    suggestionsContext.SaveChanges();
+                }
+                catch (Exception) { }
+
+                tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+            }
         }
     }
 }

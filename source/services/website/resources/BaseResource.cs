@@ -195,7 +195,7 @@
                 Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
                 if (body is Suggestion)
                 {   // Suggestion does not have a Name property, use State property
-                    name = (string)bodyType.GetProperty("State").GetValue(body, null);
+                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
                 }
                 else
                 {

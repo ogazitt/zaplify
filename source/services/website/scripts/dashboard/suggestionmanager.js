@@ -100,7 +100,7 @@ SuggestionManager.prototype.navigateLink = function (suggestion) {
 }
 
 SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
-    var msg = 'You may be directed to Facebook to give consent.\r Do you want to continue?';
+    var msg = 'You will be directed to Facebook to allow Zaplify to access your Facebook contacts.\r Do you want to continue?';
     if (confirm(msg)) {
         Service.GetFacebookConsent();
     }
@@ -108,10 +108,9 @@ SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
 }
 
 SuggestionManager.prototype.getCloudADConsent = function (suggestion) {
-    var msg = 'You may be directed the Cloud Directory to give consent.\r Do you want to continue?';
+    var msg = 'You will be directed to the Office 365 portal.  Simply login to allow Zaplify to access your Office data.\r Do you want to continue?';
     if (confirm(msg)) {
-        alert('Not yet implemented!');
-        //Service.GetCloudADConsent();
+        Service.GetCloudADConsent();
     }
     return false;
 }

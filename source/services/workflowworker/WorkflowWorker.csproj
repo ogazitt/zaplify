@@ -33,8 +33,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.ADGraph">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.ADGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Bing">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Bing.dll</HintPath>
+    </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.FBGraph">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.FBGraph.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.1.0\lib\net40\Microsoft.IdentityModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols.OAuth">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.1.0\lib\net40\Microsoft.IdentityModel.Protocols.OAuth.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -45,12 +60,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="zaplify.bing">
-      <HintPath>..\..\packages\Bing.1.0.0\lib\net40\zaplify.bing.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\FakeGetPossibleSubjects.cs" />
+    <Compile Include="activities\FakeGetSubjectLikes.cs" />
     <Compile Include="activities\GetSubjectLikes.cs" />
     <Compile Include="activities\GetSubjectAttributes.cs" />
     <Compile Include="activities\NoOp.cs" />
@@ -59,6 +73,7 @@
     <Compile Include="activities\StartWorkflow.cs" />
     <Compile Include="Intents.cs" />
     <Compile Include="workflows\ContactsChanged.cs" />
+    <Compile Include="workflows\FakeBuyGift.cs" />
     <Compile Include="workflows\NewTask.cs" />
     <Compile Include="workflows\NewUser.cs" />
     <Compile Include="workflows\NameChanged.cs" />

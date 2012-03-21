@@ -18,6 +18,9 @@ Service.fbAppId = "411772288837103";
 Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
 Service.fbRedirectPath = "dashboard/facebook";
 
+Service.cloudADConsentUri = "dashboard/CloudAD";
+
+
 // ---------------------------------------------------------
 // public methods
 
@@ -50,6 +53,11 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
     var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath);
+    window.navigate(uri);
+}
+
+Service.GetCloudADConsent = function Service$GetCloudADConsent() {
+    var uri = Service.cloudADConsentUri;
     window.navigate(uri);
 }
 
