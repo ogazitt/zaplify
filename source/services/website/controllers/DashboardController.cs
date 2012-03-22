@@ -281,7 +281,7 @@
                 Suggestion connectToCloudAD = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Cloud Directory", GroupDisplayName = "Get Connected", FieldName = FieldNames.CloudADConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", FieldName = FieldNames.CloudADConsent, 
                     WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowType = connectToFacebook.WorkflowType
                 };
                 suggestionsContext.Suggestions.Add(connectToCloudAD);

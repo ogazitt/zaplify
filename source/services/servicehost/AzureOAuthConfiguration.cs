@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         public const string ProtectedResourceUrl = "https://graph.windows.net/PeopleGraph";
 
         // Authorization Server Endpoint.
-        public const string EndUserEndPoint = "http://persongraph.cloudapp.net/Authorization.aspx";
+        public const string EndUserEndPoint = "https://persongraph.cloudapp.net/Authorization.aspx";
 
         // Client Configuration Information.
         public const string ClientIdentityDebug = "zaplify.app.local";

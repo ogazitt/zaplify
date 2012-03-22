@@ -305,12 +305,12 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
 
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
-        var groupKey = s.WorkflowInstanceID + s.State;
+        var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
         var groupID = groupNameMap[groupKey];
         if (groupID === undefined) {
-            groupID = (s.State == FieldNames.RefreshEntity) ? s.State : 'Group_' + (nGroup++).toString();
+            groupID = (s.GroupDisplayName == FieldNames.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
             groupNameMap[groupKey] = groupID;
-            suggestions[groupID] = { GroupID: groupID, DisplayName: s.State, Suggestions: {} };
+            suggestions[groupID] = { GroupID: groupID, DisplayName: s.GroupDisplayName, Suggestions: {} };
         }
         s.GroupID = groupID;
         suggestions[groupID].Suggestions[s.ID] = s;

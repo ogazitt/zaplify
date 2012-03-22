@@ -10,7 +10,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 {
     public abstract class WorkflowActivity
     {
-        public abstract string Name { get; }
+        public virtual string Name { get { return this.GetType().Name; } }
+        public virtual string GroupDisplayName { get { return null; } }
         public abstract string TargetFieldName { get; }
         public abstract Func<
             WorkflowInstance, 
@@ -48,6 +49,52 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         }
 
         /// <summary>
+        /// This function takes a format string that contains zero or more terms (bracketed in "{}")
+        /// Each term may have zero or more variables defined (bracketed in "()") 
+        /// At the end of execution, all variables will be bound from the workflow's InstanceData and
+        /// the resultant string returned.  If an unbound variable is found, the term is discarded.
+        /// Ex: "Choose from {$(Subject)'s }likes" will return "Choose from Mike's likes" if Subject is
+        /// bound to "Mike", otherwise will return "Choose from likes".
+        /// </summary>
+        /// <param name="workflowInstance"></param>
+        /// <param name="formatString"></param>
+        /// <returns></returns>
+        protected string ConstructGroupDisplayName(WorkflowInstance workflowInstance, string formatString)
+        {
+            if (formatString == null)
+                return "";
+
+            StringBuilder returnString = new StringBuilder();
+            
+            // go through each term and do appropriate substitution
+            int start = 0;
+            int pos = formatString.IndexOf('{', start);
+            while (pos > -1)
+            {
+                returnString.Append(formatString.Substring(start, pos));
+
+                int end = formatString.IndexOf('}', pos);
+                string formatExpr = formatString.Substring(pos + 1, end - pos - 1);
+
+                // successively substitute all variables until none are left, or an
+                // unbound variable is found.  If the latter, ignore the whole term
+                string newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
+                while (newExpr != null && newExpr != formatExpr)
+                {
+                    formatExpr = newExpr;
+                    newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
+                }
+                if (newExpr != null)
+                    returnString.Append(newExpr);
+
+                start = end + 1;
+                pos = formatString.IndexOf('{', start);
+            }
+            returnString.Append(formatString.Substring(start));
+            return returnString.ToString();
+        }
+
+        /// <summary>
         /// Create a set of suggestions from the results of calling the suggestion function
         /// </summary>
         /// <param name="workflowInstance">Workflow instance to operate over</param>
@@ -75,12 +122,23 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 return true;
             }
 
+            // construct the group display name
+            string groupDisplayName = GroupDisplayName;
+            if (groupDisplayName == null)
+                groupDisplayName = workflowInstance.State;
+            else
+                groupDisplayName = ConstructGroupDisplayName(workflowInstance, groupDisplayName);
+
             // add suggestions received in possibleLikes
             try
             {
                 int num = 0;
                 foreach (var s in suggestions.Keys)
                 {
+                    // limit to four suggestions
+                    if (num++ == 4)
+                        break;
+
                     var sugg = new Suggestion()
                     {
                         ID = Guid.NewGuid(),
@@ -91,15 +149,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         State = workflowInstance.State,
                         FieldName = TargetFieldName,
                         DisplayName = s,
-                        GroupDisplayName = workflowInstance.State,
+                        GroupDisplayName = groupDisplayName,
                         Value = suggestions[s],
                         TimeSelected = null
                     };
                     WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-
-                    // limit to four suggestions
-                    if (num++ == 4)
-                        break;
                 }
 
                 WorkflowWorker.SuggestionsContext.SaveChanges();
@@ -322,5 +376,42 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             return true;
         }
+
+        #region Helpers
+
+        /// <summary>
+        /// This function finds the next occurrence of a variable in the format $(varname)
+        /// It will attempt to substitute a value from the workflow's instance data, using
+        /// varname as the key
+        /// </summary>
+        /// <param name="workflowInstance">Workflow instance to operate over</param>
+        /// <param name="formatString">Format string that contains variables to substitute</param>
+        /// <returns>null if the variable wasn't bound, the new string if it was (or if no variables were found)</returns>
+        private string SubstituteNextVariable(WorkflowInstance workflowInstance, string formatString)
+        {
+            if (formatString == null)
+                return null;
+
+            StringBuilder returnString = new StringBuilder();
+            int pos = formatString.IndexOf("$(");
+            if (pos < 0)
+                return formatString;
+            int end = formatString.IndexOf(')', pos);
+            if (end < 0)
+                return formatString;
+            
+            string variableName = formatString.Substring(pos + 2, Math.Max(0, end - pos - 2));
+            returnString.Append(formatString.Substring(0, pos));
+
+            string value = GetInstanceData(workflowInstance, variableName);
+            if (value == null)
+                return null;  // the variable wasn't bound
+
+            returnString.Append(value);
+            returnString.Append(formatString.Substring(end + 1));
+            return returnString.ToString();
+        }
+
+        #endregion Helpers
     }
 }

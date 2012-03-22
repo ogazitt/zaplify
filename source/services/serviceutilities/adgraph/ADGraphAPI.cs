@@ -14,7 +14,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.ADGraph
         private const string InvalidAsyncResult = "The IAsyncResult instance is invalid in the current context.";
 
         private const string EndpointBaseUri = "https://graph.windows.net/graphtestppe.ccsctp.net/persongraph/QueryPeople";
-        private const int DefaultMaximumDepth = 2;
+        private const int DefaultMaximumDepth = 1;
 
         #endregion Constants
 

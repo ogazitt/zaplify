@@ -117,13 +117,16 @@ Dashboard Suggestions
 
 .group-button {
     Xcursor: pointer;
-    white-space: nowrap;
+/*  white-space: nowrap; */
     font-weight: bold;
     color: #E2E6E6;
     margin: 4px 10px 0 10px;
     padding: 4px 0 2px 0;
     width: 180px;
-    height: 20px;
+    min-height: 20px;
+    max-height: 60px;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
     text-align: center;
     background-color: #AEC2D0;

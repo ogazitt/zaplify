@@ -645,7 +645,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void CreateAddButtons()
         {
-            double width = (AddButtonsStackPanel.ActualWidth - 20.0) / 2;
+            double width = (AddButtonsStackPanel.ActualWidth) / 2;
             // get all the lists
             lists = (from it in App.ViewModel.Items
                      where it.IsList == true
