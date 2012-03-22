@@ -33,7 +33,7 @@
                 if (IsValidPassword(user.UserCredentials[0], oldPassword))
                 {   // TODO: verify new password meets requirements
                     user.UserCredentials[0].Password = HashPassword(newPassword, user.UserCredentials[0].PasswordSalt);
-                    user.UserCredentials[0].LastModified = DateTime.Now;
+                    user.UserCredentials[0].LastModified = DateTime.UtcNow;
                     return (storage.SaveChanges() > 0);
                 }
             }

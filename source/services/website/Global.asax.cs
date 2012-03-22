@@ -85,7 +85,7 @@ namespace BuiltSteady.Zaplify.Website
             AuthorizationServerRegistration registrationInfo = new AuthorizationServerRegistration(
                 tokenUri,
                 new Uri(AzureOAuthConfiguration.EndUserEndPoint),
-                AzureOAuthConfiguration.ClientIdentity,
+                AzureOAuthConfiguration.GetClientIdentity(),
                 AzureOAuthConfiguration.ClientSecret);
 
             serverRegistry.AddOrUpdate(registrationInfo);
@@ -155,12 +155,23 @@ namespace BuiltSteady.Zaplify.Website
 
             if (tokenReceivedEventArgs.Resource.StartsWith(AzureOAuthConfiguration.ProtectedResourceUrl))
             {
-                // TODO: encrypt token, store expiration
-                var storage = Storage.NewUserContext;
-                var userid = new Guid(tokenReceivedEventArgs.State);
-                var user = storage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
-                user.UserCredentials[0].ADConsentToken = refreshToken;
-                storage.SaveChanges();
+                User user = null;
+                try
+                {   // store token
+                    // TODO: encrypt token, store expiration
+                    var storage = Storage.NewUserContext;
+                    var userid = new Guid(tokenReceivedEventArgs.State);
+                    user = storage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
+                    user.UserCredentials[0].ADConsentToken = refreshToken;
+                    user.UserCredentials[0].LastModified = DateTime.UtcNow;
+                    storage.SaveChanges();
+                }
+                catch (Exception ex) 
+                {
+                    TraceLog.TraceError("Failed to add AD credential to User; ex: " + ex.Message);
+                    // TODO: should probably return some error to the user
+                    tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                }
 
                 try
                 {   // timestamp suggestion
@@ -170,8 +181,12 @@ namespace BuiltSteady.Zaplify.Website
                     suggestion.ReasonSelected = Reasons.Chosen;
                     suggestionsContext.SaveChanges();
                 }
-                catch (Exception) { }
-
+                catch (Exception ex) 
+                {
+                    TraceLog.TraceError("Failed to update and timestamp suggestion; ex: " + ex.Message);
+                }
+                
+                // redirect back to the dashboard
                 tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
             }
         }

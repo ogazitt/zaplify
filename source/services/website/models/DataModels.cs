@@ -65,6 +65,7 @@
         UserStorageContext storageContext;
         User currentUser;
         User userData;
+        UserCredential userCredentials;
         string jsonUserData;
 
         public UserDataModel(UserStorageContext storage, User user)
@@ -133,6 +134,30 @@
                     jsonUserData = JsonSerializer.Serialize(UserData);
                 }
                 return jsonUserData;
+            }
+        }
+
+        public UserCredential UserCredentials
+        {
+            get
+            {
+                if (userCredentials == null)
+                {
+                    try
+                    {
+                        userCredentials = storageContext.
+                            Users.
+                            Include("UserCredentials").
+                            Single<User>(u => u.Name == currentUser.Name).
+                            UserCredentials.
+                            FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                }
+                return userCredentials;
             }
         }
     }

@@ -13,15 +13,4 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         public const string CleanGutters = "clean gutters";
         public const string FakeBuyGift = "fake buy gift";
     }
-
-    public class IntentList
-    {
-        public static Dictionary<string, string> Intents = new Dictionary<string, string>()
-        {
-            { IntentNames.BuyGift, WorkflowNames.BuyGift },
-            { IntentNames.ChangeOil, WorkflowNames.BuyGift },
-            { IntentNames.CleanGutters, WorkflowNames.BuyGift },
-            { IntentNames.FakeBuyGift, WorkflowNames.FakeBuyGift },
-        };
-    }
 }

@@ -100,7 +100,7 @@ SuggestionManager.prototype.navigateLink = function (suggestion) {
 }
 
 SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
-    var msg = 'You will be directed to Facebook to allow Zaplify to access your Facebook contacts.\r Do you want to continue?';
+    var msg = 'You will be redirected to Facebook to allow Zaplify to access your Facebook contacts.\r\rDo you want to continue?';
     if (confirm(msg)) {
         Service.GetFacebookConsent();
     }
@@ -108,7 +108,7 @@ SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
 }
 
 SuggestionManager.prototype.getCloudADConsent = function (suggestion) {
-    var msg = 'You will be directed to the Office 365 portal.  Simply login to allow Zaplify to access your Office data.\r Do you want to continue?';
+    var msg = 'Once you are redirected, simply login with your Office 365 credentials to allow Zaplify to access your contacts.\r\rDo you want to continue?';
     if (confirm(msg)) {
         Service.GetCloudADConsent();
     }

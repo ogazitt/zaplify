@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Xml;
-using System.Xml.Linq;
-using System.Xml.XPath;
+using System.Web;
 using Newtonsoft.Json.Linq;
 
 namespace BuiltSteady.Zaplify.ServiceUtilities.ADGraph
@@ -96,7 +93,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.ADGraph
                 HttpWebResponse response = ex.Response as HttpWebResponse;
                 if (response != null)
                 {
-                    if (response.ContentEncoding.ToLower().Contains("json"))
+                    if (response.ContentType.ToLower().Contains("json"))
                     {
                         using (Stream stream = response.GetResponseStream())
                         using (StreamReader reader = new StreamReader(stream))
@@ -105,7 +102,11 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.ADGraph
                             jObject = JObject.Parse(json);
                         }
                     }
+                    else
+                        throw;
                 }
+                else
+                    throw;
 	        }
 
             var errors = jObject["error"] as JObject;
@@ -155,14 +156,14 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.ADGraph
             string queryUri = string.Format(
                 "{0}?searchTerm='{1}'&maximumDepth={2}",
                 EndpointBaseUri,
-                query,
+                HttpUtility.UrlEncode(query),
                 MaximumDepth);
 
             if (ADAccessToken != null)
-                queryUri = String.Format("{0}&directoryToken='{1}'", queryUri, ADAccessToken);
+                queryUri = String.Format("{0}&directoryToken='{1}'", queryUri, HttpUtility.UrlEncode(ADAccessToken));
 
             if (FacebookAccessToken != null)
-                queryUri = String.Format("{0}&facebookToken='{1}'", queryUri, FacebookAccessToken);
+                queryUri = String.Format("{0}&facebookToken='{1}'", queryUri, HttpUtility.UrlEncode(FacebookAccessToken));
 
             return queryUri;
         }

@@ -1,36 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
-using System.Net;
+using System.Reflection;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using Microsoft.Phone.Controls;
-using System.Reflection;
-using System.Windows.Data;
-using Microsoft.Phone.Shell;
-using System.IO.IsolatedStorage;
+using System.Windows.Navigation;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using System.Xml.Linq;
-using System.Windows.Resources;
-using System.IO;
-using Microsoft.Phone.Tasks;
-using System.Text;
-using System.ComponentModel;
-using System.Threading;
-using System.Windows.Navigation;
-using System.Collections.ObjectModel;
 using BuiltSteady.Zaplify.Shared.Entities;
+using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
+using Microsoft.Phone.Tasks;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class MainPage : PhoneApplicationPage, INotifyPropertyChanged
     {
+        // number of lists to generate "Add" buttons for
+        const int MaxLists = 4;
+        private StackPanel[] AddButtons = new StackPanel[3];
+        private List<Item> lists;
+        private List<Button> buttonList;
+        
         private bool addedItemsPropertyChangedHandler = false;
         private bool initialSync = false;
         Item list;
@@ -303,6 +297,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // set the datacontext
             SearchHeader.DataContext = this;
 
+            // add the "Add" buttons to the AddButtons stack panel
+            CreateAddButtons();
+
             // trace exit
             TraceHelper.AddMessage("Exiting Main Loaded");
         }
@@ -319,14 +316,17 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             switch (tabString)
             {
+                case "Add":
+                    MainPivot.SelectedIndex = 0;  // switch to add tab
+                    break;
                 case "Items":
-                    MainPivot.SelectedIndex = 0;  // switch to items tab
+                    MainPivot.SelectedIndex = 1;  // switch to items tab
                     break;
                 case "Folders":
-                    MainPivot.SelectedIndex = 1;  // switch to folders tab
+                    MainPivot.SelectedIndex = 2;  // switch to folders tab
                     break;
                 case "Tags":
-                    MainPivot.SelectedIndex = 2;  // switch to tags tab
+                    MainPivot.SelectedIndex = 3;  // switch to tags tab
                     break;
                 default:
                     break;
@@ -354,7 +354,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // do tab-specific processing (e.g. adding the right Add button handler)
             switch (MainPivot.SelectedIndex)
             {
-                case 0: // items
+                case 0: // add
+                    break;
+                case 1: // items
                     AddButton.Click += new EventHandler(Items_AddButton_Click);
                     var searchButton = new ApplicationBarIconButton() 
                     { 
@@ -364,10 +366,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     searchButton.Click += new EventHandler(Items_SearchButton_Click);                    
                     ApplicationBar.Buttons.Add(searchButton);
                     break;
-                case 1: // folders
+                case 2: // folders
                     AddButton.Click += new EventHandler(Folders_AddButton_Click);
                     break;
-                case 2: // tags
+                case 3: // tags
                     AddButton.Click += new EventHandler(Tags_AddButton_Click);
                     break;
             }
@@ -566,6 +568,143 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         #endregion 
 
         #region Helpers
+
+        private void AddItem(Folder folder, Item list)
+        {
+            string name = NameTextBox.Text;
+
+            // don't add empty items - instead, navigate to the list
+            if (name == null || name == "")
+            {
+                TraceHelper.StartMessage("AddPage: Navigate to List");
+                NavigationService.Navigate(new Uri(
+                    String.Format(
+                        "/ListPage.xaml?type=Folder&ID={0}&ParentID={1}",
+                        folder.ID,
+                        list != null ? list.ID : Guid.Empty),
+                    UriKind.Relative));
+                return;
+            }
+
+            Guid itemTypeID;
+            Guid parentID;
+            if (list == null)
+            {
+                itemTypeID = folder.ItemTypeID;
+                parentID = Guid.Empty;
+            }
+            else
+            {
+                itemTypeID = list.ItemTypeID;
+                parentID = list.ID;
+            }
+
+            // get a reference to the item type
+            ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == itemTypeID);
+
+            // create the new item
+            Item item = new Item()
+            {
+                Name = name,
+                FolderID = folder.ID,
+                ItemTypeID = itemTypeID,
+                ParentID = parentID,
+            };
+
+            // hack: special case processing for item types that have a Complete field
+            // if it exists, set it to false
+            if (itemType.HasField("Complete"))
+                item.Complete = false;
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = item
+                });
+
+            // add the item to the folder
+            folder.Items.Add(item);
+
+            // save the changes to local storage
+            StorageHelper.WriteFolder(folder);
+
+            // trigger a sync with the Service 
+            App.ViewModel.SyncWithService();
+
+            // reset the name field to make it easy to add the next one
+            NameTextBox.Text = "";
+        }
+
+        private void AddItemToFolder(string folderName)
+        {
+            Folder folder = App.ViewModel.Folders.Single(f => f.Name == folderName);
+            AddItem(folder, null);
+        }
+
+        private void CreateAddButtons()
+        {
+            double width = (AddButtonsStackPanel.ActualWidth - 20.0) / 2;
+            // get all the lists
+            lists = (from it in App.ViewModel.Items
+                     where it.IsList == true
+                     orderby it.Name ascending
+                     select it).ToList();
+            // create a list of buttons - one for each list
+            buttonList = (from it in lists
+                          select new Button()
+                          {
+                              Content = it.Name,
+                              Width = width,
+                          }).ToList();
+            foreach (var b in buttonList)
+                b.Click += new RoutedEventHandler(AddButton_Click);
+
+            // clear the button rows
+            AddButtonsStackPanel.Children.Clear();
+            for (int i = 0; i < AddButtons.Length; i++)
+                AddButtons[i] = null;
+
+            // assemble the buttons into rows (maximum of four buttons and two rows)
+            // if there are two or less buttons, one row
+            // otherwise distribute evenly across two rows
+            int count = Math.Min(buttonList.Count, MaxLists);
+            int firstrow = count, secondrow = 0, addButtonsRow = 0;
+            if (count > MaxLists / 2)
+            {
+                firstrow = count / 2;
+                secondrow = count - firstrow;
+            }
+            if (firstrow > 0)
+            {
+                var sp = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                foreach (var b in buttonList.Take(firstrow))
+                    sp.Children.Add(b);
+                AddButtons[addButtonsRow++] = sp;
+                AddButtonsStackPanel.Children.Add(sp);
+            }
+            if (secondrow > 0)
+            {
+                var sp = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                foreach (var b in buttonList.Skip(firstrow).Take(secondrow))
+                    sp.Children.Add(b);
+                AddButtons[addButtonsRow++] = sp;
+                AddButtonsStackPanel.Children.Add(sp);
+            }
+        }
+
+        private void AddButton_Click(object sender, EventArgs e)
+        {
+            // determine which button was clicked
+            Button clickedButton = sender as Button ?? AddButtons[0].Children[0] as Button;
+            int listIndex = buttonList.IndexOf(clickedButton);
+            
+            Item list = lists[listIndex];
+            Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
+   
+            AddItem(folder, list);
+        }     
 
         private ObservableCollection<Item> FilterItems(ObservableCollection<Item> items)
         {

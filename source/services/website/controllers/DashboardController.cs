@@ -23,6 +23,14 @@
             try
             {   // force access to validate current user
                 var userData = model.UserData;
+
+                // check the facebook consent token and set the renewal flag if it will expire soon
+                var userCredentials = model.UserCredentials;
+                if (userCredentials.FBConsentToken != null &&
+                    userCredentials.FBConsentTokenExpiration < DateTime.UtcNow + TimeSpan.FromDays(1))
+                    ViewBag.RenewFBToken = 1;
+                else
+                    ViewBag.RenewFBToken = 0;
             }
             catch
             {
@@ -70,7 +78,7 @@
             WebResponse resp = req.GetResponse();
 
             string token = null;
-            DateTime expires;
+            DateTime? expires = null;
 
             using (Stream stream = resp.GetResponseStream())
             using (StreamReader reader = new StreamReader(stream))
@@ -84,16 +92,28 @@
                     if (kv[0].Equals("access_token", StringComparison.Ordinal))
                         token = kv[1];
                     else if (kv[0].Equals("expires"))
-                        expires = DateTime.Now.AddSeconds(int.Parse(kv[1]));
+                        expires = DateTime.UtcNow.AddSeconds(int.Parse(kv[1]));
                 }
             }
 
-            // TODO: encrypt token, store expiration
-            UserStorageContext storage = Storage.NewUserContext;
-            User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == this.CurrentUser.Name);
-            user.UserCredentials[0].FBConsentToken = token;
-            storage.SaveChanges();
+            User user = null;
+            try
+            {   // store token
 
+                // TODO: encrypt token
+                UserStorageContext storage = Storage.NewUserContext;
+                user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == this.CurrentUser.Name);
+                user.UserCredentials[0].FBConsentToken = token;
+                user.UserCredentials[0].FBConsentTokenExpiration = expires;
+                user.UserCredentials[0].LastModified = DateTime.UtcNow;
+                storage.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("Failed to add Facebook credential to User; ex: " + ex.Message);
+                // TODO: should probably return some error to the user
+                return RedirectToAction("Home", "Dashboard");
+            }
             
             try
             {   // timestamp suggestion
@@ -103,7 +123,10 @@
                 suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                TraceLog.TraceError("Failed to update and timestamp suggestion; ex: " + ex.Message);
+            }
 
             return RedirectToAction("Home", "Dashboard");
         }
@@ -113,7 +136,7 @@
             OAuthClient.RedirectToEndUserEndpoint(
                 AzureOAuthConfiguration.ProtectedResourceUrl,
                 AuthorizationResponseType.Code,
-                new Uri(AzureOAuthConfiguration.RedirectUrlAfterEndUserConsent),
+                new Uri(AzureOAuthConfiguration.GetRedirectUrlAfterEndUserConsent(this.HttpContext.Request.Url)),
                 CurrentUser.ID.ToString(),
                 null);
 

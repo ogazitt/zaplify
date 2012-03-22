@@ -102,7 +102,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     AccessTokenRequestWithRefreshToken request = new AccessTokenRequestWithRefreshToken(new Uri(AzureOAuthConfiguration.GetTokenUri()))
                     {
                         RefreshToken = adRefreshToken,
-                        ClientId = AzureOAuthConfiguration.ClientIdentity,
+                        ClientId = AzureOAuthConfiguration.GetClientIdentity(),
                         ClientSecret = AzureOAuthConfiguration.ClientSecret,
                         Scope = AzureOAuthConfiguration.RelyingPartyRealm,
                     };
@@ -126,7 +126,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             try
             {
-                var results = adApi.Query("Mike");  // HACK: hardcode "Mike" for now (this ought to come from the SubjectHint)
+                string subjectHint = GetInstanceData(workflowInstance, FieldNames.SubjectHint);
+                var results = adApi.Query(subjectHint ?? "");  
                 foreach (var subject in results)
                 {
                     // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
@@ -175,26 +176,34 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 SignalEntityRefresh(workflowInstance, item);
             }
 
+            // create an ID for the new contact
+            var itemID = Guid.NewGuid();
+
+            // get the facebook ID of the subject if available
+            FieldValue fbfv = null;
+            try
+            {
+                string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
+                fbfv = new FieldValue()
+                {
+                    FieldID = new Guid("00000000-0000-0000-0000-000000000032"), // hardcode to the email field for now
+                    ItemID = itemID,
+                    Value = fbID  
+                };
+            }
+            catch (Exception) { }
+
             // create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
-            var itemID = Guid.NewGuid();
             Item contact = new Item()
             {
                 ID = itemID,
-                Name = String.Format("{0} {1}", subject.FirstName, subject.LastName),
+                Name = subject.Name,
                 FolderID = item.FolderID,
                 ItemTypeID = SystemItemTypes.Contact,
                 ParentID = listID,
                 UserID = item.UserID,
-                FieldValues = new List<FieldValue>()
-                {
-                    new FieldValue() // facebook ID of the person
-                    { 
-                        FieldID = new Guid("00000000-0000-0000-0000-000000000032"), // hardcode email 
-                        ItemID = itemID,
-                        Value = "100003631822064"  // hardcode to Mike Abbott for now
-                    }
-                },
+                FieldValues = fbfv == null ? null : new List<FieldValue>() { fbfv },
                 Created = now,
                 LastModified = now,
             };
