@@ -14,6 +14,8 @@ using BuiltSteady.Zaplify.Shared.Entities;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Microsoft.Phone.Tasks;
+using Microsoft.Phone.Net.NetworkInformation;
+using BuiltSteady.Zaplify.Devices.ClientViewModels;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -24,7 +26,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private StackPanel[] AddButtons = new StackPanel[3];
         private List<Item> lists;
         private List<Button> buttonList;
-        
+
+        // speech fields
+        private NuanceHelper.SpeechState speechState;
+        private string speechDebugString = null;
+        private DateTime speechStart;
+
         private bool addedItemsPropertyChangedHandler = false;
         private bool initialSync = false;
         Item list;
@@ -43,6 +50,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // set the data context of the search header to this page
             SearchHeader.DataContext = this;
+
+            // set some data context information for the speech UI
+            SpeechProgressBar.DataContext = this;
+            SpeechPopup_SpeakButton.DataContext = this;
+            SpeechPopup_CancelButton.DataContext = this;
+            SpeechLabel.DataContext = this;
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
         }
@@ -68,15 +81,120 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
         }
 
+        private bool speechButtonEnabled = false;
+        /// <summary>
+        /// Speech button enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool SpeechButtonEnabled
+        {
+            get
+            {
+                return speechButtonEnabled;
+            }
+            set
+            {
+                if (value != speechButtonEnabled)
+                {
+                    speechButtonEnabled = value;
+                    NotifyPropertyChanged("SpeechButtonEnabled");
+                }
+            }
+        }
+
+        private string speechButtonText = "done";
+        /// <summary>
+        /// Speech button text
+        /// </summary>
+        /// <returns></returns>
+        public string SpeechButtonText
+        {
+            get
+            {
+                return speechButtonText;
+            }
+            set
+            {
+                if (value != speechButtonText)
+                {
+                    speechButtonText = value;
+                    NotifyPropertyChanged("SpeechButtonText");
+                }
+            }
+        }
+
+        private string speechCancelButtonText = "cancel";
+        /// <summary>
+        /// Speech cancel button text
+        /// </summary>
+        /// <returns></returns>
+        public string SpeechCancelButtonText
+        {
+            get
+            {
+                return speechCancelButtonText;
+            }
+            set
+            {
+                if (value != speechCancelButtonText)
+                {
+                    speechCancelButtonText = value;
+                    NotifyPropertyChanged("SpeechCancelButtonText");
+                }
+            }
+        }
+
+        private string speechLabelText = "initializing...";
+        /// <summary>
+        /// Speech button text
+        /// </summary>
+        /// <returns></returns>
+        public string SpeechLabelText
+        {
+            get
+            {
+                return speechLabelText;
+            }
+            set
+            {
+                if (value != speechLabelText)
+                {
+                    speechLabelText = value;
+                    NotifyPropertyChanged("SpeechLabelText");
+                }
+            }
+        }
+
+        private Visibility speechNetworkOperationInProgress = Visibility.Collapsed;
+        /// <summary>
+        /// Whether a network operation is in progress (yes == Visible / no == Collapsed)
+        /// </summary>
+        /// <returns></returns>
+        public Visibility SpeechNetworkOperationInProgress
+        {
+            get
+            {
+                return speechNetworkOperationInProgress;
+            }
+            set
+            {
+                if (value != speechNetworkOperationInProgress)
+                {
+                    speechNetworkOperationInProgress = value;
+                    NotifyPropertyChanged("SpeechNetworkOperationInProgress");
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public void NotifyPropertyChanged(String propertyName)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
             if (null != handler)
             {
-                handler(this, new PropertyChangedEventArgs(propertyName));
+                //handler(this, new PropertyChangedEventArgs(propertyName));
                 // do the below instead to avoid Invalid cross-thread access exception
-                //Deployment.Current.Dispatcher.BeginInvoke(() => { handler(this, new PropertyChangedEventArgs(propertyName)); });
+                Deployment.Current.Dispatcher.BeginInvoke(() => { handler(this, new PropertyChangedEventArgs(propertyName)); });
             }
         }
 
@@ -565,6 +683,232 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             listBox.SelectedIndex = -1;
         }
 
+        // handle events associated with the Speech Popup
+        private void SpeechButton_Click(object sender, RoutedEventArgs e)
+        {
+            // require a connection
+            if (DeviceNetworkInformation.IsNetworkAvailable == false ||
+                NetworkInterface.GetIsNetworkAvailable() == false)
+            {
+                MessageBox.Show("apologies - a network connection is required for this feature, and you appear to be disconnected :-(");
+                return;
+            }
+
+            // require an account
+            if (App.ViewModel.User == null)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "the speech feature requires an account.  create a free account now?",
+                    "create account?",
+                    MessageBoxButton.OKCancel);
+                if (result == MessageBoxResult.Cancel)
+                    return;
+
+                // trace page navigation
+                TraceHelper.StartMessage("ListPage: Navigate to Settings");
+
+                // Navigate to the settings page
+                NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
+                return;
+            }
+
+            // set the UI state to initializing state
+            speechState = NuanceHelper.SpeechState.Initializing;
+            SpeechSetUIState(speechState);
+
+            // store debug / timing info
+            speechStart = DateTime.Now;
+            speechDebugString = "";
+
+            // store debug / timing info
+            TimeSpan ts = DateTime.Now - speechStart;
+            string stateString = NuanceHelper.SpeechStateString(speechState);
+            string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Connecting Socket");
+            TraceHelper.AddMessage(traceString);
+            speechDebugString += traceString + "\n";
+
+            // initialize the connection to the speech service
+            NuanceHelper.Start(
+                App.ViewModel.User,
+                new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
+
+            // open the popup
+            SpeechPopup.IsOpen = true;
+        }
+
+        private void SpeechPopup_CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            switch (speechState)
+            {
+                case NuanceHelper.SpeechState.Initializing:
+                case NuanceHelper.SpeechState.Listening:
+                case NuanceHelper.SpeechState.Recognizing:
+                    // user tapped the cancel button
+
+                    // cancel the current operation / close the socket to the service
+                    NuanceHelper.Cancel(
+                        new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
+
+                    // reset the text in the textbox
+                    NameTextBox.Text = "";
+                    break;
+                case NuanceHelper.SpeechState.Finished:
+                    // user tapped the OK button
+
+                    // set the text in the popup textbox
+                    NameTextBox.Text = SpeechLabelText.Trim('\'');
+                    break;
+            }
+
+            SpeechPopup_Close();
+        }
+
+        private void SpeechPopup_Close()
+        {
+            // close the popup 
+            SpeechPopup.IsOpen = false;
+        }
+
+        private void SpeechPopup_NetworkOperationInProgressCallBack(bool operationInProgress, OperationStatus status)
+        {
+            // call the MainViewModel's routine to make sure global network status is reset
+            App.ViewModel.NetworkOperationInProgressCallback(operationInProgress, status);
+
+            // signal whether the net operation is in progress or not
+            SpeechNetworkOperationInProgress = (operationInProgress == true ? Visibility.Visible : Visibility.Collapsed);
+
+            // if the operationSuccessful flag is null, no new data; otherwise, it signals the status of the last operation
+            if (status != OperationStatus.Started)
+            {
+                if (status != OperationStatus.Success)
+                {   // the server wasn't reachable
+                    Deployment.Current.Dispatcher.BeginInvoke(() =>
+                    {
+                        MessageBox.Show("Unable to access the speech service at this time.");
+                        SpeechPopup_Close();
+                    });
+                }
+            }
+        }
+
+        private void SpeechPopup_SpeakButton_Click(object sender, RoutedEventArgs e)
+        {
+            TimeSpan ts;
+            string stateString;
+            string traceString;
+
+            switch (speechState)
+            {
+                case NuanceHelper.SpeechState.Initializing:
+                    // can't happen since the button isn't enabled
+#if DEBUG
+                    MessageBox.Show("Invalid state SpeechState.Initializing reached");
+#endif
+                    break;
+                case NuanceHelper.SpeechState.Listening:
+                    // done button tapped
+
+                    // set the UI state to recognizing state
+                    speechState = NuanceHelper.SpeechState.Recognizing;
+                    SpeechSetUIState(speechState);
+
+                    // store debug / timing info
+                    ts = DateTime.Now - speechStart;
+                    stateString = NuanceHelper.SpeechStateString(speechState);
+                    traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Stopping mic");
+                    TraceHelper.AddMessage(traceString);
+                    speechDebugString += traceString + "\n";
+
+                    // stop listening and get the recognized text from the speech service
+                    NuanceHelper.Stop(new NuanceHelper.SpeechToTextCallbackDelegate(SpeechPopup_SpeechToTextCallback));
+                    break;
+                case NuanceHelper.SpeechState.Recognizing:
+                    // can't happen since the button isn't enabled
+#if DEBUG
+                    MessageBox.Show("Invalid state SpeechState.Initializing reached");
+#endif
+                    break;
+                case NuanceHelper.SpeechState.Finished:
+                    // "try again" button tapped
+
+                    // set the UI state to initializing state
+                    speechState = NuanceHelper.SpeechState.Initializing;
+                    SpeechSetUIState(speechState);
+
+                    // store debug / timing info
+                    speechStart = DateTime.Now;
+                    speechDebugString = "";
+
+                    // store debug / timing info
+                    ts = DateTime.Now - speechStart;
+                    stateString = NuanceHelper.SpeechStateString(speechState);
+                    traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Initializing Request");
+                    TraceHelper.AddMessage(traceString);
+                    speechDebugString += traceString + "\n";
+
+                    // initialize the connection to the speech service
+                    NuanceHelper.Start(
+                        App.ViewModel.User,
+                        new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                        new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
+                    break;
+            }
+        }
+
+        private void SpeechPopup_SpeechStateCallback(NuanceHelper.SpeechState state, string message)
+        {
+            speechState = state;
+            SpeechSetUIState(speechState);
+
+            // store debug / timing info
+            TimeSpan ts = DateTime.Now - speechStart;
+            string stateString = NuanceHelper.SpeechStateString(state);
+            string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, message);
+            TraceHelper.AddMessage(traceString);
+            speechDebugString += traceString + "\n";
+        }
+
+        private void SpeechPopup_SpeechToTextCallback(string textString)
+        {
+            Deployment.Current.Dispatcher.BeginInvoke(() =>
+            {
+                // set the UI state to finished state
+                speechState = NuanceHelper.SpeechState.Finished;
+                SpeechSetUIState(speechState);
+
+                // store debug / timing info
+                TimeSpan ts = DateTime.Now - speechStart;
+                string stateString = NuanceHelper.SpeechStateString(speechState);
+                string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, textString);
+                TraceHelper.AddMessage(traceString);
+                speechDebugString += traceString + "\n";
+
+                // strip any timing / debug info 
+                textString = textString == null ? "" : textString;
+                string[] words = textString.Split(' ');
+                if (words[words.Length - 1] == "seconds")
+                {
+                    textString = "";
+                    // strip off last two words - "a.b seconds"
+                    for (int i = 0; i < words.Length - 2; i++)
+                    {
+                        textString += words[i];
+                        textString += " ";
+                    }
+                    textString = textString.Trim();
+                }
+
+                // set the speech label text as well as the popup text
+                SpeechLabelText = textString == null ? "recognition failed" : String.Format("'{0}'", textString);
+                NameTextBox.Text = textString;
+
+#if DEBUG && KILL
+                MessageBox.Show(speechDebugString);
+#endif
+            });
+        }
+
         #endregion 
 
         #region Helpers
@@ -744,6 +1088,41 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // return the filtered item collection
             return filteredItems;
+        }
+
+        /// <summary>
+        /// Set the UI based on the current state of the speech state machine
+        /// </summary>
+        /// <param name="state"></param>
+        private void SpeechSetUIState(NuanceHelper.SpeechState state)
+        {
+            switch (state)
+            {
+                case NuanceHelper.SpeechState.Initializing:
+                    SpeechLabelText = "initializing...";
+                    SpeechButtonText = "done";
+                    SpeechButtonEnabled = false;
+                    SpeechCancelButtonText = "cancel";
+                    break;
+                case NuanceHelper.SpeechState.Listening:
+                    SpeechLabelText = "listening...";
+                    SpeechButtonText = "done";
+                    SpeechButtonEnabled = true;
+                    SpeechCancelButtonText = "cancel";
+                    break;
+                case NuanceHelper.SpeechState.Recognizing:
+                    SpeechLabelText = "recognizing...";
+                    SpeechButtonText = "try again";
+                    SpeechButtonEnabled = false;
+                    SpeechCancelButtonText = "cancel";
+                    break;
+                case NuanceHelper.SpeechState.Finished:
+                    SpeechLabelText = "";
+                    SpeechButtonText = "try again";
+                    SpeechButtonEnabled = true;
+                    SpeechCancelButtonText = "ok";
+                    break;
+            }
         }
 
         #endregion
