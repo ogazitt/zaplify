@@ -1,17 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using BuiltSteady.Zaplify.Devices.ClientViewModels;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
+using BuiltSteady.Zaplify.Shared.Entities;
 using MonoTouch.Dialog;
-using MonoTouch.Foundation;
 using MonoTouch.UIKit;
-using System.Text;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -156,7 +154,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 try
                 {
                     // try to match the current item against the list of currently selected items
-                    values.Items.Single(it => it.ItemRef == item.ItemRef);
+                    values.Items.Single(it => it.ItemTypeID == SystemItemTypes.Contact && it.ID == item.ItemRef ||
+                                              it.ItemTypeID == SystemItemTypes.Reference && it.ItemRef == item.ItemRef);
                 }
                 catch
                 {

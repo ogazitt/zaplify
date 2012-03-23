@@ -69,6 +69,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 return "ListItem";
             if (itemTypeID == SystemItemTypes.ShoppingItem)
                 return "ShoppingItem";
+            if (itemTypeID == SystemItemTypes.Reference)
+                return "Reference";
+            if (itemTypeID == SystemItemTypes.NameValue)
+                return "NameValue";
             return null;
         }
 

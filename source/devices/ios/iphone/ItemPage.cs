@@ -545,8 +545,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     Item contacts = new Item()
                     {
                         Items = App.ViewModel.Items.
-                            Where(it => it.ItemTypeID == SystemItemTypes.Contact).
-                            Select(it => new Item() { Name = it.Name, FolderID = folder.ID, ItemTypeID = SystemItemTypes.ListItem, ParentID = currentContacts.ID, ItemRef = it.ID }).
+                            Where(it => it.ItemTypeID == SystemItemTypes.Contact && it.IsList == false).
+                            Select(it => new Item() { Name = it.Name, FolderID = folder.ID, ItemTypeID = SystemItemTypes.Reference, ParentID = currentContacts.ID, ItemRef = it.ID }).
                             ToObservableCollection(),
                     };
                     contactsElement.Tapped += delegate 

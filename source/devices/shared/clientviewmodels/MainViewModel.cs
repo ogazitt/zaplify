@@ -711,27 +711,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             {
                 retrievedConstants = true;
 				
-#if IOS
-                // no requests pending - we can use the Service constants as the authoritative ones
-                Constants = constants;
-
-                // reset priority names and colors inside the Item static arrays
-                // these static arrays are the most convenient way to make databinding work
-                int i = 0;
-                foreach (var pri in constants.Priorities)
-                {
-                    Item.PriorityNames[i] = pri.Name;
-                    Item.PriorityColors[i++] = pri.Color;
-                }
-
-                // initialize the static ItemTypes dictionary
-                ItemType.CreateDictionary(itemTypes);
-
-                // Chain the PlayQueue call to drain the queue and retrieve the user data
-                PlayQueue();
-#else
+#if !IOS
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
+#endif
                     // no requests pending - we can use the Service constants as the authoritative ones
                     Constants = constants;
 
@@ -745,10 +728,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     }
 
                     // initialize the static ItemTypes dictionary
-                    ItemType.CreateDictionary(itemTypes);
+                    ItemType.CreateDictionary(constants.ItemTypes);
 
                     // Chain the PlayQueue call to drain the queue and retrieve the user data
                     PlayQueue();
+#if !IOS
                 });
 #endif
             }
