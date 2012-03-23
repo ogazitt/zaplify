@@ -28,8 +28,8 @@
         <State expanded="True">
           <Node name="ClientEntities-ios" expanded="True" />
           <Node name="ClientHelpers-ios" expanded="True" />
-          <Node name="ClientViewModels-ios" expanded="True" />
-          <Node name="iphone" expanded="True" selected="True">
+          <Node name="ClientViewModels-ios" expanded="True" selected="True" />
+          <Node name="iphone" expanded="True">
             <Node name="controls" expanded="True" />
           </Node>
         </State>
