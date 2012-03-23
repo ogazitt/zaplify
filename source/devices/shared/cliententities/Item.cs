@@ -606,27 +606,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         // display color property for Name
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
 
-        public int? Priority
-        {
-            get
-            {
-                FieldValue fv = GetFieldValue(FieldNames.Priority, false);
-                if (fv != null)
-                    return (int?)Convert.ToInt32(fv.Value);
-                else
-                    return null;
-            }
-            set
-            {
-                FieldValue fv = GetFieldValue(FieldNames.Priority, true);
-                if (fv != null)
-                {
-                    fv.Value = (value == null) ? null : ((int)value).ToString();
-                    NotifyPropertyChanged(FieldNames.Priority);
-                }
-            }
-        }
-
         public string Phone
         {
             get
@@ -644,6 +623,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 {
                     fv.Value = value;
                     NotifyPropertyChanged(FieldNames.Phone);
+                }
+            }
+        }
+
+        public int? Priority
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Priority, false);
+                if (fv != null)
+                    return (int?)Convert.ToInt32(fv.Value);
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Priority, true);
+                if (fv != null)
+                {
+                    fv.Value = (value == null) ? null : ((int)value).ToString();
+                    NotifyPropertyChanged(FieldNames.Priority);
                 }
             }
         }

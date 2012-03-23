@@ -43,6 +43,8 @@ var Dashboard = function Dashboard$() {
     this.dataModel = null;
     this.folderList = null;
     this.folderManager = null;
+    this.suggestionList = null;
+    this.suggestionManager = null;
 }
 
 // ---------------------------------------------------------
@@ -54,33 +56,68 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
-    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderList.render('.dashboard-folders');
     Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
+
+    // suggestions list
+    Dashboard.suggestionList = new SuggestionList();
+    Dashboard.suggestionList.addSelectionChangedHandler('dashboard', this.ManageChoice);
+
+    // suggestions manager
+    Dashboard.suggestionManager = new SuggestionManager(this.dataModel);
 
     // folder manager
     Dashboard.folderManager = new FolderManager(this.dataModel);
     Dashboard.ManageFolder();
 
-    // suggestions list
 
     // bind events
     $(window).bind('load', Dashboard.resize);
     $(window).bind('resize', Dashboard.resize);
 }
 
-// event handler, do not reference this to access static Dashboard
+// event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
+    var selectionChanged = false;
+    var currentFolderID = (Dashboard.folderManager.currentFolder != null) ? Dashboard.folderManager.currentFolder.ID : null;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
-    var currentFolder = Dashboard.folderManager.currentFolder;
-    if (folder == null || folder != currentFolder) {
+    if (folderID == null || folderID != currentFolderID) {
         Dashboard.folderManager.render(".dashboard-manager");
         Dashboard.folderManager.selectFolder(folder);
+        selectionChanged = true;
     }
 
-    var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
-    var currentItem = Dashboard.folderManager.currentItem;
-    if (item == null || item != currentItem) {
+    var currentItemID = (Dashboard.folderManager.currentItem != null) ? Dashboard.folderManager.currentItem.ID : null;
+    if (itemID == null || itemID != currentItemID) {
+        var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
+        selectionChanged = true;
+    }
+
+    if (!Dashboard.resizing /*&& selectionChanged*/) {
+        // get suggestions for currently selected user, folder, or item
+        Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+    }
+}
+
+// event handler, do not reference 'this' to access static Dashboard
+Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
+    var refresh = Dashboard.suggestionManager.select(suggestion);
+    if (refresh) {      // refresh more suggestions
+        // check for more suggestions every 5 seconds for 20 seconds
+        $('.working').show();
+        var nTries = 0;
+        var checkPoint = new Date();
+
+        var checkForSuggestions = function () {
+            if (checkPoint > Dashboard.dataModel.SuggestionsRetrieved && nTries++ < 5) {
+                Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+                setTimeout(checkForSuggestions, 5000);
+            } else {
+                $('.working').hide();
+            }
+        }
+        checkForSuggestions();
     }
 }
 
@@ -120,4 +157,35 @@ Dashboard.resize = function Dashboard$resize() {
 
     $(window).bind('resize', Dashboard.resize);
     Dashboard.resizing = false;
+}
+
+Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
+    if (item != null) {
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
+    } else if (folder != null) {
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
+    } else {
+        this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
+    }
+}
+
+Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
+    // process RefreshEntity suggestions
+    var group = suggestions[FieldNames.RefreshEntity];
+    if (group != null) {
+        for (var id in group.Suggestions) {
+            var suggestion = group.Suggestions[id];
+            var item = Dashboard.dataModel.FindItem(suggestion.EntityID);
+            if (item != null && !item.IsFolder()) {
+                item.Refresh();
+            }
+            Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Ignore);
+        }
+        delete suggestions[FieldNames.RefreshEntity];
+    }
+
+    Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
+    if (suggestions['Group_0'] != null) {
+        $('.working').hide(); 
+    }
 }

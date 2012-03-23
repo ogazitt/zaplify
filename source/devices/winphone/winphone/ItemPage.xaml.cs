@@ -619,7 +619,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     break;
                 case DisplayTypes.DatePicker:
                     DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
-                    dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                    dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { /* Mode = BindingMode.TwoWay */ });
                     dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
                     {
                         //pi.SetValue(container, dp.Value, null);

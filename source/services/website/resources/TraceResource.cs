@@ -23,14 +23,14 @@
         public TraceResource()
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
         }
 
         [WebInvoke(UriTemplate = "", Method = "POST")]
         public HttpResponseMessageWrapper<string> Trace(HttpRequestMessage req)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             // get the user credentials
             //UserCredential user = GetUserFromMessageHeaders(req);
@@ -53,7 +53,7 @@
             catch (Exception ex)
             {
                 // speech failed
-                LoggingHelper.TraceError("Trace Write failed: " + ex.Message);
+                TraceLog.TraceError("Trace Write failed: " + ex.Message);
                 return new HttpResponseMessageWrapper<string>(req, HttpStatusCode.InternalServerError);
             }
         }
@@ -61,7 +61,7 @@
         string WriteFile(string username, Stream traceStream)
         {
             // Log function entrance
-            LoggingHelper.TraceFunction();
+            TraceLog.TraceFunction();
 
             try
             {
@@ -91,7 +91,7 @@
                 byte[] buffer = new byte[65536];
                 int len = traceStream.Read(buffer, 0, buffer.Length);
                 string s = Encoding.ASCII.GetString(buffer);
-                LoggingHelper.TraceError("Write speech file failed: " + ex.Message);
+                TraceLog.TraceError("Write speech file failed: " + ex.Message);
                 return ex.Message;
             }
         }

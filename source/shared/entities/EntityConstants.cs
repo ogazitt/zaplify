@@ -26,14 +26,17 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 {
 
     public class SystemItemTypes
-    {   // system item types
+    {   
+        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem};
+        // standard item types
         public static Guid Task = new Guid("00000000-0000-0000-0000-000000000001");
         public static Guid Location = new Guid("00000000-0000-0000-0000-000000000002");
         public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000003");
         public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000004");
         public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000005");
-
-        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem};
+        // system item types
+        public static Guid Reference = new Guid("00000000-0000-0000-0000-000000000006");
+        public static Guid NameValue = new Guid("00000000-0000-0000-0000-000000000007");
     }
 
     public class ActionNames
@@ -71,6 +74,25 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ItemRef = "ItemRef";            // ItemID
         public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
+        public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
+
+        // non user-visible FieldNames
+        public const string Intent = "Intent";              // String
+        public const string Likes = "Likes";                // comma-delimited string
+        public const string SubjectHint = "SubjectHint";    // String
+        public const string SuggestedLink = "SuggestedLink"; // URL
+
+        // UX action FieldNames
+        public const string FacebookConsent = "FacebookConsent";
+        public const string CloudADConsent = "CloudADConsent";
+        public const string RefreshEntity = "RefreshEntity"; // indicates that the UI should refresh this item
+    }
+
+    public class Reasons
+    {
+        public const string Chosen = "Chosen";
+        public const string Like = "Like";
+        public const string Dislike = "Dislike";
     }
 
     public class FieldTypes

@@ -23,7 +23,7 @@
                 msg,
                 msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
 
-            LoggingHelper.TraceLine(tracemsg, LoggingHelper.LogLevel.Info);
+            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Info);
             return msg.ToMessage(); 
         }
 
@@ -35,7 +35,7 @@
                 msg,
                 msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
 
-            LoggingHelper.TraceLine(tracemsg, LoggingHelper.LogLevel.Info);
+            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Info);
 
             return msg.ToMessage();
         }

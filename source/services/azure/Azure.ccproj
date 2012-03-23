@@ -39,20 +39,20 @@
     <ServiceConfiguration Include="ServiceConfiguration.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\mailworker\mailworker.csproj">
-      <Name>mailworker</Name>
-      <Project>{583653ff-2e30-43f5-a4ed-9cbab3218d7d}</Project>
-      <Private>True</Private>
-      <RoleType>Worker</RoleType>
-      <RoleName>mailworker</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
-    </ProjectReference>
     <ProjectReference Include="..\website\Website.csproj">
       <Name>Website</Name>
       <Project>{ae9dfdd6-e41d-4fce-9522-3f2894059ac1}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
       <RoleName>Website</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\workerrole\WorkerRole.csproj">
+      <Name>WorkerRole</Name>
+      <Project>{583653ff-2e30-43f5-a4ed-9cbab3218d7d}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>WorkerRole</RoleName>
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
   </ItemGroup>

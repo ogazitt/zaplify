@@ -1,19 +1,20 @@
 ﻿namespace BuiltSteady.Zaplify.Website.Models.AccessControl
-{ 
+{
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text.RegularExpressions;
-    using System.Web.Security;
     using System.Web;
+    using System.Web.Security;
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
 
     public class UserMembershipProvider : MembershipProvider
     {
-        const int authTicketLifetime = 120;      // minutes
+        const int authTicketLifetime = 48;      // hours
 
         public override string ApplicationName
         {
@@ -25,18 +26,20 @@
         {
             try
             {
-                CredentialStorageContext storage = Storage.NewCredentialContext;
-                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == username.ToLower());
+                UserStorageContext storage = Storage.NewUserContext;
+                User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username.ToLower());
+
                 // verify old password
-                if (IsValidPassword(user, oldPassword))
+                if (IsValidPassword(user.UserCredentials[0], oldPassword))
                 {   // TODO: verify new password meets requirements
-                    user.Password = HashPassword(newPassword, user.PasswordSalt);
+                    user.UserCredentials[0].Password = HashPassword(newPassword, user.UserCredentials[0].PasswordSalt);
+                    user.UserCredentials[0].LastModified = DateTime.UtcNow;
                     return (storage.SaveChanges() > 0);
                 }
             }
             catch (Exception ex)
             {
-                LoggingHelper.TraceError("ChangePassword: ex: " + ex.Message);
+                TraceLog.TraceError("ChangePassword: ex: " + ex.Message);
             }
             return false;
         }
@@ -49,27 +52,27 @@
         public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
         {
             status = MembershipCreateStatus.Success;
-            CredentialStorageContext storage = Storage.NewCredentialContext;
+            UserStorageContext storage = Storage.NewUserContext;
 
             const string emailPattern = "^[a-z0-9_\\+-]+([\\.[a-z0-9_\\+-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$";
             if (!Regex.IsMatch(email.ToLower(), emailPattern))
             {   // not valid email address
                 status = MembershipCreateStatus.InvalidEmail;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
+                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
                 return null;
             }
 
             if (password.Length < MinRequiredPasswordLength)
             {   // not a valid password
                 status = MembershipCreateStatus.InvalidPassword;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
+                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
                 return null;
             }
 
-            if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
+            if (storage.Users.Any<User>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
-                LoggingHelper.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
+                TraceLog.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
                 return null;
             }
 
@@ -77,24 +80,29 @@
             string salt = CreateSalt(64);
             password = HashPassword(password, salt);
             Guid userID = (providerUserKey != null && providerUserKey is Guid) ? (Guid)providerUserKey : Guid.NewGuid();
-            
-            UserCredential user = new UserCredential()
+
+            User user = new User()
             {
                 ID = userID,
                 Name = username.ToLower(),        
-                Password = password,    
-                PasswordSalt = salt,
                 Email = email.ToLower(),
                 CreateDate = DateTime.UtcNow
             };
-
-            storage.Credentials.Add(user);
+            UserCredential credentials = new UserCredential()
+            {
+                UserID = user.ID,
+                Password = password,    
+                PasswordSalt = salt,
+                LastModified = user.CreateDate
+            };
+            user.UserCredentials = new List<UserCredential>() { credentials };
+            storage.Users.Add(user);
             storage.SaveChanges();
-            user = storage.Credentials.Single<UserCredential>(u => u.Name == username);
+            user = storage.Users.Single<User>(u => u.Name == username);
             status = MembershipCreateStatus.Success;
 
             // Log creation of new user account
-            LoggingHelper.TraceInfo("CreateUser: Created new user account: " + username);
+            TraceLog.TraceInfo("CreateUser: Created new user account: " + username);
 
             return AsMembershipUser(user);
         }
@@ -114,7 +122,7 @@
 
         public override bool DeleteUser(string username, bool deleteAllRelatedData)
         {   // always delete all related data
-            StorageContext storage = Storage.NewContext;
+            UserStorageContext storage = Storage.NewUserContext;
             User dbUser = storage.Users.
                 Include("ItemTypes.Fields").
                 Include("Tags").
@@ -166,7 +174,7 @@
         {
             if (userIsOnline && HttpContext.Current.User != null)
             {   // check auth ticket first
-                UserCredential user = ExtractUserFromTicket(HttpContext.Current.User);
+                User user = ExtractUserFromTicket(HttpContext.Current.User);
                 if (user != null)
                 {
                     return AsMembershipUser(user);
@@ -182,7 +190,7 @@
 
         public override string GetUserNameByEmail(string email)
         {
-            UserCredential user = LookupUserByEmail(email);
+            User user = LookupUserByEmail(email);
             return user.Name;
         }
 
@@ -238,16 +246,16 @@
 
         public override void UpdateUser(MembershipUser mu)
         {   // TODO: allow update of more than just email?
-            CredentialStorageContext storage = Storage.NewCredentialContext;
-            UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == mu.UserName);
+            UserStorageContext storage = Storage.NewUserContext;
+            User user = storage.Users.Single<User>(u => u.Name == mu.UserName);
             user.Email = mu.Email;
             storage.SaveChanges();
         }
 
         public override bool ValidateUser(string username, string password)
         {
-            UserCredential user = LookupUserByName(username);
-            return ((user != null) && IsValidPassword(user, password));
+            User user = LookupUserByName(username, true);
+            return ((user != null) && IsValidPassword(user.UserCredentials[0], password));
         }
 
         public static User AsUser(MembershipUser mu)
@@ -260,7 +268,7 @@
             };
         }
 
-        public static HttpCookie CreateAuthCookie(UserCredential user)
+        public static HttpCookie CreateAuthCookie(User user)
         {
             if (user.ID == Guid.Empty)
             {   // get id from storage to attach to cookie 
@@ -273,55 +281,73 @@
                 userData += "|" + user.Email;
             }
             FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(1, user.Name, 
-                DateTime.Now, DateTime.Now.AddMinutes(authTicketLifetime), true, userData);
+                DateTime.Now, DateTime.Now.AddHours(authTicketLifetime), true, userData);
 
             HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(authTicket));
-            authCookie.Expires = DateTime.Now.AddMinutes(authTicketLifetime);
+            authCookie.Expires = DateTime.Now.AddHours(authTicketLifetime);
             return authCookie;
         }
 
-        static bool IsValidPassword(UserCredential user, string password)
+        static bool IsValidPassword(UserCredential credentials, string password)
         {   // hash of given password should match stored hash  
-            string hash = HashPassword(password, user.PasswordSalt);
-            return user.Password.Equals(hash, StringComparison.Ordinal);
+            string hash = HashPassword(password, credentials.PasswordSalt);
+            return credentials.Password.Equals(hash, StringComparison.Ordinal);
         }
 
-        static UserCredential LookupUserByName(string username)
+        static User LookupUserByName(string username, bool includeCredentials = false)
         {
             username = username.ToLower();
-            CredentialStorageContext storage = Storage.NewCredentialContext;
-            if (storage.Credentials.Any<UserCredential>(u => u.Name == username))
+            UserStorageContext storage = Storage.NewUserContext;
+            if (storage.Users.Any<User>(u => u.Name == username))
             {
-                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Name == username);
-                return user;
+                if (includeCredentials)
+                {
+                    return storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username);
+                }
+                else
+                {
+                    return storage.Users.Single<User>(u => u.Name == username);
+                }
             }
             return null;
         }
 
-        static UserCredential LookupUserByEmail(string email)
+        static User LookupUserByEmail(string email, bool includeCredentials = false)
         {
             email = email.ToLower();
-            CredentialStorageContext storage = Storage.NewCredentialContext;
-            if (storage.Credentials.Any<UserCredential>(u => u.Email == email))
+            UserStorageContext storage = Storage.NewUserContext;
+            if (storage.Users.Any<User>(u => u.Email == email))
             {
-                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.Email == email);
-                return user;
+                if (includeCredentials)
+                {
+                    return storage.Users.Include("UserCredentials").Single<User>(u => u.Email == email);
+                }
+                else
+                {
+                    return storage.Users.Single<User>(u => u.Email == email);
+                }
             }
             return null;
         }
 
-        static UserCredential LookupUserByID(Guid id)
+        static User LookupUserByID(Guid id, bool includeCredentials = false)
         {
-            CredentialStorageContext storage = Storage.NewCredentialContext;
-            if (storage.Credentials.Any<UserCredential>(u => u.ID == id))
+            UserStorageContext storage = Storage.NewUserContext;
+            if (storage.Users.Any<User>(u => u.ID == id))
             {
-                UserCredential user = storage.Credentials.Single<UserCredential>(u => u.ID == id);
-                return user;
+                if (includeCredentials)
+                {
+                    return storage.Users.Include("UserCredentials").Single<User>(u => u.ID == id);
+                }
+                else
+                {
+                    return storage.Users.Single<User>(u => u.ID == id);
+                }
             }
             return null;
         }
 
-        static UserCredential ExtractUserFromTicket(IPrincipal principal)
+        static User ExtractUserFromTicket(IPrincipal principal)
         {
             if (principal.Identity != null && principal.Identity.IsAuthenticated)
             {
@@ -334,14 +360,14 @@
                     if (Guid.TryParse(userData[0], out userID))
                     {
                         string email = (userData.Length > 1) ? userData[1] : string.Empty;
-                        return new UserCredential() { Name = identity.Name, ID = userID, Email = email };
+                        return new User() { Name = identity.Name, ID = userID, Email = email };
                     }
                 }
             }
             return null;
         }
 
-        static MembershipUser AsMembershipUser(UserCredential user)
+        static MembershipUser AsMembershipUser(User user)
         {
             MembershipUser member = null;
             if (user != null)

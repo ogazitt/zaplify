@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerEntities", "services\serverentities\ServerEntities.csproj", "{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailWorker", "services\mailworker\MailWorker.csproj", "{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}"
-EndProject
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "Azure", "services\azure\Azure.ccproj", "{46E77407-C105-4F01-AE6F-5CDB3CEE491F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Website", "services\website\Website.csproj", "{AE9DFDD6-E41D-4FCE-9522-3F2894059AC1}"
@@ -23,6 +21,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers", "devices\sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceHost", "services\servicehost\ServiceHost.csproj", "{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerRole", "services\workerrole\WorkerRole.csproj", "{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailWorker", "services\mailworker\MailWorker.csproj", "{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowWorker", "services\workflowworker\WorkflowWorker.csproj", "{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = TaskStore.vsmdi
@@ -36,10 +40,6 @@ Global
 		{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46E77407-C105-4F01-AE6F-5CDB3CEE491F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46E77407-C105-4F01-AE6F-5CDB3CEE491F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46E77407-C105-4F01-AE6F-5CDB3CEE491F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -80,6 +80,18 @@ Global
 		{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{583653FF-2E30-43F5-A4ED-9CBAB3218D7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

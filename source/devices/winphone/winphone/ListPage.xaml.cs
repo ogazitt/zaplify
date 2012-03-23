@@ -266,21 +266,31 @@
 
                         // get the current list name
                         string listName = null;
+                        Guid? listID = null;
+                        Guid itemTypeID;
                         if (id == Guid.Empty)
+                        {
                             listName = folder.Name;
+                            itemTypeID = folder.ItemTypeID;
+                        }
                         else
-                            listName = folder.Items.Single(i => i.ID == id).Name;
+                        {
+                            var item = folder.Items.Single(i => i.ID == id);
+                            listName = item.Name;
+                            listID = (Guid?)id;
+                            itemTypeID = item.ItemTypeID;
+                        }
 
                         // construct a synthetic item that represents the list of items for which the 
                         // ParentID is the parent.  this also works for the root list in a folder, which
                         // is represented with a ParentID of Guid.Empty.
-                        Guid? listID = (id == Guid.Empty) ? (Guid?) null : (Guid?) id;
                         list = new Item()
                         {
                             ID = id,
                             Name = listName,
                             FolderID = folder.ID,
                             IsList = true,
+                            ItemTypeID = itemTypeID,
                             Items = folder.Items.Where(i => i.ParentID == listID).ToObservableCollection()
                         };
                     }

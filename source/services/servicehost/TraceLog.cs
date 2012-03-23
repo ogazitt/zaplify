@@ -7,7 +7,7 @@ using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
-    public class LoggingHelper
+    public class TraceLog
     {
         public enum LogLevel
         {

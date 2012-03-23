@@ -1028,13 +1028,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 Priority = 0,
                 Description = "Tap the browse button below to discover more about Zaplify.",
             });
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
 
+
             // create the People folder
             folders.Add(folder = new Folder() { Name = "People", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Contact, SortOrder = 2000 });
             FolderDictionary.Add(folder.ID, folder);
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
@@ -1042,6 +1045,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             // create the Places folder
             folders.Add(folder = new Folder() { Name = "Places", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Location, SortOrder = 3000 });
             FolderDictionary.Add(folder.ID, folder);
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
@@ -1063,6 +1067,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 SortOrder = 3000,
                 ParentID = Guid.Empty
             });
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()

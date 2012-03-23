@@ -24,18 +24,17 @@
             }
         }
 
-        StorageContext storageContext;
-        public StorageContext StorageContext
+        UserStorageContext storageContext;
+        public UserStorageContext StorageContext
         {
             get
             {
                 if (storageContext == null)
                 {
-                    storageContext = Storage.NewContext;
+                    storageContext = Storage.NewUserContext;
                 }
                 return storageContext;
             }
         }
-
     }
 }

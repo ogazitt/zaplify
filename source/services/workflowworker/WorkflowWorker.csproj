@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BuiltSteady.Zaplify.WorkflowWorker</RootNamespace>
+    <AssemblyName>BuiltSteady.Zaplify.WorkflowWorker</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\obj\</BaseIntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\obj\</BaseIntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.ADGraph">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.ADGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Bing">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Bing.dll</HintPath>
+    </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.FBGraph">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.FBGraph.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.1.0\lib\net40\Microsoft.IdentityModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Protocols.OAuth">
+      <HintPath>..\..\packages\Microsoft.IdentityModel.1.0\lib\net40\Microsoft.IdentityModel.Protocols.OAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\FakeGetPossibleSubjects.cs" />
+    <Compile Include="activities\FakeGetSubjectLikes.cs" />
+    <Compile Include="activities\GetSubjectLikes.cs" />
+    <Compile Include="activities\GetSubjectAttributes.cs" />
+    <Compile Include="activities\NoOp.cs" />
+    <Compile Include="activities\GetPossibleSubjects.cs" />
+    <Compile Include="activities\GetPossibleIntents.cs" />
+    <Compile Include="activities\StartWorkflow.cs" />
+    <Compile Include="Intents.cs" />
+    <Compile Include="workflows\ContactsChanged.cs" />
+    <Compile Include="workflows\FakeBuyGift.cs" />
+    <Compile Include="workflows\NewTask.cs" />
+    <Compile Include="workflows\NewUser.cs" />
+    <Compile Include="workflows\NameChanged.cs" />
+    <Compile Include="workflows\Workflows.cs" />
+    <Compile Include="activities\GetBingSuggestions.cs" />
+    <Compile Include="WorkflowActivity.cs" />
+    <Compile Include="WorkflowState.cs" />
+    <Compile Include="workflows\BuyGift.cs" />
+    <Compile Include="workflows\FindIntent.cs" />
+    <Compile Include="Workflow.cs" />
+    <Compile Include="WorkflowWorker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\serverentities\ServerEntities.csproj">
+      <Project>{FC6908F4-5BA4-4AE0-BB87-E110EB76EDF7}</Project>
+      <Name>ServerEntities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\servicehost\ServiceHost.csproj">
+      <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
+      <Name>ServiceHost</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

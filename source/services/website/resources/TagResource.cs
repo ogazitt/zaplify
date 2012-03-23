@@ -22,21 +22,22 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> DeleteTag(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<Tag>(req, code);  
+                return ReturnResult<Tag>(req, operation, code);  
             }
 
             // get the tag from the message body if one was passed
             Tag clientTag;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientTag = clientTag = ProcessRequestBody(req, typeof(Tag)) as Tag;
+                clientTag = clientTag = ProcessRequestBody(req, typeof(Tag), out operation) as Tag;
                 if (clientTag.ID != id)
                 {   // IDs must match
-                    LoggingHelper.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
+                    TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
             else
@@ -48,8 +49,8 @@
                 }
                 catch (Exception)
                 {   // tag not found - it may have been deleted by someone else.  Return 200 OK.
-                    LoggingHelper.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.OK);
+                    TraceLog.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.OK);
                 }
             }
 
@@ -59,8 +60,8 @@
                 Tag requestedTag = this.StorageContext.Tags.Include("ItemTags").Single<Tag>(t => t.ID == id);
                 if (requestedTag.UserID != CurrentUser.ID)
                 {   // requested tag does not belong to the authenticated user, return 403 Forbidden
-                    LoggingHelper.TraceError("TagResource.Delete: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
+                    TraceLog.TraceError("TagResource.Delete: Forbidden (entity does not belong to current user)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 // delete all the itemtags associated with this item
@@ -73,20 +74,20 @@
                 this.StorageContext.Tags.Remove(requestedTag);
                 if (this.StorageContext.SaveChanges() < 1)
                 {
-                    LoggingHelper.TraceError("TagResource.Delete: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
+                    TraceLog.TraceError("TagResource.Delete: Internal Server Error (database operation did not succeed)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Delete: Accepted");
-                    return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.Accepted);
+                    TraceLog.TraceInfo("TagResource.Delete: Accepted");
+                    return ReturnResult<Tag>(req, operation, requestedTag, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // tag not found - it may have been deleted by someone else.  Return 200 OK.
-                LoggingHelper.TraceInfo(String.Format("TagResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.OK);
+                TraceLog.TraceInfo(String.Format("TagResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.OK);
             }
         }
 
@@ -94,10 +95,11 @@
         [LogMessages]
         public HttpResponseMessageWrapper<List<Tag>> GetTags(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<List<Tag>>(req, code);
+                return ReturnResult<List<Tag>>(req, operation, code);
             }
 
             // get all Tags
@@ -108,13 +110,13 @@
                     Where(lt => lt.UserID == null || lt.UserID == CurrentUser.ID).
                     OrderBy(lt => lt.Name).
                     ToList<Tag>();
-                return new HttpResponseMessageWrapper<List<Tag>>(req, tags, HttpStatusCode.OK);
+                return ReturnResult<List<Tag>>(req, operation, tags, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                LoggingHelper.TraceError("TagResource.GetTags: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<List<Tag>>(req, HttpStatusCode.NotFound);
+                TraceLog.TraceError("TagResource.GetTags: Not Found; ex: " + ex.Message);
+                return ReturnResult<List<Tag>>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -122,10 +124,11 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> GetTag(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<Tag>(req, code);
+                return ReturnResult<Tag>(req, operation, code);
             }
 
             // get the requested tag
@@ -137,17 +140,17 @@
                 // and does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
                 if (requestedTag.UserID != null && requestedTag.UserID != CurrentUser.ID)
                 {
-                    LoggingHelper.TraceError("TagResource.GetItemType: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
+                    TraceLog.TraceError("TagResource.GetItemType: Forbidden (entity does not belong to current user)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
                 }
 
-                return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.OK);
+                return ReturnResult<Tag>(req, operation, requestedTag, HttpStatusCode.OK);
             }
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                LoggingHelper.TraceError("TagResource.GetItemType: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.NotFound);
+                TraceLog.TraceError("TagResource.GetItemType: Not Found; ex: " + ex.Message);
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.NotFound);
             }
         }
 
@@ -155,22 +158,23 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> InsertTag(HttpRequestMessage req)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<Tag>(req, code);
+                return ReturnResult<Tag>(req, operation, code);
             }
 
             // get the new tag from the message body
-            Tag clientTag = ProcessRequestBody(req, typeof(Tag)) as Tag;
+            Tag clientTag = ProcessRequestBody(req, typeof(Tag), out operation) as Tag;
 
             // if the requested tag does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
             if (clientTag.UserID == null || clientTag.UserID == Guid.Empty)
                 clientTag.UserID = CurrentUser.ID;
             if (clientTag.UserID != CurrentUser.ID)
             {
-                LoggingHelper.TraceError("TagResource.Insert: Forbidden (entity does not belong to current user)");
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
+                TraceLog.TraceError("TagResource.Insert: Forbidden (entity does not belong to current user)");
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
             }
 
             // add the new tag to the database
@@ -179,13 +183,13 @@
                 var tag = this.StorageContext.Tags.Add(clientTag);
                 if (tag == null || this.StorageContext.SaveChanges() < 1)
                 {
-                    LoggingHelper.TraceError("TagResource.Insert: Internal Server Error (database operation did not succeed)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
+                    TraceLog.TraceError("TagResource.Insert: Internal Server Error (database operation did not succeed)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Insert: Created");
-                    return new HttpResponseMessageWrapper<Tag>(req, tag, HttpStatusCode.Created);
+                    TraceLog.TraceInfo("TagResource.Insert: Created");
+                    return ReturnResult<Tag>(req, operation, tag, HttpStatusCode.Created);
                 }
             }
             catch (Exception ex)
@@ -197,20 +201,20 @@
                     var dbTag = this.StorageContext.Tags.Single(t => t.ID == clientTag.ID);
                     if (dbTag.Name == clientTag.Name)
                     {
-                        LoggingHelper.TraceInfo("TagResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<Tag>(req, dbTag, HttpStatusCode.Accepted);
+                        TraceLog.TraceInfo("TagResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
+                        return ReturnResult<Tag>(req, operation, dbTag, HttpStatusCode.Accepted);
                     }
                     else
                     {
-                        LoggingHelper.TraceError("TagResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
-                        return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Conflict);
+                        TraceLog.TraceError("TagResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
+                        return ReturnResult<Tag>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {
                     // tag not inserted - return 409 Conflict
-                    LoggingHelper.TraceError(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Conflict);
+                    TraceLog.TraceError(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.Conflict);
                 }
             }
         }
@@ -219,18 +223,19 @@
         [LogMessages]
         public HttpResponseMessageWrapper<Tag> UpdateTag(HttpRequestMessage req, Guid id)
         {
+            Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
             {   // user not authenticated
-                return new HttpResponseMessageWrapper<Tag>(req, code);
+                return ReturnResult<Tag>(req, operation, code);
             }
 
             // the body will be two Tags - the original and the new values.  Verify this
-            List<Tag> clientTags = ProcessRequestBody(req, typeof(List<Tag>)) as List<Tag>;
+            List<Tag> clientTags = ProcessRequestBody(req, typeof(List<Tag>), out operation) as List<Tag>;
             if (clientTags.Count != 2)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (malformed body)");
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
+                TraceLog.TraceError("TagResource.Update: Bad Request (malformed body)");
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
             }
 
             // get the original and new Tags out of the message body
@@ -240,19 +245,19 @@
             // make sure the tag ID's match
             if (originalTag.ID != newTag.ID)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (original and new entity ID's do not match)");
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
+                TraceLog.TraceError("TagResource.Update: Bad Request (original and new entity ID's do not match)");
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
             }
             if (originalTag.ID != id)
             {
-                LoggingHelper.TraceError("TagResource.Update: Bad Request (ID in URL does not match entity body)");
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.BadRequest);
+                TraceLog.TraceError("TagResource.Update: Bad Request (ID in URL does not match entity body)");
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
             }
 
             if (originalTag.UserID != CurrentUser.ID || newTag.UserID != CurrentUser.ID)
             {   // tag does not belong to the authenticated user, return 403 Forbidden
-                LoggingHelper.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
+                TraceLog.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
             }
 
             // update the tag
@@ -263,8 +268,8 @@
                 // if the Tag does not belong to the authenticated user, return 403 Forbidden
                 if (requestedTag.UserID != CurrentUser.ID)
                 {
-                    LoggingHelper.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
-                    return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.Forbidden);
+                    TraceLog.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
+                    return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
                 }
                 // reset the UserID fields to the appropriate user, to ensure update is done in the context of the current user
                 originalTag.UserID = requestedTag.UserID;
@@ -275,26 +280,26 @@
                 {
                     if (this.StorageContext.SaveChanges() < 1)
                     {
-                        LoggingHelper.TraceError("TagResource.Update: Internal Server Error (database operation did not succeed)");
-                        return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.InternalServerError);
+                        TraceLog.TraceError("TagResource.Update: Internal Server Error (database operation did not succeed)");
+                        return ReturnResult<Tag>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
                     {
-                        LoggingHelper.TraceInfo("TagResource.Update: Accepted");
-                        return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.Accepted);
+                        TraceLog.TraceInfo("TagResource.Update: Accepted");
+                        return ReturnResult<Tag>(req, operation, requestedTag, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
-                    LoggingHelper.TraceInfo("TagResource.Update: Accepted (no changes)");
-                    return new HttpResponseMessageWrapper<Tag>(req, requestedTag, HttpStatusCode.Accepted);
+                    TraceLog.TraceInfo("TagResource.Update: Accepted (no changes)");
+                    return ReturnResult<Tag>(req, operation, requestedTag, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                LoggingHelper.TraceError("TagResource.Update: Not Found; ex: " + ex.Message);
-                return new HttpResponseMessageWrapper<Tag>(req, HttpStatusCode.NotFound);
+                TraceLog.TraceError("TagResource.Update: Not Found; ex: " + ex.Message);
+                return ReturnResult<Tag>(req, operation, HttpStatusCode.NotFound);
             }
         }
 

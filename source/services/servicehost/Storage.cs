@@ -7,29 +7,29 @@
 
     public static class Storage
     {
-        private static StorageContext staticContext;
+        private static UserStorageContext staticUserContext;
 
-        public static StorageContext NewContext
+        public static SuggestionsStorageContext NewSuggestionsContext
         {
-            get { return new StorageContext(); }
+            get { return new SuggestionsStorageContext(); }
         }
 
-        public static CredentialStorageContext NewCredentialContext
+        public static UserStorageContext NewUserContext
         {
-            get { return new CredentialStorageContext(); }
+            get { return new UserStorageContext(); }
         }
 
-        public static StorageContext StaticContext
+        public static UserStorageContext StaticUserContext
         {   // use a static context to access static data (serving values out of EF cache)
             get
             {
-                if (staticContext == null)
+                if (staticUserContext == null)
                 {
-                    staticContext = new StorageContext();
+                    staticUserContext = new UserStorageContext();
                 }
 #if DEBUG
                 // if in a debug build, always go to the database
-                return new StorageContext();
+                return new UserStorageContext();
 #else
                 return staticContext;
 #endif
@@ -37,10 +37,26 @@
         }
     }
 
-    public class StorageContext : DbContext
+    // DbContext for the suggestions DB
+    public class SuggestionsStorageContext : DbContext
     {
-        public StorageContext() : base(HostEnvironment.UserDataConnection) { }
-        public StorageContext(string connection) : base(connection) { }
+        public SuggestionsStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public SuggestionsStorageContext(string connection) : base(connection) { }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+
+        public DbSet<Intent> Intents { get; set; }
+        public DbSet<Suggestion> Suggestions { get; set; }
+        public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
+    }
+
+    // DbContext for the user DB
+    public class UserStorageContext : DbContext
+    {
+        public UserStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public UserStorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -65,16 +81,4 @@
         public DbSet<User> Users { get; set; }
     }
 
-    public class CredentialStorageContext : DbContext
-    {
-        public CredentialStorageContext() : base(HostEnvironment.UserAccountConnection) { }
-        public CredentialStorageContext(string connection) : base(connection) { }
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<UserCredential>().Map(m => { m.ToTable("Users"); });
-        }
-        
-        public DbSet<UserCredential> Credentials { get; set; }
-    }
 }

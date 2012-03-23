@@ -1,39 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Configuration;
 using System.Linq;
-using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.StorageClient;
 using AE.Net.Mail;
 using AE.Net.Mail.Imap;
 using BuiltSteady.Zaplify.ServerEntities;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using System.Text;
-using System.Configuration;
 using BuiltSteady.Zaplify.ServiceHost;
+using BuiltSteady.Zaplify.Shared.Entities;
+using System.Reflection;
 
 namespace BuiltSteady.Zaplify.MailWorker
 {
-    public class WorkerRole : RoleEntryPoint
+    public class MailWorker
     {
         static string FolderMarker = @"#folder:";
         static string ListMarker = @"#list:";
-
-        static Guid toDoItemType;
-        static Guid ToDoItemType
-        {
-            get
-            {
-                if (toDoItemType == Guid.Empty)
-                    toDoItemType = Storage.StaticContext.ItemTypes.Single(lt => lt.Name == "To Do" && lt.UserID == null).ID;
-                return toDoItemType;
-            }
-        }
+        const int timeout = 30000;  // 30 seconds
 
         static Guid completeField;
         static Guid CompleteField
@@ -41,7 +25,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (completeField == Guid.Empty)
-                    completeField = Storage.StaticContext.Fields.Single(f => f.Name == "Complete" && f.ItemTypeID == ToDoItemType).ID;
+                    completeField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Complete && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return completeField;
             }
         }
@@ -52,7 +36,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (phoneField == Guid.Empty)
-                    phoneField = Storage.StaticContext.Fields.Single(f => f.Name == "Phone" && f.ItemTypeID == ToDoItemType).ID;
+                    phoneField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Phone && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return phoneField;
             }
         }
@@ -63,7 +47,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (emailField == Guid.Empty)
-                    emailField = Storage.StaticContext.Fields.Single(f => f.Name == "Email" && f.ItemTypeID == ToDoItemType).ID;
+                    emailField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Email && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return phoneField;
             }
         }
@@ -74,7 +58,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (websiteField == Guid.Empty)
-                    websiteField = Storage.StaticContext.Fields.Single(f => f.Name == "Website" && f.ItemTypeID == ToDoItemType).ID;
+                    websiteField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.WebLink && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return websiteField;
             }
         }
@@ -85,28 +69,14 @@ namespace BuiltSteady.Zaplify.MailWorker
             get
             {
                 if (dueDateField == Guid.Empty)
-                    dueDateField = Storage.StaticContext.Fields.Single(f => f.Name == "DueDate" && f.ItemTypeID == ToDoItemType).ID;
+                    dueDateField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.DueDate && f.ItemTypeID == SystemItemTypes.Task).ID;
                 return dueDateField;
             }
         }
 
-        public override bool OnStart()
+        public void Start()
         {
-            // Log function entrance
-            LoggingHelper.TraceFunction();
-
-            // Set the maximum number of concurrent connections 
-            ServicePointManager.DefaultConnectionLimit = 12;
-
-            // For information on handling configuration changes
-            // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
-
-            return base.OnStart();
-        }
-
-        public override void Run()
-        {
-            TraceLine("BuiltSteady.Zaplify.MailWorker started", "Information");
+            TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker started");
             string hostname = ConfigurationManager.AppSettings["Hostname"];
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"]);
             string username = ConfigurationManager.AppSettings["Username"];
@@ -140,20 +110,20 @@ namespace BuiltSteady.Zaplify.MailWorker
                             MailMessage[] messages = imap.GetMessages(0, count, false);
                             foreach (var m in messages)
                             {
-                                TraceLine("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject, "Information");
+                                TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject);
                                 ProcessMessage(m);
                                 imap.MoveMessage(m.Uid, "processed");
                             }
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    TraceLine("Can't contact mail server", "Error");
+                    TraceLog.TraceError("Can't contact mail server; ex: " + ex.Message);
                 }
 
-                // sleep 30 seconds
-                Thread.Sleep(30000);
+                // sleep for the timeout period
+                Thread.Sleep(timeout);
             }
 #endif
         }
@@ -176,13 +146,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     folderName = folderName.Substring(0, folderNameEnd);
                     folderName = folderName.Trim();
-                    folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
+                    folder = Storage.StaticUserContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == folderName);
                     if (folder != null)
                         return folder.ID;
                 }
             }
 
-            folder = Storage.StaticContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
+            folder = Storage.StaticUserContext.Folders.FirstOrDefault(f => f.UserID == u.ID && f.Name == "Personal");
             if (folder != null)
                 return folder.ID;
             else
@@ -205,13 +175,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                 {
                     listName = listName.Substring(0, listNameEnd);
                     listName = listName.Trim();
-                    list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
+                    list = Storage.StaticUserContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.Name == listName);
                     if (list != null)
                         return list.ID;
                 }
             }
 
-            list = Storage.StaticContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == ToDoItemType);
+            list = Storage.StaticUserContext.Items.FirstOrDefault(i => i.UserID == u.ID && i.IsList == true && i.ItemTypeID == SystemItemTypes.Task);
             if (list != null)
                 return list.ID;
             else
@@ -256,7 +226,7 @@ namespace BuiltSteady.Zaplify.MailWorker
         {
             var imap = (sender as ImapClient);
             var msg = imap.GetMessage(e.MessageCount - 1);
-            TraceLine(String.Format("Retrieved message {0}", msg.Subject), "Information");
+            TraceLog.TraceInfo(String.Format("Retrieved message {0}", msg.Subject));
         }
 
         static void ParseFields(Item item, string body)
@@ -272,7 +242,6 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
                     ItemID = item.ID,
                     FieldID = PhoneField,
                     Value = m.Value
@@ -283,7 +252,6 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
                     ItemID = item.ID,
                     FieldID = EmailField,
                     Value = m.Value
@@ -294,7 +262,6 @@ namespace BuiltSteady.Zaplify.MailWorker
             if (m != null && m.Value != null && m.Value != "")
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
                     ItemID = item.ID,
                     FieldID = WebsiteField,
                     Value = m.Value
@@ -307,7 +274,6 @@ namespace BuiltSteady.Zaplify.MailWorker
                 // convert to datetime, then back to string.  this is to canonicalize all dates into yyyy/MM/dd.
                 item.FieldValues.Add(new FieldValue()
                 {
-                    ID = Guid.NewGuid(),
                     ItemID = item.ID,
                     FieldID = DueDateField,
                     Value = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd")
@@ -321,31 +287,50 @@ namespace BuiltSteady.Zaplify.MailWorker
             bool comma = false;
             try
             {
-                ItemType itemType = Storage.StaticContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
+                ItemType itemType = Storage.StaticUserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
 
                 foreach (Field field in itemType.Fields.OrderBy(f => f.SortOrder))
                 {
                     // already printed out the item name
-                    if (field.DisplayName == "Name")
+                    if (field.Name == FieldNames.Name)
                         continue;
+
+                    PropertyInfo pi = null;
+                    object currentValue = null;
 
                     // get the current field value.
                     // the value can either be in a strongly-typed property on the item (e.g. Name),
                     // or in one of the FieldValues 
-                    string currentValue;
-                    FieldValue fieldValue = null;
-                    // get current item's value for this field
                     try
                     {
-                        fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
-                        currentValue = fieldValue.Value;
+                        // get the strongly typed property
+                        pi = item.GetType().GetProperty(field.Name);
+                        if (pi != null)
+                            currentValue = pi.GetValue(item, null);
                     }
                     catch (Exception)
                     {
-                        // we can't do anything with this property since we don't have it on the local type
-                        // this indicates that the phone software isn't caught up with the service version
-                        // but that's ok - we can keep going
-                        continue;
+                        // an exception indicates this isn't a strongly typed property on the Item
+                        // this is NOT an error condition
+                    }
+
+                    // if couldn't find a strongly typed property, this property is stored as a 
+                    // FieldValue on the item
+                    if (pi == null)
+                    {
+                        FieldValue fieldValue = null;
+                        // get current item's value for this field
+                        try
+                        {
+                            fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                            currentValue = fieldValue.Value;
+                        }
+                        catch (Exception)
+                        {
+                            // we can't do anything with this property since we don't have it on this item
+                            // but that's ok - we can keep going
+                            continue;
+                        }
                     }
 
                     if (currentValue != null)
@@ -363,7 +348,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
             catch (Exception ex)
             {
-                TraceLine("Exception while Printing Item: " + ex.Message, "Error");
+                TraceLog.TraceError("Exception while Printing Item: " + ex.Message);
                 return "no fields parsed";
             }
         }
@@ -384,7 +369,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 html = true;
             }
 
-            var users = Storage.StaticContext.Users.Where(u => u.Email == from).ToList();
+            var users = Storage.StaticUserContext.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)
             {
                 Guid? folder = GetFolder(u, body, html);
@@ -396,7 +381,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                     {
                         ID = Guid.NewGuid(),
                         FolderID = (Guid)folder,
-                        ItemTypeID = ToDoItemType,
+                        ItemTypeID = SystemItemTypes.Task,
                         Name = itemName,
                         ParentID = (Guid)list,
                         Created = now,
@@ -405,7 +390,6 @@ namespace BuiltSteady.Zaplify.MailWorker
 
                     FieldValue fv = new FieldValue()
                     {
-                        ID = Guid.NewGuid(),
                         ItemID = item.ID,
                         FieldID = CompleteField,
                         Value = "False"
@@ -415,24 +399,13 @@ namespace BuiltSteady.Zaplify.MailWorker
                     // extract structured fields such as due date, e-mail, website, phone number
                     ParseFields(item, body);
 
-                    var newItem = Storage.StaticContext.Items.Add(item);
-                    int rows = Storage.StaticContext.SaveChanges();
+                    var newItem = Storage.StaticUserContext.Items.Add(item);
+                    int rows = Storage.StaticUserContext.SaveChanges();
 
                     if (rows > 0)
-                        TraceLine(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)), "Information");
+                        TraceLog.TraceInfo(String.Format("Added Item: {0} ({1})", newItem.Name, PrintItem(newItem)));
                 }
             }
-        }
-
-        static void TraceLine(string message, string level)
-        {
-            Trace.WriteLine(
-                String.Format(
-                    "{0}: {1}", 
-                    DateTime.Now.ToString(), 
-                    message), 
-                level);
-            Trace.Flush();
         }
 
         #endregion

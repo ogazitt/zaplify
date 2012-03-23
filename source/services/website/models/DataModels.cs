@@ -21,7 +21,7 @@
             {
                 if (constants == null)
                 {
-                    StorageContext storageContext = Storage.StaticContext;
+                    UserStorageContext storageContext = Storage.StaticUserContext;
                     var actionTypes = storageContext.ActionTypes.OrderBy(a => a.SortOrder).ToList<ActionType>();
                     var colors = storageContext.Colors.OrderBy(c => c.ColorID).ToList<Color>();
                     var itemTypes = storageContext.ItemTypes.Where(l => l.UserID == null).Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
@@ -46,8 +46,7 @@
             {
                 if (jsonConstants == null)
                 {
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    jsonConstants = serializer.Serialize(Constants);
+                    jsonConstants = JsonSerializer.Serialize(Constants);
                 }
                 return jsonConstants;
             }
@@ -56,19 +55,20 @@
         public static FieldValue CreateFieldValue(Guid itemID, Guid itemTypeID, string fieldName, string value)
         {
             ItemType itemType = Constants.ItemTypes.Single<ItemType>(item => item.ID == itemTypeID);
-            Field field = itemType.Fields.Single<Field>(fld => fld.DisplayName == fieldName);
-            return new FieldValue() { ID = Guid.NewGuid(), ItemID = itemID, FieldID = field.ID, Value = value };
+            Field field = itemType.Fields.Single<Field>(fld => fld.Name == fieldName);
+            return new FieldValue() { /*ID = Guid.NewGuid(),*/ ItemID = itemID, FieldID = field.ID, Value = value };
         }
     }
 
     public class UserDataModel
     {
-        StorageContext storageContext;
+        UserStorageContext storageContext;
         User currentUser;
         User userData;
+        UserCredential userCredentials;
         string jsonUserData;
 
-        public UserDataModel(StorageContext storage, User user)
+        public UserDataModel(UserStorageContext storage, User user)
         {
             this.storageContext = storage;
             this.currentUser = user;
@@ -86,7 +86,7 @@
             this.currentUser = resource.CurrentUser;
         }
 
-        public StorageContext StorageContext
+        public UserStorageContext StorageContext
         {
             get { return this.storageContext; }
         }
@@ -131,9 +131,33 @@
                 if (jsonUserData == null)
                 {
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
-                    jsonUserData = serializer.Serialize(UserData);
+                    jsonUserData = JsonSerializer.Serialize(UserData);
                 }
                 return jsonUserData;
+            }
+        }
+
+        public UserCredential UserCredentials
+        {
+            get
+            {
+                if (userCredentials == null)
+                {
+                    try
+                    {
+                        userCredentials = storageContext.
+                            Users.
+                            Include("UserCredentials").
+                            Single<User>(u => u.Name == currentUser.Name).
+                            UserCredentials.
+                            FirstOrDefault();
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
+                }
+                return userCredentials;
             }
         }
     }

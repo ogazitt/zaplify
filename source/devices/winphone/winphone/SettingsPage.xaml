@@ -43,7 +43,7 @@
                 <ScrollViewer BorderThickness="0">
                     <StackPanel>
                         <TextBlock Text="email" Style="{StaticResource PhoneTextNormalStyle}" />
-                        <TextBox x:Name="Email" InputScope="EmailNameOrAddress" Text="{Binding User.Email}" IsTabStop="True" TabIndex="3" LostFocus="Textbox_LostFocus"/>
+                        <TextBox x:Name="Email" InputScope="EmailNameOrAddress" Text="{Binding User.Email}" IsTabStop="True" TabIndex="1" LostFocus="Textbox_LostFocus"/>
                         <TextBlock Text="password" Style="{StaticResource PhoneTextNormalStyle}"/>
                         <PasswordBox x:Name="Password" Password="{Binding User.Password}" IsTabStop="True" TabIndex="2" LostFocus="Textbox_LostFocus"/>
                         <Grid Margin="0,10,0,0">

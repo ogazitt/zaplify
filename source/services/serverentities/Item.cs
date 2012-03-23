@@ -6,10 +6,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Item
+    public class Item : ServerEntity
     {
-        public Guid ID { get; set; }
-        public string Name { get; set; }
+        // ServerEntity properties
+        public override Guid ID { get; set; }
+        public override string Name { get; set; }
+
         public bool IsList { get; set; }
         public Guid FolderID { get; set; }
         public Guid? ParentID { get; set; }
@@ -20,7 +22,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public List<ItemTag> ItemTags { get; set; }
         public List<FieldValue> FieldValues { get; set; }
 
-        // these are first-class attributes of each item
         public DateTime Created { get; set; }
         public DateTime LastModified { get; set; } // this has to be the last field
     }
