@@ -356,9 +356,9 @@
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
-            PivotItem item = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
-            ListHelper.ListBox = (ListBox)((Grid)item.Content).Children[1];
-            ListHelper.OrderBy = (string)item.Header;
+            PivotItem pi = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
+            ListHelper.ListBox = (ListBox)((Grid)pi.Content).Children[1];
+            ListHelper.OrderBy = (string)pi.Header;
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");

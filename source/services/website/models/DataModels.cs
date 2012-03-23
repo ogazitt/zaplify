@@ -7,6 +7,7 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Controllers;
     using BuiltSteady.Zaplify.Website.Resources;
 
@@ -24,7 +25,9 @@
                     UserStorageContext storageContext = Storage.StaticUserContext;
                     var actionTypes = storageContext.ActionTypes.OrderBy(a => a.SortOrder).ToList<ActionType>();
                     var colors = storageContext.Colors.OrderBy(c => c.ColorID).ToList<Color>();
-                    var itemTypes = storageContext.ItemTypes.Where(l => l.UserID == null).Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
+                    var itemTypes = storageContext.ItemTypes.
+                        Where(l => l.UserID == null || l.UserID == SystemUsers.System || l.UserID == SystemUsers.User).
+                        Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
                     var permissions = storageContext.Permissions.OrderBy(p => p.PermissionID).ToList<Permission>();
                     var priorities = storageContext.Priorities.OrderBy(p => p.PriorityID).ToList<Priority>();
                     constants = new Constants()

@@ -32,9 +32,9 @@
                         <RowDefinition Height="20"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBox Grid.Row="1" Height="170" HorizontalAlignment="Left" Margin="10,21,0,0" Name="NameTextBox" Text="" VerticalAlignment="Top" Width="440" />
+                    <TextBox Grid.Row="1" Height="170" HorizontalAlignment="Left" Margin="10,21,0,0" Name="NameTextBox" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="440" />
                     <TextBlock Grid.Row="1" Height="40" HorizontalAlignment="Left" Margin="20,200,0,0" FontSize="{StaticResource PhoneFontSizeMedium}" Text="Add to list:" VerticalAlignment="Top" Width="420" />
-                    <Button Content="Touch to speak" Grid.Row="1" Height="90" HorizontalAlignment="Left" Margin="10,0,0,10" Name="SpeakButton" VerticalAlignment="Bottom" Width="440" />
+                    <Button Content="Touch to speak" Grid.Row="1" Height="90" HorizontalAlignment="Left" Margin="10,0,0,10" Name="SpeakButton" VerticalAlignment="Bottom" Width="440" Click="SpeechButton_Click"/>
                     <StackPanel Grid.Row="1" Height="160" HorizontalAlignment="Left" Margin="20,240,0,0" Name="AddButtonsStackPanel" VerticalAlignment="Top" Width="420" />
                 </Grid>
             </controls:PivotItem>
@@ -104,6 +104,21 @@
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
                         <Button x:Name="SearchPopup_SearchButton" Content="filter" Click="SearchPopup_SearchButton_Click" Width="230"/>
                         <Button x:Name="SearchPopup_ClearButton" Content="clear" Click="SearchPopup_ClearButton_Click" Width="230"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Popup>
+
+        <!--speech popup panel-->
+        <Popup x:Name="SpeechPopup" VerticalAlignment="Bottom" Width="480" IsOpen="False">
+            <Grid>
+                <Border Background="#FF1F1F1F" Margin="0,-170,0,0" Height="170"/>
+                <StackPanel Width="480">
+                    <TextBlock x:Name="SpeechLabel" Margin="20,-160,0,0" Text="{Binding SpeechLabelText}" Style="{StaticResource PhoneTextExtraLargeStyle}" Width="460" />
+                    <toolkit:PerformanceProgressBar x:Name="SpeechProgressBar" IsIndeterminate="True" Margin="0,-190,0,0" Visibility="{Binding SpeechNetworkOperationInProgress}"/>
+                    <StackPanel Orientation="Horizontal" Width="460" Margin="0,-90,0,10">
+                        <Button x:Name="SpeechPopup_SpeakButton" Content="{Binding SpeechButtonText}" IsEnabled="{Binding SpeechButtonEnabled}" Click="SpeechPopup_SpeakButton_Click" Width="230"/>
+                        <Button x:Name="SpeechPopup_CancelButton" Content="{Binding SpeechCancelButtonText}" Click="SpeechPopup_CancelButton_Click" Width="230"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
