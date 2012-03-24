@@ -192,11 +192,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 list = new Item()
                 {
                     ID = itemID, // signal new list
-                    Name = field.DisplayName,
+                    Name = field.Name,
                     IsList = true,
                     FolderID = folder.ID,
                     ParentID = item.ID,
-                    ItemTypeID = item.ItemTypeID,
+                    ItemTypeID = SystemItemTypes.Reference,
                 };
             }
             else
@@ -465,7 +465,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     */
                 case "List":
                     // create a collection of lists in this folder, and add the folder as the first entry
-                    var lists = App.ViewModel.Items.Where(li => li.FolderID == item.FolderID && li.IsList == true).OrderBy(li => li.Name).ToObservableCollection();
+                    var lists = App.ViewModel.Items.
+                        Where(li => li.FolderID == item.FolderID && li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference).
+                            OrderBy(li => li.Name).
+                            ToObservableCollection();
                     lists.Insert(0, new Item()
                     {
                         ID = Guid.Empty,
@@ -568,7 +571,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     locationsElement.Value = CreateCommaDelimitedList(currentLocations);
                     Item locations = new Item()
                     {
-                        Items = App.ViewModel.Items.Where(it => it.ItemTypeID == SystemItemTypes.Location).ToObservableCollection(),
+                        Items = App.ViewModel.Items.
+                            Where(it => it.ItemTypeID == SystemItemTypes.Location && it.IsList == false).
+                            Select(it => new Item() { Name = it.Name, FolderID = folder.ID, ItemTypeID = SystemItemTypes.Reference, ParentID = currentLocations.ID, ItemRef = it.ID }).
+                            ToObservableCollection(),
                     };
                     locationsElement.Tapped += delegate 
                     {
@@ -796,7 +802,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						    try
                             {
                                 Item newItem = App.ViewModel.Items.Single(it => it.ID == Guid.Parse(currentValue));
-                                stringElement.Value = String.Format("to {0}", newItem.Name);
+                                //stringElement.Value = String.Format("to {0}", newItem.Name);
+                                stringElement.Value = "";
                                 stringElement.Tapped += delegate 
                                 {
                                     // Navigate to the new page
@@ -811,6 +818,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                         }
                                         else
                                         {
+                                            // if the item is a reference, traverse to the target
+                                            while (newItem.ItemTypeID == SystemItemTypes.Reference && newItem.ItemRef != null)
+                                            {
+                                                try 
+                                                {
+                                                    newItem = App.ViewModel.Items.Single(it => it.ID == newItem.ItemRef);
+                                                }
+                                                catch
+                                                {
+                                                    TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
+                                                                                         newItem.Name, newItem.ID, newItem.ItemRef));
+                                                    return;
+                                                }
+                                            }
                                             ItemPage itemPage = new ItemPage(controller.NavigationController, newItem);
                                             TraceHelper.StartMessage("Item: Navigate to ItemPage");
                                             itemPage.PushViewController();

@@ -691,7 +691,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 var subitems = Items.Where(i => i.ParentID == item.ID).ToList();
                 foreach (var it in subitems)
                     RemoveItem(it);
-                Folder folder = Folders.Single(f => f.ID == item.ID);
+                Folder folder = Folders.Single(f => f.ID == item.FolderID);
                 folder.Items.Remove(item);
                 StorageHelper.WriteFolder(folder);                
             }

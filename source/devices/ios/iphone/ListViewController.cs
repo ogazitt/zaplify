@@ -207,7 +207,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		            else
 		            {
                         // if the item is a reference, traverse to the target
-                        while (item.ItemRef != null)
+                        while (item.ItemTypeID == SystemItemTypes.Reference && item.ItemRef != null)
                         {
                             try 
                             {
@@ -251,6 +251,21 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
 			{
 				Item item = controller.list.Items[indexPath.Row];
+                
+                // if the item is a reference, traverse to the target
+                while (item.ItemTypeID == SystemItemTypes.Reference && item.ItemRef != null)
+                {
+                    try 
+                    {
+                        item = App.ViewModel.Items.Single(it => it.ID == item.ItemRef);
+                    }
+                    catch
+                    {
+                        TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
+                                                             item.Name, item.ID, item.ItemRef));
+                    }
+                }
+                
 				ItemType itemType = ItemType.ItemTypes[item.ItemTypeID];
 				
 				// note that item types with "Complete" fields are complicated to cache - bad behavior happens when we reuse a cell
