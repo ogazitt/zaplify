@@ -161,7 +161,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     Name = TargetFieldName,
                     IsList = true,
                     FolderID = item.FolderID,
-                    ItemTypeID = SystemItemTypes.Contact,
+                    ItemTypeID = SystemItemTypes.Reference,
                     ParentID = item.ID,
                     UserID = item.UserID,
                     Created = now,
