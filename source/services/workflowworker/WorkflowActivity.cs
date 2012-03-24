@@ -111,6 +111,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             var suggestions = new Dictionary<string, string>();
             bool completed = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
 
+            // if the function completed without generating any data, return (this is typically a fail-fast state)
+            if (completed && suggestions.Count == 0)
+                return true;
+
             // if a like was deciphered without user input, store it now and return
             if (completed && suggestions.Count == 1)
             {

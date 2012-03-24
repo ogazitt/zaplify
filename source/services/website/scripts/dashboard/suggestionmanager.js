@@ -93,6 +93,8 @@ SuggestionManager.prototype.addContact = function (suggestion) {
                         ParentID: list.ID,
                         UserID: contact.UserID
                     });
+                    var field = contactRef.GetItemType().Fields[FieldNames.ItemRef];
+                    contactRef.SetFieldValue(field, contact.ID);
                     list.InsertItem(contactRef)
 
                     // create and insert the contact itself in the "People" folder
@@ -117,11 +119,13 @@ SuggestionManager.prototype.addContact = function (suggestion) {
             var contactRef = $.extend(new Item(), {
                 Name: contact.Name,
                 ItemTypeID: itemTypeID,
-                FolderID: contact.FolderID,
-                ParentID: list.ID,
-                UserID: contact.UserID
+                FolderID: contactsList.FolderID,
+                ParentID: contactsList.ID,
+                UserID: contactsList.UserID
             });
-            list.InsertItem(contactRef)
+            var field = contactRef.GetItemType().Fields[FieldNames.ItemRef];
+            contactRef.SetFieldValue(field, contact.ID);
+            contactsList.InsertItem(contactRef)
 
             // create and insert the contact itself in the "People" folder
             for (var folderID in DataModel.Folders)

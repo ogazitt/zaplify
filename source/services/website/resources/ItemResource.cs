@@ -209,6 +209,13 @@
                 {
                     clientItem.ID = Guid.NewGuid();
                 }
+                // same with any FieldValues that traveleld with the item
+                if (clientItem.FieldValues != null)
+                {
+                    foreach (var fv in clientItem.FieldValues)
+                        if (fv.ItemID == null || fv.ItemID == Guid.Empty)
+                            fv.ItemID = clientItem.ID;
+                }
 
                 // fill out the timestamps if they aren't set (null, or MinValue.Date, allowing for DST and timezone issues)
                 DateTime now = DateTime.UtcNow;

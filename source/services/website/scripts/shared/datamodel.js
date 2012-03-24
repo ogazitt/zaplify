@@ -630,10 +630,12 @@ var FieldNames = {
     ItemRef : "ItemRef",                    // ItemID
     Locations : "Locations",                // ItemID
     Contacts: "Contacts",                   // ItemID
+    Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
     Intent: "Intent",                       // String
-    SuggestedLink: "SuggestedLink",         // URL
     Likes: "Likes",                         // comma-delimited string
+    SubjectHint: "SubjectHint",             // String
+    SuggestedLink: "SuggestedLink",         // URL
 
     RefreshEntity: "RefreshEntity",         // Action
     FacebookConsent: "FacebookConsent",     // Action
