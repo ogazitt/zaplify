@@ -680,6 +680,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        /// <summary>
+        /// Recursively remove item and all possible sublists of an item
+        /// </summary>
+        /// <param name="item">Item to remove</param>
+        public void RemoveItem(Item item)
+        {
+            try
+            {
+                var subitems = Items.Where(i => i.ParentID == item.ID).ToList();
+                foreach (var it in subitems)
+                    RemoveItem(it);
+                Folder folder = Folders.Single(f => f.ID == item.ID);
+                folder.Items.Remove(item);
+                StorageHelper.WriteFolder(folder);                
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage("RemoveItem: exception; ex: " + ex.Message);
+            }
+        }
 
         // Main routine for performing a sync with the Service.  It will chain the following operations:
         //     1.  Get Constants

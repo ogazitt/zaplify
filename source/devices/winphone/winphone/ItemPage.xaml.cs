@@ -181,12 +181,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     Body = itemCopy
                 });
 
-            // remove the item from the local itemType
-            folder.Items.Remove(thisItem);
-
-            // save the changes to local storage
-            //StorageHelper.WriteFolders(App.ViewModel.Folders);
-            StorageHelper.WriteFolder(folder);
+            // remove the item (and all subitems) from the local folder (and local storage)
+            App.ViewModel.RemoveItem(thisItem);
 
             // trigger a databinding refresh for items
             //App.ViewModel.NotifyPropertyChanged("Items");

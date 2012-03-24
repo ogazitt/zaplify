@@ -69,6 +69,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             try
             {
                 subject = JsonSerializer.Deserialize<Item>(subjectItem);
+                
+                // if the subjectItem is a reference, chase it down
+                while (subject.ItemTypeID == SystemItemTypes.Reference)
+                {
+                    FieldValue refID = GetFieldValue(subject, FieldNames.ItemRef, false);
+                    Guid refid = new Guid(refID.Value);
+                    subject = WorkflowWorker.UserContext.Items.Single(i => i.ID == refid);
+                }
             }
             catch (Exception ex)
             {

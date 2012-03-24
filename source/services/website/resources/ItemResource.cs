@@ -49,9 +49,9 @@
                     clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
                 }
                 catch (Exception)
-                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK along with a dummy item.
                     TraceLog.TraceInfo("ItemResource.Delete: entity not found; returned OK anyway");
-                    return ReturnResult<Item>(req, operation, HttpStatusCode.OK);
+                    return ReturnResult<Item>(req, operation, new Item() { Name = "Item Not Found" }, HttpStatusCode.OK);
                 }
             }
 
@@ -110,9 +110,9 @@
                     }
                 }
                 catch (Exception ex)
-                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK along with a dummy item.
                     TraceLog.TraceInfo(String.Format("ItemResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
-                    return ReturnResult<Item>(req, operation, HttpStatusCode.OK);
+                    return ReturnResult<Item>(req, operation, new Item() { Name = "Item Not Found" }, HttpStatusCode.OK);
                 }
             }
             catch (Exception ex)

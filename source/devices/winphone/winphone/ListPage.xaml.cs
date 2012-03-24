@@ -456,8 +456,8 @@
                     // remove the item from the original collection and from ListBox
                     ListHelper.RemoveItem(list, item);
 
-                    // remove the item from the folder
-                    folder.Items.Remove(item);
+                    // remove the item (and all subitems) from the local folder (and local storage)
+                    App.ViewModel.RemoveItem(item);
                 }
             }
 

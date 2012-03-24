@@ -78,15 +78,59 @@ SuggestionManager.prototype.addContact = function (suggestion) {
         var contactsList = item.GetFieldValue(FieldNames.Contacts,
             function (list) {
                 if (list != null && list.IsList) {
+                    /* 2012-03-23 OG: commented out the code below */
                     // TODO: get the UserID correct in the suggestion value
-                    contact.UserID = list.UserID;
-                    list.InsertItem(contact);
-                } 
+                    //contact.UserID = list.UserID;
+                    //list.InsertItem(contact);
+
+                    /* 2012-03-23 OG: inserted the following code */
+                    // create and insert the contact reference
+                    var itemTypeID = "00000000-0000-0000-0000-000000000006";  // HACK: this should be a string constant somewhere
+                    var contactRef = $.extend(new Item(), {
+                        Name: contact.Name,
+                        ItemTypeID: itemTypeID,
+                        FolderID: contact.FolderID,
+                        ParentID: list.ID,
+                        UserID: contact.UserID
+                    });
+                    list.InsertItem(contactRef)
+
+                    // create and insert the contact itself in the "People" folder
+                    for (var folderID in DataModel.Folders)
+                        if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
+                            break;
+                    var folder = DataModel.Folders[folderID];
+                    contact.FolderID = folder.ID;
+                    folder.InsertItem(contact);
+                    /* 2012-03-23 OG: end inserted code */
+                }
             });
         if (contactsList != null && contactsList.IsList) {
+            /* 2012-03-23 OG: commented out the code below */
             // TODO: get the UserID correct in the suggestion value
-            contact.UserID = contactsList.UserID;
-            contactsList.InsertItem(contact);
+            //contact.UserID = contactsList.UserID;
+            //contactsList.InsertItem(contact);
+
+            /* 2012-03-23 OG: inserted the following code */
+            // create and insert the contact reference
+            var itemTypeID = "00000000-0000-0000-0000-000000000006";  // HACK: this should be a string constant somewhere
+            var contactRef = $.extend(new Item(), {
+                Name: contact.Name,
+                ItemTypeID: itemTypeID,
+                FolderID: contact.FolderID,
+                ParentID: list.ID,
+                UserID: contact.UserID
+            });
+            list.InsertItem(contactRef)
+
+            // create and insert the contact itself in the "People" folder
+            for (var folderID in DataModel.Folders)
+                if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
+                    break;
+            var folder = DataModel.Folders[folderID];
+            contact.FolderID = folder.ID;
+            folder.InsertItem(contact);
+            /* 2012-03-23 OG: end inserted code */
         }
     }
     return this.chooseSuggestion(suggestion);
