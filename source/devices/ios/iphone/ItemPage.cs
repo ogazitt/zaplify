@@ -99,11 +99,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     Body = ThisItem
                 });
 
-            // remove the item from the local itemType
-            folder.Items.Remove(ThisItem);
-
-            // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+            // remove the item (and all subitems) from the local folder (and local storage)
+            App.ViewModel.RemoveItem(ThisItem);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
