@@ -78,25 +78,18 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
-    var selectionChanged = false;
-    var currentFolderID = (Dashboard.folderManager.currentFolder != null) ? Dashboard.folderManager.currentFolder.ID : null;
+    var item;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
-    if (folderID == null || folderID != currentFolderID) {
-        Dashboard.folderManager.render(".dashboard-manager");
+    if (itemID == null) {
+        Dashboard.folderManager.render('.dashboard-manager');
         Dashboard.folderManager.selectFolder(folder);
-        selectionChanged = true;
-    }
-
-    var currentItemID = (Dashboard.folderManager.currentItem != null) ? Dashboard.folderManager.currentItem.ID : null;
-    if (itemID == null || itemID != currentItemID) {
-        var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
+    } else {
+        item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
-        selectionChanged = true;
     }
-
-    if (!Dashboard.resizing /*&& selectionChanged*/) {
+    if (!Dashboard.resizing) {
         // get suggestions for currently selected user, folder, or item
-        Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+        Dashboard.getSuggestions(folder, item);
     }
 }
 
@@ -126,6 +119,7 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
 
 Dashboard.render = function Dashboard$render(folderID, itemID) {
     Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.ManageFolder(folderID, itemID);
 }
 
 Dashboard.resize = function Dashboard$resize() {

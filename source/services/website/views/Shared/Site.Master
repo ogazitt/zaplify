@@ -5,6 +5,7 @@
 <head runat="server">
     <link href="<%: Url.Content("~/content/site.css") %>" rel="stylesheet" type="text/css" />
     <script src="<%: Url.Content("~/scripts/jquery-1.7.1.min.js") %>" type="text/javascript"></script>
+    <script src="<%: Url.Content("~/scripts/jquery-ui-1.8.16.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/shared/service.js") %>" type="text/javascript"></script>
 
 <%

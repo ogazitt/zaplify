@@ -345,6 +345,12 @@ function Folder(viewstate) { this.ViewState = (viewstate == null) ? {} : viewsta
 Folder.prototype.IsFolder = function () { return true; };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function () { return DataModel.GetItems(this.ID, null); };
+Folder.prototype.GetSelectedItem = function () {
+    for (id in this.Items) {
+        if (this.Items[id].ViewState.Select == true) { return this.Items[id]; }
+    }
+    return null;
+}
 Folder.prototype.InsertItem = function (newItem, adjacentItem, insertBefore) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore); };
 Folder.prototype.Update = function (updatedFolder) { return DataModel.UpdateItem(this, updatedFolder); };
 Folder.prototype.Delete = function () { return DataModel.DeleteItem(this); };
@@ -492,10 +498,10 @@ Item.prototype.selectNextItem = function () {
     if (nextItem != null) {
         nextItem.ViewState.Select = true;
     } else if (myIndex == 0) {
-        if (parent != null) { parent.ViewState.Select = true; }
+        if (parent != null) { parent.ViewState.Select = true; return parent.ID; }
     } else {
         var prevItem = ItemMap.itemAt(parentItems, myIndex - 1);
-        if (prevItem != null) { prevItem.ViewState.Select = true; }
+        if (prevItem != null) { prevItem.ViewState.Select = true; return prevItem.ID; }
     }
 }
 
