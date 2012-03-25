@@ -116,8 +116,6 @@ Dashboard Suggestions
 
 
 .group-button {
-    Xcursor: pointer;
-/*  white-space: nowrap; */
     font-weight: bold;
     color: #E2E6E6;
     margin: 4px 10px 0 10px;
@@ -129,7 +127,7 @@ Dashboard Suggestions
     overflow-y: auto;
     position: relative;
     text-align: center;
-    background-color: #AEC2D0;
+    background-color: #50738A;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
@@ -142,7 +140,6 @@ Dashboard Suggestions
     cursor: pointer;
     margin: 1px 10px 0 10px;
     width: 178px;
-    Xmin-height: 132px;
     border: 1px solid #C4BD97;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;

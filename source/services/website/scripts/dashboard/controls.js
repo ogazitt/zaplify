@@ -24,6 +24,15 @@ Control.findParent = function Control$findParent(control, member) {
     return null;
 }
 
+// animate expanding of an element
+Control.animateExpand = function Control$animateExpand($element, callback) {
+    $element.show('blind', { direction: 'vertical' }, 400, callback);
+}
+// animate collapsing of an element
+Control.animateCollapse = function Control$animateCollapse($element, callback) {
+    $element.hide('blind', { direction: 'vertical' }, 300, callback);
+}
+
 // dynamic ellipsis
 Control.ellipsis = function Control$ellipsis(element, height) {
     while ($(element).outerHeight() > height) {
@@ -52,7 +61,7 @@ var Dashboard = function Dashboard$() {
 
 Dashboard.Init = function Dashboard$Init(dataModel) {
     Dashboard.dataModel = dataModel;
-    Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.render);
+    Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.ManageDataChange);
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
@@ -74,6 +83,12 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
     // bind events
     $(window).bind('load', Dashboard.resize);
     $(window).bind('resize', Dashboard.resize);
+}
+
+// event handler, do not reference 'this' to access static Dashboard
+Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
+    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.ManageFolder(folderID, itemID);
 }
 
 // event handler, do not reference 'this' to access static Dashboard
@@ -119,7 +134,6 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
 
 Dashboard.render = function Dashboard$render(folderID, itemID) {
     Dashboard.folderList.render(".dashboard-folders");
-    Dashboard.ManageFolder(folderID, itemID);
 }
 
 Dashboard.resize = function Dashboard$resize() {

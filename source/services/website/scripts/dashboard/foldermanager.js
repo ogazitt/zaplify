@@ -256,7 +256,6 @@ ListEditor.prototype.addItem = function (isList) {
 
     if (item != null) {
         item.InsertItem(newItem);
-        //this.render();
     } else if (folder != null) {
         folder.InsertItem(newItem);
     }

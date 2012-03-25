@@ -82,10 +82,14 @@ FolderButton.prototype.select = function (fireSelectionChanged) {
     var selected = this.$element.hasClass('selected');
     if (selected) {
         if (this.folder.GetSelectedItem() == null) {
-            // no items are selected, deselect ALL folders
-            this.deselectAll();
-            this.collapseItems();
-            if (this.selectionChanged) { this.parentControl.fireSelectionChanged(); }
+            // no items are selected, deselect ALL folders   
+            var thisButton = this;
+            Control.animateCollapse(this.$element.next(),
+                function () {
+                    thisButton.deselectAll();
+                    thisButton.collapseItems();
+                    if (thisButton.selectionChanged) { thisButton.parentControl.fireSelectionChanged(); }
+                });
         } else {
             // otherwise select folder itself
             this.deselectItems();
@@ -161,7 +165,7 @@ ItemList.prototype.render = function (container) {
         this.itemButtons[i].render(container);
     }
     if (this.parentControl.selectionChanged) {
-        $(container).show('blind', { direction: 'vertical' }, 500);
+        Control.animateExpand($(container));
     }
 }
 
@@ -238,16 +242,19 @@ ItemButton.prototype.selectList = function (folderButton) {
     // fire selection changed if folder is selected
     if (folderButton != null) {
         var selected = this.$element.hasClass('selected');
+        var expanded = this.$element.hasClass('expanded');
         var folderList = folderButton.parentControl;
 
         if (!selected) {
             folderButton.deselectItems();
             this.$element.addClass('selected');
             this.item.ViewState.Select = true;
-            this.collapseAllItems();
-            this.expandItems();
+            if (!expanded) {
+                this.collapseAllItems();
+                this.expandItems();
+            }
             if (this.selectionChanged) {
-                folderList.fireSelectionChanged(this.item.FolderID, this.item.ID); 
+                folderList.fireSelectionChanged(this.item.FolderID, this.item.ID);
             }
         }
     }

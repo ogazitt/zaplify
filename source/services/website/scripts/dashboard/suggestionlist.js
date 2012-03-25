@@ -90,7 +90,7 @@ ChoiceList.prototype.render = function (container) {
     for (var i in this.choiceButtons) {
         this.choiceButtons[i].render(container);
     }
-    $(container).show('blind', { direction: 'vertical' }, 500);
+    Control.animateExpand($(container));
 }
 
 // ---------------------------------------------------------
