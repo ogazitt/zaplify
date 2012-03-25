@@ -49,9 +49,9 @@
                     clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
                 }
                 catch (Exception)
-                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK along with a dummy item.
                     TraceLog.TraceInfo("ItemResource.Delete: entity not found; returned OK anyway");
-                    return ReturnResult<Item>(req, operation, HttpStatusCode.OK);
+                    return ReturnResult<Item>(req, operation, new Item() { Name = "Item Not Found" }, HttpStatusCode.OK);
                 }
             }
 
@@ -110,9 +110,9 @@
                     }
                 }
                 catch (Exception ex)
-                {   // item not found - it may have been deleted by someone else.  Return 200 OK.
+                {   // item not found - it may have been deleted by someone else.  Return 200 OK along with a dummy item.
                     TraceLog.TraceInfo(String.Format("ItemResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
-                    return ReturnResult<Item>(req, operation, HttpStatusCode.OK);
+                    return ReturnResult<Item>(req, operation, new Item() { Name = "Item Not Found" }, HttpStatusCode.OK);
                 }
             }
             catch (Exception ex)
@@ -208,6 +208,13 @@
                 if (clientItem.ID == null || clientItem.ID == Guid.Empty)
                 {
                     clientItem.ID = Guid.NewGuid();
+                }
+                // same with any FieldValues that traveleld with the item
+                if (clientItem.FieldValues != null)
+                {
+                    foreach (var fv in clientItem.FieldValues)
+                        if (fv.ItemID == null || fv.ItemID == Guid.Empty)
+                            fv.ItemID = clientItem.ID;
                 }
 
                 // fill out the timestamps if they aren't set (null, or MinValue.Date, allowing for DST and timezone issues)

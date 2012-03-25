@@ -25,9 +25,15 @@ using System.Collections.Generic;
 namespace BuiltSteady.Zaplify.Shared.Entities
 {
 
+    public class SystemUsers
+    {
+        public static Guid System = new Guid("00000000-0000-0000-0000-000000000001");
+        public static Guid User = new Guid("00000000-0000-0000-0000-000000000002");
+    }
+
     public class SystemItemTypes
     {   
-        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem};
+        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem, Reference, NameValue};
         // standard item types
         public static Guid Task = new Guid("00000000-0000-0000-0000-000000000001");
         public static Guid Location = new Guid("00000000-0000-0000-0000-000000000002");
@@ -78,8 +84,9 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         // non user-visible FieldNames
         public const string Intent = "Intent";              // String
-        public const string SuggestedLink = "SuggestedLink"; // URL
         public const string Likes = "Likes";                // comma-delimited string
+        public const string SubjectHint = "SubjectHint";    // String
+        public const string SuggestedLink = "SuggestedLink"; // URL
 
         // UX action FieldNames
         public const string FacebookConsent = "FacebookConsent";

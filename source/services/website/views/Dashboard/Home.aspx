@@ -18,6 +18,8 @@
             DataModel.Init('<%= Ajax.JavaScriptStringEncode(ConstantsModel.JsonConstants) %>',
                 '<%= Ajax.JavaScriptStringEncode(Model.JsonUserData) %>');
             Dashboard.Init(DataModel);
+            if (<%: ViewBag.RenewFBToken %> == 1)
+                Service.GetFacebookConsent();
         });
 
     </script>

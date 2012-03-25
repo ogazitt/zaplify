@@ -266,21 +266,31 @@
 
                         // get the current list name
                         string listName = null;
+                        Guid? listID = null;
+                        Guid itemTypeID;
                         if (id == Guid.Empty)
+                        {
                             listName = folder.Name;
+                            itemTypeID = folder.ItemTypeID;
+                        }
                         else
-                            listName = folder.Items.Single(i => i.ID == id).Name;
+                        {
+                            var item = folder.Items.Single(i => i.ID == id);
+                            listName = item.Name;
+                            listID = (Guid?)id;
+                            itemTypeID = item.ItemTypeID;
+                        }
 
                         // construct a synthetic item that represents the list of items for which the 
                         // ParentID is the parent.  this also works for the root list in a folder, which
                         // is represented with a ParentID of Guid.Empty.
-                        Guid? listID = (id == Guid.Empty) ? (Guid?) null : (Guid?) id;
                         list = new Item()
                         {
                             ID = id,
                             Name = listName,
                             FolderID = folder.ID,
                             IsList = true,
+                            ItemTypeID = itemTypeID,
                             Items = folder.Items.Where(i => i.ParentID == listID).ToObservableCollection()
                         };
                     }
@@ -346,9 +356,9 @@
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
-            PivotItem item = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
-            ListHelper.ListBox = (ListBox)((Grid)item.Content).Children[1];
-            ListHelper.OrderBy = (string)item.Header;
+            PivotItem pi = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
+            ListHelper.ListBox = (ListBox)((Grid)pi.Content).Children[1];
+            ListHelper.OrderBy = (string)pi.Header;
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");
@@ -446,8 +456,8 @@
                     // remove the item from the original collection and from ListBox
                     ListHelper.RemoveItem(list, item);
 
-                    // remove the item from the folder
-                    folder.Items.Remove(item);
+                    // remove the item (and all subitems) from the local folder (and local storage)
+                    App.ViewModel.RemoveItem(item);
                 }
             }
 

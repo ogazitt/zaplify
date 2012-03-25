@@ -5,6 +5,7 @@ using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
 using System.Text;
+using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -38,29 +39,51 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             string name = item.Name;
-            // lowercase, remove filler words
             string sentence = name.ToLower();
-            foreach (var word in "a;the".Split(';'))
-                sentence = sentence.Replace(word, "");
-            // remove extra whitespace
+
+            // remove extra whitespace and filler words
             StringBuilder sb = new StringBuilder();
             foreach (var word in sentence.Split(new char[] { ' ', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries))
-                sb.AppendFormat("{0} ", word);
+            {
+                bool add = true;
+                foreach (var filler in "a;an;the".Split(';'))
+                    if (word == filler)
+                    {
+                        add = false;
+                        break;
+                    }
+                if (add)
+                    sb.AppendFormat("{0} ", word);
+            }
             sentence = sb.ToString().Trim();
 
             // poor man's NLP - assume first word is verb, second word is noun
             string[] parts = sentence.Split(' ');
-            string verb = parts[0];
-            string noun = parts[1];
+            string verb = null;
+            string noun = null;
+            string subject = null;
+            if (parts.Length >= 2)
+            {
+                verb = parts[0];
+                noun = parts[1];
+            }
+            if (parts.Length >= 4)
+            {
+                if (parts[2] == "for")
+                {
+                    subject = parts[3];
+                    StoreInstanceData(workflowInstance, FieldNames.SubjectHint, subject);
+                }
+            }
 
             try
             {
                 Intent intent = WorkflowWorker.SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
-                string workflow = null;
-                bool exists = IntentList.Intents.TryGetValue(intent.Name, out workflow);
+                Workflow workflow = null;
+                bool exists = WorkflowList.Workflows.TryGetValue(intent.Name, out workflow);
                 if (exists)
                 {
-                    suggestionList[intent.Name] = workflow;
+                    suggestionList[intent.Name] = intent.Name;
                     return true;  // exact match
                 }
             }
@@ -74,7 +97,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 // get a list of all approximate matches
                 var intentList = WorkflowWorker.SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
                 foreach (var intent in intentList)
-                    suggestionList[intent.Name] = IntentList.Intents[intent.Name];
+                    suggestionList[intent.Name] = intent.Name;
             }
             catch (Exception ex)
             {

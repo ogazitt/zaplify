@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
@@ -40,8 +41,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             {
                 BingSearch bingSearch = new BingSearch();
                 string searchTerm = GetInstanceData(workflowInstance, Workflow.LastStateData);
-                string intent = GetInstanceData(workflowInstance, FieldNames.Intent);
-                string query = String.Format("{0} {1}", intent.Trim(), searchTerm.Trim());
+                string intentString = GetInstanceData(workflowInstance, FieldNames.Intent);
+                string searchFormatString = intentString;
+                try
+                {
+                    Intent intent = WorkflowWorker.SuggestionsContext.Intents.First(i => i.Name == intentString);
+                    searchFormatString = intent.SearchFormatString;
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceError(String.Format("GenerateSuggestions: intent name {0} not found; ex: {1}", intentString, ex.Message));
+                }
+
+                string query = String.Format("{0} {1}", searchFormatString.Trim(), searchTerm.Trim());
 
                 // make a synchronous webservice call to bing 
                 //

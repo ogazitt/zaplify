@@ -10,13 +10,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class BuyGift : Workflow
     {
-        public override string Name { get { return WorkflowNames.BuyGift; } }
+        public override string Name { get { return IntentNames.BuyGift; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static string DetermineSubject = "Who is this for?";
         private static string GetSubjectLikes = "Which kind of gift?";
-        private static string GetSubjectAttributes = "Get the person's attributes";
-        private static string DetermineDate = "When is this due?";
+        //private static string GetSubjectAttributes = "Get the person's attributes";
+        //private static string DetermineDate = "When is this due?";
         private static string GetSuggestions = "Helpful links";
 
         private static List<WorkflowState> states = new List<WorkflowState>()

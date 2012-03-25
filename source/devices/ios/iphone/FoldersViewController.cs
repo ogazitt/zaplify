@@ -1,13 +1,6 @@
-using MonoTouch.UIKit;
-using System.Drawing;
-using System;
-using MonoTouch.Foundation;
-using System.IO;
-using System.Runtime.Serialization.Json;
-using System.Collections.Generic;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
-using BuiltSteady.Zaplify.Devices.ClientHelpers;
-using BuiltSteady.Zaplify.Devices.ClientViewModels;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -25,19 +18,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/33-cabinet.png");
 		}
 		
-		public override void ViewDidLoad ()
-		{
-			TableView.DataSource = new TableDataSource();
-			TableView.Delegate = new TableDelegate(this);
-			this.thisController = this;
-			
-			base.ViewDidLoad ();
-		}
-		
 		public override void ViewDidAppear (bool animated)
 		{
-			TableView.ReloadData();
-			base.ViewDidAppear (animated);
+            TableView.DataSource = new TableDataSource();
+            TableView.Delegate = new TableDelegate(this);
+            this.thisController = this;
+
+            TableView.ReloadData();
+			base.ViewDidAppear(animated);
 		}
 		
 		public override void DidReceiveMemoryWarning ()

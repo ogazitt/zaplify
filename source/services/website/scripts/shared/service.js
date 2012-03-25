@@ -17,6 +17,7 @@ Service.requestQueue = [];
 Service.fbAppId = "411772288837103";
 Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
 Service.fbRedirectPath = "dashboard/facebook";
+Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
 
 Service.cloudADConsentUri = "dashboard/CloudAD";
 
@@ -52,7 +53,7 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
 }
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
-    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath);
+    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
     window.navigate(uri);
 }
 
@@ -111,8 +112,8 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
         type: httpMethod,
         contentType: "application/json",
         dataType: "json",
-        data: jsonData,
-        //processData: false
+        data: jsonData
+        //,processData: false
     };
 
     Service.beginRequest(request, jsonSuccessHandler, jsonErrorHandler);

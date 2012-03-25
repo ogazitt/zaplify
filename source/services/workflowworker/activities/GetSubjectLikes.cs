@@ -10,8 +10,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetSubjectLikes : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetSubjectLikes; } }
         public override string TargetFieldName { get { return FieldNames.Likes; } }
+        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
         public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get
@@ -69,6 +69,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             try
             {
                 subject = JsonSerializer.Deserialize<Item>(subjectItem);
+                
+                // if the subjectItem is a reference, chase it down
+                while (subject.ItemTypeID == SystemItemTypes.Reference)
+                {
+                    FieldValue refID = GetFieldValue(subject, FieldNames.ItemRef, false);
+                    Guid refid = new Guid(refID.Value);
+                    subject = WorkflowWorker.UserContext.Items.Include("FieldValues").Single(i => i.ID == refid);
+                }
             }
             catch (Exception ex)
             {

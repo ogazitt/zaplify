@@ -680,6 +680,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        /// <summary>
+        /// Recursively remove item and all possible sublists of an item
+        /// </summary>
+        /// <param name="item">Item to remove</param>
+        public void RemoveItem(Item item)
+        {
+            try
+            {
+                var subitems = Items.Where(i => i.ParentID == item.ID).ToList();
+                foreach (var it in subitems)
+                    RemoveItem(it);
+                Folder folder = Folders.Single(f => f.ID == item.FolderID);
+                folder.Items.Remove(item);
+                StorageHelper.WriteFolder(folder);                
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage("RemoveItem: exception; ex: " + ex.Message);
+            }
+        }
 
         // Main routine for performing a sync with the Service.  It will chain the following operations:
         //     1.  Get Constants
@@ -711,27 +731,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             {
                 retrievedConstants = true;
 				
-#if IOS
-                // no requests pending - we can use the Service constants as the authoritative ones
-                Constants = constants;
-
-                // reset priority names and colors inside the Item static arrays
-                // these static arrays are the most convenient way to make databinding work
-                int i = 0;
-                foreach (var pri in constants.Priorities)
-                {
-                    Item.PriorityNames[i] = pri.Name;
-                    Item.PriorityColors[i++] = pri.Color;
-                }
-
-                // initialize the static ItemTypes dictionary
-                ItemType.CreateDictionary(itemTypes);
-
-                // Chain the PlayQueue call to drain the queue and retrieve the user data
-                PlayQueue();
-#else
+#if !IOS
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
+#endif
                     // no requests pending - we can use the Service constants as the authoritative ones
                     Constants = constants;
 
@@ -745,10 +748,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     }
 
                     // initialize the static ItemTypes dictionary
-                    ItemType.CreateDictionary(itemTypes);
+                    ItemType.CreateDictionary(constants.ItemTypes);
 
                     // Chain the PlayQueue call to drain the queue and retrieve the user data
                     PlayQueue();
+#if !IOS
                 });
 #endif
             }
@@ -966,7 +970,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000041"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000042"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000043"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = false, SortOrder = 3 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000044"), FieldType = FieldTypes.ItemID, Name = FieldNames.ItemRef, DisplayName = "Reference", DisplayType = DisplayTypes.Reference, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = false, SortOrder = 4 });
 
             // create ShoppingItem
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ShoppingItem, Name = "ShoppingItem", Fields = new List<Field>() });
@@ -975,6 +978,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000053"), FieldType = FieldTypes.String, Name = FieldNames.Amount, DisplayName = "Quantity", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 3 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000054"), FieldType = FieldTypes.Currency, Name = FieldNames.Cost, DisplayName = "Price", DisplayType = DisplayTypes.Currency, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 4 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000055"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 5 });
+
+            // create Reference
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ListItem, Name = "ListItem", Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000061"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000062"), FieldType = FieldTypes.ItemID, Name = FieldNames.ItemRef, DisplayName = "Reference", DisplayType = DisplayTypes.Reference, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 2 });
+
+            // create NameValue
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ListItem, Name = "ListItem", Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000071"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000072"), FieldType = FieldTypes.String, Name = FieldNames.Value, DisplayName = "Value", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.NameValue, IsPrimary = true, SortOrder = 2 });
 
             return itemTypes;
         }
@@ -1028,13 +1041,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 Priority = 0,
                 Description = "Tap the browse button below to discover more about Zaplify.",
             });
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
 
+
             // create the People folder
             folders.Add(folder = new Folder() { Name = "People", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Contact, SortOrder = 2000 });
             FolderDictionary.Add(folder.ID, folder);
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
@@ -1042,6 +1058,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             // create the Places folder
             folders.Add(folder = new Folder() { Name = "Places", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Location, SortOrder = 3000 });
             FolderDictionary.Add(folder.ID, folder);
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
@@ -1063,6 +1080,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 SortOrder = 3000,
                 ParentID = Guid.Empty
             });
+            StorageHelper.WriteFolder(folder);
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()

@@ -36,6 +36,8 @@ namespace BuiltSteady.Zaplify.ServerEntities
         [IgnoreDataMember]
         public string FBConsentToken { get; set; }
         [IgnoreDataMember]
+        public DateTime? FBConsentTokenExpiration { get; set; }
+        [IgnoreDataMember]
         public string ADConsentToken { get; set; }
 
         public DateTime LastModified { get; set; }

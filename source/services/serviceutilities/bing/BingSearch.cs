@@ -15,7 +15,8 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Bing
 
         private const string InvalidAsyncResult = "The IAsyncResult instance is invalid in the current context.";
 
-        private const string AppIDDefault = "7E4F1CB4F1F70B16F38E4C98B64530AD6C658BB2";
+        // private const string AppIDDefault = "7E4F1CB4F1F70B16F38E4C98B64530AD6C658BB2"; /* robert's app id */
+        private const string AppIDDefault = "D83B547E1D280C092DBDB7DD9126D758267AB090";
         private const AdultFilter AdultFilterDefault = AdultFilter.Moderate;
         private const string MarketDefault = "en-us";
         private const SearchOption OptionsDefault = SearchOption.None;

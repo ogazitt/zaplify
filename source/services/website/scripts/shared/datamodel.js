@@ -305,12 +305,12 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
 
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
-        var groupKey = s.WorkflowInstanceID + s.State;
+        var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
         var groupID = groupNameMap[groupKey];
         if (groupID === undefined) {
-            groupID = (s.State == FieldNames.RefreshEntity) ? s.State : 'Group_' + (nGroup++).toString();
+            groupID = (s.GroupDisplayName == FieldNames.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
             groupNameMap[groupKey] = groupID;
-            suggestions[groupID] = { GroupID: groupID, DisplayName: s.State, Suggestions: {} };
+            suggestions[groupID] = { GroupID: groupID, DisplayName: s.GroupDisplayName, Suggestions: {} };
         }
         s.GroupID = groupID;
         suggestions[groupID].Suggestions[s.ID] = s;
@@ -636,10 +636,12 @@ var FieldNames = {
     ItemRef : "ItemRef",                    // ItemID
     Locations : "Locations",                // ItemID
     Contacts: "Contacts",                   // ItemID
+    Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
     Intent: "Intent",                       // String
-    SuggestedLink: "SuggestedLink",         // URL
     Likes: "Likes",                         // comma-delimited string
+    SubjectHint: "SubjectHint",             // String
+    SuggestedLink: "SuggestedLink",         // URL
 
     RefreshEntity: "RefreshEntity",         // Action
     FacebookConsent: "FacebookConsent",     // Action

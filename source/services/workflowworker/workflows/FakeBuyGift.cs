@@ -10,7 +10,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class FakeBuyGift : Workflow
     {
-        public override string Name { get { return WorkflowNames.FakeBuyGift; } }
+        public override string Name { get { return IntentNames.FakeBuyGift; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static string DetermineSubject = "Who is this for?";
