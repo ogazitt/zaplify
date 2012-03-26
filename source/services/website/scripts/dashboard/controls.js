@@ -24,6 +24,15 @@ Control.findParent = function Control$findParent(control, member) {
     return null;
 }
 
+// animate expanding of an element
+Control.animateExpand = function Control$animateExpand($element, callback) {
+    $element.show('blind', { direction: 'vertical' }, 400, callback);
+}
+// animate collapsing of an element
+Control.animateCollapse = function Control$animateCollapse($element, callback) {
+    $element.hide('blind', { direction: 'vertical' }, 300, callback);
+}
+
 // dynamic ellipsis
 Control.ellipsis = function Control$ellipsis(element, height) {
     while ($(element).outerHeight() > height) {
@@ -52,7 +61,7 @@ var Dashboard = function Dashboard$() {
 
 Dashboard.Init = function Dashboard$Init(dataModel) {
     Dashboard.dataModel = dataModel;
-    Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.render);
+    Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.ManageDataChange);
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
@@ -77,26 +86,25 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 }
 
 // event handler, do not reference 'this' to access static Dashboard
+Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
+    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.ManageFolder(folderID, itemID);
+}
+
+// event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
-    var selectionChanged = false;
-    var currentFolderID = (Dashboard.folderManager.currentFolder != null) ? Dashboard.folderManager.currentFolder.ID : null;
+    var item;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
-    if (folderID == null || folderID != currentFolderID) {
-        Dashboard.folderManager.render(".dashboard-manager");
+    if (itemID == null) {
+        Dashboard.folderManager.render('.dashboard-manager');
         Dashboard.folderManager.selectFolder(folder);
-        selectionChanged = true;
-    }
-
-    var currentItemID = (Dashboard.folderManager.currentItem != null) ? Dashboard.folderManager.currentItem.ID : null;
-    if (itemID == null || itemID != currentItemID) {
-        var item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
+    } else {
+        item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
-        selectionChanged = true;
     }
-
-    if (!Dashboard.resizing /*&& selectionChanged*/) {
+    if (!Dashboard.resizing) {
         // get suggestions for currently selected user, folder, or item
-        Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
+        Dashboard.getSuggestions(folder, item);
     }
 }
 

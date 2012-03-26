@@ -9,6 +9,8 @@ function FolderList(folders) {
     // fires notification when selected folder changes
     this.onSelectionChangedHandlers = {};
     this.folders = folders;
+    this.selectedFolderID = null;
+    this.selectedItemID = null;
     this.$element = null;
 
     this.folderButtons = [];
@@ -34,10 +36,14 @@ FolderList.prototype.removeSelectionChangedHandler = function (name) {
 }
 
 FolderList.prototype.fireSelectionChanged = function (folderID, itemID) {
-    for (var name in this.onSelectionChangedHandlers) {
-        var handler = this.onSelectionChangedHandlers[name];
-        if (typeof (handler) == "function") {
-            handler(folderID, itemID);
+    if (this.selectedFolderID != folderID || this.selectedItemID != itemID) {
+        this.selectedFolderID = folderID;
+        this.selectedItemID = itemID;
+        for (var name in this.onSelectionChangedHandlers) {
+            var handler = this.onSelectionChangedHandlers[name];
+            if (typeof (handler) == "function") {
+                handler(folderID, itemID);
+            }
         }
     }
 }
@@ -55,6 +61,7 @@ FolderList.prototype.render = function (container) {
 function FolderButton(parentControl, folder) {
     this.parentControl = parentControl;
     this.folder = folder;
+    this.selectionChanged = false;
     this.itemList = null;
     this.$element = null;
 }
@@ -66,30 +73,38 @@ FolderButton.prototype.render = function (container) {
     this.$element.append('<span>' + this.folder.Name + '</span>');
 
     if (this.folder.ViewState.Select) {
-        this.select();
+        this.select(false);
     }
 }
 
-FolderButton.prototype.select = function () {
+FolderButton.prototype.select = function (fireSelectionChanged) {
+    this.selectionChanged = (fireSelectionChanged == null) ? true : fireSelectionChanged;
     var selected = this.$element.hasClass('selected');
     if (selected) {
-        var selectedItems = this.$element.next('.folder-items').find('.selected');
-        if (selectedItems.length == 0) {
-            // no items are selected, deselect ALL folders
-            this.deselectAll();
-            this.collapseItems();
-            this.parentControl.fireSelectionChanged();
+        if (this.folder.GetSelectedItem() == null) {
+            // no items are selected, deselect ALL folders   
+            var thisButton = this;
+            Control.animateCollapse(this.$element.next(),
+                function () {
+                    thisButton.deselectAll();
+                    thisButton.collapseItems();
+                    if (thisButton.selectionChanged) { thisButton.parentControl.fireSelectionChanged(); }
+                });
         } else {
             // otherwise select folder itself
             this.deselectItems();
-            this.parentControl.fireSelectionChanged(this.folder.ID);
+            if (this.selectionChanged) { this.parentControl.fireSelectionChanged(this.folder.ID); }
         }
     } else {
         this.deselectAll();
         this.folder.ViewState.Select = true;
         this.$element.toggleClass('selected');
-        this.parentControl.fireSelectionChanged(this.folder.ID);
         this.expand();
+        if (this.selectionChanged) {
+            var selectedItem = this.folder.GetSelectedItem();
+            var selectedItemID = (selectedItem != null) ? selectedItem.ID : null;
+            this.parentControl.fireSelectionChanged(this.folder.ID, selectedItemID);
+        }
     }
 }
 
@@ -149,6 +164,9 @@ ItemList.prototype.render = function (container) {
     for (var i in this.itemButtons) {
         this.itemButtons[i].render(container);
     }
+    if (this.parentControl.selectionChanged) {
+        Control.animateExpand($(container));
+    }
 }
 
 // ---------------------------------------------------------
@@ -156,12 +174,10 @@ ItemList.prototype.render = function (container) {
 function ItemButton(parentControl, item) {
     this.parentControl = parentControl;
     this.item = item;
-    this.$element = null;
-    this.indent = 'indent-none';
+    this.selectionChanged = false;
     // TODO: traverse parents
-    if (item.ParentID != null) {
-        this.indent = 'indent-1';
-    }
+    this.indent = (item.ParentID == null) ? 'indent-none' : 'indent-1';
+    this.$element = null;
 }
 
 ItemButton.prototype.render = function (container) {
@@ -177,20 +193,21 @@ ItemButton.prototype.render = function (container) {
     this.$element.append('<span>' + this.item.Name + '</span>');
 
     if (this.item.ViewState.Select) {
-        this.select();
+        this.select(false);
     } else if (this.item.IsList) {
         var items = this.item.GetItems();
         for (var id in items) {
             if (items[id].ViewState.Select) {
                 this.expandItems();
-                Control.get('#' + id).select();
+                Control.get('#' + id).select(false);
                 break;
             }
         }
     }
 }
 
-ItemButton.prototype.select = function () {
+ItemButton.prototype.select = function (fireSelectionChanged) {
+    this.selectionChanged = (fireSelectionChanged == null) ? true : fireSelectionChanged;
     var folderButton = this.getFolderButton();
     if (folderButton != null) {
          if (this.item.IsList) {
@@ -225,21 +242,25 @@ ItemButton.prototype.selectList = function (folderButton) {
     // fire selection changed if folder is selected
     if (folderButton != null) {
         var selected = this.$element.hasClass('selected');
+        var expanded = this.$element.hasClass('expanded');
         var folderList = folderButton.parentControl;
 
         if (!selected) {
             folderButton.deselectItems();
             this.$element.addClass('selected');
             this.item.ViewState.Select = true;
-            this.collapseAllItems();
-            this.expandItems();
-            folderList.fireSelectionChanged(this.item.FolderID, this.item.ID);
+            if (!expanded) {
+                this.collapseAllItems();
+                this.expandItems();
+            }
+            if (this.selectionChanged) {
+                folderList.fireSelectionChanged(this.item.FolderID, this.item.ID);
+            }
         }
     }
 }
 
 ItemButton.prototype.selectItem = function (folderButton) {
-    // fire selection changed 
     if (folderButton != null) {
         var selected = this.$element.hasClass('selected');
         var folderList = folderButton.parentControl;
@@ -249,7 +270,9 @@ ItemButton.prototype.selectItem = function (folderButton) {
             this.$element.addClass('selected');
             this.item.ViewState.Select = true;
             if (isFolderItem) { this.collapseAllItems(); }
-            folderList.fireSelectionChanged(this.item.FolderID, this.item.ID);
+            if (this.selectionChanged) {
+                folderList.fireSelectionChanged(this.item.FolderID, this.item.ID);
+            }
         }
     }
 }

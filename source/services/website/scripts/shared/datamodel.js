@@ -90,7 +90,10 @@ DataModel.GetItems = function DataModel$GetItems(folderID, parentID) {
 //  containerItem may be null, a folder, or list item
 //  adjacentItem may be null, a folder, or item
 //  insertBefore will be false by default (insert after adjacentItem)
-DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adjacentItem, insertBefore) {
+//  activeItem will be used when firing data changed event (indicating which item to select)
+//      undefined will result in default behavior
+//      null will result in the data changed event NOT being fired
+DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adjacentItem, insertBefore, activeItem) {
     if (newItem != null && newItem.Name != null) {
         var resource = 'items';
         if (containerItem == null) {                                        // inserting a new folder
@@ -121,10 +124,10 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
         Service.InsertResource(resource, newItem,
             function (responseState) {                                      // successHandler
                 var insertedItem = responseState.result;
-                if (containerItem == null) {                                // add to Folders
-                    DataModel.addFolder(insertedItem);
-                } else {                                                    // add to container
-                    containerItem.addItem(insertedItem);
+                if (containerItem == null) {                                // add new Folder
+                    DataModel.addFolder(insertedItem, activeItem);
+                } else {                                                    // add new Item to container
+                    containerItem.addItem(insertedItem, activeItem);
                 }
             });
         return true;
@@ -164,9 +167,10 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
                     DataModel.FoldersMap.remove(item);
                     DataModel.fireDataChanged();
                 } else {                                                    // remove Item
-                    item.selectNextItem();
-                    item.GetFolder().ItemsMap.remove(item); 
-                    DataModel.fireDataChanged(item.FolderID, item.ID);
+                    var nextItem = item.selectNextItem();
+                    var nextItemID = (nextItem == null) ? null : nextItem.ID;
+                    item.GetFolder().ItemsMap.remove(item);
+                    DataModel.fireDataChanged(item.FolderID, nextItemID);
                 }
             });
         return true;
@@ -235,10 +239,14 @@ DataModel.fireDataChanged = function (folderID, itemID) {
     }
 }
 
-DataModel.addFolder = function (newFolder) {
+DataModel.addFolder = function (newFolder, activeItem) {
     newFolder = $.extend(new Folder(), newFolder);              // extend with Folder functions
     DataModel.FoldersMap.append(newFolder);
-    DataModel.fireDataChanged(newFolder.ID);
+    if (activeItem === undefined) {                             // default, fire event with new Folder
+        DataModel.fireDataChanged(newFolder.ID);
+    } else if (activeItem != null) {                            // fire event with activeItem
+        DataModel.fireDataChanged(activeItem.FolderID, activeItem.ID);
+    }                                                           // null, do not fire event
 };
 
 DataModel.processConstants = function DataModel$processConstants(jsonParsed) {
@@ -345,11 +353,17 @@ function Folder(viewstate) { this.ViewState = (viewstate == null) ? {} : viewsta
 Folder.prototype.IsFolder = function () { return true; };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function () { return DataModel.GetItems(this.ID, null); };
-Folder.prototype.InsertItem = function (newItem, adjacentItem, insertBefore) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore); };
+Folder.prototype.GetSelectedItem = function () {
+    for (id in this.Items) {
+        if (this.Items[id].ViewState.Select == true) { return this.Items[id]; }
+    }
+    return null;
+}
+Folder.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
 Folder.prototype.Update = function (updatedFolder) { return DataModel.UpdateItem(this, updatedFolder); };
 Folder.prototype.Delete = function () { return DataModel.DeleteItem(this); };
 // Folder private functions
-Folder.prototype.addItem = function (newItem) {
+Folder.prototype.addItem = function (newItem, activeItem) {
     newItem = $.extend(new Item(), newItem);        // extend with Item functions
     newItem.ViewState.Select = newItem.IsList;
     if (this.ItemsMap == null) {
@@ -358,7 +372,12 @@ Folder.prototype.addItem = function (newItem) {
     } else {
         this.ItemsMap.append(newItem);
     }
-    DataModel.fireDataChanged(this.ID, newItem.ID);
+    if (activeItem === undefined) {                     // default, fire event with new List or parent List
+        var itemID = (newItem.IsList) ? newItem.ID : newItem.ParentID;
+        DataModel.fireDataChanged(this.ID, itemID);
+    } else if (activeItem != null) {                    // fire event with activeItem
+        DataModel.fireDataChanged(activeItem.FolderID, activeItem.ID);
+    }                                                   // null, do not fire event
 };
 Folder.prototype.update = function (updatedFolder) {
     if (this.ID == updatedFolder.ID) {
@@ -380,7 +399,7 @@ Item.prototype.GetFolder = function () { return (DataModel.Folders[this.FolderID
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
 Item.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Item.prototype.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
-Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore); };
+Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
 Item.prototype.Update = function (updatedItem) { return DataModel.UpdateItem(this, updatedItem); };
 Item.prototype.Delete = function () { return DataModel.DeleteItem(this); };
 Item.prototype.HasField = function (name) { return this.GetItemType().HasField(name); };
@@ -469,7 +488,7 @@ Item.prototype.SetFieldValue = function (field, value) {
 };
 
 // Item private functions
-Item.prototype.addItem = function (newItem) { this.GetFolder().addItem(newItem); };
+Item.prototype.addItem = function (newItem, activeItem) { this.GetFolder().addItem(newItem, activeItem); };
 Item.prototype.update = function (updatedItem) {
     if (this.ID == updatedItem.ID) {
         updatedItem = $.extend(new Item(this.ViewState), updatedItem);      // extend with Item functions
@@ -490,13 +509,14 @@ Item.prototype.selectNextItem = function () {
     var myIndex = ItemMap.indexOf(parentItems, this.ID);
     var nextItem = ItemMap.itemAt(parentItems, myIndex + 1);
     if (nextItem != null) {
-        nextItem.ViewState.Select = true;
+        nextItem.ViewState.Select = true; return nextItem;
     } else if (myIndex == 0) {
-        if (parent != null) { parent.ViewState.Select = true; }
+        if (parent != null) { parent.ViewState.Select = true; return parent; }
     } else {
         var prevItem = ItemMap.itemAt(parentItems, myIndex - 1);
-        if (prevItem != null) { prevItem.ViewState.Select = true; }
+        if (prevItem != null) { prevItem.ViewState.Select = true; return prevItem; }
     }
+    return null;
 }
 
 // ---------------------------------------------------------
@@ -606,6 +626,22 @@ ItemMap.itemAt = function (map, index) {
 }
 
 ItemMap.errorMustHaveID = 'ItemMap requires all items in array to have an ID property.';
+
+
+// ---------------------------------------------------------
+// ItemTypes constants
+
+var ItemTypes = {
+    // standard item types
+    Task : "00000000-0000-0000-0000-000000000001",
+    Location : "00000000-0000-0000-0000-000000000002",
+    Contact : "00000000-0000-0000-0000-000000000003",
+    ListItem : "00000000-0000-0000-0000-000000000004",
+    ShoppingItem : "00000000-0000-0000-0000-000000000005",
+    // system item types
+    Reference : "00000000-0000-0000-0000-000000000006",
+    NameValue : "00000000-0000-0000-0000-000000000007"
+}
 
 // ---------------------------------------------------------
 // FieldNames constants

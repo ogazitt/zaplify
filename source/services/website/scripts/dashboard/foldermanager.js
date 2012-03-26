@@ -44,6 +44,7 @@ FolderManager.prototype.render = function (container) {
 
 FolderManager.prototype.selectFolder = function (folder) {
     this.currentFolder = folder;
+    this.currentItem = null;
     if (this.currentFolder != null) {
         if (this.currentFolder.IsDefault) {
             this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
@@ -64,6 +65,7 @@ FolderManager.prototype.selectFolder = function (folder) {
 FolderManager.prototype.selectItem = function (item) {
     this.currentItem = item;
     if (this.currentItem != null) {
+        this.currentFolder = this.currentItem.GetFolder();
         if (this.currentItem.IsList) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);

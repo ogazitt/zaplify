@@ -90,6 +90,7 @@ ChoiceList.prototype.render = function (container) {
     for (var i in this.choiceButtons) {
         this.choiceButtons[i].render(container);
     }
+    Control.animateExpand($(container));
 }
 
 // ---------------------------------------------------------

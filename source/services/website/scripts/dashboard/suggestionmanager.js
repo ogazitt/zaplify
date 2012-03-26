@@ -79,23 +79,19 @@ SuggestionManager.prototype.addContact = function (suggestion) {
             function (list) {
                 if (list != null && list.IsList) {
                     /* 2012-03-23 OG: commented out the code below */
-                    // TODO: get the UserID correct in the suggestion value
-                    //contact.UserID = list.UserID;
                     //list.InsertItem(contact);
 
                     /* 2012-03-23 OG: inserted the following code */
                     // create and insert the contact reference
-                    var itemTypeID = "00000000-0000-0000-0000-000000000006";  // HACK: this should be a string constant somewhere
                     var contactRef = $.extend(new Item(), {
                         Name: contact.Name,
-                        ItemTypeID: itemTypeID,
+                        ItemTypeID: ItemTypes.Reference,
                         FolderID: contact.FolderID,
                         ParentID: list.ID,
                         UserID: contact.UserID
                     });
-                    var field = contactRef.GetItemType().Fields[FieldNames.ItemRef];
-                    contactRef.SetFieldValue(field, contact.ID);
-                    list.InsertItem(contactRef)
+                    contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
+                    list.InsertItem(contactRef, null, null, null);
 
                     // create and insert the contact itself in the "People" folder
                     for (var folderID in DataModel.Folders)
@@ -103,29 +99,25 @@ SuggestionManager.prototype.addContact = function (suggestion) {
                             break;
                     var folder = DataModel.Folders[folderID];
                     contact.FolderID = folder.ID;
-                    folder.InsertItem(contact);
+                    folder.InsertItem(contact, null, null, item);
                     /* 2012-03-23 OG: end inserted code */
                 }
             });
         if (contactsList != null && contactsList.IsList) {
             /* 2012-03-23 OG: commented out the code below */
-            // TODO: get the UserID correct in the suggestion value
-            //contact.UserID = contactsList.UserID;
             //contactsList.InsertItem(contact);
 
             /* 2012-03-23 OG: inserted the following code */
             // create and insert the contact reference
-            var itemTypeID = "00000000-0000-0000-0000-000000000006";  // HACK: this should be a string constant somewhere
             var contactRef = $.extend(new Item(), {
                 Name: contact.Name,
-                ItemTypeID: itemTypeID,
+                ItemTypeID: ItemTypes.Reference,
                 FolderID: contactsList.FolderID,
                 ParentID: contactsList.ID,
                 UserID: contactsList.UserID
             });
-            var field = contactRef.GetItemType().Fields[FieldNames.ItemRef];
-            contactRef.SetFieldValue(field, contact.ID);
-            contactsList.InsertItem(contactRef)
+            contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
+            contactsList.InsertItem(contactRef, null, null, null);
 
             // create and insert the contact itself in the "People" folder
             for (var folderID in DataModel.Folders)
@@ -133,7 +125,7 @@ SuggestionManager.prototype.addContact = function (suggestion) {
                     break;
             var folder = DataModel.Folders[folderID];
             contact.FolderID = folder.ID;
-            folder.InsertItem(contact);
+            folder.InsertItem(contact, null, null, item);
             /* 2012-03-23 OG: end inserted code */
         }
     }
