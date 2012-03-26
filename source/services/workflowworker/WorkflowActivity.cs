@@ -33,11 +33,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             // if the target field has been set, this state can terminate
             try
             {
-                FieldValue likesField = GetFieldValue(item, TargetFieldName, false);
-                if (likesField != null && likesField.Value != null)
+                FieldValue targetField = GetFieldValue(item, TargetFieldName, false);
+                if (targetField != null && targetField.Value != null)
                 {
-                    StoreInstanceData(workflowInstance, TargetFieldName, likesField.Value);
-                    StoreInstanceData(workflowInstance, Workflow.LastStateData, likesField.Value);
+                    StoreInstanceData(workflowInstance, TargetFieldName, targetField.Value);
+                    StoreInstanceData(workflowInstance, Workflow.LastStateData, targetField.Value);
                     return true;
                 }
             }
@@ -106,7 +106,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             ServerEntity entity, 
             Func<WorkflowInstance, ServerEntity, Dictionary<string,string>, bool> suggestionFunction)
         {
-
             // analyze the item for possible suggestions
             var suggestions = new Dictionary<string, string>();
             bool completed = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
@@ -115,7 +114,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (completed && suggestions.Count == 0)
                 return true;
 
-            // if a like was deciphered without user input, store it now and return
+            // if an "exact match" was discovered without user input, store it now and return
             if (completed && suggestions.Count == 1)
             {
                 string s = null;
@@ -133,7 +132,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             else
                 groupDisplayName = ConstructGroupDisplayName(workflowInstance, groupDisplayName);
 
-            // add suggestions received in possibleLikes
+            // add suggestions received from the suggestion function
             try
             {
                 int num = 0;
