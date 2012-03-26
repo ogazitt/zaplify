@@ -83,8 +83,10 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
 
         // non user-visible FieldNames
+        public const string FacebookID = "FacebookID";      // String
         public const string Intent = "Intent";              // String
-        public const string Likes = "Likes";                // comma-delimited string
+        public const string Likes = "Likes";                // String (comma-delimited) 
+        public const string Sources = "Sources";            // String (comma-delimited) 
         public const string SubjectHint = "SubjectHint";    // String
         public const string SuggestedLink = "SuggestedLink"; // URL
 

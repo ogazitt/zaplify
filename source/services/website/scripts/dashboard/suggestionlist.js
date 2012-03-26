@@ -107,6 +107,33 @@ ChoiceButton.prototype.render = function (container) {
     this.$element.addClass('choice-button');
     this.$element.click(function () { Control.get(this).select(); });
     this.$element.append('<span>' + this.choice.DisplayName + '</span>');
+    
+    /* 2012-03-26 OG: added code below to render an icon for each source of a suggestion for a Contact */
+    var contactFromJson = null;
+    try {
+        contactFromJson = $.parseJSON(this.choice.Value);
+    } catch (e) {
+        return;
+    }
+    if (contactFromJson != undefined && contactFromJson != null && contactFromJson.ItemTypeID == ItemTypes.Contact) {
+        var contact = $.extend(new Item(), contactFromJson);
+        if (contact.HasField(FieldNames.Sources)) {
+            var sourcesFieldValue = contact.GetFieldValue(FieldNames.Sources);
+            if (sourcesFieldValue != undefined && sourcesFieldValue != null) {
+                var sources = sourcesFieldValue.split(",");
+                for (i = 0; i < sources.length; i++) {
+                    switch (sources[i]) {
+                        case "Facebook":
+                            this.$element.append('<img src="/content/dashboard/images/facebook.png" alt="FB" align="right" style="margin-right: 2px" />');
+                            break;
+                        case "Directory":
+                            this.$element.append('<img src="/content/dashboard/images/azure.png" alt="AD" align="right" style="margin-right: 2px" />');
+                            break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 ChoiceButton.prototype.select = function () {

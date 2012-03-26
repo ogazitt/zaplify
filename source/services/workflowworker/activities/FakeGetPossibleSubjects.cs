@@ -126,9 +126,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 {
                     new FieldValue() // facebook ID of the person
                     { 
-                        FieldID = new Guid("00000000-0000-0000-0000-000000000032"), // hardcode email 
+                        FieldID = new Guid("00000000-0000-0000-0000-000000000039"), // hardcode email 
                         ItemID = itemID,
                         Value = "100003631822064"  // hardcode to Mike Abbott for now
+                    },
+                    new FieldValue() // sources
+                    { 
+                        FieldID = new Guid("00000000-0000-0000-0000-00000000003A"), // hardcode sources 
+                        ItemID = itemID,
+                        Value = name == "Mike Abbott" ? "Facebook,Directory" : name == "Mike Smith" ? "Facebook" : name == "Mike Maples" ? "Directory" : "" // hardcode for now
                     }
                 },
                 Created = now,

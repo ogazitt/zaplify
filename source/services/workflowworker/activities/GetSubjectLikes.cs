@@ -84,7 +84,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return true;
             }
 
-            FieldValue fbID = GetFieldValue(subject, FieldNames.Email, false);
+            FieldValue fbID = GetFieldValue(subject, FieldNames.FacebookID, false);
             if (fbID == null || fbID.Value == null)
             {
                 TraceLog.TraceError(String.Format("GenerateSuggestions: could not find Facebook ID for contact {0}", subject.Name));

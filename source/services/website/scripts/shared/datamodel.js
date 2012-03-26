@@ -668,8 +668,10 @@ var FieldNames = {
     Contacts: "Contacts",                   // ItemID
     Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
+    FacebookID: "FacebookID",               // String
     Intent: "Intent",                       // String
     Likes: "Likes",                         // comma-delimited string
+    Sources: "Sources",                     // String
     SubjectHint: "SubjectHint",             // String
     SuggestedLink: "SuggestedLink",         // URL
 

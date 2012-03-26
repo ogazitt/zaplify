@@ -179,22 +179,30 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // create an ID for the new contact
             var itemID = Guid.NewGuid();
 
-            // get the facebook ID of the subject if available
-            FieldValue fbfv = null;
+            // get the sources for the subject info, as well as the facebook ID of the subject if available
+            var fieldValues = new List<FieldValue>();
             try
             {
-                string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
-                fbfv = new FieldValue()
+                string sources = String.Join(",", subject.IDs.Select(id => id.Source));
+                fieldValues.Add(new FieldValue()
                 {
-                    FieldID = new Guid("00000000-0000-0000-0000-000000000032"), // hardcode to the email field for now
+                    FieldID = new Guid("00000000-0000-0000-0000-00000000003A"), // hardcode to the sources field for now
+                    ItemID = itemID,
+                    Value = sources
+                });
+                string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
+                fieldValues.Add(new FieldValue()
+                {
+                    FieldID = new Guid("00000000-0000-0000-0000-000000000039"), // hardcode to the FBID field for now
                     ItemID = itemID,
                     Value = fbID  
-                };
+                });
             }
             catch (Exception) { }
 
             // create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
+
             Item contact = new Item()
             {
                 ID = itemID,
@@ -203,7 +211,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 ItemTypeID = SystemItemTypes.Contact,
                 ParentID = listID,
                 UserID = item.UserID,
-                FieldValues = fbfv == null ? null : new List<FieldValue>() { fbfv },
+                FieldValues = fieldValues.Count > 0 ? fieldValues : null,
                 Created = now,
                 LastModified = now,
             };
