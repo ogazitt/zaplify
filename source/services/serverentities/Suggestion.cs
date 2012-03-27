@@ -17,6 +17,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string FieldName { get; set; }
         public string DisplayName { get; set; }
         public string GroupDisplayName { get; set; }
+        public int? SortOrder { get; set; }
         public string Value { get; set; }
         public DateTime? TimeSelected { get; set; }
         public string ReasonSelected { get; set; }

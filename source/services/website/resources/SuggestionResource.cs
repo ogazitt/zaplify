@@ -108,14 +108,14 @@
                 {
                     suggestions = this.SuggestionsStorageContext.Suggestions.
                         Where(s => s.EntityID == filter.EntityID && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
-                        OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).
+                        OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
                         ToList<Suggestion>();
                 }
                 else
                 {
                     suggestions = this.SuggestionsStorageContext.Suggestions.
                         Where(s => s.EntityID == filter.EntityID && s.FieldName == filter.FieldName && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
-                        OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).
+                        OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
                         ToList<Suggestion>();
                 }
                 return ReturnResult<List<Suggestion>>(req, operation, suggestions, HttpStatusCode.OK);

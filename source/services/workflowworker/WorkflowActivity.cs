@@ -153,6 +153,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         FieldName = TargetFieldName,
                         DisplayName = s,
                         GroupDisplayName = groupDisplayName,
+                        SortOrder = num,
                         Value = suggestions[s],
                         TimeSelected = null
                     };
