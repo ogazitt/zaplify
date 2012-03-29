@@ -126,7 +126,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // extraneous null fields)
             List<FieldValue> fieldValues = new List<FieldValue>(ThisItem.FieldValues);
             foreach (var fv in fieldValues)
-                if (fv.Value == null && (ItemCopy == null || ItemCopy.GetFieldValue(fv.FieldID, false) == null))
+                if (fv.Value == null && (ItemCopy == null || ItemCopy.GetFieldValue(fv.FieldName, false) == null))
                     ThisItem.FieldValues.Remove(fv);                       
 
             // enqueue the Web Request Record
@@ -759,8 +759,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // find out if the property exists on the current item
                 try
                 {
-                    Field field = itemType.Fields.Single(f => f.Name == action.FieldName);
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == action.FieldName);
                 }
                 catch (Exception)
                 {

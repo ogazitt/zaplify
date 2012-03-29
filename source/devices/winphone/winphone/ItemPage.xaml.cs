@@ -864,8 +864,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // find out if the property exists on the current item
                 try
                 {
-                    Field field = itemType.Fields.Single(f => f.Name == action.FieldName);
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == action.FieldName);
                 }
                 catch (Exception)
                 {
