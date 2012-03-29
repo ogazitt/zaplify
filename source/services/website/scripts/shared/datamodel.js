@@ -421,7 +421,7 @@ Item.prototype.Refresh = function () {
 
 Item.prototype.GetFieldValue = function (field, handler) {
     // field parameter can be either field name or field object
-    if (typeof (field) != 'string') {
+    if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
     if (field != null && this.HasField(field.Name)) {
