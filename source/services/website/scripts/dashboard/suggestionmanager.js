@@ -70,7 +70,8 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
 }
 
 SuggestionManager.prototype.addContact = function (suggestion) {
-    var item = this.dataModel.FindItem(suggestion.EntityID);
+    var dataModel = this.dataModel;
+    var item = dataModel.FindItem(suggestion.EntityID);
     if (item != null) {
         if (item.HasField(FieldNames.Contacts)) {
             var contact = $.parseJSON(suggestion.Value);
@@ -78,8 +79,6 @@ SuggestionManager.prototype.addContact = function (suggestion) {
         var contactsList = item.GetFieldValue(FieldNames.Contacts,
             function (list) {
                 if (list != null && list.IsList) {
-                    /* 2012-03-23 OG: commented out the code below */
-                    //list.InsertItem(contact);
 
                     /* 2012-03-23 OG: inserted the following code */
                     // create and insert the contact reference
@@ -98,6 +97,7 @@ SuggestionManager.prototype.addContact = function (suggestion) {
                         if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
                             break;
                     var folder = DataModel.Folders[folderID];
+                    //var contactFolder = 
                     contact.FolderID = folder.ID;
                     folder.InsertItem(contact, null, null, item);
                     /* 2012-03-23 OG: end inserted code */
