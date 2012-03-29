@@ -395,7 +395,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             // this may fail if this item doesn't have this field set yet
             try
             {
-                fieldValue = fieldValues.Single(fv => fv.FieldID == field.ID);
+                fieldValue = fieldValues.Single(fv => fv.FieldName == field.Name);
                 
                 // store the new FieldValue in the dictionary
                 fieldValueDict[field.Name] = fieldValue;
@@ -407,7 +407,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 {
                     fieldValue = new FieldValue()
                     {
-                        FieldID = field.ID,
+                        FieldName = field.Name,
                         ItemID = this.ID,
                         Value = FieldTypes.DefaultValue(field.FieldType)
                     };

@@ -4,7 +4,7 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Connection" value="SQLAzure" />
-      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032612;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032912;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
@@ -22,7 +22,7 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Connection" value="SQLAzure" />
-      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032612;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032912;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
