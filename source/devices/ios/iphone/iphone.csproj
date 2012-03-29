@@ -39,6 +39,8 @@
     <MtouchExtraArgs>-gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit"
 </MtouchExtraArgs>
     <MtouchI18n />
+    <MtouchUseLlvm>true</MtouchUseLlvm>
+    <MtouchArch>ARMv7</MtouchArch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -67,7 +69,7 @@
     <MtouchExtraArgs>-aot "nimt-trampolines=512" -gcc_flags "-F${ProjectDir}/../../../packages/Nuance.SpeechKit.1.0.1/lib/objc/ -framework SpeechKit -framework SystemConfiguration -framework Security -framework AVFoundation -framework AudioToolbox"</MtouchExtraArgs>
     <MtouchI18n />
     <MtouchUseLlvm>true</MtouchUseLlvm>
-    <MtouchArch>ARMv6_ARMv7</MtouchArch>
+    <MtouchArch>ARMv7</MtouchArch>
     <IpaPackageName />
     <DefineConstants>IOS</DefineConstants>
   </PropertyGroup>

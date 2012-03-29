@@ -7,6 +7,7 @@ service/website/bin/
 source/devices/winphone/winphone/PerformanceLogs/
 XapCacheFile.xml
 *.suo
+*.userprefs
 *.user
 *.dbmdl
 *.schemaview
