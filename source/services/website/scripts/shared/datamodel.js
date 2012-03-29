@@ -421,7 +421,7 @@ Item.prototype.Refresh = function () {
 
 Item.prototype.GetFieldValue = function (field, handler) {
     // field parameter can be either field name or field object
-    if (typeof (field) == 'string') {
+    if (typeof (field) != 'string') {
         field = this.GetField(field);
     }
     if (field != null && this.HasField(field.Name)) {
@@ -430,7 +430,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
         }
         for (var i in this.FieldValues) {
             var fv = this.FieldValues[i];
-            if (fv.FieldID == field.ID) {
+            if (fv.FieldName == field.Name) {
                 if (fv.Value != null && field.FieldType == FieldTypes.ItemID) {
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
@@ -471,7 +471,7 @@ Item.prototype.SetFieldValue = function (field, value) {
         var updated = false;
         for (var i in this.FieldValues) {
             var fv = this.FieldValues[i];
-            if (fv.FieldID == field.ID) {   // set existing field value
+            if (fv.FieldName == field.Name) {   // set existing field value
                 fv.Value = value;
                 updated = true;
                 break;
@@ -479,7 +479,7 @@ Item.prototype.SetFieldValue = function (field, value) {
         }
         if (!updated) {                     // add field value
             this.FieldValues = this.FieldValues.concat(
-                { FieldID: field.ID, ItemID: this.ID, Value: value });
+                { FieldName: field.Name, ItemID: this.ID, Value: value });
         }
         this.LastModified = '/Date(0)/';
         return true;
