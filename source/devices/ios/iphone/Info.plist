@@ -4,10 +4,16 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Zaplify</string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string>Images/zaplify-logo-iphone.png</string>
+		<string>Images/zaplify-logo-ipad.png</string>
+		<string>Images/zaplify-logo-iphone@2x.png</string>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>0.1</string>
 	<key>MinimumOSVersion</key>
-	<string>4.3</string>
+	<string>3.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>

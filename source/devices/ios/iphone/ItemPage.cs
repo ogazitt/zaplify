@@ -829,7 +829,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                                 {
                                                     TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
                                                                                          newItem.Name, newItem.ID, newItem.ItemRef));
-                                                    return;
+                                                    break;
                                                 }
                                             }
                                             ItemPage itemPage = new ItemPage(controller.NavigationController, newItem);

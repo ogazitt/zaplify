@@ -24,11 +24,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	public class AddPage : UINavigationController
 	{
         private DialogViewController dialogViewController;
-		public MultilineEntryElement Name;
 		private RootElement ListsRootElement;
         private ButtonListElement[] AddButtons = new ButtonListElement[3];
 		private List<Item> lists;
         private List<Button> buttonList;
+        private Section listsSection = null;
+        public MultilineEntryElement Name;
         
         private SpeechPopupDelegate SpeechPopupDelegate = new SpeechPopupDelegate();
         public UIActionSheet SpeechPopup;
@@ -47,155 +48,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/180-stickynote.png");
 		}
 		
-		public override void ViewDidAppear (bool animated)
+		public override void ViewDidAppear(bool animated)
 		{
 			// trace event
             TraceHelper.AddMessage("Add: ViewDidAppear");
 			
-			// initialize controls 
-			var pushToTalkButton = new ButtonListElement() 
-			{ 
-				new Button() 
-				{ 
-					Background = "Images/redbutton.png", 
-					Caption = "Touch to speak", 
-					Clicked = SpeechButton_Click
-				}, 
-			};
-			pushToTalkButton.Margin = 0f;
-			
-			var addButton = new ButtonListElement() 
-			{ 
-				new Button() 
-				{ 
-					Background = "Images/darkgreybutton.png", 
-					Caption = "Add", 
-					Clicked = AddButton_Click 
-				}, 
-			};
-			addButton.Margin = 0f;
-			
-			Name = new MultilineEntryElement("Name", "") { Lines = 3 };
-        
-            // get all the lists
-            lists = (from it in App.ViewModel.Items 
-                          where it.IsList == true 
-                          orderby it.Name ascending
-                          select it).ToList();
-            // create a list of buttons - one for each list
-            buttonList = (from it in lists
-                          select new Button() 
-                          {
-                              Background = "Images/darkgreybutton.png", 
-                              Caption = it.Name, 
-                              Clicked = AddButton_Click 
-                          }).ToList();
-            
-            // clear the button rows
-            for (int i = 0; i < AddButtons.Length; i++) 
-                AddButtons[i] = null;
-            
-            // assemble the buttons into rows (maximum of six buttons and two rows)
-            // if there are three or less buttons, one row
-            // otherwise distribute evenly across two rows
-            int count = Math.Min(buttonList.Count, MaxLists);
-            int firstrow = count, secondrow = 0, addButtonsRow = 0;
-            if (count > MaxLists / 2)
-            {
-                firstrow = count / 2;
-                secondrow = count - firstrow;
-            }
-            if (firstrow > 0) 
-            {
-                AddButtons[addButtonsRow++] = new ButtonListElement()
-                {
-                    buttonList.Take(firstrow)
-                };
-            }
-            if (secondrow > 0)
-            {
-                AddButtons[addButtonsRow++] = new ButtonListElement()
-                {
-                    buttonList.Skip(firstrow).Take(secondrow)
-                };
-            }
-			
-            // assemble a page which contains a hierarchy of every folder and list, grouped by folder 
-            ListsRootElement = new RootElement("Add to list:")              
-            {
-                from f in App.ViewModel.Folders
-                    orderby f.Name ascending
-                    group f by f.Name into g
-                    select new Section() 
-                    {
-                        new StyledStringElement(g.Key, delegate { AddItemToFolder(g.Key); }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
-                        from hs in g 
-                            from it in App.ViewModel.Items 
-                                where it.FolderID == hs.ID && it.IsList == true 
-                                orderby it.Name ascending
-                                select (Element) new StyledStringElement("        " + it.Name, delegate { AddItem(hs, it); }) { Image = new UIImage("Images/179-notepad.png") }
-                    }
-            };
-            var dvc = new DialogViewController(ListsRootElement);
-            // create a last "row" of buttons containing only one "More..." button which will bring up the folder/list page
-            AddButtons[addButtonsRow] = new ButtonListElement() 
-            { 
-                new Button() 
-                {
-                    Background = "Images/darkgreybutton.png", 
-                    Caption = "More...", 
-                    Clicked = (s, e) => 
-                    {
-                        dvc.Title = (Name.Value == null || Name.Value == "") ? "Navigate to:" : "Add " + Name.Value + " to:";
-                        dialogViewController.NavigationController.PushViewController(dvc, true); 
-                    }
-                }
-            };
-                
-			// create the dialog
-			var root = new RootElement("Add Item")
-			{
-				new Section()
-				{
-					Name,
-				},
-				new Section("Add to list:")
-				{
-					//addButton,
-                    AddButtons[0],
-                    AddButtons[1],
-                    AddButtons[2],
-				},
-				new Section()
-				{
-					pushToTalkButton
-				},
-			};
-			
-            // create and push the dialog view onto the nav stack
-            dialogViewController = new DialogViewController(root);
-            dialogViewController.NavigationItem.HidesBackButton = true;  
-            dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add", "Add");
+            if (dialogViewController == null)
+                InitializeComponent();
 
-            // set up the "pull to refresh" feature
-            App.ViewModel.SyncCompleteArg = dialogViewController;
-            App.ViewModel.SyncComplete += RefreshHandler;
-            dialogViewController.RefreshRequested += delegate 
-            {
-                App.ViewModel.SyncWithService();
-            };
-                    
-			this.PushViewController(dialogViewController, false);
-			
-			base.ViewDidAppear(animated);
+            // initialize controls 
+            Name.Value = "";
+            
+            // populate the lists section dynamically
+            listsSection.Clear();
+            CreateAddButtons();
+            listsSection.AddAll(AddButtons);
+
+            base.ViewDidAppear(animated);
 		}
 		
         public override void ViewDidDisappear(bool animated)
         {
+            // trace event
+            TraceHelper.AddMessage("Add: ViewDidDisappear");
+
+            dialogViewController.ReloadComplete();
             App.ViewModel.SyncComplete -= RefreshHandler;
             App.ViewModel.SyncCompleteArg = null;
             NuanceHelper.Cleanup();
-            //dialogViewController.Dispose();
             base.ViewDidDisappear(animated);
         }
         
@@ -376,6 +256,147 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
             // start the animation
             ActivityIndicator.StartAnimating();
+        }
+        
+        #endregion
+        
+        #region Helpers
+
+        private void InitializeComponent()
+        {
+            // initialize controls 
+            var pushToTalkButton = new ButtonListElement() 
+            { 
+                new Button() 
+                { 
+                    Background = "Images/redbutton.png", 
+                    Caption = "Touch to speak", 
+                    Clicked = SpeechButton_Click
+                }, 
+            };
+            pushToTalkButton.Margin = 0f;
+            
+            var addButton = new ButtonListElement() 
+            { 
+                new Button() 
+                { 
+                    Background = "Images/darkgreybutton.png", 
+                    Caption = "Add", 
+                    Clicked = AddButton_Click 
+                }, 
+            };
+            addButton.Margin = 0f;
+            
+            Name = new MultilineEntryElement("Name", "") { Lines = 3 };
+        
+            listsSection = new Section("Add to list:");
+                
+            // create the dialog
+            var root = new RootElement("Add Item")
+            {
+                new Section()
+                {
+                    Name,
+                },
+                listsSection,
+                new Section()
+                {
+                    pushToTalkButton
+                },
+            };
+         
+            // create and push the dialog view onto the nav stack
+            dialogViewController = new DialogViewController(root);
+            dialogViewController.NavigationItem.HidesBackButton = true;  
+            dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add", "Add");
+
+            // set up the "pull to refresh" feature
+            App.ViewModel.SyncCompleteArg = dialogViewController;
+            App.ViewModel.SyncComplete += RefreshHandler;
+            dialogViewController.RefreshRequested += delegate 
+            {
+                App.ViewModel.SyncWithService();
+            };
+                    
+            this.PushViewController(dialogViewController, false);
+        }
+        
+        private void CreateAddButtons()
+        {
+            // get all the lists
+            lists = (from it in App.ViewModel.Items 
+                          where it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
+                          orderby it.Name ascending
+                          select it).ToList();
+            // create a list of buttons - one for each list
+            buttonList = (from it in lists
+                          select new Button() 
+                          {
+                              Background = "Images/darkgreybutton.png", 
+                              Caption = it.Name, 
+                              Clicked = AddButton_Click 
+                          }).ToList();
+            
+            // clear the button rows
+            for (int i = 0; i < AddButtons.Length; i++) 
+                AddButtons[i] = null;
+            
+            // assemble the buttons into rows (maximum of six buttons and two rows)
+            // if there are three or less buttons, one row
+            // otherwise distribute evenly across two rows
+            int count = Math.Min(buttonList.Count, MaxLists);
+            int firstrow = count, secondrow = 0, addButtonsRow = 0;
+            if (count > MaxLists / 2)
+            {
+                firstrow = count / 2;
+                secondrow = count - firstrow;
+            }
+            if (firstrow > 0) 
+            {
+                AddButtons[addButtonsRow++] = new ButtonListElement()
+                {
+                    buttonList.Take(firstrow)
+                };
+            }
+            if (secondrow > 0)
+            {
+                AddButtons[addButtonsRow++] = new ButtonListElement()
+                {
+                    buttonList.Skip(firstrow).Take(secondrow)
+                };
+            }
+            
+            // create a last "row" of buttons containing only one "More..." button which will bring up the folder/list page
+            AddButtons[addButtonsRow] = new ButtonListElement() 
+            { 
+                new Button() 
+                {
+                    Background = "Images/darkgreybutton.png", 
+                    Caption = "More...", 
+                    Clicked = (s, e) => 
+                    {
+                        // assemble a page which contains a hierarchy of every folder and list, grouped by folder 
+                        ListsRootElement = new RootElement("Add to list:")              
+                        {
+                            from f in App.ViewModel.Folders
+                                orderby f.Name ascending
+                                group f by f.Name into g
+                                select new Section() 
+                                {
+                                    new StyledStringElement(g.Key, delegate { AddItemToFolder(g.Key); }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
+                                    from hs in g 
+                                        from it in App.ViewModel.Items 
+                                            where it.FolderID == hs.ID && it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
+                                            orderby it.Name ascending
+                                            select (Element) new StyledStringElement("        " + it.Name, delegate { AddItem(hs, it); }) { Image = new UIImage("Images/179-notepad.png") }
+                                }
+                        };
+                        var dvc = new DialogViewController(ListsRootElement);
+                        dvc.Title = (Name.Value == null || Name.Value == "") ? "Navigate to:" : "Add " + Name.Value + " to:";
+                        dialogViewController.NavigationController.PushViewController(dvc, true); 
+                    }
+                }
+            };                        
         }
         
         #endregion

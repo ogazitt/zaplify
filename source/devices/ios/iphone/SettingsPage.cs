@@ -21,6 +21,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		private EntryElement Password;
 		private CheckboxElement MergeCheckbox;
         private bool accountOperationSuccessful = false;
+        private DialogViewController dvc = null;
 				
 		public SettingsPage()
 		{
@@ -36,35 +37,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// trace event
             TraceHelper.AddMessage("Settings: ViewDidAppear");
 			
-			// initialize controls
-			user = App.ViewModel.User;	
-			Username = new EntryElement("Email", "Enter email", user != null ? user.Name : "");
-			Password = new EntryElement("Password", "Enter password", user != null ? user.Password : "", true);
-			MergeCheckbox = new CheckboxElement("Merge local data?", true);
-			
-			var root = new RootElement("Settings")
-			{
-				new Section("Account")
-				{
-					Username,
-					Password,
-					MergeCheckbox,
-				},
-				new Section()
-				{
-					new ButtonListElement() 
-					{
-						new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
-						new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
-					},
-				},
-			};
-
-			// push the view onto the nav stack
-			var dvc = new DialogViewController(root);
-			dvc.NavigationItem.HidesBackButton = true;	
-			dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
-			this.PushViewController(dvc, false);
+            if (dvc == null)
+                InitializeComponent();
+            
+            // initialize controls
+            user = App.ViewModel.User;  
+            Username.Value = user != null ? user.Name : "";
+            Password.Value = user != null ? user.Password : "";
 			
 			base.ViewDidAppear (animated);
 		}
@@ -74,7 +53,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			if (accountOperationSuccessful)
 			{
 			}
-			base.ViewDidDisappear (animated);
+			base.ViewDidDisappear(animated);
 		}
 		
 		void CreateUserButton_Click (object sender, EventArgs e)
@@ -244,6 +223,43 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         }
 		
 		#endregion
+            
+        #region Helpers
+        
+        private void InitializeComponent()
+        {
+            // initialize controls
+            user = App.ViewModel.User;  
+            Username = new EntryElement("Email", "Enter email", "");
+            Password = new EntryElement("Password", "Enter password", "", true);
+            MergeCheckbox = new CheckboxElement("Merge local data?", true);
+            
+            var root = new RootElement("Settings")
+            {
+             new Section("Account")
+             {
+                 Username,
+                 Password,
+                 MergeCheckbox,
+             },
+             new Section()
+             {
+                 new ButtonListElement() 
+                 {
+                     new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
+                     new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
+                 },
+             },
+            };
+            
+            // push the view onto the nav stack
+            dvc = new DialogViewController(root);
+            dvc.NavigationItem.HidesBackButton = true;  
+            dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
+            this.PushViewController(dvc, false);
+        }
+        
+        #endregion Helpers
 	}
 }
 
