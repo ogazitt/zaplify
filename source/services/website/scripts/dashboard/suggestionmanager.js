@@ -76,57 +76,31 @@ SuggestionManager.prototype.addContact = function (suggestion) {
         if (item.HasField(FieldNames.Contacts)) {
             var contact = $.parseJSON(suggestion.Value);
         }
-        var contactsList = item.GetFieldValue(FieldNames.Contacts,
-            function (list) {
-                if (list != null && list.IsList) {
+        // local function for adding Contact 
+        var addContactFunc = function (list) {
+            if (list != null && list.IsList) {
+                // create and insert the contact reference
+                var contactRef = $.extend(new Item(), {
+                    Name: contact.Name,
+                    ItemTypeID: ItemTypes.Reference,
+                    FolderID: contact.FolderID,
+                    ParentID: list.ID,
+                    UserID: contact.UserID
+                });
+                contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
+                list.InsertItem(contactRef, null, null, null);
 
-                    /* 2012-03-23 OG: inserted the following code */
-                    // create and insert the contact reference
-                    var contactRef = $.extend(new Item(), {
-                        Name: contact.Name,
-                        ItemTypeID: ItemTypes.Reference,
-                        FolderID: contact.FolderID,
-                        ParentID: list.ID,
-                        UserID: contact.UserID
-                    });
-                    contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
-                    list.InsertItem(contactRef, null, null, null);
+                // create and insert the contact itself into default 'Contacts' folder
+                var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
+                contact.FolderID = contactFolder.ID;
+                contactFolder.InsertItem(contact, null, null, item);
+            }
+        }
 
-                    // create and insert the contact itself in the "People" folder
-                    for (var folderID in DataModel.Folders)
-                        if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
-                            break;
-                    var folder = DataModel.Folders[folderID];
-                    //var contactFolder = 
-                    contact.FolderID = folder.ID;
-                    folder.InsertItem(contact, null, null, item);
-                    /* 2012-03-23 OG: end inserted code */
-                }
-            });
+        // will return null if addContactFunc is called, otherwise need to call it
+        var contactsList = item.GetFieldValue(FieldNames.Contacts, addContactFunc);
         if (contactsList != null && contactsList.IsList) {
-            /* 2012-03-23 OG: commented out the code below */
-            //contactsList.InsertItem(contact);
-
-            /* 2012-03-23 OG: inserted the following code */
-            // create and insert the contact reference
-            var contactRef = $.extend(new Item(), {
-                Name: contact.Name,
-                ItemTypeID: ItemTypes.Reference,
-                FolderID: contactsList.FolderID,
-                ParentID: contactsList.ID,
-                UserID: contactsList.UserID
-            });
-            contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
-            contactsList.InsertItem(contactRef, null, null, null);
-
-            // create and insert the contact itself in the "People" folder
-            for (var folderID in DataModel.Folders)
-                if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
-                    break;
-            var folder = DataModel.Folders[folderID];
-            contact.FolderID = folder.ID;
-            folder.InsertItem(contact, null, null, item);
-            /* 2012-03-23 OG: end inserted code */
+            addContactFunc(contactsList);
         }
     }
     return this.chooseSuggestion(suggestion);

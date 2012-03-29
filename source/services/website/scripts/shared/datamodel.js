@@ -64,11 +64,11 @@ DataModel.FindItem = function DataModel$FindItem(itemID) {
 }
 
 // generic helper for finding default folder or list for given ItemType
-// TODO: support default folder or list as database property
+// TODO: support user defaults stored in hidden System folder
 DataModel.FindDefault = function DataModel$FindDefault(itemType) {
     for (id in DataModel.Folders) {
         var folder = DataModel.Folders[id];
-        if (folder.ItemType == itemType) {
+        if (folder.ItemTypeID == itemType) {
             return folder;
         }
     }
