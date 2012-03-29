@@ -240,6 +240,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>FieldValue found/created or null</returns>
         protected FieldValue GetFieldValue(Item item, string fieldName, bool create)
         {
+            /*
             Field field = null;
             try
             {
@@ -250,9 +251,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 return null;
             }
+             * */
             try
             {
-                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldName == fieldName);
                 return contactsField;
             }
             catch (Exception)
@@ -261,7 +263,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 {
                     FieldValue fv = new FieldValue()
                     {
-                        FieldID = field.ID,
+                        FieldName = fieldName,
                         ItemID = item.ID,
                     };
                     item.FieldValues.Add(fv);

@@ -19,61 +19,6 @@ namespace BuiltSteady.Zaplify.MailWorker
         static string ListMarker = @"#list:";
         const int timeout = 30000;  // 30 seconds
 
-        static Guid completeField;
-        static Guid CompleteField
-        {
-            get
-            {
-                if (completeField == Guid.Empty)
-                    completeField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Complete && f.ItemTypeID == SystemItemTypes.Task).ID;
-                return completeField;
-            }
-        }
-
-        static Guid phoneField;
-        static Guid PhoneField
-        {
-            get
-            {
-                if (phoneField == Guid.Empty)
-                    phoneField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Phone && f.ItemTypeID == SystemItemTypes.Task).ID;
-                return phoneField;
-            }
-        }
-
-        static Guid emailField;
-        static Guid EmailField
-        {
-            get
-            {
-                if (emailField == Guid.Empty)
-                    emailField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.Email && f.ItemTypeID == SystemItemTypes.Task).ID;
-                return phoneField;
-            }
-        }
-
-        static Guid websiteField;
-        static Guid WebsiteField
-        {
-            get
-            {
-                if (websiteField == Guid.Empty)
-                    websiteField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.WebLink && f.ItemTypeID == SystemItemTypes.Task).ID;
-                return websiteField;
-            }
-        }
-
-        static Guid dueDateField;
-        static Guid DueDateField
-        {
-            get
-            {
-                if (dueDateField == Guid.Empty)
-                    dueDateField = Storage.StaticUserContext.Fields.Single(f => f.Name == FieldNames.DueDate && f.ItemTypeID == SystemItemTypes.Task).ID;
-                return dueDateField;
-            }
-        }
-
         public void Start()
         {
             TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker started");
@@ -243,7 +188,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 item.FieldValues.Add(new FieldValue()
                 {
                     ItemID = item.ID,
-                    FieldID = PhoneField,
+                    FieldName = FieldNames.Phone,
                     Value = m.Value
                 });
 
@@ -253,7 +198,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 item.FieldValues.Add(new FieldValue()
                 {
                     ItemID = item.ID,
-                    FieldID = EmailField,
+                    FieldName = FieldNames.Email,
                     Value = m.Value
                 });
 
@@ -263,7 +208,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 item.FieldValues.Add(new FieldValue()
                 {
                     ItemID = item.ID,
-                    FieldID = WebsiteField,
+                    FieldName = FieldNames.WebLink,
                     Value = m.Value
                 });
 
@@ -275,7 +220,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 item.FieldValues.Add(new FieldValue()
                 {
                     ItemID = item.ID,
-                    FieldID = DueDateField,
+                    FieldName = FieldNames.DueDate,
                     Value = ((DateTime) Convert.ToDateTime(m.Value)).ToString("yyyy/MM/dd")
                 });
             }
@@ -322,7 +267,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                         // get current item's value for this field
                         try
                         {
-                            fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                            fieldValue = item.FieldValues.Single(fv => fv.FieldName == field.Name);
                             currentValue = fieldValue.Value;
                         }
                         catch (Exception)
@@ -391,7 +336,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                     FieldValue fv = new FieldValue()
                     {
                         ItemID = item.ID,
-                        FieldID = CompleteField,
+                        FieldName = FieldNames.Complete,
                         Value = "False"
                     };
                     item.FieldValues.Add(fv);
