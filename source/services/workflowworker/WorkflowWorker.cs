@@ -191,7 +191,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // get current item's value for this field
                 try
                 {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldID == field.ID);
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == field.Name);
                     currentValue = fieldValue.Value;
                 }
                 catch (Exception)

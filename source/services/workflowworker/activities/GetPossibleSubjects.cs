@@ -186,14 +186,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 string sources = String.Join(",", subject.IDs.Select(id => id.Source));
                 fieldValues.Add(new FieldValue()
                 {
-                    FieldID = new Guid("00000000-0000-0000-0000-00000000003A"), // hardcode to the sources field for now
+                    FieldName = FieldNames.Sources,
                     ItemID = itemID,
                     Value = sources
                 });
                 string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
                 fieldValues.Add(new FieldValue()
                 {
-                    FieldID = new Guid("00000000-0000-0000-0000-000000000039"), // hardcode to the FBID field for now
+                    FieldName = FieldNames.FacebookID,
                     ItemID = itemID,
                     Value = fbID  
                 });

@@ -49,20 +49,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid fieldID;
+        private string fieldName;
         [DataMember]
-        public Guid FieldID
+        public string FieldName
         {
             get
             {
-                return fieldID;
+                return fieldName;
             }
             set
             {
-                if (value != fieldID)
+                if (value != fieldName)
                 {
-                    fieldID = value;
-                    NotifyPropertyChanged("FieldID");
+                    fieldName = value;
+                    NotifyPropertyChanged("FieldName");
                 }
             }
         }
