@@ -41,6 +41,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			while (clicked == -1)
 			{
     			NSRunLoop.Current.RunUntil (NSDate.FromTimeIntervalSinceNow (0.5));
+                if (messageBox.BecomeFirstResponder() == false)
+                    break;
 			}
 			
 			if (clicked == 0)

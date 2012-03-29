@@ -217,7 +217,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             {
                                 TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
                                                                      item.Name, item.ID, item.ItemRef));
-                                return;
+                                break;
                             }
                         }
 		                ItemPage itemPage = new ItemPage(controller.NavigationController, item);
@@ -263,6 +263,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     {
                         TraceHelper.AddMessage(String.Format("Couldn't find item reference for name {0}, id {1}, ref {2}", 
                                                              item.Name, item.ID, item.ItemRef));
+                        break;
                     }
                 }
                 

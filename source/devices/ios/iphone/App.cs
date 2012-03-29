@@ -49,13 +49,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// trace event
 			TraceHelper.StartMessage("App: Loaded");
           
-			// create a new window instance based on the screen size
-			window = new UIWindow (UIScreen.MainScreen.Bounds);
-			
+            // if data isn't loaded from storage yet, load the app data
+            if (!App.ViewModel.IsDataLoaded)
+            {
+                // Load app data from local storage (user creds, about tab data, constants, item types, folders, etc)
+                App.ViewModel.LoadData();
+            }
+         
+            // create pages
 			var add = new AddPage();
 			var calendar = new CalendarPage();
 			var folders = new UINavigationController(new FoldersViewController (UITableViewStyle.Plain));
-			//var settings = new SettingsViewController ();
 			var settings = new SettingsPage();
 			var more = new UINavigationController(new MoreViewController());
 			
@@ -74,24 +78,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				v.LoadView();
 			};
 			
-            // if data isn't loaded from storage yet, load the app data
-            if (!App.ViewModel.IsDataLoaded)
-            {
-                // Load app data from local storage (user creds, about tab data, constants, item types, folders, etc)
-                App.ViewModel.LoadData();
-            }
-			
             // if haven't synced with web service yet, try now
             if (initialSync == false)
             {
-                // attempt to sync with the Service
                 App.ViewModel.SyncWithService();
-
                 initialSync = true;
             }
 
-			window.RootViewController = tabBarController;
-			window.MakeKeyAndVisible ();
+            // create a new window instance based on the screen size
+            window = new UIWindow (UIScreen.MainScreen.Bounds);
+            if (UIDevice.CurrentDevice.CheckSystemVersion(4, 0)) 
+                window.RootViewController = tabBarController;
+            else
+                window.AddSubview(tabBarController.View);
+			window.MakeKeyAndVisible();
 			
             // trace exit
             TraceHelper.AddMessage("Exiting App Loaded");
