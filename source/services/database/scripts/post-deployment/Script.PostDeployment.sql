@@ -57,7 +57,7 @@ GO
 /****** Object:  Table [dbo].[Fields]    ******/
 /* Task */
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000011', N'Name', N'String', N'00000000-0000-0000-0000-000000000001', N'Name', N'Text', 1, 1)
-INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000012', N'Priority', N'Integer', N'00000000-0000-0000-0000-000000000001', N'Priority', N'Priority', 1, 2)
+INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000012', N'Priority', N'Integer', N'00000000-0000-0000-0000-000000000001', N'Priority', N'Hidden', 1, 2)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000013', N'DueDate', N'DateTime', N'00000000-0000-0000-0000-000000000001', N'Due', N'DatePicker', 1, 3)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000014', N'ReminderDate', N'DateTime', N'00000000-0000-0000-0000-000000000001', N'Reminder', N'DatePicker', 1, 4)
 INSERT [dbo].[Fields] ([ID], [Name], [FieldType], [ItemTypeID], [DisplayName], [DisplayType], [IsPrimary], [SortOrder]) VALUES (N'00000000-0000-0000-0000-000000000015', N'Description', N'String', N'00000000-0000-0000-0000-000000000001', N'Details', N'TextArea', 0, 5)

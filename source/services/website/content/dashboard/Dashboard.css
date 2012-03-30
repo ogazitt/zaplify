@@ -12,10 +12,10 @@ Dashboard
     padding: 5px 0 5px 0;
     width: 200px;
     min-height: 360px;
-    background-color: #EEECE1;
+    background-color: #ECECE6;
     border-width: 0px 1px 1px 0px;
     border-style: solid;
-    border-color: #C4BD97;
+    border-color: #C0C0B2;
     border-bottom-right-radius: 6px;
 }
 
@@ -68,7 +68,7 @@ Dashboard Folders
     margin: 1px 10px 0 10px;
     width: 178px;
     min-height: 132px;
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     background-color: white;
@@ -84,19 +84,19 @@ Dashboard Folders
     padding: 2px;
     max-height: 18px;
     overflow: hidden;
-    background-color: #DDD9C3;
-    border-bottom: 1px solid #C4BD97;
+    background-color: #DADAD2;
+    border-bottom: 1px solid #C0C0B2;
 }
-.item-list-button.selected { background-color: #ECE4B2; }
+.item-list-button.selected { background-color: #ECE6C8; }
 .item-list-button.expanded { font-weight: bold; }
 
 .item-button {
     padding: 2px;
-    border-bottom: 1px solid #DDD9C3;
+    border-bottom: 1px solid #DADAD2;
     overflow:hidden;
     max-height: 34px;
 }
-.item-button.selected, .item-button:hover { background-color: #F5F0D2; }
+.item-button.selected, .item-button:hover { background-color: #F4F2E0; }
 
 .indent-1 { padding-left: 12px; }
 
@@ -140,7 +140,7 @@ Dashboard Suggestions
     cursor: pointer;
     margin: 1px 10px 0 10px;
     width: 178px;
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     background-color: white;
@@ -154,7 +154,7 @@ Dashboard Suggestions
     overflow:hidden;
     max-height: 34px;
 }
-.choice-button:hover { background-color: #F5F0D2; }
+.choice-button:hover { background-color: #F4F2E0; }
 
 /*----------------------------------------------------------
 Dashboard Toolbar
@@ -164,10 +164,10 @@ Dashboard Toolbar
     width: 100% - 12px;
     height: 32px;
     padding: 6px 6px 6px 6px;
-    background-color: #EEECE1;
+    background-color: #ECECE6;
     border-width: 0px 1px 1px 0px;
     border-style: solid;
-    border-color: #C4BD97;
+    border-color: #C0C0B2;
     border-bottom-right-radius: 6px;
 }
 
@@ -180,13 +180,13 @@ Dashboard Toolbar
     border: 1px solid transparent;
 }
 
-.toolbar-button:hover { background-color: #ECE4B2; border-color: #C4BD97;}
+.toolbar-button:hover { background-color: #ECE6C8; border-color: #C0C0B2;}
 .toolbar-button.disabled { opacity:0.4; filter:alpha(opacity=40); }
 .toolbar-button.disabled:hover { background-color: transparent; border-color: transparent; }
 
-.tool-separator { padding-right: 5px; margin-right: 10px; border-right: 1px solid #C4BD97; }
-.tool-separator.disabled { border-right: 1px solid #C4BD97; }
-.tool-separator.disabled:hover { border-right: 1px solid #C4BD97; }
+.tool-separator { padding-right: 5px; margin-right: 10px; border-right: 1px solid #C0C0B2; }
+.tool-separator.disabled { border-right: 1px solid #C0C0B2; }
+.tool-separator.disabled:hover { border-right: 1px solid #C0C0B2; }
 
 .add-folder {
     display: inline-block; width: 32px; height: 32px;

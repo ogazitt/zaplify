@@ -193,39 +193,39 @@ Dialogs and Forms
     width: 120px;
     height: 28px;
     text-align: center;
-    Xbackground: transparent url(images/redbutton.png) no-repeat;
 }
 
 fieldset {
     margin: 10px 0;
     padding: 12px;
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     max-width: 460px;
 }
 
 legend {
-    color: #948A54;
+    color: #7C7C70;
     font-size: 1.2em;
     padding: 0 4px;
 }
 
 textarea {
     min-height: 75px;
+    background-color: #ECECE6;
 }
 
 input[type="text"], 
 input[type="password"] {
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     padding: 2px 3px 2px 3px;
     margin-top: 3px;
     font-size: 1em;
     color: #202030;
     width: 200px;
-    background-color: #EEECE1;
+    background-color: #ECECE6;
 }
 
 select {
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     padding: 2px;
     font-size: 1.2em;
     color: #202030;
