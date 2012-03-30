@@ -283,4 +283,24 @@ Item Fields
     margin-right: 6px;
 }
 
+/*----------------------------------------------------------
+Source icons
+----------------------------------------------------------*/
+
+.fb-icon {
+    height: 16px; width: 16px;
+    display: inline-block;
+    float: right;
+    margin: 2px 2px 0 0;
+    background: transparent url(images/facebook.png) no-repeat;
+}
+
+.azure-icon {
+    height: 16px; width: 16px;
+    display: inline-block;
+    float: right;
+    margin: 2px 2px 0 0;
+    background: transparent url(images/azure.png) no-repeat;
+}
+
 

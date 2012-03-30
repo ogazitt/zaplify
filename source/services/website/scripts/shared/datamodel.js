@@ -713,6 +713,7 @@ var FieldTypes = {
 // DisplayTypes constants
 
 var DisplayTypes = {
+    Hidden: "Hidden",
     Text : "Text",
     TextArea : "TextArea",
     Checkbox : "Checkbox",

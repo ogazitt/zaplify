@@ -42,6 +42,26 @@ Control.ellipsis = function Control$ellipsis(element, height) {
     }
 }
 
+// append source icons for an item
+Control.renderSourceIcons = function Control$renderSourceIcons($element, item) {
+    if (item.HasField(FieldNames.Sources)) {
+        var sources = item.GetFieldValue(FieldNames.Sources);
+        if (sources != null) {
+            sources = sources.split(",");
+            for (var i in sources) {
+                switch (sources[i]) {
+                    case "Facebook":
+                        $element.append('<div class="fb-icon" />');
+                        break;
+                    case "Directory":
+                        $element.append('<div class="azure-icon" />');
+                        break;
+                }
+            }
+        }
+    }
+}
+
 // ---------------------------------------------------------
 // Dashboard static object - manages controls for dashboard
 // assumes there are three panes marked by classes:
@@ -87,7 +107,7 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
-    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderList.render(".dashboard-folders", Dashboard.dataModel.Folders);
     Dashboard.ManageFolder(folderID, itemID);
 }
 

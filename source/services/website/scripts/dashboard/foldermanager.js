@@ -53,7 +53,6 @@ FolderManager.prototype.selectFolder = function (folder) {
         }
         this.managerHelp.hide();
         this.listEditor.render(this.container);
-        //this.listEditor.inputValue('');
         this.listEditor.show();
     } else {
         this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
@@ -66,6 +65,7 @@ FolderManager.prototype.selectItem = function (item) {
     this.currentItem = item;
     if (this.currentItem != null) {
         this.currentFolder = this.currentItem.GetFolder();
+        this.managerHelp.hide();
         if (this.currentItem.IsList) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);
@@ -73,6 +73,7 @@ FolderManager.prototype.selectItem = function (item) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
             this.listEditor.render(this.container);
         }
+        this.listEditor.show();
     } else {
         this.selectFolder(this.currentFolder);
     }
@@ -415,13 +416,12 @@ ItemEditor.prototype.renderNameField = function (container, mode) {
 ItemEditor.prototype.renderField = function (container, field) {
     if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
         return;
-    if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
-        return;
 
     var $field, $wrapper;
     var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
 
     switch (field.DisplayType) {
+        case DisplayTypes.Hidden:
         case DisplayTypes.Reference:
         case DisplayTypes.TagList:
             break;

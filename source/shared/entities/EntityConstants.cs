@@ -129,6 +129,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class DisplayTypes
     {
+        public const string Hidden = "Hidden";
         public const string Text = "Text";
         public const string TextArea = "TextArea";
         public const string Checkbox = "Checkbox";

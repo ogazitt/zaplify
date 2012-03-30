@@ -8,6 +8,10 @@
 function FolderList(folders) {
     // fires notification when selected folder changes
     this.onSelectionChangedHandlers = {};
+    this.init(folders);
+}
+
+FolderList.prototype.init = function (folders) {
     this.folders = folders;
     this.selectedFolderID = null;
     this.selectedItemID = null;
@@ -48,7 +52,10 @@ FolderList.prototype.fireSelectionChanged = function (folderID, itemID) {
     }
 }
 
-FolderList.prototype.render = function (container) {
+FolderList.prototype.render = function (container, folders) {
+    if (folders != null) {
+        this.init(folders);
+    }
     this.$element = $(container).empty();
     this.getFolderButtons();
     for (var i in this.folderButtons) {
@@ -191,6 +198,8 @@ ItemButton.prototype.render = function (container) {
     this.$element.addClass(this.indent);
     this.$element.click(function () { Control.get(this).select(); });
     this.$element.append('<span>' + this.item.Name + '</span>');
+
+    Control.renderSourceIcons(this.$element, this.item);
 
     if (this.item.ViewState.Select) {
         this.select(false);
