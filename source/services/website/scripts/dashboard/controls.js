@@ -134,6 +134,7 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
     if (refresh) {      // refresh more suggestions
         // check for more suggestions every 5 seconds for 20 seconds
         $('.working').show();
+        Dashboard.suggestionList.hideGroup(suggestion.groupID);
         var nTries = 0;
         var checkPoint = new Date();
 

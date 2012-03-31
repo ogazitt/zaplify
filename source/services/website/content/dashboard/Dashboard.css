@@ -105,15 +105,14 @@ Dashboard Suggestions
 ----------------------------------------------------------*/
 .working {
     position:absolute;
-    top: -8px;
-    right: 35px;
+    top: 10px;
+    right: 92px;
     display: none;
-    width: 128px;
-    height: 15px;
+    width: 16px;
+    height: 11px;
     background: transparent url(images/busy.gif) no-repeat;
-    opacity:0.5; filter:alpha(opacity=50);
+    opacity:0.4; filter:alpha(opacity=40);
 }
-
 
 .group-button {
     font-weight: bold;

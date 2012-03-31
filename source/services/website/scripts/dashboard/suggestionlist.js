@@ -55,6 +55,16 @@ SuggestionList.prototype.render = function (container, suggestions) {
     }
 }
 
+SuggestionList.prototype.hideGroup = function (groupID) {
+    for (var i in this.groupButtons) {
+        var button = this.groupButtons[i];
+        if (button.group.groupID == groupID) {
+            button.hide();
+            break;
+        }
+    }
+}
+
 // ---------------------------------------------------------
 // GroupButton control
 function GroupButton(parentControl, group) {
@@ -73,6 +83,11 @@ GroupButton.prototype.render = function (container) {
         var $container = $('<div class="group-choices"></div>').insertAfter(this.$element);
         choiceList.render($container);
     }
+}
+
+GroupButton.prototype.hide = function () {
+    Control.animateCollapse(this.$element.next());
+    Control.animateCollapse(this.$element);
 }
 
 // ---------------------------------------------------------
