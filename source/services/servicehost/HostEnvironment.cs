@@ -6,6 +6,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
     // avoid loading Azure assemblies unless running in Azure
     using Azure = Microsoft.WindowsAzure;
+using System.Globalization;
 
     public static class HostEnvironment
     {
@@ -85,9 +86,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         static bool IsAzureDevFabricConfigured()
-        {   // inspect diagnostics storage setting to determine if using DevFabric 
-            string diagnosticsSetting = ConfigurationSettings.Get(AzureDiagnosticsConnectionString);
-            return diagnosticsSetting.StartsWith("UseDevelopmentStorage", StringComparison.OrdinalIgnoreCase);
+        {   // inspect deployment id to determine if using DevFabric 
+            return AzureDeploymentId.StartsWith("deployment", true, CultureInfo.InvariantCulture);
         }
 
 
