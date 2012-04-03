@@ -328,7 +328,7 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
         var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
         var groupID = groupNameMap[groupKey];
         if (groupID === undefined) {
-            groupID = (s.GroupDisplayName == FieldNames.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
+            groupID = (s.GroupDisplayName == SuggestionTypes.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
             groupNameMap[groupKey] = groupID;
             suggestions[groupID] = { GroupID: groupID, DisplayName: s.GroupDisplayName, Suggestions: {} };
         }
@@ -682,21 +682,26 @@ var FieldNames = {
 
     FacebookID: "FacebookID",               // String
     Intent: "Intent",                       // String
-    Likes: "Likes",                         // comma-delimited string
     Sources: "Sources",                     // String
-    SubjectHint: "SubjectHint",             // String
-    SuggestedLink: "SuggestedLink",         // URL
-
-    RefreshEntity: "RefreshEntity",         // Action
-    FacebookConsent: "FacebookConsent",     // Action
-    CloudADConsent: "CloudADConsent"        // Action
 };
 
 // ---------------------------------------------------------
 // FieldTypes constants
 
+var SuggestionTypes = {
+    ChooseOne: "ChooseOne",  
+    ChooseMany: "ChooseMany",  
+    GetFBConsent: "GetFBConsent",  
+    GetADConsent: "GetADConsent",
+    NavigateLink: "NavigateLink",
+    RefreshEntity: "RefreshEntity"
+}
+
+// ---------------------------------------------------------
+// FieldTypes constants
+
 var FieldTypes = {
-    String : "String",
+    String: "String",
     Boolean : "Boolean",
     Integer : "Integer",
     DateTime : "DateTime",

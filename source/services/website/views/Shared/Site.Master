@@ -13,11 +13,12 @@
     var domainUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
     var siteUrl = ResolveUrl("~/");
     var resourceUrl = siteUrl;
+    var fbAppID = BuiltSteady.Zaplify.Website.Controllers.BaseController.FBAppID;
 %>
     <script type="text/javascript">
         // document ready handler
         $(function () {
-            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>", "<%=domainUrl %>")
+            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>", "<%=domainUrl %>", "<%=fbAppID %>")
         });
     </script>
 

@@ -7,6 +7,11 @@
       <Setting name="SQLAzure" value="data source=kpfc7hoc39.database.windows.net;Initial Catalog=zaplify_032912;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev2;AccountKey=dZAAyMjmI0Ec1VItdf2pJ5uD9Hr8lkMj6aYi7oqRDTVqAXlWZWPH2JmttLsiuB6xgCQfCfFn73AdgJ3L6JD9iw==" />
+
+      <!-- Facebook Application 'ZaplifyDev2' -->
+      <Setting name="FBAppID" value="329034793824754"/>
+      <Setting name="FBAppSecret" value="1caa1ea5bb4a9a6ee4adb64be0080b7d"/>
+
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev2;AccountKey=dZAAyMjmI0Ec1VItdf2pJ5uD9Hr8lkMj6aYi7oqRDTVqAXlWZWPH2JmttLsiuB6xgCQfCfFn73AdgJ3L6JD9iw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

@@ -10,6 +10,32 @@
     [Authorize]
     public class BaseController : Controller
     {
+        static string fbAppID;
+        public static string FBAppID
+        {
+            get
+            {
+                if (fbAppID == null)
+                {
+                    fbAppID = ConfigurationSettings.Get("FBAppID");
+                }
+                return fbAppID;
+            }
+        }
+
+        static string fbAppSecret;
+        public static string FBAppSecret
+        {
+            get
+            {
+                if (fbAppSecret == null)
+                {
+                    fbAppSecret = ConfigurationSettings.Get("FBAppSecret");
+                }
+                return fbAppSecret;
+            }
+        }
+
         User currentUser;
         public User CurrentUser
         {

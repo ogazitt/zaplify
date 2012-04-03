@@ -176,7 +176,7 @@ namespace BuiltSteady.Zaplify.Website
                 try
                 {   // timestamp suggestion
                     SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.FieldName == FieldNames.CloudADConsent);
+                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.FieldName == SuggestionTypes.GetADConsent);
                     suggestion.TimeSelected = DateTime.UtcNow;
                     suggestion.ReasonSelected = Reasons.Chosen;
                     suggestionsContext.SaveChanges();

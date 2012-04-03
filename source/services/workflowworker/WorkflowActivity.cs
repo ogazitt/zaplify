@@ -341,10 +341,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 EntityType = entity.GetType().Name,
                 WorkflowType = workflowInstance.WorkflowType,
                 WorkflowInstanceID = workflowInstance.ID,
-                State = FieldNames.RefreshEntity,
-                FieldName = FieldNames.RefreshEntity,
-                DisplayName = FieldNames.RefreshEntity,
-                GroupDisplayName = FieldNames.RefreshEntity,
+                State = SuggestionTypes.RefreshEntity,
+                FieldName = SuggestionTypes.RefreshEntity,
+                DisplayName = SuggestionTypes.RefreshEntity,
+                GroupDisplayName = SuggestionTypes.RefreshEntity,
                 Value = null,
                 TimeSelected = null
             };

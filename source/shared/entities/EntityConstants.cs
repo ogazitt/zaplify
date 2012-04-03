@@ -85,15 +85,20 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         // non user-visible FieldNames
         public const string FacebookID = "FacebookID";      // String
         public const string Intent = "Intent";              // String
-        public const string Likes = "Likes";                // String (comma-delimited) 
         public const string Sources = "Sources";            // String (comma-delimited) 
+        
+        // TODO: this should be a WorkflowParameter, not a FieldName
         public const string SubjectHint = "SubjectHint";    // String
-        public const string SuggestedLink = "SuggestedLink"; // URL
+    }
 
-        // UX action FieldNames
-        public const string FacebookConsent = "FacebookConsent";
-        public const string CloudADConsent = "CloudADConsent";
-        public const string RefreshEntity = "RefreshEntity"; // indicates that the UI should refresh this item
+    public class SuggestionTypes
+    {
+        public const string ChooseOne = "ChooseOne";
+        public const string ChooseMany = "ChooseMany";
+        public const string GetFBConsent = "GetFBConsent";
+        public const string GetADConsent = "GetADConsent";
+        public const string NavigateLink = "NavigateLink";
+        public const string RefreshEntity = "RefreshEntity";
     }
 
     public class Reasons

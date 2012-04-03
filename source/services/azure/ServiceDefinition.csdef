@@ -11,6 +11,8 @@
       <Setting name="SQLAzure" />
       <Setting name="SQLExpress" />
       <Setting name="DataConnectionString" />
+      <Setting name="FBAppID" />
+      <Setting name="FBAppSecret" />
     </ConfigurationSettings>
   </WorkerRole>
   <WebRole name="Website" vmsize="ExtraSmall">

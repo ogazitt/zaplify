@@ -200,7 +200,7 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
 
 Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
     // process RefreshEntity suggestions
-    var group = suggestions[FieldNames.RefreshEntity];
+    var group = suggestions[SuggestionTypes.RefreshEntity];
     if (group != null) {
         for (var id in group.Suggestions) {
             var suggestion = group.Suggestions[id];
@@ -210,7 +210,7 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
             }
             Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Ignore);
         }
-        delete suggestions[FieldNames.RefreshEntity];
+        delete suggestions[SuggestionTypes.RefreshEntity];
     }
 
     Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
