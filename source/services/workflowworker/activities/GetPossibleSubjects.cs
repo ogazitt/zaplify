@@ -178,7 +178,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             // try to find an existing contact using matching heuristic
             bool found = false;
-            var contact = GetContact(subject);
+            var contact = GetContact(item.UserID, subject);
 
             // if the contact wasn't found, create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
@@ -219,12 +219,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             return contact;
         }
 
-        private Item GetContact(ADQueryResult subject)
+        private Item GetContact(Guid userid, ADQueryResult subject)
         {
             try
             {
                 // try to get an existing contact by name
-                var contact = WorkflowWorker.UserContext.Items.Single(i => i.ItemTypeID == SystemItemTypes.Contact && i.Name == subject.Name);
+                var contact = WorkflowWorker.UserContext.Items.
+                    Include("FieldValues").
+                    Single(i => i.UserID == userid && i.ItemTypeID == SystemItemTypes.Contact && i.Name == subject.Name);
 
                 // ensure that if a facebook ID exists, it matches the FBID of the subject just retrieved
                 var fbid = GetFieldValue(contact, FieldNames.FacebookID, false);

@@ -435,7 +435,7 @@
                 // BUGBUG: this is too simplistic - should iterate thru fieldvalue collection and do finer-grained conflict management
                 if (pi.Name == "FieldValues")
                 {   // if this is the FieldValues field make it simple - if this update is the last one, it wins
-                    if (newItem.LastModified > requestedItem.LastModified)
+                    if (newItem.LastModified >= requestedItem.LastModified)
                     {
                         pi.SetValue(requestedItem, newValue, null);
                         updated = true;
