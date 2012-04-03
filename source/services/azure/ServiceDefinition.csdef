@@ -33,6 +33,8 @@
       <Setting name="SQLAzure" />
       <Setting name="SQLExpress" />
       <Setting name="DataConnectionString" />
+      <Setting name="FBAppID" />
+      <Setting name="FBAppSecret" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">

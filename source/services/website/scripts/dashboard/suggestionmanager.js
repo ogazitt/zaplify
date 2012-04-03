@@ -13,12 +13,11 @@ SuggestionManager.prototype.select = function (suggestion) {
     var refresh = false;        // return true to indicate additional suggestions should be retrieved
     switch (suggestion.FieldName) {
         case FieldNames.Contacts: { refresh = this.addContact(suggestion); break; }
-            // TODO: how to manage keeping Likes and have dependent sub-suggestions 
-        case FieldNames.Likes: { refresh = this.chooseSuggestion(suggestion); break; }
-        case FieldNames.SuggestedLink: { refresh = this.navigateLink(suggestion); break; }
+        case SuggestionTypes.ChooseOne: { refresh = this.chooseSuggestion(suggestion); break; }
+        case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
-        case FieldNames.FacebookConsent: { refresh = this.getFacebookConsent(suggestion); break; }
-        case FieldNames.CloudADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
+        case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
+        case SuggestionsTypes.GetADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
 
         default: { refresh = this.chooseSuggestion(suggestion); break; }
     }

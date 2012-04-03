@@ -59,20 +59,15 @@
             return RedirectToAction("Home", "Dashboard");
         }
 
-        // redirect for getting facebook consent access token
-        // TODO: should define these constants is configuration
-        private const string fbAppId = "411772288837103";
-        private const string fbSecretKey = "88a4f4d70a8c4060aa15c593a36062ff";
-        private const string fbRedirectPath = "dashboard/facebook";
-
         public ActionResult Facebook(string code)
         {
+            const string fbRedirectPath = "dashboard/facebook";
             string uriTemplate = "https://graph.facebook.com/oauth/access_token?client_id={0}&redirect_uri={1}&client_secret={2}&code={3}";
 
             var requestUrl = this.HttpContext.Request.Url;
             var redirectUrl = string.Format("{0}://{1}/{2}", requestUrl.Scheme, requestUrl.Authority, fbRedirectPath);
             string encodedRedirect = HttpUtility.UrlEncode(redirectUrl);
-            string uri = string.Format(uriTemplate, fbAppId, encodedRedirect, fbSecretKey, code);
+            string uri = string.Format(uriTemplate, FBAppID, encodedRedirect, FBAppSecret, code);
 
             WebRequest req = WebRequest.Create(uri);
             WebResponse resp = req.GetResponse();
@@ -118,7 +113,7 @@
             try
             {   // timestamp suggestion
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.FieldName == FieldNames.FacebookConsent);
+                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.FieldName == SuggestionTypes.GetFBConsent);
                 suggestion.TimeSelected = DateTime.UtcNow;
                 suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
@@ -274,14 +269,14 @@
                 Suggestion connectToFacebook = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", SortOrder = 1, FieldName = FieldNames.FacebookConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", SortOrder = 1, FieldName = SuggestionTypes.GetFBConsent,
                     WorkflowInstanceID = Guid.NewGuid(), WorkflowType="InitializeUser"
                 };
                 suggestionsContext.Suggestions.Add(connectToFacebook);
                 Suggestion connectToCloudAD = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", SortOrder = 2, FieldName = FieldNames.CloudADConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", SortOrder = 2, FieldName = SuggestionTypes.GetADConsent, 
                     WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowType = connectToFacebook.WorkflowType
                 };
                 suggestionsContext.Suggestions.Add(connectToCloudAD);

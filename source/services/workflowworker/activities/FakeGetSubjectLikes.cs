@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     public class FakeGetSubjectLikes : WorkflowActivity
     {
         public override string Name { get { return ActivityNames.GetSubjectLikes; } }
-        public override string TargetFieldName { get { return FieldNames.Likes; } }
+        public override string TargetFieldName { get { return SuggestionTypes.ChooseOne; } }
         public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get

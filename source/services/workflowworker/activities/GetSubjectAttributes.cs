@@ -10,7 +10,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     public class GetSubjectAttributes : WorkflowActivity
     {
         public override string Name { get { return ActivityNames.GetSubjectAttributes; } }
-        public override string TargetFieldName { get { return FieldNames.Likes; } }
+        public override string TargetFieldName { get { return SuggestionTypes.ChooseOne; } }
         public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get

@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     public class GetBingSuggestions : WorkflowActivity
     {
         public override string Name { get { return ActivityNames.GetBingSuggestions; } }
-        public override string TargetFieldName { get { return FieldNames.SuggestedLink; } }
+        public override string TargetFieldName { get { return SuggestionTypes.NavigateLink; } }
         public override Func<WorkflowInstance, ServerEntity, object, bool> Function
         {
             get

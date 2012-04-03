@@ -14,7 +14,6 @@ Service.resourceUrl = null;
 Service.domainUrl = null;
 Service.requestQueue = [];
 
-Service.fbAppId = "411772288837103";
 Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
 Service.fbRedirectPath = "dashboard/facebook";
 Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
@@ -25,10 +24,11 @@ Service.cloudADConsentUri = "dashboard/CloudAD";
 // ---------------------------------------------------------
 // public methods
 
-Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl) {
+Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
     this.siteUrl = siteUrl;
     this.resourceUrl = resourceUrl;
     this.domainUrl = domainUrl;
+    this.fbAppID = fbAppID;
     $('.header-content .logo').click(Service.NavigateToDashboard);
 }
 
@@ -53,7 +53,7 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
 }
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
-    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
+    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppID + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
     window.navigate(uri);
 }
 
