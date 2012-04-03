@@ -244,7 +244,7 @@
                 }
                 catch (Exception ex)
                 {   // check for the condition where the item is already in the database
-                    // in that case, return 202 Accepted; otherwise, return 409 Conflict
+                    // in that case, return 202 Accepted; otherwise, return 500 Internal Server Error
                     try
                     {
                         var dbItem = this.StorageContext.Items.Single(t => t.ID == clientItem.ID);
@@ -255,20 +255,20 @@
                         }
                         else
                         {
-                            TraceLog.TraceError("ItemResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
-                            return ReturnResult<Item>(req, operation, HttpStatusCode.Conflict);
+                            TraceLog.TraceException("ItemResource.Insert: Error inserting entity", ex);
+                            return ReturnResult<Item>(req, operation, HttpStatusCode.InternalServerError);
                         }
                     }
-                    catch (Exception e)
-                    {   // item not inserted - return 409 Conflict
-                        TraceLog.TraceError(String.Format("ItemResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
-                        return ReturnResult<Item>(req, operation, HttpStatusCode.Conflict);
+                    catch (Exception)
+                    {   // item not inserted - return 500 Internal Server Error
+                        TraceLog.TraceException("ItemResource.Insert: Error inserting entity", ex); 
+                        return ReturnResult<Item>(req, operation, HttpStatusCode.InternalServerError);
                     }
                 }
             }
             catch (Exception ex)
             {   // folder not found - return 404 Not Found
-                TraceLog.TraceError(String.Format("ItemResource.Delete: Not Found (folder); ex: " + ex.Message));
+                TraceLog.TraceException("ItemResource.Insert: Not Found (folder)", ex);
                 return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
             }
         }
