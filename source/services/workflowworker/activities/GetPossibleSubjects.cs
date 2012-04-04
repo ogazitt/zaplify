@@ -176,47 +176,71 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 SignalEntityRefresh(workflowInstance, item);
             }
 
-            // create an ID for the new contact
-            var itemID = Guid.NewGuid();
+            // try to find an existing contact using matching heuristic
+            bool found = false;
+            var contact = GetContact(item.UserID, subject);
 
-            // get the sources for the subject info, as well as the facebook ID of the subject if available
-            var fieldValues = new List<FieldValue>();
+            // if the contact wasn't found, create the new contact (detached) - it will be JSON-serialized and placed into 
+            // the suggestion value field
+            if (contact == null)
+                contact = new Item()
+                {
+                    ID = Guid.NewGuid(),
+                    Name = subject.Name,
+                    FolderID = item.FolderID,
+                    ItemTypeID = SystemItemTypes.Contact,
+                    ParentID = listID,
+                    UserID = item.UserID,
+                    FieldValues = new List<FieldValue>(),
+                    Created = now,
+                    LastModified = now,
+                };
+            else
+                found = true;
+
+            // add various FieldValues to the contact if available
             try
             {
+                // add sources
                 string sources = String.Join(",", subject.IDs.Select(id => id.Source));
-                fieldValues.Add(new FieldValue()
-                {
-                    FieldName = FieldNames.Sources,
-                    ItemID = itemID,
-                    Value = sources
-                });
+                if (found)
+                    sources = String.Format("{0}{1}{2}", sources, String.IsNullOrEmpty(sources) ? "" : ",", Sources.Local); 
+                GetFieldValue(contact, FieldNames.Sources, true).Value = sources;
+                // add birthday
+                if (subject.Birthday != null)
+                    GetFieldValue(contact, FieldNames.Birthday, true).Value = ((DateTime)subject.Birthday).ToString("d");
+                // add facebook ID
                 string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
-                fieldValues.Add(new FieldValue()
-                {
-                    FieldName = FieldNames.FacebookID,
-                    ItemID = itemID,
-                    Value = fbID  
-                });
+                if (fbID != null)
+                    GetFieldValue(contact, FieldNames.FacebookID, true).Value = fbID;
             }
             catch (Exception) { }
 
-            // create the new contact (detached) - it will be JSON-serialized and placed into 
-            // the suggestion value field
-
-            Item contact = new Item()
-            {
-                ID = itemID,
-                Name = subject.Name,
-                FolderID = item.FolderID,
-                ItemTypeID = SystemItemTypes.Contact,
-                ParentID = listID,
-                UserID = item.UserID,
-                FieldValues = fieldValues.Count > 0 ? fieldValues : null,
-                Created = now,
-                LastModified = now,
-            };
-
             return contact;
+        }
+
+        private Item GetContact(Guid userid, ADQueryResult subject)
+        {
+            try
+            {
+                // try to get an existing contact by name
+                var contact = WorkflowWorker.UserContext.Items.
+                    Include("FieldValues").
+                    Single(i => i.UserID == userid && i.ItemTypeID == SystemItemTypes.Contact && i.Name == subject.Name);
+
+                // ensure that if a facebook ID exists, it matches the FBID of the subject just retrieved
+                var fbid = GetFieldValue(contact, FieldNames.FacebookID, false);
+                var ids = subject.IDs.Where(id => id.Source == "Facebook").ToList();
+                if (ids.Count > 0 && fbid != null && fbid.Value != ids[0].Value)
+                    return null;
+
+                return contact;
+            }
+            catch (Exception)
+            {
+                // contact not found 
+                return null;
+            }
         }
     }
 }

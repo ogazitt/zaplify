@@ -89,6 +89,18 @@ SuggestionManager.prototype.addContact = function (suggestion) {
                 contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
                 list.InsertItem(contactRef, null, null, null);
 
+                // determine whether contact is new or existing
+                var contactItem = $.extend(new Item(), contact);
+                var sourcesFieldValue = contactItem.GetFieldValue(FieldNames.Sources);
+                if (sourcesFieldValue != null && sourcesFieldValue.indexOf(Sources.Local) != -1) {
+                    var existingContact = dataModel.FindItem(contact.ID);
+                    if (existingContact != null) {
+                        contact = $.extend(true, existingContact, contact);
+                        existingContact.Update(contact);
+                        return;
+                    }
+                }
+
                 // create and insert the contact itself into default 'Contacts' folder
                 var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
                 contact.FolderID = contactFolder.ID;

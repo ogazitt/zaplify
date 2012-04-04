@@ -240,18 +240,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>FieldValue found/created or null</returns>
         protected FieldValue GetFieldValue(Item item, string fieldName, bool create)
         {
-            /*
-            Field field = null;
-            try
-            {
-                ItemType itemType = WorkflowWorker.UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
-                field = itemType.Fields.Single(f => f.Name == fieldName);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-             * */
             try
             {
                 FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldName == fieldName);
@@ -266,6 +254,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         FieldName = fieldName,
                         ItemID = item.ID,
                     };
+                    if (item.FieldValues == null)
+                        item.FieldValues = new List<FieldValue>();
                     item.FieldValues.Add(fv);
                     return fv;
                 }

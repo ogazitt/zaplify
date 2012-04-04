@@ -172,4 +172,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public static bool IsFull(int permission)
         { return (permission == Full); }
     }
+
+    public class Sources
+    {
+        public const string Directory = "Directory";
+        public const string Facebook = "Facebook";
+        public const string Local = "Local";
+    }
 }

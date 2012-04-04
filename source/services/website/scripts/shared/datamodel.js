@@ -748,3 +748,11 @@ var Reasons = {
     Dislike: "Dislike"
 };
 
+// ---------------------------------------------------------
+// Sources constants
+
+var Sources = {
+    Directory : "Directory",
+    Facebook : "Facebook",
+    Local : "Local"
+};
