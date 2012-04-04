@@ -10,10 +10,10 @@ using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
-    public abstract class Workflow
+    public class Workflow
     {
-        public abstract string Name { get; }
-        public abstract List<WorkflowState> States { get; }
+        public virtual string Name { get; set; }
+        public virtual List<WorkflowState> States { get; set; }
 
         public static string LastStateData = "LastStateData";
 
@@ -97,8 +97,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         {
             try
             {
+                Workflow workflow = null;
+                if (WorkflowList.Workflows.TryGetValue(type, out workflow) == false)
+                {
+                    // get the workflow definition out of the database
+                    try
+                    {
+                        var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == type);
+                        workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceLog.TraceException("StartWorkflow: could not find or deserialize workflow definition", ex);
+                        return;
+                    }
+                }
                 // don't start a workflow with no states
-                Workflow workflow = WorkflowList.Workflows[type];
                 if (workflow.States.Count == 0)
                     return;
 

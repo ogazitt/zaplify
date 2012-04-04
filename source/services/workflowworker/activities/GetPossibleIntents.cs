@@ -79,12 +79,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             try
             {
                 Intent intent = WorkflowWorker.SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
-                Workflow workflow = null;
-                bool exists = WorkflowList.Workflows.TryGetValue(intent.Name, out workflow);
-                if (exists)
+                try
                 {
-                    suggestionList[intent.Name] = intent.Name;
+                    var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
+                    suggestionList[intent.Name] = wt.Type;
                     return true;  // exact match
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("GenerateSuggestions: could not find or deserialize workflow definition", ex);
+                    // try to recover by falling through the block below and generating intent suggestions for the user
                 }
             }
             catch (Exception)
