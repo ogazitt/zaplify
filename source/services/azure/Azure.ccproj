@@ -35,6 +35,7 @@
   </PropertyGroup>
   <!-- Items for the project -->
   <ItemGroup>
+    <ServiceConfiguration Include="ServiceConfiguration.Production.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Dev1.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Dev2.cscfg" />
     <ServiceDefinition Include="ServiceDefinition.csdef" />

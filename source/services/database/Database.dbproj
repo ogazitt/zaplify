@@ -140,5 +140,37 @@
     <Build Include="dbo.WorkflowTypes.Table.sql">
       <SubType>Code</SubType>
     </Build>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Colors.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Fields.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Intents.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.ItemTypes.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Permissions.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Priorities.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Users.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.WorkflowTypes.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.ActionTypes.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\Copy of Script.PostDeployment.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
   </ItemGroup>
 </Project>
