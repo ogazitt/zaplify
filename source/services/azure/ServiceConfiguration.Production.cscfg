@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
+  <Role name="WorkerRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Connection" value="SQLAzure" />
+      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032912;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
+      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEB2cloKeNwahRAgHEvMvVcYwDQYJKoZIhvcNAQEBBQAEggEAb3lmrVBd8+FjvkDDme1TTg8xxExsXPqeqqNbElJSexyFk5n0IvVukkYn6WTCOxvokHj5+gbQ0zjUaNy/xA8ZDSuLcxe6VldIRQWesk8xVc8MACjIgaNd0u8EC0+/xxdg01tw54fy5vyFH5UDPNK+vMPWI51kElRSSUwjDpAuPCOlI+tp/9HcXE3xdttsfoMJgQLCeTBKp1g/Dn6POhJsMp5Ct66ZZmB3y6mpA4l7gIN5O/tB1MpyTyDZBn/pLJ9JOY++aytP4FwzlPXso5UtSpz+MOUJ1Djpx2DL3700YkPpS7KEEpfRoInRgEB008As3i+wXDSRFUsAWMVh2g7zEjAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECIUHpMuoYQkZgBABe+diBIi2nVF6UMe8A3Jf" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2020-08-31T23:59:59.0000000-07:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="D19C2E1BBFDB2C6CCDF76EC64A34739610255066" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+  <Role name="Website">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Connection" value="SQLAzure" />
+      <Setting name="SQLAzure" value="data source=raobsl4g40.database.windows.net;Initial Catalog=zaplify_032912;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLExpress" value="data source=.\SQLEXPRESS;Initial Catalog=Zaplify;Integrated Security=SSPI" />
+      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+
+      <!-- Facebook Application 'Zaplify' -->
+      <Setting name="FBAppID" value="411772288837103"/>
+      <Setting name="FBAppSecret" value="88a4f4d70a8c4060aa15c593a36062ff"/>
+
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEB2cloKeNwahRAgHEvMvVcYwDQYJKoZIhvcNAQEBBQAEggEAb3lmrVBd8+FjvkDDme1TTg8xxExsXPqeqqNbElJSexyFk5n0IvVukkYn6WTCOxvokHj5+gbQ0zjUaNy/xA8ZDSuLcxe6VldIRQWesk8xVc8MACjIgaNd0u8EC0+/xxdg01tw54fy5vyFH5UDPNK+vMPWI51kElRSSUwjDpAuPCOlI+tp/9HcXE3xdttsfoMJgQLCeTBKp1g/Dn6POhJsMp5Ct66ZZmB3y6mpA4l7gIN5O/tB1MpyTyDZBn/pLJ9JOY++aytP4FwzlPXso5UtSpz+MOUJ1Djpx2DL3700YkPpS7KEEpfRoInRgEB008As3i+wXDSRFUsAWMVh2g7zEjAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECIUHpMuoYQkZgBABe+diBIi2nVF6UMe8A3Jf" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2020-08-31T23:59:59.0000000-07:00" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="D19C2E1BBFDB2C6CCDF76EC64A34739610255066" thumbprintAlgorithm="sha1" />
+    </Certificates>
+  </Role>
+</ServiceConfiguration>
