@@ -188,7 +188,6 @@
     <Content Include="content\images\panel-bkgnd.png" />
     <Content Include="content\images\panel-middle-bkgnd.png" />
     <Content Include="content\images\refresh.png" />
-    <Content Include="content\images\zapicon.png" />
     <Content Include="content\images\zaplogo.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_eeeeee_40x100.png" />
