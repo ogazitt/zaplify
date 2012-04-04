@@ -359,6 +359,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     if (this.$element == null) {
         this.$element = $('<div class="item-editor"></div>').appendTo(container);
     }
+
     if (folder == null && item == null)
         return;
     if (mode == null) {
@@ -366,7 +367,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     }
 
     var itemTypeID = (item != null) ? item.ItemTypeID : folder.ItemTypeID;
-    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item) 
+    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item)
         : $.extend(new Item(), { Name: '', ItemTypeID: itemTypeID });
     this.mode = mode;
     this.$element.empty();
@@ -378,9 +379,10 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
         this.renderFields(this.$element, this.mode);
     }
 
-    $fldName = this.$element.find('.fn-name');
-    $fldName.focus();
-    $fldName.select();
+
+    $fldActive = this.$element.find('.fn-name');
+    $fldActive.focus();
+    //$fldActive.select();
 }
 
 ItemEditor.prototype.renderFields = function (container, mode) {
@@ -573,11 +575,12 @@ ItemEditor.prototype.handleChange = function ($element) {
 
 ItemEditor.prototype.handleEnterPress = function (event) {
     if (event.which == 13) {
-        this.updateField($(event.srcElement));
-        if (this.mode == ItemEditor.Modes.New) {
-            this.parentControl.addItem(false);
-        } else {
-            this.parentControl.updateItem();
+        if (this.updateField($(event.srcElement))) {
+            if (this.mode == ItemEditor.Modes.New) {
+                this.parentControl.addItem(false);
+            } else {
+                this.parentControl.updateItem();
+            }
         }
     }
 }

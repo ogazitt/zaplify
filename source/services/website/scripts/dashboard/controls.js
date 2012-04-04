@@ -174,9 +174,9 @@ Dashboard.resize = function Dashboard$resize() {
     var $dbs = $('.dashboard-suggestions');
     var dbOuterHeight = $db.outerHeight();
     var dbWidth = $db.width();
-    var dbfWidth = $dbf.width();
-    var dbsWidth = $dbs.width();
-    var dbmMargins = 26;
+    var dbfWidth = $dbf.outerWidth();
+    var dbsWidth = $dbs.outerWidth();
+    var dbmMargins = 24;
 
     $dbm.width(dbWidth - (dbfWidth + dbsWidth + dbmMargins));
     $dbf.height(dbHeight);
