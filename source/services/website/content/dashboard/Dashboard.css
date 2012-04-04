@@ -277,10 +277,10 @@ Item Fields
 .item-field-name .dt-text { width: 100%; position: absolute; right: -4px; }
 .item-field-complete .dt-text { width:  95%; position: absolute; right: -4px; top: -4px; }
 .item-field-complete .dt-checkbox { position: absolute; left: 0px; top: 4px; }
-
-.dt-checkbox {
-    margin-right: 6px;
-}
+.item-field-area { width: 100%; display: block; position: relative; height: 84px }
+.item-field-area .dt-textarea { width: 100%; position: absolute; right: -4px; top: 10px; }
+.dt-checkbox { margin-right: 6px; }
+.dt-datepicker { min-width: 200px; }
 
 /*----------------------------------------------------------
 Source icons

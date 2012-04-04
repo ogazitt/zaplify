@@ -209,7 +209,13 @@ legend {
 }
 
 textarea {
-    min-height: 75px;
+    min-height: 64px;
+    overflow: hidden;     
+    border: 1px solid #C0C0B2;
+    padding: 2px 3px 2px 3px;
+    margin-top: 3px;
+    font-size: 1em;
+    color: #202030;
     background-color: #ECECE6;
 }
 
@@ -291,3 +297,13 @@ Miscellaneous
 
 .float-left { float: left; }
 .float-right { float: right; }
+
+/*----------------------------------------------------------
+jquery-ui timepicker extension
+----------------------------------------------------------*/
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }

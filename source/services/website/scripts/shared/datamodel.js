@@ -18,6 +18,7 @@ DataModel.Suggestions = {};
 // private members
 
 DataModel.onDataChangedHandlers = {};
+DataModel.timeStamp = '/Date(0)/';
 
 // ---------------------------------------------------------
 // public methods
@@ -37,11 +38,12 @@ DataModel.RemoveDataChangedHandler = function (name) {
 
 // refreshes datamodel with current state of server
 DataModel.Refresh = function DataModel$Refresh() {
-    // refresh constants
+    /* refresh constants
     Service.GetResource('constants', null,
         function (responseState) {
             DataModel.processConstants(responseState.result);
         });
+    */
     // refresh user data
     Service.GetResource('users', null,
         function (responseState) {
@@ -154,7 +156,8 @@ DataModel.InsertFolder = function DataModel$InsertFolder(newFolder, adjacentFold
 // generic helper for updating a folder or item, invokes server and updates local data model
 DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem) {
     if (originalItem != null && updatedItem != null) {
-        var resource = (originalItem.IsFolder()) ? 'folders' : 'items';
+        updatedItem.LastModified = DataModel.timeStamp;                     // timestamp on server
+        var resource = (originalItem.IsFolder()) ? 'folders' : 'items';        
         var data = [originalItem, updatedItem];
         Service.UpdateResource(resource, originalItem.ID, data,
             function (responseState) {                                      // successHandler
@@ -219,7 +222,7 @@ DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entity, fi
 DataModel.SelectSuggestion = function DataModel$SelectSuggestion(suggestion, reason, handler) {
     reason = (reason == null) ? Reasons.Chosen : reason;
     var selected = $.extend({}, suggestion);
-    selected.TimeSelected = '/Date(0)/';     // timestamp on server
+    selected.TimeSelected = DataModel.timeStamp;     // timestamp on server
     selected.ReasonSelected = reason;
     var data = [suggestion, selected];
     Service.UpdateResource('suggestions', suggestion.ID, data,
@@ -493,7 +496,6 @@ Item.prototype.SetFieldValue = function (field, value) {
             this.FieldValues = this.FieldValues.concat(
                 { FieldName: field.Name, ItemID: this.ID, Value: value });
         }
-        this.LastModified = '/Date(0)/';
         return true;
     }
     return false;                           // item does not have the field
@@ -723,6 +725,7 @@ var DisplayTypes = {
     TextArea : "TextArea",
     Checkbox : "Checkbox",
     DatePicker : "DatePicker",
+    DateTimePicker : "DateTimePicker",
     Phone : "Phone",
     Email : "Email",
     Link : "Link",

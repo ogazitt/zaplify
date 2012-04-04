@@ -434,6 +434,20 @@ ItemEditor.prototype.renderField = function (container, field) {
             $wrapper = $(wrapper).appendTo(container);
             $field = this.renderContactList($wrapper, field);
             break;
+        case DisplayTypes.DatePicker:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = this.renderDatePicker($wrapper, field);
+            break;
+        case DisplayTypes.DateTimePicker:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = this.renderDateTimePicker($wrapper, field);
+            break;
+        case DisplayTypes.TextArea:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.addClass('item-field-area');
+            $wrapper.removeClass('item-field');
+            $field = this.renderTextArea($wrapper, field);
+            break;
         case DisplayTypes.Text:
         default:
             $wrapper = $(wrapper).appendTo(container);
@@ -448,8 +462,17 @@ ItemEditor.prototype.renderText = function (container, field) {
     $field.addClass(field.Class);
     $field.data('control', this);
     $field.val(this.item.GetFieldValue(field));
-    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    return $field;
+}
+
+ItemEditor.prototype.renderTextArea = function (container, field) {
+    $field = $('<textarea></textarea>').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.item.GetFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     return $field;
 }
 
@@ -461,7 +484,43 @@ ItemEditor.prototype.renderCheckbox = function (container, field) {
     if (this.item.GetFieldValue(field) == 'true') {
         $field.attr('checked', 'checked');
     }
-    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
+    return $field;
+}
+
+ItemEditor.prototype.renderDatePicker = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.datepicker({ numberOfMonths: 2,
+        onClose: function (value, picker) {
+            itemEditor = Control.get(this);
+            if (itemEditor != null) {
+                itemEditor.handleChange(picker.input);
+            }
+        }
+    });
+
+    var value = this.item.GetFieldValue(field);
+    $field.val(value);
+    return $field;
+}
+
+ItemEditor.prototype.renderDateTimePicker = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.datetimepicker({ ampm: true, timeFormat: 'h:mm TT', hourGrid: 4, minuteGrid: 10, stepMinute: 5, numberOfMonths: 2,
+        onClose: function (value, picker) {
+            itemEditor = Control.get(this);
+            if (itemEditor != null) {
+                itemEditor.handleChange(picker.input);
+            }
+        }
+    });
+
+    var value = this.item.GetFieldValue(field);
+    $field.val(value);
     return $field;
 }
 
@@ -469,8 +528,6 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    //$field.change(function (event) { Control.get(this).handleChange(event); });
-    //$field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
     $field.attr('disabled', 'disabled');
     var text = '';
     var value = this.item.GetFieldValue(field);
@@ -497,13 +554,21 @@ ItemEditor.prototype.updateField = function ($srcElement) {
                     value = true;
                 }
             }
-            this.item.SetFieldValue(field, value);
+            var currentValue = this.item.GetFieldValue(field);
+            if (value != currentValue) {
+                this.item.SetFieldValue(field, value);
+                return true;
+            }
+            break;
         }
     }
+    return false;
 }
 
-ItemEditor.prototype.handleChange = function (event) {
-    this.updateField($(event.srcElement));
+ItemEditor.prototype.handleChange = function ($element) {
+    if (this.updateField($element)) {
+        this.parentControl.updateItem();
+    }
 }
 
 ItemEditor.prototype.handleEnterPress = function (event) {
