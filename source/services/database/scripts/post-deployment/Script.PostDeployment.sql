@@ -136,3 +136,10 @@ INSERT [dbo].[Intents] ([IntentID], [Name], [Verb], [Noun], [SearchFormatString]
 INSERT [dbo].[Intents] ([IntentID], [Name], [Verb], [Noun], [SearchFormatString]) VALUES (5, N'fake buy gift', N'get', N'gift', N'buy gift')
 SET IDENTITY_INSERT [dbo].[Intents] OFF
 GO
+
+/****** Object:  Table [dbo].[WorkflowTypes]     ******/
+INSERT [dbo].[WorkflowTypes] ([Type], [Definition]) VALUES (N'buy gift', N'{ "Name": "buy gift", "States": [ 
+	{ "Name": "Who is this for?", "Activity": "Get Possible Subjects", "NextState": "Which kind of gift?" },
+	{ "Name": "Which kind of gift?", "Activity": "Get Subject Likes", "NextState": "Useful links" },
+	{ "Name": "Useful links", "Activity": "Get Bing Suggestions", "NextState": null } ] }')
+GO

@@ -241,13 +241,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     // loop over the workflow instances and dispatch the new message
                     foreach (var instance in wis)
                     {
-                        Workflow workflow = WorkflowList.Workflows[instance.WorkflowType];
-
-                        // execute each state of the workflow until workflow is blocked for input
-                        bool completed = true;
-                        while (completed)
+                        Workflow workflow = null;
+                        if (WorkflowList.Workflows.TryGetValue(instance.WorkflowType, out workflow) == false)
                         {
-                            completed = workflow.Execute(instance, entity);
+                            try
+                            {
+                                var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == instance.WorkflowType);
+                                workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
+                            }
+                            catch (Exception ex)
+                            {
+                                TraceLog.TraceException("ExecuteWorkflows: could not find or deserialize workflow definition", ex);
+                                continue;
+                            }
+
+                            // execute each state of the workflow until workflow is blocked for input
+                            bool completed = true;
+                            while (completed)
+                            {
+                                completed = workflow.Execute(instance, entity);
+                            }
                         }
                     }
                 }

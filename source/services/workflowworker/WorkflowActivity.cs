@@ -242,8 +242,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         {
             try
             {
-                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldName == fieldName);
-                return contactsField;
+                FieldValue fieldValue = item.FieldValues.Single(fv => fv.FieldName == fieldName);
+                return fieldValue;
             }
             catch (Exception)
             {
