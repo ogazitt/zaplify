@@ -670,6 +670,7 @@ var FieldNames = {
     Birthday : "Birthday",                  // DateTime
     Address : "Address",                    // Address
     WebLink : "WebLink",                    // Url
+    WebLinks : "WebLinks",                  // ItemID
     Email : "Email",                        // Email
     Phone : "Phone",                        // Phone
     HomePhone : "HomePhone",                // Phone
@@ -734,8 +735,9 @@ var DisplayTypes = {
     Priority : "Priority",
     TagList : "TagList",
     Reference : "Reference",
+    ContactList : "ContactList",
     LocationList : "LocationList",
-    ContactList : "ContactList"
+    UrlList : "UrlList"
 };
 
 // ---------------------------------------------------------

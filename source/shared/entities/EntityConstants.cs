@@ -70,6 +70,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Birthday = "Birthday";          // DateTime
         public const string Address = "Address";            // Address
         public const string WebLink = "WebLink";            // Url
+        public const string WebLinks = "WebLinks";          // ItemID
         public const string Email = "Email";                // Email
         public const string Phone = "Phone";                // Phone
         public const string HomePhone = "HomePhone";        // Phone
@@ -78,8 +79,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Cost = "Cost";                  // Currency
         public const string ItemTags = "ItemTags";          // TagIDs
         public const string ItemRef = "ItemRef";            // ItemID
-        public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
+        public const string Locations = "Locations";        // ItemID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
 
         // non user-visible FieldNames
@@ -145,10 +146,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Currency = "Currency";
         public const string Address = "Address";
         public const string Priority = "Priority";
-        public const string TagList = "TagList";
         public const string Reference = "Reference";
-        public const string LocationList = "LocationList";
+        public const string TagList = "TagList";
         public const string ContactList = "ContactList";
+        public const string LocationList = "LocationList";
+        public const string UrlList = "UrlList";
     }
 
     public class Permissions

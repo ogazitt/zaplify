@@ -35,11 +35,12 @@
   </PropertyGroup>
   <!-- Items for the project -->
   <ItemGroup>
+    <ServiceDefinition Include="ServiceDefinition.csdef" />
+    <ServiceConfiguration Include="ServiceConfiguration.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Production.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Dev1.cscfg" />
     <ServiceConfiguration Include="ServiceConfiguration.Dev2.cscfg" />
-    <ServiceDefinition Include="ServiceDefinition.csdef" />
-    <ServiceConfiguration Include="ServiceConfiguration.cscfg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\website\Website.csproj">
