@@ -10,9 +10,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetSubjectLikes : WorkflowActivity
     {
-        public override string TargetFieldName { get { return SuggestionTypes.ChooseOne; } }
+        private const string Likes = "Likes";
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override string OutputParameterName { get { return Likes; } }
         public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -28,19 +30,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
-            // make sure the subject was identified
+            // make sure the subject was identified - if not move the state forward 
             string subjectItem = GetInstanceData(workflowInstance, FieldNames.Contacts);
             if (subjectItem == null)
-                return true;  // this will terminate the state
+                return Status.Complete;
 
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
@@ -50,7 +52,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             if (user == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             try 
@@ -62,7 +64,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 	        {
                 // the user not having a FB token isn't an error condition, but there's no way to generate suggestions,
                 // so we need to move forward from this state
-                return true;
+                return Status.Complete;
 	        }
 
             Item subject = null;
@@ -80,15 +82,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: could not deserialize subject Item; ex: " + ex.Message);
-                return true;
+                TraceLog.TraceException("GenerateSuggestions: could not deserialize subject Item", ex);
+                return Status.Error;
             }
 
             FieldValue fbID = GetFieldValue(subject, FieldNames.FacebookID, false);
             if (fbID == null || fbID.Value == null)
             {
                 TraceLog.TraceError(String.Format("GenerateSuggestions: could not find Facebook ID for contact {0}", subject.Name));
-                return true;
+                return Status.Complete;
             }
 
             try
@@ -103,11 +105,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: Error calling Facebook Graph API; ex: " + ex.Message);
+                TraceLog.TraceException("GenerateSuggestions: Error calling Facebook Graph API", ex);
+                return Status.Complete;
             }
 
-            // inexact match
-            return false;
+            return Status.Pending;
         }
     }
 }

@@ -12,14 +12,23 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         public virtual string Name { get { return this.GetType().Name; } }
         public virtual string GroupDisplayName { get { return null; } }
-        public abstract string TargetFieldName { get; }
+        public virtual string OutputParameterName { get { return TargetFieldName; } }
+        public virtual string SuggestionType { get { return null; } }
+        public virtual string TargetFieldName { get { return null; } }
         public abstract Func<
             WorkflowInstance, 
             ServerEntity, // item to operate over
             object,       // extra state to send to the execution Function
-            bool          // true for "completed", false for "not completed" (needs user input)
+            Status        // activity completion status
             > Function { get; }
 
+        public enum Status
+        {
+            Error = -1,       // unrecoverable error encountered (terminate workflow)
+            Pending = 0,      // the activity hasn't completed - e.g. awaiting user input (quiesce the workflow)
+            Complete = 1,     // the activity completed (move to the next state)
+            WorkflowDone = 2  // the workflow is complete (terminate workflow)
+        }
 
         /// <summary>
         /// Check and process the target field - if it is on the item, store the value in the 
@@ -30,13 +39,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>true for success, false if target field was not found</returns>
         protected bool CheckTargetField(WorkflowInstance workflowInstance, Item item)
         {
+            if (TargetFieldName == null)
+                return false;
+            
             // if the target field has been set, this state can terminate
             try
             {
                 FieldValue targetField = GetFieldValue(item, TargetFieldName, false);
                 if (targetField != null && targetField.Value != null)
                 {
-                    StoreInstanceData(workflowInstance, TargetFieldName, targetField.Value);
+                    StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
                     StoreInstanceData(workflowInstance, Workflow.LastStateData, targetField.Value);
                     return true;
                 }
@@ -100,29 +112,29 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="workflowInstance">Workflow instance to operate over</param>
         /// <param name="item">Item to process</param>
         /// <param name="suggestionFunction">Suggestion generation function</param>
-        /// <returns>true if an exact match was found, false if multiple suggestions created</returns>
-        protected bool CreateSuggestions(
+        /// <returns>Complete if an exact match was found, Pending if multiple suggestions created</returns>
+        protected Status CreateSuggestions(
             WorkflowInstance workflowInstance, 
             ServerEntity entity, 
-            Func<WorkflowInstance, ServerEntity, Dictionary<string,string>, bool> suggestionFunction)
+            Func<WorkflowInstance, ServerEntity, Dictionary<string,string>, Status> suggestionFunction)
         {
             // analyze the item for possible suggestions
             var suggestions = new Dictionary<string, string>();
-            bool completed = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
+            Status status = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
 
-            // if the function completed without generating any data, return (this is typically a fail-fast state)
-            if (completed && suggestions.Count == 0)
-                return true;
+            // if the function completed with an error, or without generating any data, return (this is typically a fail-fast state)
+            if (status == Status.Error || suggestions.Count == 0)
+                return status;
 
             // if an "exact match" was discovered without user input, store it now and return
-            if (completed && suggestions.Count == 1)
+            if (status == Status.Complete && suggestions.Count == 1)
             {
                 string s = null;
                 foreach (var value in suggestions.Values)
                     s = value;
                 StoreInstanceData(workflowInstance, Workflow.LastStateData, s);
-                StoreInstanceData(workflowInstance, TargetFieldName, s);
-                return true;
+                StoreInstanceData(workflowInstance, OutputParameterName, s);
+                return status;
             }
 
             // construct the group display name
@@ -150,7 +162,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         WorkflowType = workflowInstance.WorkflowType,
                         WorkflowInstanceID = workflowInstance.ID,
                         State = workflowInstance.State,
-                        FieldName = TargetFieldName,
+                        FieldName = SuggestionType,
                         DisplayName = s,
                         GroupDisplayName = groupDisplayName,
                         SortOrder = num,
@@ -161,12 +173,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
 
                 WorkflowWorker.SuggestionsContext.SaveChanges();
-                return false;
+                return status;
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("Execute: Activity execution failed; ex: " + ex.Message);
-                return false;
+                TraceLog.TraceException("Execute: Activity execution failed", ex);
+                return Status.Error;
             }
         }
 
@@ -203,26 +215,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="data">User selection data passed in</param>
         /// <param name="suggestionFunction">Suggestion function to invoke</param>
         /// <returns>return value for the Function</returns>
-        protected bool Execute(
+        protected Status Execute(
             WorkflowInstance workflowInstance, 
             ServerEntity entity, 
             object data,
             Guid expectedItemType,
-            Func<WorkflowInstance, ServerEntity, Dictionary<string, string>, bool> suggestionFunction)
+            Func<WorkflowInstance, ServerEntity, Dictionary<string, string>, Status> suggestionFunction)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("Execute: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             if (VerifyItemType(item, expectedItemType) == false)
-                return true;  // this will terminate the state
+                return Status.Error; 
 
             // if the target field has been set, this state can terminate
             if (CheckTargetField(workflowInstance, item))
-                return true;
+                return Status.Complete;
 
             // check for user selection
             if (data != null)
@@ -271,6 +283,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>Value for the key</returns>
         protected string GetInstanceData(WorkflowInstance workflowInstance, string key)
         {
+            if (key == null)
+                return null;
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             try
             {
@@ -287,7 +301,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// </summary>
         /// <param name="workflowInstance">Instance to store data into</param>
         /// <param name="data">Data to process</param>
-        protected bool ProcessActivityData(WorkflowInstance workflowInstance, object data)
+        protected Status ProcessActivityData(WorkflowInstance workflowInstance, object data)
         {
             var suggList = data as List<Suggestion>;
             if (suggList != null)
@@ -297,21 +311,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 {
                     if (sugg.ReasonSelected == Reasons.Chosen || sugg.ReasonSelected == Reasons.Like)
                     {
-                        StoreInstanceData(workflowInstance, TargetFieldName, sugg.Value);
+                        StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
                         StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
-                        return true;
+                        return Status.Complete;
                     }
                 }
 
                 // return false if the user hasn't yet selected an action but suggestions were already generated
                 // for the current state (we don't want a duplicate set of suggestions)
-                return false;
+                return Status.Pending;
             }
 
             // if the data can't be cast into a suggestion list, there is a serious error - move the workflow forward
             // (otherwise it will be stuck forever)
             TraceLog.TraceError("ProcessActivityData: data passed in is not a list of suggestions");
-            return true;
+            return Status.Error;
         }
 
         /// <summary>
@@ -350,6 +364,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="data">Data to store under the key</param>
         protected void StoreInstanceData(WorkflowInstance workflowInstance, string key, string data)
         {
+            if (key == null)
+                return;
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             dict[key] = data;
             workflowInstance.InstanceData = dict.ToString();
@@ -367,7 +383,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (item.ItemTypeID != desiredItemType)
             {
                 TraceLog.TraceError("VerifyItemType: wrong item type");
-                return false;  // this will terminate the state
+                return false;  
             }
 
             return true;

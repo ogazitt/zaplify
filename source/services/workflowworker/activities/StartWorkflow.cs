@@ -8,9 +8,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class StartWorkflow : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.StartWorkflow; } }
-        public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -30,11 +28,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceError("StartWorkflow Activity failed; ex: " + ex.Message);
+                        TraceLog.TraceException("StartWorkflow Activity failed", ex);
+                        return Status.Error;
                     }
 
                     // the state should always move forward
-                    return true;
+                    return Status.Complete;
                 });
             }
         }

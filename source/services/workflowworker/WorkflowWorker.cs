@@ -255,12 +255,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                 continue;
                             }
 
-                            // execute each state of the workflow until workflow is blocked for input
-                            bool completed = true;
-                            while (completed)
-                            {
-                                completed = workflow.Execute(instance, entity);
-                            }
+                            // invoke the workflow and process steps until workflow is blocked for user input or is done
+                            workflow.Run(instance, entity);
                         }
                     }
                 }

@@ -11,9 +11,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleIntents : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleIntents; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
         public override string TargetFieldName { get { return FieldNames.Intent; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -29,13 +29,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             string name = item.Name;
@@ -69,9 +69,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             if (parts.Length >= 4)
             {
-                if (parts[2] == "for")
+                if (parts[2] == "for" || parts[2] == "with")
                 {
+                    // capitalize and store the word following "for" in the SubjectHint workflow parameter
                     subject = parts[3];
+                    subject = subject.Substring(0, 1).ToUpper() + subject.Substring(1);
                     StoreInstanceData(workflowInstance, FieldNames.SubjectHint, subject);
                 }
             }
@@ -83,7 +85,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 {
                     var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
                     suggestionList[intent.Name] = wt.Type;
-                    return true;  // exact match
+                    return Status.Complete;
                 }
                 catch (Exception ex)
                 {
@@ -105,11 +107,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: could not find database intent in IntentList dictionary; ex: " + ex.Message);
+                TraceLog.TraceException("GenerateSuggestions: could not find matching intents in Intents table", ex);
+                return Status.Error;
             }
 
-            // inexact match
-            return false;
+            return Status.Pending;
         }
     }
 }

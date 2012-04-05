@@ -9,9 +9,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class FakeGetPossibleSubjects : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleSubjects; } }
+        public override string SuggestionType { get { return FieldNames.Contacts; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -21,11 +21,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     if (item == null)
                     {
                         TraceLog.TraceError("GetPossibleSubjects: non-Item passed in to Function");
-                        return true;  // this will terminate the state
+                        return Status.Error; 
                     }
 
                     if (VerifyItemType(item, SystemItemTypes.Task) == false)
-                        return true;  // this will terminate the state
+                        return Status.Error; 
 
                     // if the Contacts field has been set and there are actual contacts in that sublist, a subject is already selected
                     // and this state can terminate
@@ -37,10 +37,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             Guid contactsListID = new Guid(contactsField.Value);
 
                             // use the first contact as the subject
-                            var contact = WorkflowWorker.UserContext.Items.First(c => c.ParentID == contactsListID);
+                            var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
                             StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
-                            StoreInstanceData(workflowInstance, TargetFieldName, JsonSerializer.Serialize(contact));
-                            return true;
+                            StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
+                            return Status.Complete;
                         }
                     }
                     catch (Exception)
@@ -58,17 +58,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Complete;
             }
-
-            // TODO: get contacts from the Contacts folder, Facebook, and Cloud AD
-            // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
 
             // HACK: hardcode names for now until the graph queries are in place
             foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
@@ -78,7 +75,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             // inexact match
-            return false;
+            return Status.Pending;
         }
 
         private Item CreateContact(WorkflowInstance workflowInstance, Item item, string name)
@@ -96,7 +93,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     Name = TargetFieldName,
                     IsList = true,
                     FolderID = item.FolderID,
-                    ItemTypeID = SystemItemTypes.Contact,
+                    ItemTypeID = SystemItemTypes.Reference,
                     ParentID = item.ID,
                     UserID = item.UserID,
                     Created = now,
