@@ -10,22 +10,6 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-/* User database */
-:r .\dbo.Users.Table.sql
-GO
-:r .\dbo.ActionTypes.Table.sql
-GO
-:r .\dbo.Colors.Table.sql
-GO
-:r .\dbo.ItemTypes.Table.sql
-GO
-:r .\dbo.Fields.Table.sql
-GO
-:r .\dbo.Permissions.Table.sql
-GO
-:r .\dbo.Priorities.Table.sql
-GO
-
 /* Suggestions database */
 :r .\dbo.Intents.Table.sql
 GO

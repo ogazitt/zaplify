@@ -10,14 +10,16 @@ using System.Globalization;
 
     public static class HostEnvironment
     {
-        const string UserDataConnectionConfigKey = "Connection";
-        const string UserAccountConnectionConfigKey = "Connection";
+        const string UserDataConnectionConfigKey = "UsersConnection";
+        const string UserAccountConnectionConfigKey = "UsersConnection";
+        const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
 
         static bool? isAzure;               // true for either Azure or DevFabric
         static bool? isAzureDevFabric;      // only true in DevFabric
         static string userDataConnection;
         static string userAccountConnection;
+        static string suggestionsConnection;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -75,6 +77,18 @@ using System.Globalization;
                     userAccountConnection = ConfigurationSettings.GetConnection(UserAccountConnectionConfigKey);
                 }
                 return userAccountConnection;
+            }
+        }
+
+        public static string SuggestionsConnection
+        {
+            get
+            {
+                if (suggestionsConnection == null)
+                {
+                    suggestionsConnection = ConfigurationSettings.GetConnection(SuggestionsConnectionConfigKey);
+                }
+                return suggestionsConnection;
             }
         }
 

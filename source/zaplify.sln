@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPKeyboardHelper", "devices
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinPhone", "devices\winphone\winphone\WinPhone.csproj", "{23442708-F7D3-449C-B572-42EF4D44AD0B}"
 EndProject
-Project("{C8D11400-126E-41CD-887F-60BD40844F9E}") = "Database", "services\database\Database.dbproj", "{67CBC824-A49E-4E9B-A947-360F3DFE65C3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViewModels", "devices\shared\clientviewmodels\ClientViewModels.csproj", "{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientHelpers", "devices\shared\clienthelpers\ClientHelpers.csproj", "{DE7362EF-03DB-4FE2-BFD9-C9F83143C4BC}"
@@ -26,6 +24,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailWorker", "services\mailworker\MailWorker.csproj", "{6669ABCA-1CC6-4CC0-9192-D17E00DB10DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowWorker", "services\workflowworker\WorkflowWorker.csproj", "{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}"
+EndProject
+Project("{C8D11400-126E-41CD-887F-60BD40844F9E}") = "UserDatabase", "services\database\UserDatabase.dbproj", "{968E5622-7ED3-45E7-BB7C-16858C4F613D}"
+EndProject
+Project("{C8D11400-126E-41CD-887F-60BD40844F9E}") = "SuggestionDatabase", "services\database\SuggestionDatabase.dbproj", "{67CBC824-A49E-4E9B-A947-360F3DFE65C3}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -62,12 +64,6 @@ Global
 		{23442708-F7D3-449C-B572-42EF4D44AD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23442708-F7D3-449C-B572-42EF4D44AD0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{23442708-F7D3-449C-B572-42EF4D44AD0B}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BE75E50-2F26-44D2-A35C-5CD1EC1983B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -92,6 +88,18 @@ Global
 		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{968E5622-7ED3-45E7-BB7C-16858C4F613D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67CBC824-A49E-4E9B-A947-360F3DFE65C3}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

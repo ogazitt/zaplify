@@ -40,7 +40,7 @@
     // DbContext for the suggestions DB
     public class SuggestionsStorageContext : DbContext
     {
-        public SuggestionsStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public SuggestionsStorageContext() : base(HostEnvironment.SuggestionsConnection) { }
         public SuggestionsStorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
