@@ -206,7 +206,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception)
             {
-                Folder folder = FindDefaultFolder(contact.ItemTypeID);
+                Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
                 if (folder != null)
                     contact.FolderID = folder.ID;
                 WorkflowWorker.UserContext.Items.Add(contact);
@@ -228,7 +228,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 ID = refID,
                 Name = contact.Name,
                 ItemTypeID = SystemItemTypes.Reference,
-                FolderID = contact.FolderID,
+                FolderID = item.FolderID,
                 ParentID = listID,
                 UserID = contact.UserID,
                 Created = now,
@@ -254,12 +254,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             SignalEntityRefresh(workflowInstance, item);
         }
 
-        private Folder FindDefaultFolder(Guid itemTypeID)
+        private Folder FindDefaultFolder(Guid userID, Guid itemTypeID)
         {
             // TODO: support user defaults stored in hidden System folder
             try
             {
-                return WorkflowWorker.UserContext.Folders.Single(f => f.ItemTypeID == itemTypeID);
+                return WorkflowWorker.UserContext.Folders.First(f => f.UserID == userID && f.ItemTypeID == itemTypeID);
             }
             catch (Exception)
             {
