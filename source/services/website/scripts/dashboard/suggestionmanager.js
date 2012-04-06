@@ -17,7 +17,7 @@ SuggestionManager.prototype.select = function (suggestion) {
         case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
         case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
-        case SuggestionsTypes.GetADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
+        case SuggestionTypes.GetADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
 
         default: { refresh = this.chooseSuggestion(suggestion); break; }
     }
