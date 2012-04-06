@@ -69,6 +69,7 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
 }
 
 SuggestionManager.prototype.addContact = function (suggestion) {
+    /*
     var dataModel = this.dataModel;
     var item = dataModel.FindItem(suggestion.EntityID);
     if (item != null) {
@@ -114,6 +115,7 @@ SuggestionManager.prototype.addContact = function (suggestion) {
             addContactFunc(contactsList);
         }
     }
+    */
     return this.chooseSuggestion(suggestion);
 }
 

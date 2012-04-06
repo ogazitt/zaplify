@@ -10,9 +10,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class FakeGetSubjectLikes : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetSubjectLikes; } }
-        public override string TargetFieldName { get { return SuggestionTypes.ChooseOne; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Likes; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -28,26 +29,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
-            // TODO: get likes from the Contacts folder, Facebook, and Cloud AD
-            // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
-            
             // HACK: hardcode names for now until the graph queries are in place
             foreach (var like in "Golf;Seattle Sounders;Malcolm Gladwell".Split(';'))
             {
                 suggestionList[like] = like;
             }
             
-            // inexact match
-            return false;
+            return Status.Pending;
         }
     }
 }

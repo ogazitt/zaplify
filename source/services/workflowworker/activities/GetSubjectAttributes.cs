@@ -9,9 +9,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetSubjectAttributes : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetSubjectAttributes; } }
-        public override string TargetFieldName { get { return SuggestionTypes.ChooseOne; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override string GroupDisplayName { get { return "Contact attributes"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override string TargetFieldName { get { return FieldNames.Contacts; } }
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -27,20 +29,20 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;  
             }
 
             // TODO: get subject attributes from the Contacts folder, Facebook, and Cloud AD
             // these will hang off of the contact as well as in the workflow InstanceData
 
             // inexact match
-            return false;
+            return Status.Pending;
         }
     }
 }

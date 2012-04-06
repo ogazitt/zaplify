@@ -10,7 +10,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class NewTask : Workflow
     {
-        public override string Name { get { return WorkflowNames.NewTask; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static string DetermineIntent = "Are you trying to";

@@ -10,9 +10,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetBingSuggestions : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetBingSuggestions; } }
-        public override string TargetFieldName { get { return SuggestionTypes.NavigateLink; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override string GroupDisplayName { get { return "Helpful links"; } }
+        public override string SuggestionType { get { return SuggestionTypes.NavigateLink; } }
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -28,32 +28,24 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             try
             {
                 BingSearch bingSearch = new BingSearch();
-                string searchTerm = GetInstanceData(workflowInstance, Workflow.LastStateData);
-                string intentString = GetInstanceData(workflowInstance, FieldNames.Intent);
-                string searchFormatString = intentString;
-                try
-                {
-                    Intent intent = WorkflowWorker.SuggestionsContext.Intents.First(i => i.Name == intentString);
-                    searchFormatString = intent.SearchFormatString;
-                }
-                catch (Exception ex)
-                {
-                    TraceLog.TraceError(String.Format("GenerateSuggestions: intent name {0} not found; ex: {1}", intentString, ex.Message));
-                }
 
-                string query = String.Format("{0} {1}", searchFormatString.Trim(), searchTerm.Trim());
+                // retrieve and format the search template, or if one doesn't exist, use $(Intent)
+                string searchTemplate = GetInstanceData(workflowInstance, ActivityParameters.SearchTemplate);
+                if (searchTemplate == null)
+                    searchTemplate = String.Format("$({0})", ActivityParameters.Intent);
+                string query = FormatParameterString(workflowInstance, searchTemplate);
 
                 // make a synchronous webservice call to bing 
                 //
@@ -72,11 +64,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: Bing query failed; ex: " + ex.Message);
+                TraceLog.TraceException("GenerateSuggestions: Bing query failed", ex);
+                return Status.Error;
             }
 
-            // false indicates multiple suggestions returned
-            return false;
+            return Status.Pending;
         }
     }
 }

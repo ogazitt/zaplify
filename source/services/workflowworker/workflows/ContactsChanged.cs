@@ -10,7 +10,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class ContactsChanged : Workflow
     {
-        public override string Name { get { return WorkflowNames.ContactsChanged; } }
         public override List<WorkflowState> States { get { return states; } }
 
         private static List<WorkflowState> states = new List<WorkflowState>()

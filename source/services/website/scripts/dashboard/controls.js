@@ -202,19 +202,21 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
     // process RefreshEntity suggestions
     var group = suggestions[SuggestionTypes.RefreshEntity];
     if (group != null) {
+        // full user data refresh, select last item
+        var itemID;
         for (var id in group.Suggestions) {
             var suggestion = group.Suggestions[id];
-            var item = Dashboard.dataModel.FindItem(suggestion.EntityID);
-            if (item != null && !item.IsFolder()) {
-                item.Refresh();
-            }
             Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Ignore);
+            if (suggestion.EntityType == 'Item') {
+                itemID = suggestion.EntityID;
+            }
         }
         delete suggestions[SuggestionTypes.RefreshEntity];
+        Dashboard.dataModel.Refresh(itemID);
     }
 
     Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
     if (suggestions['Group_0'] != null) {
-        $('.working').hide(); 
+        $('.working').hide();
     }
 }

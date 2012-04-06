@@ -13,5 +13,8 @@ Post-Deployment Script Template
 /* Suggestions database */
 :r .\dbo.Intents.Table.sql
 GO
+:Setvar Intent "$(Intent)"
+:Setvar Likes "$(Likes)"
+:Setvar Relationship "$(Relationship)"
 :r .\dbo.WorkflowTypes.Table.sql
 GO

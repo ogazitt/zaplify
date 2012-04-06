@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Reflection;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -11,5 +9,26 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string FieldName { get; set; }
         public Guid ItemID { get; set; }
         public string Value { get; set; }
+
+        public FieldValue() { }
+
+        public FieldValue(FieldValue fieldValue)
+        {
+            Copy(fieldValue);
+        }
+
+        public void Copy(FieldValue obj)
+        {
+            if (obj == null)
+                return;
+
+            // copy all of the properties
+            foreach (PropertyInfo pi in obj.GetType().GetProperties())
+            {
+                // get the value of the property
+                var val = pi.GetValue(obj, null);
+                pi.SetValue(this, val, null);
+            }
+        }
     }
 }

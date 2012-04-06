@@ -37,17 +37,20 @@ DataModel.RemoveDataChangedHandler = function (name) {
 }
 
 // refreshes datamodel with current state of server
-DataModel.Refresh = function DataModel$Refresh() {
-    /* refresh constants
-    Service.GetResource('constants', null,
-        function (responseState) {
-            DataModel.processConstants(responseState.result);
-        });
-    */
+DataModel.Refresh = function DataModel$Refresh(itemID) {
     // refresh user data
     Service.GetResource('users', null,
         function (responseState) {
             DataModel.processUserData(responseState.result);
+            if (itemID != null) {
+                var item = DataModel.FindItem(itemID);
+                if (item != null) {
+                    DataModel.Folders[item.FolderID].ViewState.Select = true;
+                    item.ViewState.Select = true;
+                    DataModel.fireDataChanged(item.FolderID, item.ID);
+                    return;
+                }
+            }
             DataModel.fireDataChanged();
         });
     }

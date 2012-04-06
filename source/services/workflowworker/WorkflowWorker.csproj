@@ -71,9 +71,7 @@
     <Compile Include="activities\GetPossibleSubjects.cs" />
     <Compile Include="activities\GetPossibleIntents.cs" />
     <Compile Include="activities\StartWorkflow.cs" />
-    <Compile Include="Intents.cs" />
     <Compile Include="workflows\ContactsChanged.cs" />
-    <Compile Include="workflows\FakeBuyGift.cs" />
     <Compile Include="workflows\NewTask.cs" />
     <Compile Include="workflows\NewUser.cs" />
     <Compile Include="workflows\NameChanged.cs" />
@@ -81,7 +79,6 @@
     <Compile Include="activities\GetBingSuggestions.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowState.cs" />
-    <Compile Include="workflows\BuyGift.cs" />
     <Compile Include="workflows\FindIntent.cs" />
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowWorker.cs" />

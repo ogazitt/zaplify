@@ -122,6 +122,9 @@
     <Build Include="dbo.UserCredentials.Table.sql">
       <SubType>Code</SubType>
     </Build>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.ActionTypes.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
     <NotInBuild Include="Scripts\Post-Deployment\dbo.Colors.Table.sql">
       <SubType>Code</SubType>
     </NotInBuild>
@@ -142,9 +145,6 @@
     </NotInBuild>
   </ItemGroup>
   <ItemGroup>
-    <NotInBuild Include="Scripts\Post-Deployment\dbo.ActionTypes.Table.sql">
-      <SubType>Code</SubType>
-    </NotInBuild>
     <PostDeploy Include="scripts\post-deployment\User.PostDeployment.sql">
       <SubType>NotInBuild</SubType>
       <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
