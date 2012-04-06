@@ -9,6 +9,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class FakeGetPossibleSubjects : WorkflowActivity
     {
+        public override string GroupDisplayName { get { return "Who is this for?"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
         public override string SuggestionType { get { return FieldNames.Contacts; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
@@ -38,7 +40,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                             // use the first contact as the subject
                             var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
-                            StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
+                            StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, JsonSerializer.Serialize(contact));
                             StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
                             return Status.Complete;
                         }
@@ -50,7 +52,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                     // if a user selected a suggestion, this state can terminate
                     if (data != null)
-                        return ProcessActivityData(workflowInstance, data);
+                    {
+                        var status = ProcessActivityData(workflowInstance, data);
+
+                        // create the contact reference, and create or update the actual contact
+                        if (status == Status.Complete)
+                            status = CreateContact(workflowInstance, item);
+                        return status;
+                    }
 
                     // generate suggestions for the possible subjects
                     return CreateSuggestions(workflowInstance, entity, GenerateSuggestions);
@@ -70,7 +79,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // HACK: hardcode names for now until the graph queries are in place
             foreach (var subject in "Mike Maples;Mike Smith;Mike Abbott".Split(';'))
             {
-                Item contact = CreateContact(workflowInstance, item, subject);
+                Item contact = MakeContact(workflowInstance, item, subject);
                 suggestionList[subject] = JsonSerializer.Serialize(contact);
             }
 
@@ -78,7 +87,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             return Status.Pending;
         }
 
-        private Item CreateContact(WorkflowInstance workflowInstance, Item item, string name)
+        #region Helpers
+
+        private Status CreateContact(WorkflowInstance workflowInstance, Item item)
         {
             DateTime now = DateTime.UtcNow;
             FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
@@ -100,13 +111,111 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     LastModified = now,
                 };
                 contactsField.Value = listID.ToString();
-                WorkflowWorker.UserContext.Items.Add(list);
-                WorkflowWorker.UserContext.SaveChanges();
-
-                // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
-                // workflow changed the Item
-                SignalEntityRefresh(workflowInstance, item);
+                try
+                {
+                    WorkflowWorker.UserContext.Items.Add(list);
+                    WorkflowWorker.UserContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("CreateContact: creating Contact sublist failed", ex);
+                    return Status.Error;
+                }
             }
+
+            // get the subject out of the InstanceData bag
+            Item contact = null;
+            try
+            {
+                var contactString = GetInstanceData(workflowInstance, OutputParameterName);
+                contact = JsonSerializer.Deserialize<Item>(contactString);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: deserializing contact failed", ex);
+                return Status.Error;
+            }
+
+            // update the contact if it already exists, otherwise add a new contact
+            try
+            {
+                Item dbContact = WorkflowWorker.UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
+                foreach (var fv in contact.FieldValues)
+                {
+                    // add or update each of the fieldvalues
+                    var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
+                    dbfv.Copy(fv);
+                }
+                dbContact.LastModified = now;
+            }
+            catch (Exception)
+            {
+                Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
+                if (folder != null)
+                    contact.FolderID = folder.ID;
+                WorkflowWorker.UserContext.Items.Add(contact);
+            }
+            try
+            {
+                WorkflowWorker.UserContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: creating or adding contact failed", ex);
+                return Status.Error;
+            }
+
+            // add a contact reference to the contact list
+            Guid refID = Guid.NewGuid();
+            var contactRef = new Item()
+            {
+                ID = refID,
+                Name = contact.Name,
+                ItemTypeID = SystemItemTypes.Reference,
+                FolderID = item.FolderID,
+                ParentID = listID,
+                UserID = contact.UserID,
+                Created = now,
+                LastModified = now,
+                FieldValues = new List<FieldValue>()
+                {
+                    new FieldValue() { FieldName = FieldNames.ItemRef, ItemID = refID, Value = contact.ID.ToString() }
+                }
+            };
+            try
+            {
+                WorkflowWorker.UserContext.Items.Add(contactRef);
+                WorkflowWorker.UserContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: creating contact reference failed", ex);
+                return Status.Error;
+            }
+
+            // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
+            // workflow changed the Item
+            SignalEntityRefresh(workflowInstance, item);
+
+            return Status.Complete;
+        }
+
+        private Folder FindDefaultFolder(Guid userID, Guid itemTypeID)
+        {
+            // TODO: support user defaults stored in hidden System folder
+            try
+            {
+                return WorkflowWorker.UserContext.Folders.First(f => f.UserID == userID && f.ItemTypeID == itemTypeID);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private Item MakeContact(WorkflowInstance workflowInstance, Item item, string name)
+        {
+            DateTime now = DateTime.UtcNow;
 
             // create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
@@ -117,7 +226,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 Name = name,
                 FolderID = item.FolderID,
                 ItemTypeID = SystemItemTypes.Contact,
-                ParentID = listID,
+                ParentID = null,
                 UserID = item.UserID,
                 FieldValues = new List<FieldValue>()
                 {
@@ -140,5 +249,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             return contact;
         }
+
+        #endregion Helpers
     }
 }

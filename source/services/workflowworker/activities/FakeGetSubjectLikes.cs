@@ -10,9 +10,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class FakeGetSubjectLikes : WorkflowActivity
     {
-        private const string Likes = "Likes";
+        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Likes; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
-        public override string OutputParameterName { get { return Likes; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get

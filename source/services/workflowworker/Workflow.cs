@@ -14,8 +14,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         public virtual List<WorkflowState> States { get; set; }
 
-        public const string LastStateData = "LastStateData";
-
         /// <summary>
         /// This is the typical way to execute a workflow.  This implementation
         /// will retrieve any data (e.g. user selection, or a result of a previous Activity)

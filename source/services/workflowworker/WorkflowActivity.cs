@@ -5,6 +5,7 @@ using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -49,7 +50,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 if (targetField != null && targetField.Value != null)
                 {
                     StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
-                    StoreInstanceData(workflowInstance, Workflow.LastStateData, targetField.Value);
+                    StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, targetField.Value);
                     return true;
                 }
             }
@@ -58,52 +59,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // not an error condition if the target field wasn't found or the value is empty
             }
             return false;
-        }
-
-        /// <summary>
-        /// This function takes a format string that contains zero or more terms (bracketed in "{}")
-        /// Each term may have zero or more variables defined (bracketed in "()") 
-        /// At the end of execution, all variables will be bound from the workflow's InstanceData and
-        /// the resultant string returned.  If an unbound variable is found, the term is discarded.
-        /// Ex: "Choose from {$(Subject)'s }likes" will return "Choose from Mike's likes" if Subject is
-        /// bound to "Mike", otherwise will return "Choose from likes".
-        /// </summary>
-        /// <param name="workflowInstance"></param>
-        /// <param name="formatString"></param>
-        /// <returns></returns>
-        protected string ConstructGroupDisplayName(WorkflowInstance workflowInstance, string formatString)
-        {
-            if (formatString == null)
-                return "";
-
-            StringBuilder returnString = new StringBuilder();
-            
-            // go through each term and do appropriate substitution
-            int start = 0;
-            int pos = formatString.IndexOf('{', start);
-            while (pos > -1)
-            {
-                returnString.Append(formatString.Substring(start, pos));
-
-                int end = formatString.IndexOf('}', pos);
-                string formatExpr = formatString.Substring(pos + 1, end - pos - 1);
-
-                // successively substitute all variables until none are left, or an
-                // unbound variable is found.  If the latter, ignore the whole term
-                string newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
-                while (newExpr != null && newExpr != formatExpr)
-                {
-                    formatExpr = newExpr;
-                    newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
-                }
-                if (newExpr != null)
-                    returnString.Append(newExpr);
-
-                start = end + 1;
-                pos = formatString.IndexOf('{', start);
-            }
-            returnString.Append(formatString.Substring(start));
-            return returnString.ToString();
         }
 
         /// <summary>
@@ -132,7 +87,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 string s = null;
                 foreach (var value in suggestions.Values)
                     s = value;
-                StoreInstanceData(workflowInstance, Workflow.LastStateData, s);
+                StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, s);
                 StoreInstanceData(workflowInstance, OutputParameterName, s);
                 return status;
             }
@@ -142,7 +97,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (groupDisplayName == null)
                 groupDisplayName = workflowInstance.State;
             else
-                groupDisplayName = ConstructGroupDisplayName(workflowInstance, groupDisplayName);
+                groupDisplayName = FormatParameterString(workflowInstance, groupDisplayName);
 
             // add suggestions received from the suggestion function
             try
@@ -244,6 +199,52 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         }
 
         /// <summary>
+        /// This function takes a format string that contains zero or more terms (bracketed in "{}")
+        /// Each term may have zero or more variables defined (bracketed in "()") 
+        /// At the end of execution, all variables will be bound from the workflow's InstanceData and
+        /// the resultant string returned.  If an unbound variable is found, the term is discarded.
+        /// Ex: "Choose from {$(Subject)'s }likes" will return "Choose from Mike's likes" if Subject is
+        /// bound to "Mike", otherwise will return "Choose from likes".
+        /// </summary>
+        /// <param name="workflowInstance"></param>
+        /// <param name="formatString"></param>
+        /// <returns></returns>
+        protected string FormatParameterString(WorkflowInstance workflowInstance, string formatString)
+        {
+            if (formatString == null)
+                return "";
+
+            StringBuilder returnString = new StringBuilder();
+
+            // go through each term and do appropriate substitution
+            int start = 0;
+            int pos = formatString.IndexOf('{', start);
+            while (pos > -1)
+            {
+                returnString.Append(formatString.Substring(start, pos - start));
+
+                int end = formatString.IndexOf('}', pos);
+                string formatExpr = formatString.Substring(pos + 1, end - pos - 1);
+
+                // successively substitute all variables until none are left, or an
+                // unbound variable is found.  If the latter, ignore the whole term
+                string newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
+                while (newExpr != null && newExpr != formatExpr)
+                {
+                    formatExpr = newExpr;
+                    newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
+                }
+                if (newExpr != null)
+                    returnString.Append(newExpr);
+
+                start = end + 1;
+                pos = formatString.IndexOf('{', start);
+            }
+            returnString.Append(formatString.Substring(start));
+            return returnString.ToString();
+        }
+
+        /// <summary>
         /// Get a FieldValue for the FieldName, optionally creating it if necessary
         /// </summary>
         /// <param name="item">Item to look in</param>
@@ -312,7 +313,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     if (sugg.ReasonSelected == Reasons.Chosen || sugg.ReasonSelected == Reasons.Like)
                     {
                         StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
+                        StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, sugg.Value);
                         return Status.Complete;
                     }
                 }

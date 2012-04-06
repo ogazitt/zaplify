@@ -38,4 +38,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             { ActivityNames.StartWorkflow, new StartWorkflow() },
         };
     }
+    
+    public class ActivityParameters
+    {
+        public const string Contact = "Contact";
+        public const string Intent = "Intent";
+        public const string LastStateData = "LastStateData";
+        public const string Likes = "Likes";
+        public const string SearchTemplate = "SearchTemplate";
+        public const string SubjectHint = "SubjectHint";
+    }
 }

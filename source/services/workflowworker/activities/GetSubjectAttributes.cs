@@ -9,7 +9,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetSubjectAttributes : WorkflowActivity
     {
+        public override string GroupDisplayName { get { return "Contact attributes"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get

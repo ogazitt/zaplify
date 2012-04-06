@@ -11,8 +11,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleIntents : WorkflowActivity
     {
+        public override string GroupDisplayName { get { return "Are you trying to"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Intent; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
-        public override string TargetFieldName { get { return FieldNames.Intent; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get

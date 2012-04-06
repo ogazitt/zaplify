@@ -17,7 +17,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     try
                     {
                         // get the last state's result as the workflow name
-                        string workflowName = GetInstanceData(workflowInstance, Workflow.LastStateData);
+                        string workflowName = GetInstanceData(workflowInstance, ActivityParameters.Intent);
+                        if (workflowName == null)
+                            workflowName = GetInstanceData(workflowInstance, ActivityParameters.LastStateData);
                         
                         // if the data passed in isn't null, use this instead
                         if (data != null)

@@ -12,6 +12,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleSubjects : WorkflowActivity
     {
+        public override string GroupDisplayName { get { return "Who is this for?"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
         public override string SuggestionType { get { return FieldNames.Contacts; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
@@ -41,7 +43,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                             // use the first contact as the subject
                             var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
-                            StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
+                            StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, JsonSerializer.Serialize(contact));
                             StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
                             return Status.Complete;
                         }
@@ -58,7 +60,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         
                         // create the contact reference, and create or update the actual contact
                         if (status == Status.Complete)
-                            CreateContact(workflowInstance, item);
+                            status = CreateContact(workflowInstance, item);
                         return status;
                     }
 
@@ -154,7 +156,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
         #region Helpers
 
-        private void CreateContact(WorkflowInstance workflowInstance, Item item)
+        private Status CreateContact(WorkflowInstance workflowInstance, Item item)
         {
             DateTime now = DateTime.UtcNow;
             FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
@@ -184,13 +186,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 catch (Exception ex)
                 {
                     TraceLog.TraceException("CreateContact: creating Contact sublist failed", ex);
-                    return;
+                    return Status.Error;
                 }
             }
 
             // get the subject out of the InstanceData bag
-            var contactString = GetInstanceData(workflowInstance, TargetFieldName);
-            var contact = JsonSerializer.Deserialize<Item>(contactString);
+            Item contact = null;
+            try
+            {
+                var contactString = GetInstanceData(workflowInstance, OutputParameterName);
+                contact = JsonSerializer.Deserialize<Item>(contactString);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: deserializing contact failed", ex);
+                return Status.Error;                
+            }
 
             // update the contact if it already exists, otherwise add a new contact
             try
@@ -218,7 +229,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             catch (Exception ex)
             {
                 TraceLog.TraceException("CreateContact: creating or adding contact failed", ex);
-                return;
+                return Status.Error;
             }
 
             // add a contact reference to the contact list
@@ -246,12 +257,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             catch (Exception ex)
             {
                 TraceLog.TraceException("CreateContact: creating contact reference failed", ex);
-                return;
+                return Status.Error;
             }
 
             // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
             // workflow changed the Item
             SignalEntityRefresh(workflowInstance, item);
+
+            return Status.Complete;
         }
 
         private Folder FindDefaultFolder(Guid userID, Guid itemTypeID)
