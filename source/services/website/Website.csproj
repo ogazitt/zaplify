@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityDataModel">
@@ -86,11 +88,9 @@
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Diagnostics" />
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.StorageClient" />
+    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>

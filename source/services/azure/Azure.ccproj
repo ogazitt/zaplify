@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>1.5.0</ProductVersion>
+    <ProductVersion>1.6</ProductVersion>
     <ProjectGuid>{46e77407-c105-4f01-ae6f-5cdb3cee491f}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -59,10 +59,17 @@
       <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Profiles" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\zaplifyProduction.azurePubxml" />
+    <PublishProfile Include="Profiles\zaplifydev1.azurePubxml" />
+  </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\1.5\</CloudExtensionsDir>
+    <CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\1.6\</CloudExtensionsDir>
   </PropertyGroup>
   <Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
   <PropertyGroup>

@@ -50,6 +50,7 @@
 
         public static void DeleteMessage(object message)
         {
+            TraceLog.TraceDetail("MessageQueue.DeleteMessage entered");
             Queue.DeleteMessage((CloudQueueMessage)message);
         }
 
@@ -59,11 +60,14 @@
             if (msg == null)  // GetMessage doesn't block for a message
                 return null;
 
+            TraceLog.TraceDetail("MessageQueue.DequeueMessage dequeued a message");
             byte[] bytes = msg.AsBytes;
             var ms = new MemoryStream(bytes);
             DataContractJsonSerializer dcs = new DataContractJsonSerializer(typeof(T));
             T content = (T)dcs.ReadObject(ms);
             MQMessage<T> returnMessage = new MQMessage<T>() { Content = content, MessageRef = msg };
+            TraceLog.TraceInfo("MessageQueue.DequeueMessage dequeued a " + typeof(T).GetType().Name);
+            
             return returnMessage;
         }
 
@@ -84,6 +88,7 @@
 
             var msg = new CloudQueueMessage(bytes);
             Queue.AddMessage(msg);
+            TraceLog.TraceInfo("MessageQueue.EnqueueMessage enqueued a " + obj.GetType().Name);
         }
 
         public static void Initialize()
@@ -91,9 +96,9 @@
             // create the queue if it doesn't yet exist
             // this call returns false if the queue was already created 
             if (Queue.CreateIfNotExist())
-            {
                 TraceLog.TraceInfo(String.Format("MessageQueue.Initialize: created queue named '{0}'", queueName));
-            }
+            else
+                TraceLog.TraceDetail(String.Format("MessageQueue.Initialize: queue named '{0}' already exists", queueName));
         }
 
         private static string MakeQueueName()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
   <Role name="WorkerRole">
-    <Instances count="1" />
+    <Instances count="2" />
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
@@ -21,7 +21,7 @@
     </Certificates>
   </Role>
   <Role name="Website">
-    <Instances count="1" />
+    <Instances count="2" />
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />

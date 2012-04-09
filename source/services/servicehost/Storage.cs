@@ -7,7 +7,9 @@
 
     public static class Storage
     {
+#if !DEBUG
         private static UserStorageContext staticUserContext;
+#endif
 
         public static SuggestionsStorageContext NewSuggestionsContext
         {
@@ -23,15 +25,15 @@
         {   // use a static context to access static data (serving values out of EF cache)
             get
             {
-                if (staticUserContext == null)
-                {
-                    staticUserContext = new UserStorageContext();
-                }
 #if DEBUG
                 // if in a debug build, always go to the database
                 return new UserStorageContext();
 #else
-                return staticContext;
+                if (staticUserContext == null)
+                {
+                    staticUserContext = new UserStorageContext();
+                }
+                return staticUserContext;
 #endif
             }
         }
