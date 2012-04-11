@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="2" osVersion="*">
   <Role name="WorkerRole">
-    <Instances count="2" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="MailWorkerCount" value="1" />
-      <Setting name="WorkflowWorkerCount" value="2" />
+      <Setting name="WorkflowWorkerCount" value="1" />
       <!-- SQL Azure databases for Dev1 deployment -->
       <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapusers_041112;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapsuggestions_041112;User Id=builtsteady;Password=zrc022.." />
@@ -23,7 +23,7 @@
     </Certificates>
   </Role>
   <Role name="Website">
-    <Instances count="2" />
+    <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
