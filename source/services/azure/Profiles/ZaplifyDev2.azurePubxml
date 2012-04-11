@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <AzureCredentials>BizSpark - Dev2</AzureCredentials>
+    <AzureHostedServiceName>zaplifydev2</AzureHostedServiceName>
+    <AzureHostedServiceLabel>zaplifydev2</AzureHostedServiceLabel>
+    <AzureSlot>Production</AzureSlot>
+    <AzureEnableIntelliTrace>False</AzureEnableIntelliTrace>
+    <AzureEnableProfiling>False</AzureEnableProfiling>
+    <AzureEnableWebDeploy>True</AzureEnableWebDeploy>
+    <AzureStorageAccountName>zaplifydev2</AzureStorageAccountName>
+    <AzureStorageAccountLabel>zaplifydev2</AzureStorageAccountLabel>
+    <AzureDeploymentLabel>ZaplifyDev2</AzureDeploymentLabel>
+    <AzureSolutionConfiguration>Release</AzureSolutionConfiguration>
+    <AzureServiceConfiguration>Dev2</AzureServiceConfiguration>
+    <AzureAppendTimestampToDeploymentLabel>True</AzureAppendTimestampToDeploymentLabel>
+    <AzureAllowUpgrade>True</AzureAllowUpgrade>
+    <AzureEnableRemoteDesktop>True</AzureEnableRemoteDesktop>
+  </PropertyGroup>
+</Project>

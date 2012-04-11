@@ -63,8 +63,9 @@
     <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
-    <PublishProfile Include="Profiles\zaplifyProduction.azurePubxml" />
-    <PublishProfile Include="Profiles\zaplifydev1.azurePubxml" />
+    <PublishProfile Include="Profiles\ZaplifyDev2.azurePubxml" />
+    <PublishProfile Include="Profiles\ZaplifyDev1.azurePubxml" />
+    <PublishProfile Include="Profiles\ZaplifyProduction.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

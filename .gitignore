@@ -6,7 +6,6 @@ build/
 service/website/bin/
 source/devices/winphone/winphone/PerformanceLogs/
 source/services/azure/csx/
-source/services/azure/profiles/
 XapCacheFile.xml
 *.suo
 *.userprefs

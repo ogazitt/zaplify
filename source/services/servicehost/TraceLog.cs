@@ -138,13 +138,17 @@ namespace BuiltSteady.Zaplify.ServiceHost
             StackTrace st = new StackTrace(true);
             StackFrame sf = st.GetFrame(2);
             string fullFileName = sf.GetFileName();
-            string[] lines = fullFileName.Split('\\');
-            string filename = lines[lines.Length - 1];
+            string filename = "Unknown";
+            if (!string.IsNullOrEmpty(fullFileName))
+            {
+                string[] lines = fullFileName.Split('\\');
+                filename = lines[lines.Length - 1];
+            }
             string msg = String.Format(
                 "{0}() in {1}:{2}",
                 sf.GetMethod().Name,
                 filename,
-                sf.GetFileLineNumber());
+                sf.GetFileLineNumber().ToString());
             return msg;
         }
 
