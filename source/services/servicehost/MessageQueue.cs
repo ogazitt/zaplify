@@ -48,17 +48,26 @@
             }
         }
 
-        public static void DeleteMessage(object message)
+        public static bool DeleteMessage(object message)
         {
             var msg = message as CloudQueueMessage;
             if (msg == null)
             {
                 TraceLog.TraceError("MessageQueue.DeleteMessage: wrong message type: " + message.GetType().Name);
-                return;
+                return false;
             }
 
-            Queue.DeleteMessage(msg);
-            TraceLog.TraceInfo("MessageQueue.DeleteMessage deleted message ID " + msg.Id);
+            try
+            {
+                TraceLog.TraceInfo("MessageQueue.DeleteMessage deleting message ID " + msg.Id);
+                Queue.DeleteMessage(msg);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("MessageQueue.DeleteMessage failed", ex);
+                return false;
+            }
         }
 
         public static MQMessage<T> DequeueMessage<T>()

@@ -155,7 +155,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError(String.Format("CurrentUser: User for item {0} not found; ex: {1}", item.Name, ex.Message));
+                TraceLog.TraceException(String.Format("CurrentUser: User for item {0} not found", item.Name), ex);
                 return null;
             }
         }

@@ -123,6 +123,10 @@ namespace BuiltSteady.Zaplify.WorkerRole
                         {
                             T worker = new T();
                             array.SetValue(worker, threadNum);
+
+                            // sleep for a fraction of the worker's Timeout that corresponds to the position in the array
+                            // this is to spread out the workers relatively evenly across the entire Timeout interval
+                            Thread.Sleep(worker.Timeout * threadNum / array.Length);
                             worker.Start();
                         }
                         catch (Exception ex)

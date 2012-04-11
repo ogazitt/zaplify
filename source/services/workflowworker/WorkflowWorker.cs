@@ -12,7 +12,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 {
     public class WorkflowWorker : IWorker
     {
-        const int timeout = 5000;  // 5 seconds
+        public int Timeout { get { return 5000; } } // 5 seconds
 
         private UserStorageContext userContext;
         public UserStorageContext UserContext
@@ -78,7 +78,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         catch (Exception ex)
                         {
                             // this shouldn't happen unless there is a weird race between the Operation getting saved and this message getting processed
-                            TraceLog.TraceError("WorkflowWorker: could not retrieve operation; ex: " + ex.Message);
+                            // or the database connection somehow wasn't initialized.  the best approach is to let this message expire and get dequeued again in the future
+                            TraceLog.TraceException("WorkflowWorker: could not retrieve operation", ex);
                             throw;  // caught by the outer try block, so as to execute the sleep call 
                         }
 
@@ -159,13 +160,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
 
                         // remove the message from the queue
-                        MessageQueue.DeleteMessage(msg.MessageRef);
+                        bool deleted = MessageQueue.DeleteMessage(msg.MessageRef);
 
                         // reenqueue and sleep if the processing failed
-                        if (reenqueue)
+                        if (deleted && reenqueue)
                         {
+                            Thread.Sleep(Timeout);
                             MessageQueue.EnqueueMessage(operationID);
-                            Thread.Sleep(timeout);
                         }
 
                         // dequeue the next message
@@ -178,54 +179,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
 
                 // sleep for the timeout period
-                Thread.Sleep(timeout);
+                Thread.Sleep(Timeout);
             }
         }
 
         #region Helpers
-
-        object GetFieldValue(Item item, Field field)
-        {
-            PropertyInfo pi = null;
-            object currentValue = null;
-
-            // get the current field value.
-            // the value can either be in a strongly-typed property on the item (e.g. Name),
-            // or in one of the FieldValues 
-            try
-            {
-                // get the strongly typed property
-                pi = item.GetType().GetProperty(field.Name);
-                if (pi != null)
-                    currentValue = pi.GetValue(item, null);
-            }
-            catch (Exception)
-            {
-                // an exception indicates this isn't a strongly typed property on the Item
-                // this is NOT an error condition
-            }
-
-            // if couldn't find a strongly typed property, this property could be stored as a 
-            // FieldValue on the item
-            if (pi == null)
-            {
-                FieldValue fieldValue = null;
-                // get current item's value for this field
-                try
-                {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == field.Name);
-                    currentValue = fieldValue.Value;
-                }
-                catch (Exception)
-                {
-                    // we can't do anything with this property since we don't have it on this item
-                    // but that's ok - we can keep going
-                    return null;
-                }
-            }
-
-            return currentValue;
-        }
 
         void DeleteWorkflows(Guid entityID)
         {
@@ -245,7 +203,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("DeleteWorkflows failed; ex: " + ex.Message);
+                TraceLog.TraceException("DeleteWorkflows failed", ex);
             }
         }
 
@@ -314,7 +272,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("ExecuteWorkflows: failed; ex: " + ex.Message);
+                TraceLog.TraceException("ExecuteWorkflows: failed", ex);
                 return false;
             }
             finally
@@ -322,15 +280,84 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // find and unlock all remaining workflow instances that relate to this entity
                 // note that a new context is used for this - to avoid caching problems where the current thread 
                 // believes it is the owner but the database says otherwise.
-                wis = Storage.NewSuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
+                var context = Storage.NewSuggestionsContext;
+                wis = context.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
                 if (wis.Count > 0)
                 {
                     // unlock each of the workflow instances
                     foreach (var instance in wis)
                         if (instance.LockedBy == Me)
                             instance.LockedBy = null;
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        object GetFieldValue(Item item, Field field)
+        {
+            PropertyInfo pi = null;
+            object currentValue = null;
+
+            // get the current field value.
+            // the value can either be in a strongly-typed property on the item (e.g. Name),
+            // or in one of the FieldValues 
+            try
+            {
+                // get the strongly typed property
+                pi = item.GetType().GetProperty(field.Name);
+                if (pi != null)
+                    currentValue = pi.GetValue(item, null);
+            }
+            catch (Exception)
+            {
+                // an exception indicates this isn't a strongly typed property on the Item
+                // this is NOT an error condition
+            }
+
+            // if couldn't find a strongly typed property, this property could be stored as a 
+            // FieldValue on the item
+            if (pi == null)
+            {
+                FieldValue fieldValue = null;
+                // get current item's value for this field
+                try
+                {
+                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == field.Name);
+                    currentValue = fieldValue.Value;
+                }
+                catch (Exception)
+                {
+                    // we can't do anything with this property since we don't have it on this item
+                    // but that's ok - we can keep going
+                    return null;
+                }
+            }
+
+            return currentValue;
+        }
+
+        void RestartWorkflow(ServerEntity entity, string workflowType)
+        {
+            if (entity == null || workflowType == null)
+                return;
+
+            try
+            {
+                // kill all existing workflows associated with this Item
+                // TODO: also need to mark the suggestions associated with this workflow as stale so that they don't
+                // show up for the item again.
+                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
+                if (runningWFs.Count > 0)
+                {
+                    foreach (var wf in runningWFs)
+                        SuggestionsContext.WorkflowInstances.Remove(wf);
                     SuggestionsContext.SaveChanges();
                 }
+                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
+            }
+            catch (Exception)
+            {
+                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
             }
         }
 
@@ -343,6 +370,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             Item item = entity as Item;
             Folder folder = entity as Folder;
             User user = entity as User;
+
+            // verify there are no workflow instances associated with this item yet
+            var wis = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
+            if (wis.Count > 0)
+                return;
 
             if (item != null)
             {
@@ -391,31 +423,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                             break;
                     }
                 }
-            }
-        }
-
-        void RestartWorkflow(ServerEntity entity, string workflowType)
-        {
-            if (entity == null || workflowType == null)
-                return;
-
-            try
-            {
-                // kill all existing workflows associated with this Item
-                // TODO: also need to mark the suggestions associated with this workflow as stale so that they don't
-                // show up for the item again.
-                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
-                if (runningWFs.Count > 0)
-                {
-                    foreach (var wf in runningWFs)
-                        SuggestionsContext.WorkflowInstances.Remove(wf);
-                    SuggestionsContext.SaveChanges();
-                }
-                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
-            }
-            catch (Exception)
-            {
-                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
             }
         }
 

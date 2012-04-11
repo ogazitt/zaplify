@@ -184,7 +184,13 @@
                     }
                     else
                     {
-                        if (HostEnvironment.IsAzure) { MessageQueue.EnqueueMessage(operation.ID); }
+                        if (HostEnvironment.IsAzure) 
+                        {
+                            // if this suggestion was "Chosen", then enqueue a message.  we don't need to enqueue messages for
+                            // suggestions that were ignored.
+                            if (modified.ReasonSelected == Reasons.Chosen)
+                                MessageQueue.EnqueueMessage(operation.ID); 
+                        }
                         TraceLog.TraceInfo("SuggestionResource.UpdateSuggestion: Accepted");
                         return ReturnResult<Suggestion>(req, operation, current, HttpStatusCode.Accepted);
                     }

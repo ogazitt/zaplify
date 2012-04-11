@@ -122,7 +122,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceError("GenerateSuggestions: could not contact ACS to get an access token; ex: " + ex.Message);
+                    TraceLog.TraceException("GenerateSuggestions: could not contact ACS to get an access token", ex);
                     
                     // if the FB credentials aren't available, there is nothing the Person service can do for us
                     if (adApi.FacebookAccessToken == null)
@@ -146,7 +146,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: could not contact Person Service; ex: " + ex.Message);
+                TraceLog.TraceException("GenerateSuggestions: could not contact Person Service", ex);
                 return Status.Error;
             }
 

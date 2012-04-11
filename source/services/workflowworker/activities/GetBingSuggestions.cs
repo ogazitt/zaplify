@@ -68,7 +68,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return Status.Error;
             }
 
-            return Status.Pending;
+            // this activity is typically last and once links have been generated, no need 
+            // to keep the workflow instance around
+            return Status.Complete;
         }
     }
 }
