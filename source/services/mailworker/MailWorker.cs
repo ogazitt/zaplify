@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace BuiltSteady.Zaplify.MailWorker
 {
-    public class MailWorker
+    public class MailWorker : IWorker
     {
         static string FolderMarker = @"#folder:";
         static string ListMarker = @"#list:";

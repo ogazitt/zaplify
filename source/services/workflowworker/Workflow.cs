@@ -14,6 +14,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         public virtual List<WorkflowState> States { get; set; }
 
+        public UserStorageContext UserContext { get; set; }
+        public SuggestionsStorageContext SuggestionsContext { get; set; }
+
         /// <summary>
         /// This is the typical way to execute a workflow.  This implementation
         /// will retrieve any data (e.g. user selection, or a result of a previous Activity)
@@ -29,10 +32,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             List<Suggestion> data = null;
             try
             {
-                data = WorkflowWorker.
-                    SuggestionsContext.
-                    Suggestions.
-                    Where(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State).ToList();
+                data = SuggestionsContext.Suggestions.Where(sugg => sugg.WorkflowInstanceID == instance.ID && sugg.State == instance.State).ToList();
                 
                 // if there is no suggestion data, indicate this with a null reference instead
                 if (data.Count == 0)
@@ -83,7 +83,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     if (instance.State == null)
                         status = WorkflowActivity.Status.WorkflowDone;
                 }
-                WorkflowWorker.SuggestionsContext.SaveChanges();
+                SuggestionsContext.SaveChanges();
 
                 return status;
             }
@@ -121,8 +121,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 try
                 {
-                    WorkflowWorker.SuggestionsContext.WorkflowInstances.Remove(instance);
-                    WorkflowWorker.SuggestionsContext.SaveChanges();
+                    SuggestionsContext.WorkflowInstances.Remove(instance);
+                    SuggestionsContext.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -131,8 +131,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
         }
 
-        public static void StartWorkflow(string type, ServerEntity entity, string instanceData)
+        public static void StartWorkflow(string type, ServerEntity entity, string instanceData, UserStorageContext userContext, SuggestionsStorageContext suggestionsContext)
         {
+            WorkflowInstance instance = null;
             try
             {
                 Workflow workflow = null;
@@ -141,7 +142,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     // get the workflow definition out of the database
                     try
                     {
-                        var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == type);
+                        var wt = suggestionsContext.WorkflowTypes.Single(t => t.Type == type);
                         workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
                     }
                     catch (Exception ex)
@@ -154,9 +155,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 if (workflow.States.Count == 0)
                     return;
 
+                // store the database contexts
+                workflow.UserContext = userContext;
+                workflow.SuggestionsContext = suggestionsContext;
+
                 // create the new workflow instance and store in the workflow DB
                 DateTime now = DateTime.Now;
-                var instance = new WorkflowInstance()
+                instance = new WorkflowInstance()
                 {
                     ID = Guid.NewGuid(),
                     EntityID = entity.ID,
@@ -166,16 +171,27 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     InstanceData = instanceData ?? "{}",
                     Created = now,
                     LastModified = now,
+                    LockedBy = WorkflowWorker.Me,
                 };
-                WorkflowWorker.SuggestionsContext.WorkflowInstances.Add(instance);
-                WorkflowWorker.SuggestionsContext.SaveChanges();
+                suggestionsContext.WorkflowInstances.Add(instance);
+                suggestionsContext.SaveChanges();
 
                 // invoke the workflow and process steps until workflow is blocked for user input or is done
                 workflow.Run(instance, entity);
+
+                // unlock the workflowinstance
+                instance.LockedBy = null;
+                suggestionsContext.SaveChanges();
             }
             catch (Exception ex)
             {
                 TraceLog.TraceException("StartWorkflow failed", ex);
+                if (instance != null && instance.LockedBy == WorkflowWorker.Me)
+                {
+                    // unlock the workflowinstance
+                    instance.LockedBy = null;
+                    suggestionsContext.SaveChanges();
+                }
             }
         }
 
@@ -197,12 +213,18 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     ProcessParameter(instance, param);
 
                 // save the instance data bag 
-                WorkflowWorker.SuggestionsContext.SaveChanges();
+                SuggestionsContext.SaveChanges();
             }
 
             WorkflowActivity activity = null;
             if (ActivityList.Activities.TryGetValue(activityName, out activity))
+            {
+                activity.UserContext = UserContext;
+                activity.SuggestionsContext = SuggestionsContext;
                 return activity;
+            }
+
+            TraceLog.TraceError(String.Format("PrepareActivity: Activity {0} not found", activityName));
             return null;
         }
 

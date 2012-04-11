@@ -26,7 +26,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             workflowName = (string)data;
                          
                         if (workflowName != null)
-                            Workflow.StartWorkflow(workflowName, entity, workflowInstance.InstanceData);
+                            Workflow.StartWorkflow(workflowName, entity, workflowInstance.InstanceData, UserContext, SuggestionsContext);
                     }
                     catch (Exception ex)
                     {

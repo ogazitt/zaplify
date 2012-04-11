@@ -16,5 +16,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string InstanceData { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastModified { get; set; }
+        public string LockedBy { get; set; }
     }
 }
