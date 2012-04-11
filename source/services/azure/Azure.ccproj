@@ -8,10 +8,10 @@
     <ProjectGuid>{46e77407-c105-4f01-ae6f-5cdb3cee491f}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TaskStoreAzureService</RootNamespace>
-    <AssemblyName>TaskStoreAzureService</AssemblyName>
-    <StartDevelopmentStorage>True</StartDevelopmentStorage>
-    <Name>TaskStoreAzureService</Name>
+    <RootNamespace>ZaplifyAzureService</RootNamespace>
+    <AssemblyName>ZaplifyAzureService</AssemblyName>
+    <StartDevelopmentStorage>False</StartDevelopmentStorage>
+    <Name>ZaplifyAzureService</Name>
     <FullDeploy>true</FullDeploy>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

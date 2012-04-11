@@ -67,7 +67,7 @@ namespace BuiltSteady.Zaplify.WorkerRole
                     TraceLog.TraceInfo("WorkflowWorker started");
                 }
 
-                if (mailWorker == null)
+                if (mailWorker == null && !HostEnvironment.IsAzureDevFabric)
                 {
                     // start a thread for the workflow service
                     Thread mailThread = new Thread(() =>

@@ -53,7 +53,7 @@
             try
             {
                 if (msg.Headers.UserAgent != null)
-                    winPhone = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product.Name == "Zaplify-WinPhone");
+                    winPhone = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product != null && pi.Product.Name == "Zaplify-WinPhone");
             }
             catch (Exception)
             {
