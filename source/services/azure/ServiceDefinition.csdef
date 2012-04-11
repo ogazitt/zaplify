@@ -9,6 +9,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
+      <Setting name="MailWorkerCount" />
+      <Setting name="WorkflowWorkerCount" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />

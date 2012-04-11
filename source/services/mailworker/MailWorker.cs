@@ -13,11 +13,12 @@ using System.Reflection;
 
 namespace BuiltSteady.Zaplify.MailWorker
 {
-    public class MailWorker
+    public class MailWorker : IWorker
     {
-        static string FolderMarker = @"#folder:";
-        static string ListMarker = @"#list:";
-        const int timeout = 30000;  // 30 seconds
+        public int Timeout { get { return 30000; } }  // 30 seconds
+
+        const string FolderMarker = @"#folder:";
+        const string ListMarker = @"#list:";
 
         public void Start()
         {
@@ -68,7 +69,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 }
 
                 // sleep for the timeout period
-                Thread.Sleep(timeout);
+                Thread.Sleep(Timeout);
             }
 #endif
         }

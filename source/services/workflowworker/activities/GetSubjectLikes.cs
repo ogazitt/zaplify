@@ -76,7 +76,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 {
                     FieldValue refID = GetFieldValue(subject, FieldNames.ItemRef, false);
                     Guid refid = new Guid(refID.Value);
-                    subject = WorkflowWorker.UserContext.Items.Include("FieldValues").Single(i => i.ID == refid);
+                    subject = UserContext.Items.Include("FieldValues").Single(i => i.ID == refid);
                 }
             }
             catch (Exception ex)

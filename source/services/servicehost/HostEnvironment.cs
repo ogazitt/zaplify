@@ -6,7 +6,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
     // avoid loading Azure assemblies unless running in Azure
     using Azure = Microsoft.WindowsAzure;
-using System.Globalization;
+    using System.Globalization;
 
     public static class HostEnvironment
     {

@@ -105,6 +105,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class Reasons
     {
         public const string Chosen = "Chosen";
+        public const string Ignore = "Ignore";
         public const string Like = "Like";
         public const string Dislike = "Dislike";
     }

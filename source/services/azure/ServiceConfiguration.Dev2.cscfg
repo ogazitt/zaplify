@@ -5,6 +5,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="MailWorkerCount" value="1" />
+      <Setting name="WorkflowWorkerCount" value="1" />
       <!-- SQL Azure databases for Dev2 deployment -->
       <Setting name="SQLUsers" value="data source=kpfc7hoc39.database.windows.net;Initial Catalog=zapusers_040412;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=kpfc7hoc39.database.windows.net;Initial Catalog=zapsuggestions_040412;User Id=builtsteady;Password=zrc022.." />

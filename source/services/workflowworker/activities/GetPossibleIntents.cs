@@ -81,10 +81,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             try
             {
-                Intent intent = WorkflowWorker.SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
+                Intent intent = SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
                 try
                 {
-                    var wt = WorkflowWorker.SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
+                    var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
                     suggestionList[intent.Name] = wt.Type;
                     return Status.Complete;
                 }
@@ -102,7 +102,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             try
             {
                 // get a list of all approximate matches
-                var intentList = WorkflowWorker.SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
+                var intentList = SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
                 foreach (var intent in intentList)
                     suggestionList[intent.Name] = intent.Name;
             }

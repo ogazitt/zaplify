@@ -39,7 +39,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             Guid contactsListID = new Guid(contactsField.Value);
 
                             // use the first contact as the subject
-                            var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
+                            var contact = UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
                             StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, JsonSerializer.Serialize(contact));
                             StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
                             return Status.Complete;
@@ -113,8 +113,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 contactsField.Value = listID.ToString();
                 try
                 {
-                    WorkflowWorker.UserContext.Items.Add(list);
-                    WorkflowWorker.UserContext.SaveChanges();
+                    UserContext.Items.Add(list);
+                    UserContext.SaveChanges();
                 }
                 catch (Exception ex)
                 {
@@ -139,7 +139,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // update the contact if it already exists, otherwise add a new contact
             try
             {
-                Item dbContact = WorkflowWorker.UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
+                Item dbContact = UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
                 foreach (var fv in contact.FieldValues)
                 {
                     // add or update each of the fieldvalues
@@ -153,11 +153,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
                 if (folder != null)
                     contact.FolderID = folder.ID;
-                WorkflowWorker.UserContext.Items.Add(contact);
+                UserContext.Items.Add(contact);
             }
             try
             {
-                WorkflowWorker.UserContext.SaveChanges();
+                UserContext.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -184,8 +184,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             };
             try
             {
-                WorkflowWorker.UserContext.Items.Add(contactRef);
-                WorkflowWorker.UserContext.SaveChanges();
+                UserContext.Items.Add(contactRef);
+                UserContext.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -205,7 +205,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // TODO: support user defaults stored in hidden System folder
             try
             {
-                return WorkflowWorker.UserContext.Folders.First(f => f.UserID == userID && f.ItemTypeID == itemTypeID);
+                return UserContext.Folders.First(f => f.UserID == userID && f.ItemTypeID == itemTypeID);
             }
             catch (Exception)
             {

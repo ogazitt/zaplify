@@ -31,6 +31,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             WorkflowDone = 2  // the workflow is complete (terminate workflow)
         }
 
+        public UserStorageContext UserContext { get; set; }
+        public SuggestionsStorageContext SuggestionsContext { get; set; }
+
         /// <summary>
         /// Check and process the target field - if it is on the item, store the value in the 
         /// state bag and return true
@@ -124,10 +127,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         Value = suggestions[s],
                         TimeSelected = null
                     };
-                    WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
+                    SuggestionsContext.Suggestions.Add(sugg);
                 }
 
-                WorkflowWorker.SuggestionsContext.SaveChanges();
+                SuggestionsContext.SaveChanges();
                 return status;
             }
             catch (Exception ex)
@@ -148,11 +151,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 return null;
             try
             {
-                return WorkflowWorker.UserContext.Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
+                return UserContext.Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError(String.Format("CurrentUser: User for item {0} not found; ex: {1}", item.Name, ex.Message));
+                TraceLog.TraceException(String.Format("CurrentUser: User for item {0} not found", item.Name), ex);
                 return null;
             }
         }
@@ -353,8 +356,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 Value = null,
                 TimeSelected = null
             };
-            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-            WorkflowWorker.SuggestionsContext.SaveChanges();
+            SuggestionsContext.Suggestions.Add(sugg);
+            SuggestionsContext.SaveChanges();
         }
 
         /// <summary>
@@ -370,7 +373,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             dict[key] = data;
             workflowInstance.InstanceData = dict.ToString();
-            WorkflowWorker.SuggestionsContext.SaveChanges();
+            SuggestionsContext.SaveChanges();
         }
 
         /// <summary>
