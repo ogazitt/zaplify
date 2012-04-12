@@ -626,6 +626,19 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     dp.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(dp);
                     break;
+                case DisplayTypes.DateTimePicker:
+                    DatePicker dateTimePicker = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+                    dateTimePicker.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { /* Mode = BindingMode.TwoWay */ });
+                    dateTimePicker.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                    {
+                        //pi.SetValue(container, dp.Value, null);
+                        pi.SetValue(container, dateTimePicker.Value == null ? null : ((DateTime)dateTimePicker.Value).ToString("d"), null);
+                        folder.NotifyPropertyChanged("FirstDue");
+                        folder.NotifyPropertyChanged("FirstDueColor");
+                    });
+                    dateTimePicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(dateTimePicker);
+                    break;
                 case DisplayTypes.Checkbox:
                     CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
                     cb.SetBinding(CheckBox.IsCheckedProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
