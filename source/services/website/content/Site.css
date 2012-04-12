@@ -104,7 +104,9 @@ Layout elements
     min-width: 840px;
     width: 100%;
     height: 60px;
-    background: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
+    background-color: #3B5998; 
+    border-bottom: 2px ridge #E2E6E6;
+    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
 }
 
 .header-content {
@@ -113,7 +115,7 @@ Layout elements
 .header-content .logo {
     position: absolute;
     left: 20px;
-    top: 0px;
+    top: 8px;
     cursor: pointer;
 }
 
@@ -121,7 +123,7 @@ Layout elements
     min-width: 600px;
     min-height: 400px;
     Xmargin: 20px 20px 20px 20px;
-    margin: 20px 0px 20px 0px;
+    margin: 15px 0px 15px 0px;
 }
 
 .main-content {
@@ -135,20 +137,19 @@ Layout elements
     min-width: 600px;
     width: 100%;
     height: 25px;
-    background: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
+    background-color: #3B5998; 
+    border-top: 2px groove #E2E6E6;
+    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
 }
 
 .footer-copyright { float: right; margin: 6px 8px 0 0; }
-.footer-copyright a {  color: #202030; }
+.footer-copyright a {  color: #FFFFFF; }
 
 .footer-content { float: left; }
 
-.signin-control
-{
-    position: absolute;
-    right:15px;
-    top: 15px;
-}
+.signin-control { position: absolute; right:15px; top: 8px; }
+.signin-control a { color: #FFFFFF; }
+.signin-control span { color: #AEC2D0; }
 
 /*----------------------------------------------------------
 Dialogs and Forms
@@ -156,6 +157,7 @@ Dialogs and Forms
 
 .dialog-panel {
     max-width: 490px;
+    margin-left: 50px;
     padding: 0 20px 10px 30px;
     background: transparent url(images/panel-middle-bkgnd.png) repeat-y;
     Xborder: 1px solid red;
@@ -167,6 +169,7 @@ Dialogs and Forms
 
 .dialog-panel-top {
     max-width: 540px;
+    margin-left: 50px;
     height: 20px;
     background: transparent url(images/panel-bkgnd.png) no-repeat left top;
     Xborder: 1px solid green;
@@ -174,6 +177,7 @@ Dialogs and Forms
 
 .dialog-panel-bottom {
     max-width: 540px;
+    margin-left: 50px;
     height: 20px;
     background: transparent url(images/panel-bkgnd.png) no-repeat left bottom;
     Xborder: 1px solid blue;

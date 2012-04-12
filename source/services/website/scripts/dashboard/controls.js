@@ -85,7 +85,7 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
-    Dashboard.folderList.render('.dashboard-folders');
+    //Dashboard.folderList.render('.dashboard-folders');
     Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
 
     // suggestions list
@@ -97,8 +97,9 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folder manager
     Dashboard.folderManager = new FolderManager(this.dataModel);
-    Dashboard.ManageFolder();
-
+    Dashboard.folderManager.render('.dashboard-manager');
+    Dashboard.dataModel.restoreSelection();
+    //Dashboard.ManageFolder();
 
     // bind events
     $(window).bind('load', Dashboard.resize);
@@ -122,6 +123,8 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
         item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
     }
+    Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
+
     if (!Dashboard.resizing) {
         // get suggestions for currently selected user, folder, or item
         Dashboard.getSuggestions(folder, item);

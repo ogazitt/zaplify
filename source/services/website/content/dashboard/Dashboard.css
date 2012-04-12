@@ -65,7 +65,7 @@ Dashboard Folders
 .folder-button.selected {
     font-weight: bold;
     color: #E2E6E6;
-    background-color: #50738A;
+    background-color: #3B5998;
     border-radius: 0;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -134,7 +134,7 @@ Dashboard Suggestions
     overflow-y: auto;
     position: relative;
     text-align: center;
-    background-color: #50738A;
+    background-color: #3B5998;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
@@ -241,8 +241,8 @@ Dashboard Manager
     height: 18px;
     font-weight: bold;
     color: #E2E2E6;
-    background-color: #50738A;
-    border: 1px solid #50738A;
+    background-color: #3B5998;
+    border: 1px solid #3B5998;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }

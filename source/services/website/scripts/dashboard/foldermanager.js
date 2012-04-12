@@ -91,7 +91,9 @@ FolderManagerHelp.prototype.render = function (container) {
 }
 
 FolderManagerHelp.prototype.hide = function () {
-    this.$element.hide();
+    if (this.$element != null) {
+        this.$element.hide();
+    }
 }
 
 FolderManagerHelp.prototype.show = function () {
@@ -424,6 +426,7 @@ ItemEditor.prototype.renderField = function (container, field) {
 
     switch (field.DisplayType) {
         case DisplayTypes.Hidden:
+        case DisplayTypes.Priority:
         case DisplayTypes.Reference:
         case DisplayTypes.TagList:
             break;
