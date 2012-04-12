@@ -261,8 +261,12 @@
                 };
                 model.StorageContext.Folders.Add(folder);
 
-                model.StorageContext.SaveChanges();
+                // create $ClientSettings folder
+                folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = Guid.NewGuid(), UserID = this.CurrentUser.ID, PermissionID = Permissions.Full };
+                folder = new Folder() { ID = folderUser.FolderID, SortOrder = 0, Name = "$ClientSettings", UserID = this.CurrentUser.ID, ItemTypeID = SystemItemTypes.NameValue, Items = new List<Item>(), FolderUsers = new List<FolderUser>() { folderUser } };
+                model.StorageContext.Folders.Add(folder);
 
+                model.StorageContext.SaveChanges();
 
                 // TEMPORARY: add "Get Connected" suggestions for User
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
