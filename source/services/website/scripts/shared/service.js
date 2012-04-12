@@ -28,7 +28,7 @@ Service.fbRedirectPath = "dashboard/facebook";
 Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
 Service.cloudADConsentUri = "dashboard/CloudAD";
 
-Service.invokeAsync = false;
+Service.invokeAsync = true;
 
 // ---------------------------------------------------------
 // public methods
@@ -42,7 +42,7 @@ Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
 }
 
 Service.Close = function Service$Close() {
-    Service.invokeAsync = true;
+    Service.invokeAsync = false;
 }
 
 Service.GetResource = function Service$GetResource(resource, id, successHandler, errorHandler) {
