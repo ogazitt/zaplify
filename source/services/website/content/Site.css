@@ -104,7 +104,9 @@ Layout elements
     min-width: 840px;
     width: 100%;
     height: 60px;
-    background: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
+    background-color: #3B5998; 
+    border-bottom: 2px ridge #E2E6E6;
+    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
 }
 
 .header-content {
@@ -113,14 +115,15 @@ Layout elements
 .header-content .logo {
     position: absolute;
     left: 20px;
-    top: 0px;
+    top: 8px;
     cursor: pointer;
 }
 
 .main-content-region {
     min-width: 600px;
     min-height: 400px;
-    margin: 20px 20px 20px 20px;
+    Xmargin: 20px 20px 20px 20px;
+    margin: 15px 0px 15px 0px;
 }
 
 .main-content {
@@ -134,20 +137,19 @@ Layout elements
     min-width: 600px;
     width: 100%;
     height: 25px;
-    background: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
+    background-color: #3B5998; 
+    border-top: 2px groove #E2E6E6;
+    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
 }
 
 .footer-copyright { float: right; margin: 6px 8px 0 0; }
-.footer-copyright a {  color: #202030; }
+.footer-copyright a {  color: #FFFFFF; }
 
 .footer-content { float: left; }
 
-.signin-control
-{
-    position: absolute;
-    right:15px;
-    top: 15px;
-}
+.signin-control { position: absolute; right:15px; top: 8px; }
+.signin-control a { color: #FFFFFF; }
+.signin-control span { color: #AEC2D0; }
 
 /*----------------------------------------------------------
 Dialogs and Forms
@@ -155,6 +157,7 @@ Dialogs and Forms
 
 .dialog-panel {
     max-width: 490px;
+    margin-left: 50px;
     padding: 0 20px 10px 30px;
     background: transparent url(images/panel-middle-bkgnd.png) repeat-y;
     Xborder: 1px solid red;
@@ -166,6 +169,7 @@ Dialogs and Forms
 
 .dialog-panel-top {
     max-width: 540px;
+    margin-left: 50px;
     height: 20px;
     background: transparent url(images/panel-bkgnd.png) no-repeat left top;
     Xborder: 1px solid green;
@@ -173,6 +177,7 @@ Dialogs and Forms
 
 .dialog-panel-bottom {
     max-width: 540px;
+    margin-left: 50px;
     height: 20px;
     background: transparent url(images/panel-bkgnd.png) no-repeat left bottom;
     Xborder: 1px solid blue;
@@ -193,39 +198,45 @@ Dialogs and Forms
     width: 120px;
     height: 28px;
     text-align: center;
-    Xbackground: transparent url(images/redbutton.png) no-repeat;
 }
 
 fieldset {
     margin: 10px 0;
     padding: 12px;
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     max-width: 460px;
 }
 
 legend {
-    color: #948A54;
+    color: #7C7C70;
     font-size: 1.2em;
     padding: 0 4px;
 }
 
 textarea {
-    min-height: 75px;
+    min-height: 64px;
+    overflow: hidden;     
+    border: 1px solid #C0C0B2;
+    padding: 2px 3px 2px 3px;
+    margin-top: 3px;
+    font-size: 1em;
+    color: #202030;
+    background-color: #ECECE6;
 }
 
 input[type="text"], 
 input[type="password"] {
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     padding: 2px 3px 2px 3px;
     margin-top: 3px;
     font-size: 1em;
     color: #202030;
     width: 200px;
-    background-color: #EEECE1;
+    background-color: #ECECE6;
 }
 
 select {
-    border: 1px solid #C4BD97;
+    border: 1px solid #C0C0B2;
     padding: 2px;
     font-size: 1.2em;
     color: #202030;
@@ -291,3 +302,13 @@ Miscellaneous
 
 .float-left { float: left; }
 .float-right { float: right; }
+
+/*----------------------------------------------------------
+jquery-ui timepicker extension
+----------------------------------------------------------*/
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }

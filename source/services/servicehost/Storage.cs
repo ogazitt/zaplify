@@ -7,7 +7,9 @@
 
     public static class Storage
     {
+#if !DEBUG
         private static UserStorageContext staticUserContext;
+#endif
 
         public static SuggestionsStorageContext NewSuggestionsContext
         {
@@ -23,15 +25,15 @@
         {   // use a static context to access static data (serving values out of EF cache)
             get
             {
-                if (staticUserContext == null)
-                {
-                    staticUserContext = new UserStorageContext();
-                }
 #if DEBUG
                 // if in a debug build, always go to the database
                 return new UserStorageContext();
 #else
-                return staticContext;
+                if (staticUserContext == null)
+                {
+                    staticUserContext = new UserStorageContext();
+                }
+                return staticUserContext;
 #endif
             }
         }
@@ -40,7 +42,7 @@
     // DbContext for the suggestions DB
     public class SuggestionsStorageContext : DbContext
     {
-        public SuggestionsStorageContext() : base(HostEnvironment.UserDataConnection) { }
+        public SuggestionsStorageContext() : base(HostEnvironment.SuggestionsConnection) { }
         public SuggestionsStorageContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -50,6 +52,7 @@
         public DbSet<Intent> Intents { get; set; }
         public DbSet<Suggestion> Suggestions { get; set; }
         public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
+        public DbSet<WorkflowType> WorkflowTypes { get; set; }
     }
 
     // DbContext for the user DB

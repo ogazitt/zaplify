@@ -5,6 +5,7 @@ using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -12,14 +13,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         public virtual string Name { get { return this.GetType().Name; } }
         public virtual string GroupDisplayName { get { return null; } }
-        public abstract string TargetFieldName { get; }
+        public virtual string OutputParameterName { get { return TargetFieldName; } }
+        public virtual string SuggestionType { get { return null; } }
+        public virtual string TargetFieldName { get { return null; } }
         public abstract Func<
             WorkflowInstance, 
             ServerEntity, // item to operate over
             object,       // extra state to send to the execution Function
-            bool          // true for "completed", false for "not completed" (needs user input)
+            Status        // activity completion status
             > Function { get; }
 
+        public enum Status
+        {
+            Error = -1,       // unrecoverable error encountered (terminate workflow)
+            Pending = 0,      // the activity hasn't completed - e.g. awaiting user input (quiesce the workflow)
+            Complete = 1,     // the activity completed (move to the next state)
+            WorkflowDone = 2  // the workflow is complete (terminate workflow)
+        }
+
+        public UserStorageContext UserContext { get; set; }
+        public SuggestionsStorageContext SuggestionsContext { get; set; }
 
         /// <summary>
         /// Check and process the target field - if it is on the item, store the value in the 
@@ -30,14 +43,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>true for success, false if target field was not found</returns>
         protected bool CheckTargetField(WorkflowInstance workflowInstance, Item item)
         {
+            if (TargetFieldName == null)
+                return false;
+            
             // if the target field has been set, this state can terminate
             try
             {
                 FieldValue targetField = GetFieldValue(item, TargetFieldName, false);
                 if (targetField != null && targetField.Value != null)
                 {
-                    StoreInstanceData(workflowInstance, TargetFieldName, targetField.Value);
-                    StoreInstanceData(workflowInstance, Workflow.LastStateData, targetField.Value);
+                    StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
+                    StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, targetField.Value);
                     return true;
                 }
             }
@@ -46,6 +62,143 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // not an error condition if the target field wasn't found or the value is empty
             }
             return false;
+        }
+
+        /// <summary>
+        /// Create a set of suggestions from the results of calling the suggestion function
+        /// </summary>
+        /// <param name="workflowInstance">Workflow instance to operate over</param>
+        /// <param name="item">Item to process</param>
+        /// <param name="suggestionFunction">Suggestion generation function</param>
+        /// <returns>Complete if an exact match was found, Pending if multiple suggestions created</returns>
+        protected Status CreateSuggestions(
+            WorkflowInstance workflowInstance, 
+            ServerEntity entity, 
+            Func<WorkflowInstance, ServerEntity, Dictionary<string,string>, Status> suggestionFunction)
+        {
+            // analyze the item for possible suggestions
+            var suggestions = new Dictionary<string, string>();
+            Status status = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
+
+            // if the function completed with an error, or without generating any data, return (this is typically a fail-fast state)
+            if (status == Status.Error || suggestions.Count == 0)
+                return status;
+
+            // if an "exact match" was discovered without user input, store it now and return
+            if (status == Status.Complete && suggestions.Count == 1)
+            {
+                string s = null;
+                foreach (var value in suggestions.Values)
+                    s = value;
+                StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, s);
+                StoreInstanceData(workflowInstance, OutputParameterName, s);
+                return status;
+            }
+
+            // construct the group display name
+            string groupDisplayName = GroupDisplayName;
+            if (groupDisplayName == null)
+                groupDisplayName = workflowInstance.State;
+            else
+                groupDisplayName = FormatParameterString(workflowInstance, groupDisplayName);
+
+            // add suggestions received from the suggestion function
+            try
+            {
+                int num = 0;
+                foreach (var s in suggestions.Keys)
+                {
+                    // limit to four suggestions
+                    if (num++ == 4)
+                        break;
+
+                    var sugg = new Suggestion()
+                    {
+                        ID = Guid.NewGuid(),
+                        EntityID = entity.ID,
+                        EntityType = entity.GetType().Name,
+                        WorkflowType = workflowInstance.WorkflowType,
+                        WorkflowInstanceID = workflowInstance.ID,
+                        State = workflowInstance.State,
+                        FieldName = SuggestionType,
+                        DisplayName = s,
+                        GroupDisplayName = groupDisplayName,
+                        SortOrder = num,
+                        Value = suggestions[s],
+                        TimeSelected = null
+                    };
+                    SuggestionsContext.Suggestions.Add(sugg);
+                }
+
+                SuggestionsContext.SaveChanges();
+                return status;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("Execute: Activity execution failed", ex);
+                return Status.Error;
+            }
+        }
+
+        /// <summary>
+        /// Get the User that owns the current Item
+        /// </summary>
+        /// <param name="item">Item to get the user for</param>
+        /// <returns>User that owns the item</returns>
+        public User CurrentUser(Item item)
+        {
+            if (item == null)
+                return null;
+            try
+            {
+                return UserContext.Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("CurrentUser: User for item {0} not found", item.Name), ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Canned Execution method for an Activity for processing Items.  This method will:
+        ///   1. validate the entity as an Item
+        ///   2. verify the item type
+        ///   3. check whether the target field is set on the Item and set state appropriately
+        ///   4. check whether the user made a selection (via the data parameter) and set state appropriately
+        ///   5. if none of this is true, add a set of suggestions from a suggestion function passed in
+        /// </summary>
+        /// <param name="workflowInstance">Workflow instance to process</param>
+        /// <param name="entity">Entity to process</param>
+        /// <param name="data">User selection data passed in</param>
+        /// <param name="suggestionFunction">Suggestion function to invoke</param>
+        /// <returns>return value for the Function</returns>
+        protected Status Execute(
+            WorkflowInstance workflowInstance, 
+            ServerEntity entity, 
+            object data,
+            Guid expectedItemType,
+            Func<WorkflowInstance, ServerEntity, Dictionary<string, string>, Status> suggestionFunction)
+        {
+            Item item = entity as Item;
+            if (item == null)
+            {
+                TraceLog.TraceError("Execute: non-Item passed in");
+                return Status.Error;
+            }
+
+            if (VerifyItemType(item, expectedItemType) == false)
+                return Status.Error; 
+
+            // if the target field has been set, this state can terminate
+            if (CheckTargetField(workflowInstance, item))
+                return Status.Complete;
+
+            // check for user selection
+            if (data != null)
+                return ProcessActivityData(workflowInstance, data);
+
+            return CreateSuggestions(workflowInstance, entity, suggestionFunction);
         }
 
         /// <summary>
@@ -59,19 +212,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="workflowInstance"></param>
         /// <param name="formatString"></param>
         /// <returns></returns>
-        protected string ConstructGroupDisplayName(WorkflowInstance workflowInstance, string formatString)
+        protected string FormatParameterString(WorkflowInstance workflowInstance, string formatString)
         {
             if (formatString == null)
                 return "";
 
             StringBuilder returnString = new StringBuilder();
-            
+
             // go through each term and do appropriate substitution
             int start = 0;
             int pos = formatString.IndexOf('{', start);
             while (pos > -1)
             {
-                returnString.Append(formatString.Substring(start, pos));
+                returnString.Append(formatString.Substring(start, pos - start));
 
                 int end = formatString.IndexOf('}', pos);
                 string formatExpr = formatString.Substring(pos + 1, end - pos - 1);
@@ -95,143 +248,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         }
 
         /// <summary>
-        /// Create a set of suggestions from the results of calling the suggestion function
-        /// </summary>
-        /// <param name="workflowInstance">Workflow instance to operate over</param>
-        /// <param name="item">Item to process</param>
-        /// <param name="suggestionFunction">Suggestion generation function</param>
-        /// <returns>true if an exact match was found, false if multiple suggestions created</returns>
-        protected bool CreateSuggestions(
-            WorkflowInstance workflowInstance, 
-            ServerEntity entity, 
-            Func<WorkflowInstance, ServerEntity, Dictionary<string,string>, bool> suggestionFunction)
-        {
-            // analyze the item for possible suggestions
-            var suggestions = new Dictionary<string, string>();
-            bool completed = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
-
-            // if the function completed without generating any data, return (this is typically a fail-fast state)
-            if (completed && suggestions.Count == 0)
-                return true;
-
-            // if an "exact match" was discovered without user input, store it now and return
-            if (completed && suggestions.Count == 1)
-            {
-                string s = null;
-                foreach (var value in suggestions.Values)
-                    s = value;
-                StoreInstanceData(workflowInstance, Workflow.LastStateData, s);
-                StoreInstanceData(workflowInstance, TargetFieldName, s);
-                return true;
-            }
-
-            // construct the group display name
-            string groupDisplayName = GroupDisplayName;
-            if (groupDisplayName == null)
-                groupDisplayName = workflowInstance.State;
-            else
-                groupDisplayName = ConstructGroupDisplayName(workflowInstance, groupDisplayName);
-
-            // add suggestions received from the suggestion function
-            try
-            {
-                int num = 0;
-                foreach (var s in suggestions.Keys)
-                {
-                    // limit to four suggestions
-                    if (num++ == 4)
-                        break;
-
-                    var sugg = new Suggestion()
-                    {
-                        ID = Guid.NewGuid(),
-                        EntityID = entity.ID,
-                        EntityType = entity.GetType().Name,
-                        WorkflowType = workflowInstance.WorkflowType,
-                        WorkflowInstanceID = workflowInstance.ID,
-                        State = workflowInstance.State,
-                        FieldName = TargetFieldName,
-                        DisplayName = s,
-                        GroupDisplayName = groupDisplayName,
-                        SortOrder = num,
-                        Value = suggestions[s],
-                        TimeSelected = null
-                    };
-                    WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-                }
-
-                WorkflowWorker.SuggestionsContext.SaveChanges();
-                return false;
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceError("Execute: Activity execution failed; ex: " + ex.Message);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Get the User that owns the current Item
-        /// </summary>
-        /// <param name="item">Item to get the user for</param>
-        /// <returns>User that owns the item</returns>
-        public User CurrentUser(Item item)
-        {
-            if (item == null)
-                return null;
-            try
-            {
-                return WorkflowWorker.UserContext.Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceError(String.Format("CurrentUser: User for item {0} not found; ex: {1}", item.Name, ex.Message));
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Canned Execution method for an Activity for processing Items.  This method will:
-        ///   1. validate the entity as an Item
-        ///   2. verify the item type
-        ///   3. check whether the target field is set on the Item and set state appropriately
-        ///   4. check whether the user made a selection (via the data parameter) and set state appropriately
-        ///   5. if none of this is true, add a set of suggestions from a suggestion function passed in
-        /// </summary>
-        /// <param name="workflowInstance">Workflow instance to process</param>
-        /// <param name="entity">Entity to process</param>
-        /// <param name="data">User selection data passed in</param>
-        /// <param name="suggestionFunction">Suggestion function to invoke</param>
-        /// <returns>return value for the Function</returns>
-        protected bool Execute(
-            WorkflowInstance workflowInstance, 
-            ServerEntity entity, 
-            object data,
-            Guid expectedItemType,
-            Func<WorkflowInstance, ServerEntity, Dictionary<string, string>, bool> suggestionFunction)
-        {
-            Item item = entity as Item;
-            if (item == null)
-            {
-                TraceLog.TraceError("Execute: non-Item passed in");
-                return true;  // this will terminate the state
-            }
-
-            if (VerifyItemType(item, expectedItemType) == false)
-                return true;  // this will terminate the state
-
-            // if the target field has been set, this state can terminate
-            if (CheckTargetField(workflowInstance, item))
-                return true;
-
-            // check for user selection
-            if (data != null)
-                return ProcessActivityData(workflowInstance, data);
-
-            return CreateSuggestions(workflowInstance, entity, suggestionFunction);
-        }
-
-        /// <summary>
         /// Get a FieldValue for the FieldName, optionally creating it if necessary
         /// </summary>
         /// <param name="item">Item to look in</param>
@@ -240,22 +256,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>FieldValue found/created or null</returns>
         protected FieldValue GetFieldValue(Item item, string fieldName, bool create)
         {
-            /*
-            Field field = null;
             try
             {
-                ItemType itemType = WorkflowWorker.UserContext.ItemTypes.Include("Fields").Single(it => it.ID == item.ItemTypeID);
-                field = itemType.Fields.Single(f => f.Name == fieldName);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-             * */
-            try
-            {
-                FieldValue contactsField = item.FieldValues.Single(fv => fv.FieldName == fieldName);
-                return contactsField;
+                FieldValue fieldValue = item.FieldValues.Single(fv => fv.FieldName == fieldName);
+                return fieldValue;
             }
             catch (Exception)
             {
@@ -266,6 +270,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         FieldName = fieldName,
                         ItemID = item.ID,
                     };
+                    if (item.FieldValues == null)
+                        item.FieldValues = new List<FieldValue>();
                     item.FieldValues.Add(fv);
                     return fv;
                 }
@@ -281,6 +287,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <returns>Value for the key</returns>
         protected string GetInstanceData(WorkflowInstance workflowInstance, string key)
         {
+            if (key == null)
+                return null;
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             try
             {
@@ -297,7 +305,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// </summary>
         /// <param name="workflowInstance">Instance to store data into</param>
         /// <param name="data">Data to process</param>
-        protected bool ProcessActivityData(WorkflowInstance workflowInstance, object data)
+        protected Status ProcessActivityData(WorkflowInstance workflowInstance, object data)
         {
             var suggList = data as List<Suggestion>;
             if (suggList != null)
@@ -307,21 +315,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 {
                     if (sugg.ReasonSelected == Reasons.Chosen || sugg.ReasonSelected == Reasons.Like)
                     {
-                        StoreInstanceData(workflowInstance, TargetFieldName, sugg.Value);
-                        StoreInstanceData(workflowInstance, Workflow.LastStateData, sugg.Value);
-                        return true;
+                        StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
+                        StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, sugg.Value);
+                        return Status.Complete;
                     }
                 }
 
                 // return false if the user hasn't yet selected an action but suggestions were already generated
                 // for the current state (we don't want a duplicate set of suggestions)
-                return false;
+                return Status.Pending;
             }
 
             // if the data can't be cast into a suggestion list, there is a serious error - move the workflow forward
             // (otherwise it will be stuck forever)
             TraceLog.TraceError("ProcessActivityData: data passed in is not a list of suggestions");
-            return true;
+            return Status.Error;
         }
 
         /// <summary>
@@ -341,15 +349,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 EntityType = entity.GetType().Name,
                 WorkflowType = workflowInstance.WorkflowType,
                 WorkflowInstanceID = workflowInstance.ID,
-                State = FieldNames.RefreshEntity,
-                FieldName = FieldNames.RefreshEntity,
-                DisplayName = FieldNames.RefreshEntity,
-                GroupDisplayName = FieldNames.RefreshEntity,
+                State = SuggestionTypes.RefreshEntity,
+                FieldName = SuggestionTypes.RefreshEntity,
+                DisplayName = SuggestionTypes.RefreshEntity,
+                GroupDisplayName = SuggestionTypes.RefreshEntity,
                 Value = null,
                 TimeSelected = null
             };
-            WorkflowWorker.SuggestionsContext.Suggestions.Add(sugg);
-            WorkflowWorker.SuggestionsContext.SaveChanges();
+            SuggestionsContext.Suggestions.Add(sugg);
+            SuggestionsContext.SaveChanges();
         }
 
         /// <summary>
@@ -360,10 +368,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="data">Data to store under the key</param>
         protected void StoreInstanceData(WorkflowInstance workflowInstance, string key, string data)
         {
+            if (key == null)
+                return;
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             dict[key] = data;
             workflowInstance.InstanceData = dict.ToString();
-            WorkflowWorker.SuggestionsContext.SaveChanges();
+            SuggestionsContext.SaveChanges();
         }
 
         /// <summary>
@@ -377,7 +387,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (item.ItemTypeID != desiredItemType)
             {
                 TraceLog.TraceError("VerifyItemType: wrong item type");
-                return false;  // this will terminate the state
+                return false;  
             }
 
             return true;

@@ -9,9 +9,6 @@ namespace BuiltSteady.Zaplify.WorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
-        // references to various worker instances
-        static MailWorker.MailWorker mailWorker = null;
-        static WorkflowWorker.WorkflowWorker workflowWorker = null;
         const int timeout = 30000;  // 30 seconds
 
         public override bool OnStart()
@@ -40,57 +37,62 @@ namespace BuiltSteady.Zaplify.WorkerRole
         {
             TraceLog.TraceInfo("BuiltSteady.Zaplify.WorkerRole started");
 
+            // get the number of workers
+            int mailWorkerCount = ConfigurationSettings.GetAsInt("MailWorkerCount");
+            int workflowWorkerCount = ConfigurationSettings.GetAsInt("WorkflowWorkerCount");
+
+            var mailWorkerArray = new MailWorker.MailWorker[mailWorkerCount];
+            var workflowWorkerArray = new WorkflowWorker.WorkflowWorker[workflowWorkerCount];
+
             // run an infinite loop doing the following:
             //   check whether the worker services have stopped (indicated by a null reference)
             //   (re)start the service on a new thread if necessary
             //   sleep for the timeout period
             while (true)
             {
-                if (workflowWorker == null)
-                {
-                    // start a thread for the workflow service
-                    Thread workflowThread = new Thread(() =>
-                    {
-                        try
-                        {
-                            workflowWorker = new WorkflowWorker.WorkflowWorker();
-                            workflowWorker.Start();
-                        }
-                        catch (Exception ex)
-                        {
-                            TraceLog.TraceFatal("WorkflowWorker died; ex: " + ex.Message);
-                            workflowWorker = null;
-                        }
-                    }) { Name = "WorkflowWorker" };
-                    
-                    workflowThread.Start();
-                    TraceLog.TraceInfo("WorkflowWorker started");
-                }
-
-                if (mailWorker == null)
-                {
-                    // start a thread for the workflow service
-                    Thread mailThread = new Thread(() =>
-                    {
-                        try
-                        {
-                            mailWorker = new MailWorker.MailWorker();
-                            mailWorker.Start();
-                        }
-                        catch (Exception ex)
-                        {
-                            TraceLog.TraceFatal("MailWorker died; ex: " + ex.Message);
-                            mailWorker = null;
-                        }
-                    }) { Name = "MailWorker" };
-
-                    mailThread.Start();
-                    TraceLog.TraceInfo("MailWorker started");
-                }
+                RestartWorkerThreads<WorkflowWorker.WorkflowWorker>(workflowWorkerArray);
+                if (!HostEnvironment.IsAzureDevFabric)
+                    RestartWorkerThreads<MailWorker.MailWorker>(mailWorkerArray);
 
                 // sleep for the timeout period
                 Thread.Sleep(timeout);
             }
         }
+
+        #region Helpers
+
+        void RestartWorkerThreads<T>(Array array) where T : IWorker, new() 
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array.GetValue(i) == null)
+                {
+                    int threadNum = i;
+                    Thread thread = new Thread(() =>
+                    {
+                        try
+                        {
+                            T worker = new T();
+                            array.SetValue(worker, threadNum);
+
+                            // sleep for a fraction of the worker's Timeout that corresponds to the position in the array
+                            // this is to spread out the workers relatively evenly across the entire Timeout interval
+                            Thread.Sleep(worker.Timeout * threadNum / array.Length);
+                            worker.Start();
+                        }
+                        catch (Exception ex)
+                        {
+                            TraceLog.TraceFatal(String.Format("{0}{1} died; ex: {2}", typeof(T).Name, threadNum.ToString(), ex.Message));
+                            array.SetValue(null, threadNum);
+                        }
+                    }) { Name = typeof(T).Name + i.ToString() };
+
+                    thread.Start();
+                    TraceLog.TraceInfo(thread.Name + " started");
+                }
+            }
+        }
+
+        #endregion Helpers
     }
 }

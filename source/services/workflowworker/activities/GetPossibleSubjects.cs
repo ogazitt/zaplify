@@ -12,9 +12,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleSubjects : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleSubjects; } }
+        public override string GroupDisplayName { get { return "Who is this for?"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
+        public override string SuggestionType { get { return FieldNames.Contacts; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -24,11 +26,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     if (item == null)
                     {
                         TraceLog.TraceError("GetPossibleSubjects: non-Item passed in to Function");
-                        return true;  // this will terminate the state
+                        return Status.Error; 
                     }
 
                     if (VerifyItemType(item, SystemItemTypes.Task) == false)
-                        return true;  // this will terminate the state
+                        return Status.Error;
 
                     // if the Contacts field has been set and there are actual contacts in that sublist, a subject is already selected
                     // and this state can terminate
@@ -40,10 +42,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             Guid contactsListID = new Guid(contactsField.Value);
 
                             // use the first contact as the subject
-                            var contact = WorkflowWorker.UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
-                            StoreInstanceData(workflowInstance, Workflow.LastStateData, JsonSerializer.Serialize(contact));
-                            StoreInstanceData(workflowInstance, TargetFieldName, JsonSerializer.Serialize(contact));
-                            return true;
+                            var contact = UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
+                            StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, JsonSerializer.Serialize(contact));
+                            StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
+                            return Status.Complete;
                         }
                     }
                     catch (Exception)
@@ -53,7 +55,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                     // if a user selected a suggestion, this state can terminate
                     if (data != null)
-                        return ProcessActivityData(workflowInstance, data);
+                    {
+                        var status = ProcessActivityData(workflowInstance, data);
+                        
+                        // create the contact reference, and create or update the actual contact
+                        if (status == Status.Complete)
+                            status = CreateContact(workflowInstance, item);
+                        return status;
+                    }
 
                     // generate suggestions for the possible subjects
                     return CreateSuggestions(workflowInstance, entity, GenerateSuggestions);
@@ -61,20 +70,20 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             User user = CurrentUser(item);
             if (user == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             ADGraphAPI adApi = new ADGraphAPI();
@@ -91,7 +100,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             {
                 // the user not having either token isn't an error condition, but there's no way to generate suggestions,
                 // so we need to move forward from this state
-                return true;
+                return Status.Complete;
             }
 
             // if a refresh token exists for AD, get an access token from Azure ACS for the Azure AD service
@@ -113,40 +122,41 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceError("GenerateSuggestions: could not contact ACS to get an access token; ex: " + ex.Message);
+                    TraceLog.TraceException("GenerateSuggestions: could not contact ACS to get an access token", ex);
                     
                     // if the FB credentials aren't available, there is nothing the Person service can do for us
                     if (adApi.FacebookAccessToken == null)
-                        return false;  // this could be a temporary outage, so don't move off this state
+                        return Status.Pending;  // this could be a temporary outage, so don't move off this state
                 }
             }
 
             // get contacts from Cloud AD and Facebook via the AD Graph Person service
             // TODO: also get local contacts from the Contacts folder
-
             try
             {
                 string subjectHint = GetInstanceData(workflowInstance, FieldNames.SubjectHint);
                 var results = adApi.Query(subjectHint ?? "");  
                 foreach (var subject in results)
                 {
-                    // Generate a new contact for any non-matching FB or AD contact in the contacts list for this item
-                    // TODO: for now this code assumes that all contacts are new and so it creates a new Contact
-                    Item contact = CreateContact(workflowInstance, item, subject);
+                    // serialize an existing contact corresponding to the subject, 
+                    // or generate a new serialized contact if one wasn't found
+                    Item contact = MakeContact(workflowInstance, item, subject);
                     suggestionList[contact.Name] = JsonSerializer.Serialize(contact);
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: could not contact Person Service; ex: " + ex.Message);
-                return true;  // move forward from this state
+                TraceLog.TraceException("GenerateSuggestions: could not contact Person Service", ex);
+                return Status.Error;
             }
 
             // inexact match
-            return false;
+            return Status.Pending;
         }
 
-        private Item CreateContact(WorkflowInstance workflowInstance, Item item, ADQueryResult subject)
+        #region Helpers
+
+        private Status CreateContact(WorkflowInstance workflowInstance, Item item)
         {
             DateTime now = DateTime.UtcNow;
             FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
@@ -168,55 +178,208 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     LastModified = now,
                 };
                 contactsField.Value = listID.ToString();
-                WorkflowWorker.UserContext.Items.Add(list);
-                WorkflowWorker.UserContext.SaveChanges();
+                try
+                {
+                    UserContext.Items.Add(list);
+                    UserContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("CreateContact: creating Contact sublist failed", ex);
+                    return Status.Error;
+                }
+            }
+
+            // get the subject out of the InstanceData bag
+            Item contact = null;
+            try
+            {
+                var contactString = GetInstanceData(workflowInstance, OutputParameterName);
+                contact = JsonSerializer.Deserialize<Item>(contactString);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: deserializing contact failed", ex);
+                return Status.Error;                
+            }
+
+            // update the contact if it already exists, otherwise add a new contact
+            try
+            {
+                Item dbContact = UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
+                foreach (var fv in contact.FieldValues)
+                {
+                    // add or update each of the fieldvalues
+                    var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
+                    dbfv.Copy(fv);
+                }
+                dbContact.LastModified = now;
+            }
+            catch (Exception)
+            {
+                Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
+                if (folder != null)
+                    contact.FolderID = folder.ID;
+                UserContext.Items.Add(contact);
+            }
+            try
+            {
+                UserContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: creating or adding contact failed", ex);
+                return Status.Error;
+            }
+
+            // add a contact reference to the contact list
+            Guid refID = Guid.NewGuid();
+            var contactRef = new Item()
+            {
+                ID = refID,
+                Name = contact.Name,
+                ItemTypeID = SystemItemTypes.Reference,
+                FolderID = item.FolderID,
+                ParentID = listID,
+                UserID = contact.UserID,
+                Created = now,
+                LastModified = now,
+                FieldValues = new List<FieldValue>()
+                {
+                    new FieldValue() { FieldName = FieldNames.ItemRef, ItemID = refID, Value = contact.ID.ToString() }
+                }
+            };
+            try
+            {
+                UserContext.Items.Add(contactRef);
+                UserContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("CreateContact: creating contact reference failed", ex);
+                return Status.Error;
+            }
+
+            // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
+            // workflow changed the Item
+            SignalEntityRefresh(workflowInstance, item);
+
+            return Status.Complete;
+        }
+
+        private Folder FindDefaultFolder(Guid userID, Guid itemTypeID)
+        {
+            // TODO: support user defaults stored in hidden System folder
+            try
+            {
+                return UserContext.Folders.First(f => f.UserID == userID && f.ItemTypeID == itemTypeID);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private Item GetContact(Guid userid, ADQueryResult subject)
+        {
+            try
+            {
+                // try to get an existing contact by name
+                var contact = UserContext.Items.
+                    Include("FieldValues").
+                    Single(i => i.UserID == userid && i.ItemTypeID == SystemItemTypes.Contact && i.Name == subject.Name);
+
+                // ensure that if a facebook ID exists, it matches the FBID of the subject just retrieved
+                var fbid = GetFieldValue(contact, FieldNames.FacebookID, false);
+                var ids = subject.IDs.Where(id => id.Source == Sources.Facebook).ToList();
+                if (ids.Count > 0 && fbid != null && fbid.Value != ids[0].Value)
+                    return null;
+
+                return contact;
+            }
+            catch (Exception)
+            {
+                // contact not found 
+                return null;
+            }
+        }
+
+        private Item MakeContact(WorkflowInstance workflowInstance, Item item, ADQueryResult subject)
+        {
+            DateTime now = DateTime.UtcNow;
+            /*
+            FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
+            Guid listID = contactsField.Value != null ? new Guid(contactsField.Value) : Guid.NewGuid();
+
+            // if the contacts sublist under the item doesn't exist, create it now
+            if (contactsField.Value == null)
+            {
+                Item list = new Item()
+                {
+                    ID = listID,
+                    Name = TargetFieldName,
+                    IsList = true,
+                    FolderID = item.FolderID,
+                    ItemTypeID = SystemItemTypes.Reference,
+                    ParentID = item.ID,
+                    UserID = item.UserID,
+                    Created = now,
+                    LastModified = now,
+                };
+                contactsField.Value = listID.ToString();
+                UserContext.Items.Add(list);
+                UserContext.SaveChanges();
 
                 // add a Suggestion with a RefreshEntity FieldName to the list, to tell the UI that the 
                 // workflow changed the Item
                 SignalEntityRefresh(workflowInstance, item);
             }
+            */
+            // try to find an existing contact using matching heuristic
+            bool found = false;
+            var contact = GetContact(item.UserID, subject);
 
-            // create an ID for the new contact
-            var itemID = Guid.NewGuid();
+            // if the contact wasn't found, create the new contact (detached) - it will be JSON-serialized and placed into 
+            // the suggestion value field
+            if (contact == null)
+                contact = new Item()
+                {
+                    ID = Guid.NewGuid(),
+                    Name = subject.Name,
+                    FolderID = item.FolderID,
+                    ItemTypeID = SystemItemTypes.Contact,
+                    ParentID = null /*listID*/,
+                    UserID = item.UserID,
+                    FieldValues = new List<FieldValue>(),
+                    Created = now,
+                    LastModified = now,
+                };
+            else
+                found = true;
 
-            // get the sources for the subject info, as well as the facebook ID of the subject if available
-            var fieldValues = new List<FieldValue>();
+            // add various FieldValues to the contact if available
             try
             {
+                // add sources
                 string sources = String.Join(",", subject.IDs.Select(id => id.Source));
-                fieldValues.Add(new FieldValue()
-                {
-                    FieldName = FieldNames.Sources,
-                    ItemID = itemID,
-                    Value = sources
-                });
+                /*
+                if (found)
+                    sources = String.Format("{0}{1}{2}", sources, String.IsNullOrEmpty(sources) ? "" : ",", Sources.Local);
+                 */
+                GetFieldValue(contact, FieldNames.Sources, true).Value = sources;
+                // add birthday
+                if (subject.Birthday != null)
+                    GetFieldValue(contact, FieldNames.Birthday, true).Value = ((DateTime)subject.Birthday).ToString("d");
+                // add facebook ID
                 string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
-                fieldValues.Add(new FieldValue()
-                {
-                    FieldName = FieldNames.FacebookID,
-                    ItemID = itemID,
-                    Value = fbID  
-                });
+                if (fbID != null)
+                    GetFieldValue(contact, FieldNames.FacebookID, true).Value = fbID;
             }
             catch (Exception) { }
 
-            // create the new contact (detached) - it will be JSON-serialized and placed into 
-            // the suggestion value field
-
-            Item contact = new Item()
-            {
-                ID = itemID,
-                Name = subject.Name,
-                FolderID = item.FolderID,
-                ItemTypeID = SystemItemTypes.Contact,
-                ParentID = listID,
-                UserID = item.UserID,
-                FieldValues = fieldValues.Count > 0 ? fieldValues : null,
-                Created = now,
-                LastModified = now,
-            };
-
             return contact;
         }
+
+        #endregion Helpers
     }
 }

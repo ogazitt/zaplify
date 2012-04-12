@@ -2,7 +2,7 @@
 <div class="signin-control">
 <% if (Request.IsAuthenticated) { %>
         <span><%: Page.User.Identity.Name %></span>
-        &nbsp;|&nbsp;
+        <span>&nbsp;|&nbsp;</span>
         <span><%: Html.ActionLink("Sign Out", "SignOut", "Account") %> </span>
 <% } else if (Request.Path.EndsWith("SignIn", StringComparison.OrdinalIgnoreCase)) { %> 
         <span><%: Html.ActionLink("Register New User", "Register", "Account") %></span>

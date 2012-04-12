@@ -7,6 +7,15 @@
 var Service = function Service$() { }
 
 // ---------------------------------------------------------
+// public members
+
+Service.UsersResource = 'users';
+Service.ConstantsResource = 'contants';
+Service.FoldersResource = 'folders';
+Service.ItemsResource = 'items';
+Service.SuggestionsResource = 'suggestions';
+
+// ---------------------------------------------------------
 // private members
 
 Service.siteUrl = null;
@@ -14,22 +23,26 @@ Service.resourceUrl = null;
 Service.domainUrl = null;
 Service.requestQueue = [];
 
-Service.fbAppId = "411772288837103";
 Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
 Service.fbRedirectPath = "dashboard/facebook";
 Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
-
 Service.cloudADConsentUri = "dashboard/CloudAD";
 
+Service.invokeAsync = false;
 
 // ---------------------------------------------------------
 // public methods
 
-Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl) {
+Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
     this.siteUrl = siteUrl;
     this.resourceUrl = resourceUrl;
     this.domainUrl = domainUrl;
+    this.fbAppID = fbAppID;
     $('.header-content .logo').click(Service.NavigateToDashboard);
+}
+
+Service.Close = function Service$Close() {
+    Service.invokeAsync = true;
 }
 
 Service.GetResource = function Service$GetResource(resource, id, successHandler, errorHandler) {
@@ -53,7 +66,7 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
 }
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
-    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppId + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
+    var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppID + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
     window.navigate(uri);
 }
 
@@ -112,8 +125,8 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
         type: httpMethod,
         contentType: "application/json",
         dataType: "json",
-        data: jsonData
-        //,processData: false
+        data: jsonData,
+        async: Service.invokeAsync
     };
 
     Service.beginRequest(request, jsonSuccessHandler, jsonErrorHandler);

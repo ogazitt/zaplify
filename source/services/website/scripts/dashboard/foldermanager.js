@@ -53,7 +53,6 @@ FolderManager.prototype.selectFolder = function (folder) {
         }
         this.managerHelp.hide();
         this.listEditor.render(this.container);
-        //this.listEditor.inputValue('');
         this.listEditor.show();
     } else {
         this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
@@ -66,6 +65,7 @@ FolderManager.prototype.selectItem = function (item) {
     this.currentItem = item;
     if (this.currentItem != null) {
         this.currentFolder = this.currentItem.GetFolder();
+        this.managerHelp.hide();
         if (this.currentItem.IsList) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);
@@ -73,6 +73,7 @@ FolderManager.prototype.selectItem = function (item) {
             this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
             this.listEditor.render(this.container);
         }
+        this.listEditor.show();
     } else {
         this.selectFolder(this.currentFolder);
     }
@@ -90,7 +91,9 @@ FolderManagerHelp.prototype.render = function (container) {
 }
 
 FolderManagerHelp.prototype.hide = function () {
-    this.$element.hide();
+    if (this.$element != null) {
+        this.$element.hide();
+    }
 }
 
 FolderManagerHelp.prototype.show = function () {
@@ -358,6 +361,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     if (this.$element == null) {
         this.$element = $('<div class="item-editor"></div>').appendTo(container);
     }
+
     if (folder == null && item == null)
         return;
     if (mode == null) {
@@ -365,7 +369,7 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     }
 
     var itemTypeID = (item != null) ? item.ItemTypeID : folder.ItemTypeID;
-    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item) 
+    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item)
         : $.extend(new Item(), { Name: '', ItemTypeID: itemTypeID });
     this.mode = mode;
     this.$element.empty();
@@ -377,9 +381,10 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
         this.renderFields(this.$element, this.mode);
     }
 
-    $fldName = this.$element.find('.fn-name');
-    $fldName.focus();
-    $fldName.select();
+
+    $fldActive = this.$element.find('.fn-name');
+    $fldActive.focus();
+    //$fldActive.select();
 }
 
 ItemEditor.prototype.renderFields = function (container, mode) {
@@ -415,13 +420,13 @@ ItemEditor.prototype.renderNameField = function (container, mode) {
 ItemEditor.prototype.renderField = function (container, field) {
     if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
         return;
-    if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
-        return;
 
     var $field, $wrapper;
     var wrapper = '<div class="item-field"><span class="item-field-label">' + field.DisplayName + '</span></div>';
 
     switch (field.DisplayType) {
+        case DisplayTypes.Hidden:
+        case DisplayTypes.Priority:
         case DisplayTypes.Reference:
         case DisplayTypes.TagList:
             break;
@@ -433,6 +438,20 @@ ItemEditor.prototype.renderField = function (container, field) {
         case DisplayTypes.ContactList:
             $wrapper = $(wrapper).appendTo(container);
             $field = this.renderContactList($wrapper, field);
+            break;
+        case DisplayTypes.DatePicker:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = this.renderDatePicker($wrapper, field);
+            break;
+        case DisplayTypes.DateTimePicker:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = this.renderDateTimePicker($wrapper, field);
+            break;
+        case DisplayTypes.TextArea:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.addClass('item-field-area');
+            $wrapper.removeClass('item-field');
+            $field = this.renderTextArea($wrapper, field);
             break;
         case DisplayTypes.Text:
         default:
@@ -448,8 +467,17 @@ ItemEditor.prototype.renderText = function (container, field) {
     $field.addClass(field.Class);
     $field.data('control', this);
     $field.val(this.item.GetFieldValue(field));
-    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    return $field;
+}
+
+ItemEditor.prototype.renderTextArea = function (container, field) {
+    $field = $('<textarea></textarea>').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.item.GetFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     return $field;
 }
 
@@ -461,7 +489,43 @@ ItemEditor.prototype.renderCheckbox = function (container, field) {
     if (this.item.GetFieldValue(field) == 'true') {
         $field.attr('checked', 'checked');
     }
-    $field.change(function (event) { Control.get(this).handleChange(event); });
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
+    return $field;
+}
+
+ItemEditor.prototype.renderDatePicker = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.datepicker({ numberOfMonths: 2,
+        onClose: function (value, picker) {
+            itemEditor = Control.get(this);
+            if (itemEditor != null) {
+                itemEditor.handleChange(picker.input);
+            }
+        }
+    });
+
+    var value = this.item.GetFieldValue(field);
+    $field.val(value);
+    return $field;
+}
+
+ItemEditor.prototype.renderDateTimePicker = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.datetimepicker({ ampm: true, timeFormat: 'h:mm TT', hourGrid: 4, minuteGrid: 10, stepMinute: 5, numberOfMonths: 2,
+        onClose: function (value, picker) {
+            itemEditor = Control.get(this);
+            if (itemEditor != null) {
+                itemEditor.handleChange(picker.input);
+            }
+        }
+    });
+
+    var value = this.item.GetFieldValue(field);
+    $field.val(value);
     return $field;
 }
 
@@ -469,8 +533,6 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    //$field.change(function (event) { Control.get(this).handleChange(event); });
-    //$field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
     $field.attr('disabled', 'disabled');
     var text = '';
     var value = this.item.GetFieldValue(field);
@@ -497,22 +559,31 @@ ItemEditor.prototype.updateField = function ($srcElement) {
                     value = true;
                 }
             }
-            this.item.SetFieldValue(field, value);
+            var currentValue = this.item.GetFieldValue(field);
+            if (value != currentValue) {
+                this.item.SetFieldValue(field, value);
+                return true;
+            }
+            break;
         }
     }
+    return false;
 }
 
-ItemEditor.prototype.handleChange = function (event) {
-    this.updateField($(event.srcElement));
+ItemEditor.prototype.handleChange = function ($element) {
+    if (this.updateField($element)) {
+        this.parentControl.updateItem();
+    }
 }
 
 ItemEditor.prototype.handleEnterPress = function (event) {
     if (event.which == 13) {
-        this.updateField($(event.srcElement));
-        if (this.mode == ItemEditor.Modes.New) {
-            this.parentControl.addItem(false);
-        } else {
-            this.parentControl.updateItem();
+        if (this.updateField($(event.srcElement))) {
+            if (this.mode == ItemEditor.Modes.New) {
+                this.parentControl.addItem(false);
+            } else {
+                this.parentControl.updateItem();
+            }
         }
     }
 }

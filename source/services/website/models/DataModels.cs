@@ -1,6 +1,7 @@
 ﻿namespace BuiltSteady.Zaplify.Website.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using System.Web.Script.Serialization;
@@ -115,8 +116,8 @@
                         userData.Items = null;
                     }
 
-                    // Include does not support filtering or sorting, post-process ordering of folders and items in memory
-                    // sort folders by SortOrder field
+                    // Include does not support filtering or sorting
+                    // post-process ordering of folders and items in memory by SortOrder field
                     userData.Folders = userData.Folders.OrderBy(f => f.SortOrder).ToList();
                     for (var i=0; i < userData.Folders.Count; i++)
                     {   // sort items by SortOrder field
@@ -132,7 +133,18 @@
             get
             {
                 if (jsonUserData == null)
-                {
+                {   // do not serialize system folders except for $ClientSettings
+                    User userData = UserData;
+                    List<Folder> folders = new List<Folder>();
+                    for (var i = 0; i < userData.Folders.Count; i++)
+                    {
+                        Folder folder = userData.Folders[i];
+                        if (!folder.Name.StartsWith("$") || folder.Name.StartsWith("$Client"))
+                        {
+                            folders.Add(folder);
+                        }
+                    }
+                    userData.Folders = folders;
                     JavaScriptSerializer serializer = new JavaScriptSerializer();
                     jsonUserData = JsonSerializer.Serialize(UserData);
                 }

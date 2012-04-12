@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using System.Text;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
@@ -36,6 +37,25 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 "Error in {0} - {1}",
                 StackInfoText(),
                 message);
+            TraceLine(msg, LogLevel.Error);
+        }
+
+        public static void TraceException(string message, Exception ex)
+        {
+            string msg = String.Format(
+                "Error in {0} - {1}",
+                StackInfoText(),
+                message);
+            
+            StringBuilder sb = new StringBuilder(); 
+            int level = 0;
+            while (ex != null)
+            {
+                sb.Append(String.Format("; ex{0}: {1}", level++, ex.Message));
+                ex = ex.InnerException;
+            }
+            msg += sb.ToString();
+
             TraceLine(msg, LogLevel.Error);
         }
 
@@ -118,13 +138,17 @@ namespace BuiltSteady.Zaplify.ServiceHost
             StackTrace st = new StackTrace(true);
             StackFrame sf = st.GetFrame(2);
             string fullFileName = sf.GetFileName();
-            string[] lines = fullFileName.Split('\\');
-            string filename = lines[lines.Length - 1];
+            string filename = "Unknown";
+            if (!string.IsNullOrEmpty(fullFileName))
+            {
+                string[] lines = fullFileName.Split('\\');
+                filename = lines[lines.Length - 1];
+            }
             string msg = String.Format(
                 "{0}() in {1}:{2}",
                 sf.GetMethod().Name,
                 filename,
-                sf.GetFileLineNumber());
+                sf.GetFileLineNumber().ToString());
             return msg;
         }
 

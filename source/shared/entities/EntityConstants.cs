@@ -70,6 +70,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Birthday = "Birthday";          // DateTime
         public const string Address = "Address";            // Address
         public const string WebLink = "WebLink";            // Url
+        public const string WebLinks = "WebLinks";          // ItemID
         public const string Email = "Email";                // Email
         public const string Phone = "Phone";                // Phone
         public const string HomePhone = "HomePhone";        // Phone
@@ -78,27 +79,33 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Cost = "Cost";                  // Currency
         public const string ItemTags = "ItemTags";          // TagIDs
         public const string ItemRef = "ItemRef";            // ItemID
-        public const string Locations = "Locations";        // ItemID
         public const string Contacts = "Contacts";          // ItemID
+        public const string Locations = "Locations";        // ItemID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
 
         // non user-visible FieldNames
         public const string FacebookID = "FacebookID";      // String
         public const string Intent = "Intent";              // String
-        public const string Likes = "Likes";                // String (comma-delimited) 
         public const string Sources = "Sources";            // String (comma-delimited) 
+        
+        // TODO: this should be a WorkflowParameter, not a FieldName
         public const string SubjectHint = "SubjectHint";    // String
-        public const string SuggestedLink = "SuggestedLink"; // URL
+    }
 
-        // UX action FieldNames
-        public const string FacebookConsent = "FacebookConsent";
-        public const string CloudADConsent = "CloudADConsent";
-        public const string RefreshEntity = "RefreshEntity"; // indicates that the UI should refresh this item
+    public class SuggestionTypes
+    {
+        public const string ChooseOne = "ChooseOne";
+        public const string ChooseMany = "ChooseMany";
+        public const string GetFBConsent = "GetFBConsent";
+        public const string GetADConsent = "GetADConsent";
+        public const string NavigateLink = "NavigateLink";
+        public const string RefreshEntity = "RefreshEntity";
     }
 
     public class Reasons
     {
         public const string Chosen = "Chosen";
+        public const string Ignore = "Ignore";
         public const string Like = "Like";
         public const string Dislike = "Dislike";
     }
@@ -129,6 +136,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class DisplayTypes
     {
+        public const string Hidden = "Hidden";
         public const string Text = "Text";
         public const string TextArea = "TextArea";
         public const string Checkbox = "Checkbox";
@@ -139,10 +147,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Currency = "Currency";
         public const string Address = "Address";
         public const string Priority = "Priority";
-        public const string TagList = "TagList";
         public const string Reference = "Reference";
-        public const string LocationList = "LocationList";
+        public const string TagList = "TagList";
         public const string ContactList = "ContactList";
+        public const string LocationList = "LocationList";
+        public const string UrlList = "UrlList";
     }
 
     public class Permissions
@@ -165,5 +174,12 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         public static bool IsFull(int permission)
         { return (permission == Full); }
+    }
+
+    public class Sources
+    {
+        public const string Directory = "Directory";
+        public const string Facebook = "Facebook";
+        public const string Local = "Local";
     }
 }

@@ -42,6 +42,26 @@ Control.ellipsis = function Control$ellipsis(element, height) {
     }
 }
 
+// append source icons for an item
+Control.renderSourceIcons = function Control$renderSourceIcons($element, item) {
+    if (item.HasField(FieldNames.Sources)) {
+        var sources = item.GetFieldValue(FieldNames.Sources);
+        if (sources != null) {
+            sources = sources.split(",");
+            for (var i in sources) {
+                switch (sources[i]) {
+                    case "Facebook":
+                        $element.append('<div class="fb-icon" />');
+                        break;
+                    case "Directory":
+                        $element.append('<div class="azure-icon" />');
+                        break;
+                }
+            }
+        }
+    }
+}
+
 // ---------------------------------------------------------
 // Dashboard static object - manages controls for dashboard
 // assumes there are three panes marked by classes:
@@ -65,7 +85,7 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folders list
     Dashboard.folderList = new FolderList(this.dataModel.Folders);
-    Dashboard.folderList.render('.dashboard-folders');
+    //Dashboard.folderList.render('.dashboard-folders');
     Dashboard.folderList.addSelectionChangedHandler('dashboard', this.ManageFolder);
 
     // suggestions list
@@ -77,8 +97,9 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
     // folder manager
     Dashboard.folderManager = new FolderManager(this.dataModel);
-    Dashboard.ManageFolder();
-
+    Dashboard.folderManager.render('.dashboard-manager');
+    Dashboard.dataModel.restoreSelection();
+    //Dashboard.ManageFolder();
 
     // bind events
     $(window).bind('load', Dashboard.resize);
@@ -87,7 +108,7 @@ Dashboard.Init = function Dashboard$Init(dataModel) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
-    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderList.render(".dashboard-folders", Dashboard.dataModel.Folders);
     Dashboard.ManageFolder(folderID, itemID);
 }
 
@@ -102,6 +123,8 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
         item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.folderManager.selectItem(item);
     }
+    Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
+
     if (!Dashboard.resizing) {
         // get suggestions for currently selected user, folder, or item
         Dashboard.getSuggestions(folder, item);
@@ -114,6 +137,7 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
     if (refresh) {      // refresh more suggestions
         // check for more suggestions every 5 seconds for 20 seconds
         $('.working').show();
+        Dashboard.suggestionList.hideGroup(suggestion.groupID);
         var nTries = 0;
         var checkPoint = new Date();
 
@@ -153,9 +177,9 @@ Dashboard.resize = function Dashboard$resize() {
     var $dbs = $('.dashboard-suggestions');
     var dbOuterHeight = $db.outerHeight();
     var dbWidth = $db.width();
-    var dbfWidth = $dbf.width();
-    var dbsWidth = $dbs.width();
-    var dbmMargins = 26;
+    var dbfWidth = $dbf.outerWidth();
+    var dbsWidth = $dbs.outerWidth();
+    var dbmMargins = 24;
 
     $dbm.width(dbWidth - (dbfWidth + dbsWidth + dbmMargins));
     $dbf.height(dbHeight);
@@ -179,21 +203,23 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
 
 Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
     // process RefreshEntity suggestions
-    var group = suggestions[FieldNames.RefreshEntity];
+    var group = suggestions[SuggestionTypes.RefreshEntity];
     if (group != null) {
+        // full user data refresh, select last item
+        var itemID;
         for (var id in group.Suggestions) {
             var suggestion = group.Suggestions[id];
-            var item = Dashboard.dataModel.FindItem(suggestion.EntityID);
-            if (item != null && !item.IsFolder()) {
-                item.Refresh();
-            }
             Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Ignore);
+            if (suggestion.EntityType == 'Item') {
+                itemID = suggestion.EntityID;
+            }
         }
-        delete suggestions[FieldNames.RefreshEntity];
+        delete suggestions[SuggestionTypes.RefreshEntity];
+        Dashboard.dataModel.Refresh(itemID);
     }
 
     Dashboard.suggestionList.render('.dashboard-suggestions', suggestions);
     if (suggestions['Group_0'] != null) {
-        $('.working').hide(); 
+        $('.working').hide();
     }
 }

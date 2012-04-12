@@ -7,9 +7,12 @@
       <Import moduleName="RemoteForwarder" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="Connection" />
-      <Setting name="SQLAzure" />
-      <Setting name="SQLExpress" />
+      <Setting name="UsersConnection" />
+      <Setting name="SuggestionsConnection" />
+      <Setting name="MailWorkerCount" />
+      <Setting name="WorkflowWorkerCount" />
+      <Setting name="SQLUsers" />
+      <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />
     </ConfigurationSettings>
   </WorkerRole>
@@ -29,10 +32,13 @@
       <Import moduleName="RemoteAccess" />
     </Imports>
     <ConfigurationSettings>
-      <Setting name="Connection" />
-      <Setting name="SQLAzure" />
-      <Setting name="SQLExpress" />
+      <Setting name="UsersConnection" />
+      <Setting name="SuggestionsConnection" />
+      <Setting name="SQLUsers" />
+      <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />
+      <Setting name="FBAppID" />
+      <Setting name="FBAppSecret" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">

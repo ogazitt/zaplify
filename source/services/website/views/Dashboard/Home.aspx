@@ -5,6 +5,7 @@
 <asp:Content ContentPlaceHolderID="MasterHead" runat="server">
     <title>Dashboard</title>
     <link href="<%: Url.Content("~/content/dashboard/dashboard.css") %>" rel="stylesheet" type="text/css" />
+    <script src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/shared/datamodel.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/controls.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/folderlist.js") %>" type="text/javascript"></script>

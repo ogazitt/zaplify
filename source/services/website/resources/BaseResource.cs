@@ -233,29 +233,43 @@
 
         protected HttpResponseMessageWrapper<T> ReturnResult<T>(HttpRequestMessage req, Operation operation, HttpStatusCode code)
         {
-            if (operation != null)
+            try
             {
-                operation.StatusCode = (int?) code;
-                this.StorageContext.SaveChanges();
+                if (operation != null)
+                {
+                    operation.StatusCode = (int?)code;
+                    this.StorageContext.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("ReturnResult: could not log operation status", ex);
             }
             return new HttpResponseMessageWrapper<T>(req, code);
         }
 
         protected HttpResponseMessageWrapper<T> ReturnResult<T>(HttpRequestMessage req, Operation operation, T t, HttpStatusCode code)
         {
-            if (operation != null)
+            try
             {
-                operation.StatusCode = (int?) code;
-
-                // fix the EntityID (some clients like the web-client have the server assign the ID for new entities)
-                if (operation.EntityID == Guid.Empty)
+                if (operation != null)
                 {
-                    ServerEntity entity = t as ServerEntity;
-                    if (entity != null)
-                        operation.EntityID = entity.ID;
-                }
+                    operation.StatusCode = (int?)code;
 
-                this.StorageContext.SaveChanges();
+                    // fix the EntityID (some clients like the web-client have the server assign the ID for new entities)
+                    if (operation.EntityID == Guid.Empty)
+                    {
+                        ServerEntity entity = t as ServerEntity;
+                        if (entity != null)
+                            operation.EntityID = entity.ID;
+                    }
+
+                    this.StorageContext.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("ReturnResult: could not log operation status", ex);
             }
             return new HttpResponseMessageWrapper<T>(req, t, code);
         }

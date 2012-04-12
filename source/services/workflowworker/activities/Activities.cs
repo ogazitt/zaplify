@@ -8,17 +8,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class ActivityNames
     {
-        public const string FakeGetPossibleSubjects = "Fake Get Possible Subjects";
-        public const string FakeGetSubjectLikes = "Fake Get Subject Likes";
-        public const string GetPossibleIntents = "Get Possible Intents";
-        public const string GetPossibleDates = "Get Possible Dates";
-        public const string GetPossibleLocations = "Get Possible Locations";
-        public const string GetPossibleSubjects = "Get Possible Subjects";
-        public const string GetSubjectAttributes = "Get Subject Attributes";
-        public const string GetSubjectLikes = "Get Subject Likes";
-        public const string GetBingSuggestions = "Get Bing Suggestions";
+        public const string FakeGetPossibleSubjects = "FakeGetPossibleSubjects";
+        public const string FakeGetSubjectLikes = "FakeGetSubjectLikes";
+        public const string GetPossibleIntents = "GetPossibleIntents";
+        public const string GetPossibleDates = "GetPossibleDates";
+        public const string GetPossibleLocations = "GetPossibleLocations";
+        public const string GetPossibleSubjects = "GetPossibleSubjects";
+        public const string GetSubjectAttributes = "GetSubjectAttributes";
+        public const string GetSubjectLikes = "GetSubjectLikes";
+        public const string GetBingSuggestions = "GetBingSuggestions";
         public const string NoOp = "NoOp";
-        public const string StartWorkflow = "Start Workflow";
+        public const string StartWorkflow = "StartWorkflow";
     }
 
     public class ActivityList
@@ -37,5 +37,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             { ActivityNames.NoOp, new NoOp() },
             { ActivityNames.StartWorkflow, new StartWorkflow() },
         };
+    }
+    
+    public class ActivityParameters
+    {
+        public const string Contact = "Contact";
+        public const string Intent = "Intent";
+        public const string LastStateData = "LastStateData";
+        public const string Likes = "Likes";
+        public const string SearchTemplate = "SearchTemplate";
+        public const string SubjectHint = "SubjectHint";
     }
 }

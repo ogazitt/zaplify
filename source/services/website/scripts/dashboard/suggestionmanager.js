@@ -13,12 +13,11 @@ SuggestionManager.prototype.select = function (suggestion) {
     var refresh = false;        // return true to indicate additional suggestions should be retrieved
     switch (suggestion.FieldName) {
         case FieldNames.Contacts: { refresh = this.addContact(suggestion); break; }
-            // TODO: how to manage keeping Likes and have dependent sub-suggestions 
-        case FieldNames.Likes: { refresh = this.chooseSuggestion(suggestion); break; }
-        case FieldNames.SuggestedLink: { refresh = this.navigateLink(suggestion); break; }
+        case SuggestionTypes.ChooseOne: { refresh = this.chooseSuggestion(suggestion); break; }
+        case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
-        case FieldNames.FacebookConsent: { refresh = this.getFacebookConsent(suggestion); break; }
-        case FieldNames.CloudADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
+        case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
+        case SuggestionTypes.GetADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
 
         default: { refresh = this.chooseSuggestion(suggestion); break; }
     }
@@ -70,65 +69,53 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
 }
 
 SuggestionManager.prototype.addContact = function (suggestion) {
-    var item = this.dataModel.FindItem(suggestion.EntityID);
+    /*
+    var dataModel = this.dataModel;
+    var item = dataModel.FindItem(suggestion.EntityID);
     if (item != null) {
         if (item.HasField(FieldNames.Contacts)) {
             var contact = $.parseJSON(suggestion.Value);
         }
-        var contactsList = item.GetFieldValue(FieldNames.Contacts,
-            function (list) {
-                if (list != null && list.IsList) {
-                    /* 2012-03-23 OG: commented out the code below */
-                    //list.InsertItem(contact);
+        // local function for adding Contact 
+        var addContactFunc = function (list) {
+            if (list != null && list.IsList) {
+                // create and insert the contact reference
+                var contactRef = $.extend(new Item(), {
+                    Name: contact.Name,
+                    ItemTypeID: ItemTypes.Reference,
+                    FolderID: contact.FolderID,
+                    ParentID: list.ID,
+                    UserID: contact.UserID
+                });
+                contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
+                list.InsertItem(contactRef, null, null, null);
 
-                    /* 2012-03-23 OG: inserted the following code */
-                    // create and insert the contact reference
-                    var contactRef = $.extend(new Item(), {
-                        Name: contact.Name,
-                        ItemTypeID: ItemTypes.Reference,
-                        FolderID: contact.FolderID,
-                        ParentID: list.ID,
-                        UserID: contact.UserID
-                    });
-                    contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
-                    list.InsertItem(contactRef, null, null, null);
-
-                    // create and insert the contact itself in the "People" folder
-                    for (var folderID in DataModel.Folders)
-                        if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
-                            break;
-                    var folder = DataModel.Folders[folderID];
-                    contact.FolderID = folder.ID;
-                    folder.InsertItem(contact, null, null, item);
-                    /* 2012-03-23 OG: end inserted code */
+                // determine whether contact is new or existing
+                var contactItem = $.extend(new Item(), contact);
+                var sourcesFieldValue = contactItem.GetFieldValue(FieldNames.Sources);
+                if (sourcesFieldValue != null && sourcesFieldValue.indexOf(Sources.Local) != -1) {
+                    var existingContact = dataModel.FindItem(contact.ID);
+                    if (existingContact != null) {
+                        contact = $.extend(true, existingContact, contact);
+                        existingContact.Update(contact);
+                        return;
+                    }
                 }
-            });
+
+                // create and insert the contact itself into default 'Contacts' folder
+                var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
+                contact.FolderID = contactFolder.ID;
+                contactFolder.InsertItem(contact, null, null, item);
+            }
+        }
+
+        // will return null if addContactFunc is called, otherwise need to call it
+        var contactsList = item.GetFieldValue(FieldNames.Contacts, addContactFunc);
         if (contactsList != null && contactsList.IsList) {
-            /* 2012-03-23 OG: commented out the code below */
-            //contactsList.InsertItem(contact);
-
-            /* 2012-03-23 OG: inserted the following code */
-            // create and insert the contact reference
-            var contactRef = $.extend(new Item(), {
-                Name: contact.Name,
-                ItemTypeID: ItemTypes.Reference,
-                FolderID: contactsList.FolderID,
-                ParentID: contactsList.ID,
-                UserID: contactsList.UserID
-            });
-            contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
-            contactsList.InsertItem(contactRef, null, null, null);
-
-            // create and insert the contact itself in the "People" folder
-            for (var folderID in DataModel.Folders)
-                if (DataModel.Folders[folderID].Name == "People")  // HACK: should have a better way of finding the People folder (default folder for Contacts)
-                    break;
-            var folder = DataModel.Folders[folderID];
-            contact.FolderID = folder.ID;
-            folder.InsertItem(contact, null, null, item);
-            /* 2012-03-23 OG: end inserted code */
+            addContactFunc(contactsList);
         }
     }
+    */
     return this.chooseSuggestion(suggestion);
 }
 

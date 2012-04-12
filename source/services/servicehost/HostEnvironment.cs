@@ -6,17 +6,20 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
     // avoid loading Azure assemblies unless running in Azure
     using Azure = Microsoft.WindowsAzure;
+    using System.Globalization;
 
     public static class HostEnvironment
     {
-        const string UserDataConnectionConfigKey = "Connection";
-        const string UserAccountConnectionConfigKey = "Connection";
+        const string UserDataConnectionConfigKey = "UsersConnection";
+        const string UserAccountConnectionConfigKey = "UsersConnection";
+        const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
 
         static bool? isAzure;               // true for either Azure or DevFabric
         static bool? isAzureDevFabric;      // only true in DevFabric
         static string userDataConnection;
         static string userAccountConnection;
+        static string suggestionsConnection;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -77,6 +80,18 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public static string SuggestionsConnection
+        {
+            get
+            {
+                if (suggestionsConnection == null)
+                {
+                    suggestionsConnection = ConfigurationSettings.GetConnection(SuggestionsConnectionConfigKey);
+                }
+                return suggestionsConnection;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         static bool IsAzureEnvironmentAvailable()
         {
@@ -85,9 +100,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         static bool IsAzureDevFabricConfigured()
-        {   // inspect diagnostics storage setting to determine if using DevFabric 
-            string diagnosticsSetting = ConfigurationSettings.Get(AzureDiagnosticsConnectionString);
-            return diagnosticsSetting.StartsWith("UseDevelopmentStorage", StringComparison.OrdinalIgnoreCase);
+        {   // inspect deployment id to determine if using DevFabric 
+            return AzureDeploymentId.StartsWith("deployment", true, CultureInfo.InvariantCulture);
         }
 
 

@@ -8,15 +8,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class NoOp : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.StartWorkflow; } }
-        public override string TargetFieldName { get { return null; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
                 return ((workflowInstance, entity, data) =>
                 {
-                    return true;
+                    return Status.Complete;
                 });
             }
         }

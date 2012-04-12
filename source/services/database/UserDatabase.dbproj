@@ -5,7 +5,7 @@
     <Name>"DatabaseProject"</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.0</ProjectVersion>
-    <ProjectGuid>{67cbc824-a49e-4e9b-a947-360f3dfe65c3}</ProjectGuid>
+    <ProjectGuid>{968e5622-7ed3-45e7-bb7c-16858c4f613d}</ProjectGuid>
     <DSP>Microsoft.Data.Schema.Sql.Sql100DatabaseSchemaProvider</DSP>
     <AllowServerObjects>True</AllowServerObjects>
     <AllowDatabaseObjects>True</AllowDatabaseObjects>
@@ -21,7 +21,7 @@
     <DeployToDatabaseAddToServerExplorer>False</DeployToDatabaseAddToServerExplorer>
     <DeployToScript>True</DeployToScript>
     <CatalogPropertiesFile>Properties\Database.sqlsettings</CatalogPropertiesFile>
-    <DacApplicationName>Zaplify</DacApplicationName>
+    <DacApplicationName>ZapUsers</DacApplicationName>
     <DacVersionString>1.0.0.0</DacVersionString>
     <DacDescription>
     </DacDescription>
@@ -50,14 +50,14 @@
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetConnectionString>Data Source=.\SQLExpress;Integrated Security=True;Pooling=False;MultipleActiveResultSets=False;Packet Size=4096;Application Name=".Net SqlClient Data Provider"</TargetConnectionString>
-    <TargetDatabase>Zaplify</TargetDatabase>
+    <TargetDatabase>ZapUsers</TargetDatabase>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <SuppressWarnings>
     </SuppressWarnings>
     <DeployToDatabase>False</DeployToDatabase>
     <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
     <ValidatePolicy>False</ValidatePolicy>
-    <DBSchemaFileName>Zaplify</DBSchemaFileName>
+    <DBSchemaFileName>ZapUsers</DBSchemaFileName>
   </PropertyGroup>
   <!--Import the settings-->
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v10.0\TeamData\Microsoft.Data.Schema.SqlTasks.targets" />
@@ -72,12 +72,6 @@
     </PropertiesFile>
     <DacPropertiesFile Include="Properties\ServerSelection.sqlpolicy">
     </DacPropertiesFile>
-    <PreDeploy Include="Scripts\Pre-Deployment\Script.PreDeployment.sql">
-      <SubType>Code</SubType>
-    </PreDeploy>
-    <PostDeploy Include="Scripts\Post-Deployment\Script.PostDeployment.sql">
-      <SubType>Code</SubType>
-    </PostDeploy>
   </ItemGroup>
   <ItemGroup>
     <BuildContributorArgument Include="OutDir=$(OutDir)" />
@@ -125,17 +119,38 @@
     <Build Include="dbo.Users.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="dbo.Suggestions.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
-    <Build Include="dbo.WorkflowInstances.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
     <Build Include="dbo.UserCredentials.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <Build Include="dbo.Intents.Table.sql">
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.ActionTypes.Table.sql">
       <SubType>Code</SubType>
-    </Build>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Colors.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Fields.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.ItemTypes.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Permissions.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Priorities.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.Users.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="scripts\post-deployment\User.PostDeployment.sql">
+      <SubType>NotInBuild</SubType>
+      <CopyToOutputDirectory>DoNotCopy</CopyToOutputDirectory>
+    </PostDeploy>
+    <PreDeploy Include="scripts\pre-deployment\User.PreDeployment.sql">
+      <SubType>NotInBuild</SubType>
+    </PreDeploy>
   </ItemGroup>
 </Project>

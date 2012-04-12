@@ -11,9 +11,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleIntents : WorkflowActivity
     {
-        public override string Name { get { return ActivityNames.GetPossibleIntents; } }
-        public override string TargetFieldName { get { return FieldNames.Intent; } }
-        public override Func<WorkflowInstance, ServerEntity, object, bool> Function
+        public override string GroupDisplayName { get { return "Are you trying to"; } }
+        public override string OutputParameterName { get { return ActivityParameters.Intent; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
@@ -29,13 +30,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
         }
 
-        private bool GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
+        private Status GenerateSuggestions(WorkflowInstance workflowInstance, ServerEntity entity, Dictionary<string, string> suggestionList)
         {
             Item item = entity as Item;
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return true;  // this will terminate the state
+                return Status.Error;
             }
 
             string name = item.Name;
@@ -69,22 +70,28 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             if (parts.Length >= 4)
             {
-                if (parts[2] == "for")
+                if (parts[2] == "for" || parts[2] == "with")
                 {
+                    // capitalize and store the word following "for" in the SubjectHint workflow parameter
                     subject = parts[3];
+                    subject = subject.Substring(0, 1).ToUpper() + subject.Substring(1);
                     StoreInstanceData(workflowInstance, FieldNames.SubjectHint, subject);
                 }
             }
 
             try
             {
-                Intent intent = WorkflowWorker.SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
-                Workflow workflow = null;
-                bool exists = WorkflowList.Workflows.TryGetValue(intent.Name, out workflow);
-                if (exists)
+                Intent intent = SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
+                try
                 {
-                    suggestionList[intent.Name] = intent.Name;
-                    return true;  // exact match
+                    var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
+                    suggestionList[intent.Name] = wt.Type;
+                    return Status.Complete;
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("GenerateSuggestions: could not find or deserialize workflow definition", ex);
+                    // try to recover by falling through the block below and generating intent suggestions for the user
                 }
             }
             catch (Exception)
@@ -95,17 +102,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             try
             {
                 // get a list of all approximate matches
-                var intentList = WorkflowWorker.SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
+                var intentList = SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
                 foreach (var intent in intentList)
                     suggestionList[intent.Name] = intent.Name;
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("GenerateSuggestions: could not find database intent in IntentList dictionary; ex: " + ex.Message);
+                TraceLog.TraceException("GenerateSuggestions: could not find matching intents in Intents table", ex);
+                return Status.Error;
             }
 
-            // inexact match
-            return false;
+            return Status.Pending;
         }
     }
 }

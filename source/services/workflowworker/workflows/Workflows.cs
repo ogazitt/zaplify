@@ -18,9 +18,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
     {
         public static Dictionary<string, Workflow> Workflows = new Dictionary<string, Workflow>()
         {
-            { IntentNames.BuyGift, new BuyGift() },
             { WorkflowNames.ContactsChanged, new ContactsChanged() },
-            { IntentNames.FakeBuyGift, new FakeBuyGift() },
             { WorkflowNames.FindIntent, new FindIntent() },
             { WorkflowNames.NameChanged, new NameChanged() },
             { WorkflowNames.NewTask, new NewTask() },

@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityDataModel">
@@ -86,11 +88,9 @@
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.WindowsAzure.Diagnostics" />
-    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.WindowsAzure.StorageClient" />
+    <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -189,6 +189,21 @@
     <Content Include="content\images\panel-middle-bkgnd.png" />
     <Content Include="content\images\refresh.png" />
     <Content Include="content\images\zaplogo.png" />
+    <Content Include="content\themes\default\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="content\themes\default\images\ui-bg_flat_0_eeeeee_40x100.png" />
+    <Content Include="content\themes\default\images\ui-bg_flat_55_c0402a_40x100.png" />
+    <Content Include="content\themes\default\images\ui-bg_flat_55_eeeeee_40x100.png" />
+    <Content Include="content\themes\default\images\ui-bg_glass_100_f8f8f8_1x400.png" />
+    <Content Include="content\themes\default\images\ui-bg_glass_35_dddddd_1x400.png" />
+    <Content Include="content\themes\default\images\ui-bg_glass_60_eeeeee_1x400.png" />
+    <Content Include="content\themes\default\images\ui-bg_inset-hard_75_999999_1x100.png" />
+    <Content Include="content\themes\default\images\ui-bg_inset-soft_50_c9c9c9_1x100.png" />
+    <Content Include="content\themes\default\images\ui-icons_3383bb_256x240.png" />
+    <Content Include="content\themes\default\images\ui-icons_454545_256x240.png" />
+    <Content Include="content\themes\default\images\ui-icons_70b2e1_256x240.png" />
+    <Content Include="content\themes\default\images\ui-icons_999999_256x240.png" />
+    <Content Include="content\themes\default\images\ui-icons_fbc856_256x240.png" />
+    <Content Include="content\themes\default\jquery-ui-1.8.18.css" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />
@@ -200,6 +215,7 @@
     <Content Include="scripts\jquery-1.7.1.min.js" />
     <Content Include="scripts\jquery-ui-1.8.16.js" />
     <Content Include="scripts\jquery-ui-1.8.16.min.js" />
+    <Content Include="scripts\jquery-ui-timepicker.js" />
     <Content Include="scripts\jquery.validate-vsdoc.js" />
     <Content Include="scripts\jquery.validate.js" />
     <Content Include="scripts\jquery.validate.min.js" />

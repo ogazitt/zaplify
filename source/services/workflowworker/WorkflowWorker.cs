@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
-using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
-using BuiltSteady.Zaplify.ServerEntities;
 using System.Reflection;
+using System.Threading;
+using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
+using System.Collections.Generic;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
-    public class WorkflowWorker
+    public class WorkflowWorker : IWorker
     {
-        const int timeout = 5000;  // 5 seconds
+        public int Timeout { get { return 5000; } } // 5 seconds
 
-        private static UserStorageContext userContext;
-        public static UserStorageContext UserContext
+        private UserStorageContext userContext;
+        public UserStorageContext UserContext
         {
             get
             {
@@ -26,8 +27,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
         }
 
-        private static SuggestionsStorageContext suggestionsContext;
-        public static SuggestionsStorageContext SuggestionsContext
+        private SuggestionsStorageContext suggestionsContext;
+        public SuggestionsStorageContext SuggestionsContext
         {
             get
             {
@@ -37,6 +38,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 return suggestionsContext;
             }
+        }
+
+        public static string Me
+        {
+            get { return String.Concat(Environment.MachineName.ToLower(), "-", Thread.CurrentThread.ManagedThreadId.ToString()); }
         }
 
         public void Start()
@@ -56,6 +62,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     MQMessage<Guid> msg = MessageQueue.DequeueMessage<Guid>();
                     while (msg != null)
                     {
+                        bool reenqueue = false;
+
                         // make sure we get fresh database contexts to avoid EF caching stale data
                         userContext = null;
                         suggestionsContext = null;
@@ -70,7 +78,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         catch (Exception ex)
                         {
                             // this shouldn't happen unless there is a weird race between the Operation getting saved and this message getting processed
-                            TraceLog.TraceError("WorkflowWorker: could not retrieve operation; ex: " + ex.Message);
+                            // or the database connection somehow wasn't initialized.  the best approach is to let this message expire and get dequeued again in the future
+                            TraceLog.TraceException("WorkflowWorker: could not retrieve operation", ex);
                             throw;  // caught by the outer try block, so as to execute the sleep call 
                         }
 
@@ -80,6 +89,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
                         // try to get a strongly-typed entity (item, folder, user...)
                         ServerEntity entity = null, oldEntity = null;
+                        bool process = true;
                         if (operationType != "DELETE")
                         {
                             try
@@ -112,39 +122,52 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                         break;
                                     default:
                                         TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
+                                        process = false;
                                         break;
                                 }
                             }
                             catch (Exception ex)
                             {
-                                TraceLog.TraceError(String.Format("WorkflowWorker: could not retrieve {0}; ex: {1}", entityType, ex.Message));
+                                TraceLog.TraceException(String.Format("WorkflowWorker: could not retrieve {0}", entityType), ex);
+                                process = false;
                             }
                         }
 
                         // launch new workflows based on the changes to the item
-                        switch (operationType)
+
+                        if (process)
                         {
-                            case "DELETE":
-                                DeleteWorkflows(entityID);
-                                break;
-                            case "POST":
-                                StartNewWorkflows(entity);
-                                ExecuteWorkflows(entity);
-                                break;
-                            case "PUT":
-                                StartTriggerWorkflows(entity, oldEntity);
-                                ExecuteWorkflows(entity);
-                                break;
-                            case "SUGGESTION":
-                                ExecuteWorkflows(entity);
-                                break;
-                            default:
-                                TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
-                                break;
+                            switch (operationType)
+                            {
+                                case "DELETE":
+                                    DeleteWorkflows(entityID);
+                                    break;
+                                case "POST":
+                                    StartNewWorkflows(entity);
+                                    reenqueue = ExecuteWorkflows(entity);
+                                    break;
+                                case "PUT":
+                                    StartTriggerWorkflows(entity, oldEntity);
+                                    reenqueue = ExecuteWorkflows(entity);
+                                    break;
+                                case "SUGGESTION":
+                                    reenqueue = ExecuteWorkflows(entity);
+                                    break;
+                                default:
+                                    TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
+                                    break;
+                            }
                         }
 
                         // remove the message from the queue
-                        MessageQueue.DeleteMessage(msg.MessageRef);
+                        bool deleted = MessageQueue.DeleteMessage(msg.MessageRef);
+
+                        // reenqueue and sleep if the processing failed
+                        if (deleted && reenqueue)
+                        {
+                            Thread.Sleep(Timeout);
+                            MessageQueue.EnqueueMessage(operationID);
+                        }
 
                         // dequeue the next message
                         msg = MessageQueue.DequeueMessage<Guid>();
@@ -152,15 +175,123 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceError("WorkflowWorker: message processing failed; ex: " + ex.Message);
+                    TraceLog.TraceException("WorkflowWorker: message processing failed", ex);
                 }
 
                 // sleep for the timeout period
-                Thread.Sleep(timeout);
+                Thread.Sleep(Timeout);
             }
         }
 
         #region Helpers
+
+        void DeleteWorkflows(Guid entityID)
+        {
+            try
+            {
+                // get all the workflow instances for this Item
+                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entityID).ToList();
+                if (wis.Count > 0)
+                {
+                    // loop over the workflow instances and dispatch the new message
+                    foreach (var instance in wis)
+                    {
+                        SuggestionsContext.WorkflowInstances.Remove(instance);
+                    }
+                    SuggestionsContext.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("DeleteWorkflows failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Execute the workflow instances associated with this entity
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns>true if one the workflow instances was locked (causes the message to be reenqueued); false if the message was processed</returns>
+        bool ExecuteWorkflows(ServerEntity entity)
+        {
+            if (entity == null)
+                return false;
+
+            List<WorkflowInstance> wis = null;
+
+            try
+            {
+                // get all the workflow instances for this Item
+                wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
+                if (wis.Count > 0)
+                {
+                    // if the instance is locked by someone else, stop processing
+                    // otherwise lock each of the workflow instances
+                    foreach (var instance in wis)
+                    {
+                        if (instance.LockedBy != null && instance.LockedBy != Me)
+                            return true;
+                        instance.LockedBy = Me;
+                    }
+                    SuggestionsContext.SaveChanges();
+
+                    // reacquire the lock list and verify they were all locked by Me (if not, stop processing)
+                    // projecting locks and not workflow instances to ensure that the database's lock values are returned (not from EF's cache)
+                    var locks = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).Select(w => w.LockedBy).ToList();
+                    foreach (var lockedby in locks)
+                        if (lockedby != Me)
+                            return true;
+
+                    // loop over the workflow instances and dispatch the new message
+                    foreach (var instance in wis)
+                    {
+                        Workflow workflow = null;
+                        if (WorkflowList.Workflows.TryGetValue(instance.WorkflowType, out workflow) == false)
+                        {
+                            try
+                            {
+                                var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == instance.WorkflowType);
+                                workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
+                            }
+                            catch (Exception ex)
+                            {
+                                TraceLog.TraceException("ExecuteWorkflows: could not find or deserialize workflow definition", ex);
+                                continue;
+                            }
+                        }
+
+                        // set the database contexts
+                        workflow.UserContext = UserContext;
+                        workflow.SuggestionsContext = SuggestionsContext;
+
+                        // invoke the workflow and process steps until workflow is blocked for user input or is done
+                        workflow.Run(instance, entity);
+                    }
+                }
+                return false;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("ExecuteWorkflows: failed", ex);
+                return false;
+            }
+            finally
+            {
+                // find and unlock all remaining workflow instances that relate to this entity
+                // note that a new context is used for this - to avoid caching problems where the current thread 
+                // believes it is the owner but the database says otherwise.
+                var context = Storage.NewSuggestionsContext;
+                wis = context.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
+                if (wis.Count > 0)
+                {
+                    // unlock each of the workflow instances
+                    foreach (var instance in wis)
+                        if (instance.LockedBy == Me)
+                            instance.LockedBy = null;
+                    context.SaveChanges();
+                }
+            }
+        }
 
         object GetFieldValue(Item item, Field field)
         {
@@ -205,56 +336,28 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             return currentValue;
         }
 
-        void DeleteWorkflows(Guid entityID)
+        void RestartWorkflow(ServerEntity entity, string workflowType)
         {
-            try
-            {
-                // get all the workflow instances for this Item
-                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entityID).ToList();
-                if (wis.Count > 0)
-                {
-                    // loop over the workflow instances and dispatch the new message
-                    foreach (var instance in wis)
-                    {
-                        SuggestionsContext.WorkflowInstances.Remove(instance);
-                    }
-                    SuggestionsContext.SaveChanges();
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceError("DeleteWorkflows failed; ex: " + ex.Message);
-            }
-        }
-
-        void ExecuteWorkflows(ServerEntity entity)
-        {
-            if (entity == null)
+            if (entity == null || workflowType == null)
                 return;
 
             try
             {
-                // get all the workflow instances for this Item
-                var wis = SuggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).ToList();
-                if (wis.Count > 0)
+                // kill all existing workflows associated with this Item
+                // TODO: also need to mark the suggestions associated with this workflow as stale so that they don't
+                // show up for the item again.
+                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
+                if (runningWFs.Count > 0)
                 {
-                    // loop over the workflow instances and dispatch the new message
-                    foreach (var instance in wis)
-                    {
-                        Workflow workflow = WorkflowList.Workflows[instance.WorkflowType];
-
-                        // execute each state of the workflow until workflow is blocked for input
-                        bool completed = true;
-                        while (completed)
-                        {
-                            completed = workflow.Execute(instance, entity);
-                        }
-                    }
+                    foreach (var wf in runningWFs)
+                        SuggestionsContext.WorkflowInstances.Remove(wf);
+                    SuggestionsContext.SaveChanges();
                 }
+                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TraceLog.TraceError("ExecuteWorkflows: failed; ex: " + ex.Message);
+                Workflow.StartWorkflow(workflowType, entity, null, UserContext, SuggestionsContext);
             }
         }
 
@@ -268,10 +371,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             Folder folder = entity as Folder;
             User user = entity as User;
 
+            // verify there are no workflow instances associated with this item yet
+            var wis = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
+            if (wis.Count > 0)
+                return;
+
             if (item != null)
             {
                 if (item.ItemTypeID == SystemItemTypes.Task)
-                    Workflow.StartWorkflow(WorkflowNames.NewTask, item, null);
+                    Workflow.StartWorkflow(WorkflowNames.NewTask, item, null, UserContext, SuggestionsContext);
             }
 
             if (folder != null)
@@ -280,7 +388,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
             if (user != null)
             {
-                Workflow.StartWorkflow(WorkflowNames.NewUser, user, null);
+                Workflow.StartWorkflow(WorkflowNames.NewUser, user, null, UserContext, SuggestionsContext);
             }
         }
 
@@ -315,31 +423,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                             break;
                     }
                 }
-            }
-        }
-
-        void RestartWorkflow(ServerEntity entity, string workflowType)
-        {
-            if (entity == null || workflowType == null)
-                return;
-
-            try
-            {
-                // kill all existing workflows associated with this Item
-                // TODO: also need to mark the suggestions associated with this workflow as stale so that they don't
-                // show up for the item again.
-                var runningWFs = SuggestionsContext.WorkflowInstances.Where(wi => wi.EntityID == entity.ID).ToList();
-                if (runningWFs.Count > 0)
-                {
-                    foreach (var wf in runningWFs)
-                        SuggestionsContext.WorkflowInstances.Remove(wf);
-                    SuggestionsContext.SaveChanges();
-                }
-                Workflow.StartWorkflow(workflowType, entity, null);
-            }
-            catch (Exception)
-            {
-                Workflow.StartWorkflow(workflowType, entity, null);
             }
         }
 
