@@ -32,8 +32,11 @@
             // Log function entrance
             TraceLog.TraceFunction();
 
-            // get the user credentials
-            //UserCredential user = GetUserFromMessageHeaders(req);
+            HttpStatusCode code = AuthenticateUser(req);
+            if (code != HttpStatusCode.OK)
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<string>(req, code);
+            }
 
             try
             {

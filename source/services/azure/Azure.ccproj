@@ -63,6 +63,7 @@
     <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
+    <PublishProfile Include="Profiles\zaplifydev1Production.azurePubxml" />
     <PublishProfile Include="Profiles\zaplifyProduction.azurePubxml" />
     <PublishProfile Include="Profiles\zaplifydev1.azurePubxml" />
   </ItemGroup>
