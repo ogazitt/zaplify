@@ -32,8 +32,11 @@
             // Log function entrance
             TraceLog.TraceFunction();
 
-            // get the user credentials
-            //UserCredential user = GetUserFromMessageHeaders(req);
+            HttpStatusCode code = AuthenticateUser(req);
+            if (code != HttpStatusCode.OK)
+            {   // user not authenticated
+                return new HttpResponseMessageWrapper<string>(req, code);
+            }
 
             try
             {
@@ -52,8 +55,7 @@
             }
             catch (Exception ex)
             {
-                // speech failed
-                TraceLog.TraceError("Trace Write failed: " + ex.Message);
+                TraceLog.TraceException("Trace Write failed", ex);
                 return new HttpResponseMessageWrapper<string>(req, HttpStatusCode.InternalServerError);
             }
         }
@@ -68,7 +70,10 @@
                 string dir = HttpContext.Current.Server.MapPath(@"~/files");
                 // if directory doesn't exist, create the directory
                 if (!Directory.Exists(dir))
+                {
                     Directory.CreateDirectory(dir);
+                    TraceLog.TraceInfo("Created directory " + dir);
+                }
 
                 DateTime tod = DateTime.Now;
                 string filename = String.Format("{0}-{1}.txt",
@@ -77,7 +82,12 @@
                 string path = Path.Combine(dir, filename);
                 FileStream fs = File.Create(path);
                 if (fs == null)
-                    return "file not created";
+                {
+                    string error = "Error creating trace file " + path;
+                    TraceLog.TraceError(error);
+                    return "error";
+                }
+                TraceLog.TraceInfo("Created file " + path);
                 
                 // copy the trace stream to the output file
                 traceStream.CopyTo(fs);
@@ -91,7 +101,7 @@
                 byte[] buffer = new byte[65536];
                 int len = traceStream.Read(buffer, 0, buffer.Length);
                 string s = Encoding.ASCII.GetString(buffer);
-                TraceLog.TraceError("Write speech file failed: " + ex.Message);
+                TraceLog.TraceError("Writing trace file failed: " + ex.Message);
                 return ex.Message;
             }
         }

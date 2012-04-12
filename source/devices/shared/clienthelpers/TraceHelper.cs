@@ -21,6 +21,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         // start time
         private static DateTime startTime;
 
+        // file to store messages in
+        const string filename = "trace.txt";
+
         /// <summary>
         /// Add a message to the folder
         /// </summary>
@@ -60,13 +63,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return sb.ToString();
         }
 
+        public static void SendCrashReport(User user)
+        {
+            string contents = StorageHelper.ReadCrashReport();
+            if (contents != null)
+                Send(user, contents);
+        }
+ 
         public static void SendMessages(User user)
         {
             string msgs = GetMessages();
-            byte[] bytes = EncodeString(msgs);
-            WebServiceHelper.SendTrace(user, bytes, null, null);
+            Send(user, msgs);
         }
 
+        public static void StoreCrashReport()
+        {
+            StorageHelper.WriteCrashReport(GetMessages());
+        }
+ 
         #region Helpers
 
         /// <summary>
@@ -83,6 +97,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             foreach (char c in unicode)
                 buffer[i++] = (byte)c;
             return buffer;
+        }
+
+        private static void Send(User user, string msgs)
+        {
+            byte[] bytes = EncodeString(msgs);
+            WebServiceHelper.SendTrace(user, bytes, null, null);
         }
 
         #endregion

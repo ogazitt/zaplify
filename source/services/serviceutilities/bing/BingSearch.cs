@@ -132,11 +132,14 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Bing
             var webResults = root.XPathSelectElements(SearchWebResultXPath, nsmgr);
             foreach (var webResult in webResults)
             {
+                var title = webResult.XPathSelectElement(SearchWebResultTitle, nsmgr);
+                var url = webResult.XPathSelectElement(SearchWebResultUrl, nsmgr);
+                var description = webResult.XPathSelectElement(SearchWebResultDescription, nsmgr);
                 yield return new WebResult()
                 {
-                    Title = webResult.XPathSelectElement(SearchWebResultTitle, nsmgr).Value,
-                    Url = webResult.XPathSelectElement(SearchWebResultUrl, nsmgr).Value,
-                    Description = webResult.XPathSelectElement(SearchWebResultDescription, nsmgr).Value
+                    Title = title == null ? null : title.Value,
+                    Url = url == null ? null : url.Value,
+                    Description = description == null ? null : description.Value
                 };
             }
         }

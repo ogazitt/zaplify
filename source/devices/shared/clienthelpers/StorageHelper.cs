@@ -22,7 +22,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             { "Tags",      new object() },
             { "Zaplify",   new object() },
         };
-        
+
+        const string CrashReportFileName = "trace.txt";
+
         // alias for Application Settings
         static private IsolatedStorageSettings AppSettings = IsolatedStorageSettings.ApplicationSettings;
 
@@ -279,6 +281,59 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
+        /// <summary>
+        /// Read the crash report from isolated storage
+        /// </summary>
+        /// <returns>string containing crash report</returns>
+        public static string ReadCrashReport()
+        {
+            try
+            {
+                string contents = null;
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    if (store.FileExists(CrashReportFileName))
+                    {
+                        using (TextReader reader = new StreamReader(store.OpenFile(CrashReportFileName, FileMode.Open, FileAccess.Read, FileShare.None)))
+                        {
+                            contents = reader.ReadToEnd();
+                        }
+                    }
+                }
+                return contents;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            finally
+            {
+                SafeDeleteFile(IsolatedStorageFile.GetUserStoreForApplication(), CrashReportFileName);
+            }        
+        }
+
+        /// <summary>
+        /// Write crash report to isolated storage
+        /// </summary>
+        /// <param name="text">string containing crash report</param>
+        public static void WriteCrashReport(string text)
+        {
+            try
+            {
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    SafeDeleteFile(store, CrashReportFileName);
+                    using (TextWriter output = new StreamWriter(store.CreateFile(CrashReportFileName)))
+                    {
+                        output.Write(text);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+
         #region Helpers
 
         /// <summary>
@@ -384,6 +439,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         TraceHelper.AddMessage(String.Format("Exception Writing {0}: {1}", elementName, ex.Message));
                     }
                 }
+            }
+        }
+
+        private static void SafeDeleteFile(IsolatedStorageFile store, string filename)
+        {
+            try
+            {
+                store.DeleteFile(filename);
+            }
+            catch (Exception)
+            {
             }
         }
 
