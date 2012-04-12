@@ -79,7 +79,11 @@ var Dashboard = function Dashboard$() {
 // ---------------------------------------------------------
 // public methods
 
-Dashboard.Init = function Dashboard$Init(dataModel) {
+Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
+    if (renewFBToken == true) {
+        Service.GetFacebookConsent();
+    }
+
     Dashboard.dataModel = dataModel;
     Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.ManageDataChange);
 
