@@ -122,8 +122,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     "Navigation to {0} failed: ex: {1}", 
                     e.Uri, e.Exception != null ? e.Exception.Message : "<null>"));
 
-            // send the message to the trace service
-            TraceHelper.SendMessages(App.ViewModel.User);
+            // store the crash report before exiting
+            TraceHelper.StoreCrashReport();
         }
 
         // Code to execute on Unhandled Exceptions
@@ -144,8 +144,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             else
                 TraceHelper.AddMessage("Exception: null");
 
-            // send the message to the trace service
-            TraceHelper.SendMessages(App.ViewModel.User);
+            // store the crash report before exiting
+            TraceHelper.StoreCrashReport();
         }
 
         #region Phone application initialization

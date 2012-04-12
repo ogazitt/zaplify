@@ -21,6 +21,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         // start time
         private static DateTime startTime;
 
+        // file to store messages in
+        const string filename = "trace.txt";
+
         /// <summary>
         /// Add a message to the folder
         /// </summary>
@@ -60,13 +63,60 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return sb.ToString();
         }
 
+        public static void SendCrashReport(User user)
+        {
+            try
+            {
+                string contents = null;
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    if (store.FileExists(filename))
+                    {
+                        using (TextReader reader = new StreamReader(store.OpenFile(filename, FileMode.Open, FileAccess.Read, FileShare.None)))
+                        {
+                            contents = reader.ReadToEnd();
+                        }
+                    }
+                }
+                if (contents != null)
+                {
+                    Send(user, contents);
+                }
+            }
+            catch (Exception)
+            {
+            }
+            finally
+            {
+                SafeDeleteFile(IsolatedStorageFile.GetUserStoreForApplication());
+            }
+        }
+ 
         public static void SendMessages(User user)
         {
             string msgs = GetMessages();
-            byte[] bytes = EncodeString(msgs);
-            WebServiceHelper.SendTrace(user, bytes, null, null);
+            Send(user, msgs);
         }
 
+        public static void StoreCrashReport()
+        {
+            try
+            {
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    SafeDeleteFile(store);
+                    using (TextWriter output = new StreamWriter(store.CreateFile(filename)))
+                    {
+                        foreach (string msg in traceMessages)
+                            output.WriteLine(msg);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+ 
         #region Helpers
 
         /// <summary>
@@ -83,6 +133,23 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             foreach (char c in unicode)
                 buffer[i++] = (byte)c;
             return buffer;
+        }
+
+        private static void SafeDeleteFile(IsolatedStorageFile store)
+        {
+            try
+            {
+                store.DeleteFile(filename);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private static void Send(User user, string msgs)
+        {
+            byte[] bytes = EncodeString(msgs);
+            WebServiceHelper.SendTrace(user, bytes, null, null);
         }
 
         #endregion
