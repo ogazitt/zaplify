@@ -502,6 +502,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.DatePicker:
+                case DisplayTypes.DateTimePicker:
 					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
 					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
