@@ -90,6 +90,8 @@
             this.currentUser = resource.CurrentUser;
         }
 
+        public bool RenewFBToken { get; set; }
+
         public UserStorageContext StorageContext
         {
             get { return this.storageContext; }
@@ -152,29 +154,5 @@
             }
         }
 
-        public UserCredential UserCredentials
-        {
-            get
-            {
-                if (userCredentials == null)
-                {
-                    try
-                    {
-                        userCredentials = storageContext.
-                            Users.
-                            Include("UserCredentials").
-                            Single<User>(u => u.Name == currentUser.Name).
-                            UserCredentials.
-                            FirstOrDefault();
-                    }
-                    catch (Exception)
-                    {
-                        return null;
-                    }
-                }
-                return userCredentials;
-            }
-        }
     }
-
 }

@@ -17,20 +17,13 @@
     public class DashboardController : BaseController
     {
 
-        public ActionResult Home()
+        public ActionResult Home(bool renewFBToken = false)
         {
             UserDataModel model = new UserDataModel(this);
             try
             {   // force access to validate current user
                 var userData = model.UserData;
-
-                // check the facebook consent token and set the renewal flag if it will expire soon
-                var userCredentials = model.UserCredentials;
-                if (userCredentials.FBConsentToken != null &&
-                    userCredentials.FBConsentTokenExpiration < DateTime.UtcNow + TimeSpan.FromDays(1))
-                    ViewBag.RenewFBToken = 1;
-                else
-                    ViewBag.RenewFBToken = 0;
+                model.RenewFBToken = renewFBToken;
             }
             catch
             {
