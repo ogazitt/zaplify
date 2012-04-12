@@ -474,7 +474,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                return DueDate == null ? null : (DateTime?) Convert.ToDateTime(DueDate);
+                return DueDate == null || DueDate == "" ? null : (DateTime?) Convert.ToDateTime(DueDate);
             }
             set
             {

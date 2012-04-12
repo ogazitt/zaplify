@@ -18,7 +18,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
     public class NuanceHelper
     {
         private static bool speechOperationInProgress = false;
-        private static Delegate networkDelegate;
         private static Delegate speechStateDelegate;
         private static Delegate speechToTextDelegate;
   
@@ -93,7 +92,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // store the delegates passed in
             speechToTextDelegate = speechToTextDel;
             speechStateDelegate = speechStateDel;
-            networkDelegate = networkDel;
    
             // initialize the connection
             if (InitializeSpeechKit() == false)

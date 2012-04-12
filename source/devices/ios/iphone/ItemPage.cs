@@ -51,18 +51,33 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	        ItemCopy = new Item(ThisItem);
 			root = RenderViewItem(ThisItem);			
 			var dvc = new DialogViewController (root, true);
-			
-			// create an Edit button which pushes the edit view onto the nav stack
+
+            // create an Edit button which pushes the edit view onto the nav stack
 			dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
-				var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
+                var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
 				editViewController = new DialogViewController(editRoot, true);
+                editViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
+                    // navigate back to the list page
+                    TraceHelper.StartMessage("Item: Navigate back");
+                    NavigateBack();
+                });
+
                 editViewController.ViewDissapearing += (sender, e) => 
                 { 
-                    // trigger a sync with the service when the view disappears, and reload the Actions page 
-                    App.ViewModel.SyncWithService(); 
-                    dvc.ReloadData();
-                };    
-				controller.PushViewController(editViewController, true);
+                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
+                    NSTimer.CreateScheduledTimer(0.5, delegate
+                    {
+                        // save the item and trigger a sync with the service  
+                        SaveButton_Click(null, null);
+                        // reload the Actions page 
+                        var oldroot = root;
+                        root = RenderViewItem(ThisItem);
+                        dvc.Root = root;
+                        dvc.ReloadData();
+                        oldroot.Dispose();
+                    });
+                };
+                controller.PushViewController(editViewController, true);
 			});
 			
 			// push the "view item" view onto the nav stack
@@ -304,7 +319,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // render save/delete buttons
             var actionButtons = new ButtonListElement() 
             {
-                new Button() { Caption = "Save", Background = "Images/greenbutton.png", Clicked = SaveButton_Click },
+                //new Button() { Caption = "Save", Background = "Images/greenbutton.png", Clicked = SaveButton_Click },
                 new Button() { Caption = "Delete", Background = "Images/redbutton.png", Clicked = DeleteButton_Click }, 
             };
             actionButtons.Margin = 0f;
@@ -393,7 +408,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					entryElement.KeyboardType = UIKeyboardType.Default;
                     entryElement.Value = (string) currentValue;
 					entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
 					//element = stringElement;
                     break;
                 case DisplayTypes.TextArea:
@@ -401,30 +416,30 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					//multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
 					//element = multilineElement;
                     entryElement.Value = (string) currentValue;
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Phone:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.PhonePad;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Link:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.Url;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Email:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.EmailAddress;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Address:
                     entryElement.Value = (string) currentValue;
                     entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Priority:
-					var priorities = new RadioGroup (field.DisplayName, 0);
+					var priorities = new RadioGroup(field.DisplayName, 0);
 					priorities.Selected = 
 						((int?) currentValue) != null ? 
 						(int) currentValue : 
@@ -439,30 +454,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					foreach (var radio in priorityElement[0].Elements)
 					{
 						RadioEventElement radioEventElement = (RadioEventElement) radio;
-						//radioEventElement.Value = i.ToString();
 						int index = i++;
-						radioEventElement.OnSelected += delegate(object sender, EventArgs e) { pi.SetValue(container, index, null); SaveButton_Click(null, null); };
-						//{
-						//	pi.SetValue(container, Convert.ToInt32(((RadioEventElement)sender).Value), null); 
-						//};
+                        radioEventElement.OnSelected += delegate { pi.SetValue(container, index, null); };
 					}
 					element = priorityElement;
-		            //var root = priorityElement.GetImmediateRootElement ();
-		            //root.Reload (se, UITableViewRowAnimation.Fade);
-
                     break;
-				/*
-                case "Folder":
-                    ListPicker folderPicker = new ListPicker() { MinWidth = minWidth, IsTabStop = true };
-                    folderPicker.ItemsSource = App.ViewModel.Folders;
-                    folderPicker.DisplayMemberPath = "Name";
-                    Folder tl = App.ViewModel.Folders.FirstOrDefault(list => list.ID == folder.ID);
-                    folderPicker.SelectedIndex = App.ViewModel.Folders.IndexOf(tl);
-                    folderPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, App.ViewModel.Folders[folderPicker.SelectedIndex].ID, null); });
-                    folderPicker.TabIndex = tabIndex++;
-                    EditStackPanel.Children.Add(folderPicker);
-                    break;
-                    */
                 case "List":
                     // create a collection of lists in this folder, and add the folder as the first entry
                     var lists = App.ViewModel.Items.
@@ -494,7 +490,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						radioEventElement.OnSelected += delegate(object sender, EventArgs e)
 						{
 							pi.SetValue(container, lists[currentIndex].ID, null); 
-                            SaveButton_Click(null, null);
 						};
 						index++;
 					}
@@ -503,16 +498,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case "Integer":
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.NumberPad;
-					entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    //entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.DatePicker:
 					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
 					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
                     {
-                        //pi.SetValue(container, dp.Value, null);
                         pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
-                        SaveButton_Click(null, null);
+                        //SaveButton_Click(null, null);
                         folder.NotifyPropertyChanged("FirstDue");
                         folder.NotifyPropertyChanged("FirstDueColor");
                     };
@@ -526,18 +521,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					element = boolElement;
 					*/
 					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
-					checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); SaveButton_Click(null, null); };
+                    //checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); SaveButton_Click(null, null); };
+                    checkboxElement.Tapped += delegate { pi.SetValue(container, entryElement.Value, null); };
 					element = checkboxElement;
                     break;
                 case DisplayTypes.TagList:
                     // TODO                   
                     break;
-                /*
-                case "ListPointer":
-                    innerPanel = RenderEditFolderPointer(pi, minWidth);
-                    EditStackPanel.Children.Add(innerPanel);
-                    break;
-                    */
                 case "ContactList":
                     StringElement contactsElement = new StringElement(field.DisplayName);
                     Item currentContacts = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
@@ -619,7 +609,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
                         dateElement.ValueSelected += delegate 
                         {
-                            //pi.SetValue(container, dp.Value, null);
                             pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
                             folder.NotifyPropertyChanged("FirstDue");
                             folder.NotifyPropertyChanged("FirstDueColor");

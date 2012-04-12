@@ -31,9 +31,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 		public override void ViewDidAppear(bool animated)
 		{
-			TableView.DataSource = new ListTableDataSource(this);
-			TableView.Delegate = new ListTableDelegate(this);
-
 			// load the folder and construct the list of Items that will be rendered
 			try
             {
@@ -89,6 +86,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 			
 			// reload the data
+            TableView.DataSource = new ListTableDataSource(this);
+            TableView.Delegate = new ListTableDelegate(this);
 			TableView.ReloadData();
 
 			// call the base class implementation

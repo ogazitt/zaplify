@@ -99,6 +99,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {    
                 dialogViewController.ReloadComplete();
             });
+            App.ViewModel.SyncComplete -= RefreshHandler;
+            App.ViewModel.SyncCompleteArg = null;
         }
         
         // handle events associated with the Speech Popup
@@ -193,30 +195,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // get a reference to the item type
             ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == itemTypeID);
             
-            // create the new item
-            Item item = new Item()
-            {
-                Name = name,
-                FolderID = folder.ID,
-                ItemTypeID = itemTypeID,
-                ParentID = parentID,
-            };
-
-            // hack: special case processing for item types that have a Complete field
-            // if it exists, set it to false
-            if (itemType.HasField("Complete"))
-                item.Complete = false;
-
-            // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord()
-                {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = item
-                });
-
-            // add the item to the folder
-            folder.Items.Add(item);
+            // special case grocery items - split the name by comma and add a new grocery item for each string
+            if (itemTypeID == SystemItemTypes.ShoppingItem)
+                foreach (var si in name.Split(','))
+                    CreateItem(si.Trim(), folder, itemType, parentID);
+            else
+                CreateItem(name, folder, itemType, parentID);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -311,10 +295,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add", "Add");
 
             // set up the "pull to refresh" feature
-            App.ViewModel.SyncCompleteArg = dialogViewController;
-            App.ViewModel.SyncComplete += RefreshHandler;
             dialogViewController.RefreshRequested += delegate 
             {
+                App.ViewModel.SyncCompleteArg = dialogViewController;
+                App.ViewModel.SyncComplete += RefreshHandler;
                 App.ViewModel.SyncWithService();
             };
                     
@@ -397,6 +381,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     }
                 }
             };                        
+        }
+        
+        private void CreateItem(string name, Folder folder, ItemType itemType, Guid parentID)
+        {
+            // create the new item
+            Item item = new Item()
+            {
+                Name = name,
+                FolderID = folder.ID,
+                ItemTypeID = itemType.ID,
+                ParentID = parentID,
+            };
+
+            // hack: special case processing for item types that have a Complete field
+            // if it exists, set it to false
+            if (itemType.HasField("Complete"))
+                item.Complete = false;
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = item
+                });
+
+            // add the item to the folder
+            folder.Items.Add(item);
         }
         
         #endregion
