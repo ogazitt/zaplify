@@ -15,6 +15,7 @@
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using System.Runtime.Serialization.Json;
 
     // singleton service, which manages thread-safety on its own
     [ServiceContract]
@@ -32,21 +33,38 @@
             // Log function entrance
             TraceLog.TraceFunction();
 
-            HttpStatusCode code = AuthenticateUser(req);
-            if (code != HttpStatusCode.OK)
-            {   // user not authenticated
-                return new HttpResponseMessageWrapper<string>(req, code);
-            }
+            // get the username from the message if available 
+            // the creds may not exist for a device that hasn't registered but is uploading a crash report
+            string username = null;
+            var creds = GetUserFromMessageHeaders(req);
+            if (creds != null)
+                username = creds.Name;
 
             try
             {
                 Stream stream;
-                if (req.Content.Headers.ContentType.MediaType == "application/x-gzip")
-                    stream = new GZipStream(req.Content.ReadAsStreamAsync().Result, CompressionMode.Decompress);
-                else
-                    stream = req.Content.ReadAsStreamAsync().Result;
+                switch (req.Content.Headers.ContentType.MediaType)
+                {
+                    case "application/x-gzip":
+                        stream = new GZipStream(req.Content.ReadAsStreamAsync().Result, CompressionMode.Decompress);
+                        break;
+                    case "application/json":
+                        stream = req.Content.ReadAsStreamAsync().Result;
+                        DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(string));
+                        string data = (string) ser.ReadObject(stream);
+                        var ms = new MemoryStream();
+                        var tw = new StreamWriter(ms);
+                        tw.Write(data);
+                        tw.Flush();
+                        ms.Position = 0;
+                        stream = ms;
+                        break;
+                    default:
+                        stream = req.Content.ReadAsStreamAsync().Result;
+                        break;
+                }
 
-                string error = WriteFile(this.CurrentUser.Name, stream);
+                string error = WriteFile(username, stream);
                 var response = new HttpResponseMessageWrapper<string>(req, error != null ? error : "OK", HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
 
@@ -64,6 +82,9 @@
         {
             // Log function entrance
             TraceLog.TraceFunction();
+
+            if (username == null)
+                username = "anonymous";
 
             try
             {
@@ -91,7 +112,6 @@
                 
                 // copy the trace stream to the output file
                 traceStream.CopyTo(fs);
-                //fs.Write(bytes, 0, bytes.Length);
                 fs.Flush();
                 fs.Close();
                 return null;
@@ -100,7 +120,7 @@
             {
                 byte[] buffer = new byte[65536];
                 int len = traceStream.Read(buffer, 0, buffer.Length);
-                string s = Encoding.ASCII.GetString(buffer);
+                string s = Encoding.UTF8.GetString(buffer);
                 TraceLog.TraceError("Writing trace file failed: " + ex.Message);
                 return ex.Message;
             }
