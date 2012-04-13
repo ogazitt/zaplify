@@ -36,7 +36,10 @@
                     }
                     else
                     {
-                        return RedirectToAction("Home", "Dashboard");
+                        if (this.renewFBToken)
+                            return RedirectToAction("Home", "Dashboard", new { renewFBToken = true });
+                        else
+                            return RedirectToAction("Home", "Dashboard");
                     }
                 }
                 else
@@ -138,13 +141,13 @@
 
 
 #region // Private Methods
-
+        private bool renewFBToken = false;
         private void SetAuthCookie(string username, bool persistent)
         {
             if (Membership.Provider is UserMembershipProvider)
             {
                 User user = new User { Name = username };
-                HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(user);
+                HttpCookie authCookie = UserMembershipProvider.CreateAuthCookie(user, out this.renewFBToken);
                 this.Response.Cookies.Add(authCookie);
             }
             else
