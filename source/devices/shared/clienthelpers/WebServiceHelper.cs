@@ -61,6 +61,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             set
             {
                 IsolatedStorageSettings.ApplicationSettings["BaseUrl"] = value;
+                IsolatedStorageSettings.ApplicationSettings.Save();
                 appSettingsBaseUrl = value;
             }
         }
@@ -132,6 +133,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public static void SendTrace(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, BaseUrl + "/trace", "POST", bytes, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
+        }
+
+        public static void SendTrace(User user, string trace, Delegate del, Delegate netOpInProgressDel)
+        {
+            InvokeWebServiceRequest(user, BaseUrl + "/trace", "POST", trace, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<string>));
         }
 
         public static void SpeechToText(User user, byte[] bytes, Delegate del, Delegate netOpInProgressDel)
@@ -344,6 +350,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         request.ContentType = "application/x-gzip";
 #else
 						stream = new MemoryStream();
+                        request.ContentType = "application/octet-stream";
 #endif
                         stream.Write(bytes, 0, bytes.Length);
                     }

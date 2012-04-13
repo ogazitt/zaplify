@@ -707,7 +707,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         //     3.  Retrieve the user data (itemtypes, folders, tags...)
         public void SyncWithService()
         {
-            if (retrievedConstants == false)
+            if (StorageHelper.ReadCrashReport() != null)
+            {
+                TraceHelper.SendCrashReport(User, 
+                                            new SendCrashReportCallbackDelegate(SendCrashReportCallback),
+                                            new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
+            }
+            else if (retrievedConstants == false)
             {
                 GetConstants();
             }
@@ -877,6 +883,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        public delegate void SendCrashReportCallbackDelegate(string status);
+        private void SendCrashReportCallback(string status)
+        {
+            StorageHelper.DeleteCrashReport();
+            SyncWithService();
+        }
+                
 #endregion
 
 #region // Helpers

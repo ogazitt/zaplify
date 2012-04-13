@@ -12,9 +12,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		public void DebugPage ()
 		{
 			// render URL and status
-			var service = new Section("Service")
+			var serviceUrl = new EntryElement("URL", "URL to connect to", WebServiceHelper.BaseUrl);
+            var service = new Section("Service")
 			{
-				new EntryElement("URL", "URL to connect to", WebServiceHelper.BaseUrl),
+				serviceUrl,
+                new StringElement("Store New Service URL", delegate 
+                { 
+                    serviceUrl.FetchValue(); 
+                    WebServiceHelper.BaseUrl = serviceUrl.Value; 
+                }),
 				new StringElement("Connected", App.ViewModel.LastNetworkOperationStatus.ToString()),
 			};
 

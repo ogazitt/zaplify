@@ -280,7 +280,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 TraceHelper.AddMessage(String.Format("Exception Write User Credentials: {0}", ex.Message));
             }
         }
-
+  
+        /// <summary>
+        /// Deletes the crash report from isolated storage
+        /// </summary>
+        public static void DeleteCrashReport()
+        {
+            try
+            {
+                using (var store = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    store.DeleteFile(CrashReportFileName);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
+        
         /// <summary>
         /// Read the crash report from isolated storage
         /// </summary>
@@ -306,10 +323,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 return null;
             }
-            finally
-            {
-                SafeDeleteFile(IsolatedStorageFile.GetUserStoreForApplication(), CrashReportFileName);
-            }        
         }
 
         /// <summary>
@@ -320,12 +333,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             try
             {
+                DeleteCrashReport();
                 using (var store = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    SafeDeleteFile(store, CrashReportFileName);
                     using (TextWriter output = new StreamWriter(store.CreateFile(CrashReportFileName)))
                     {
                         output.Write(text);
+                        output.Flush();
                     }
                 }
             }
@@ -439,17 +453,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         TraceHelper.AddMessage(String.Format("Exception Writing {0}: {1}", elementName, ex.Message));
                     }
                 }
-            }
-        }
-
-        private static void SafeDeleteFile(IsolatedStorageFile store, string filename)
-        {
-            try
-            {
-                store.DeleteFile(filename);
-            }
-            catch (Exception)
-            {
             }
         }
 

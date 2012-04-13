@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
+using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -13,7 +15,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		{
 			// if you want to use a different Application Delegate class from "App"
 			// you can specify it here.
-			UIApplication.Main (args, null, "App");
+			try
+            {
+                UIApplication.Main (args, null, "App");
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage("Unhandled Exception in iOS client; ex: " + ex.Message);
+                TraceHelper.StoreCrashReport();
+            }
 		}
 	}
 }

@@ -63,17 +63,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return sb.ToString();
         }
 
-        public static void SendCrashReport(User user)
+        public static void SendCrashReport(User user, Delegate del, Delegate networkDel)
         {
             string contents = StorageHelper.ReadCrashReport();
             if (contents != null)
-                Send(user, contents);
+                Send(user, contents, del, networkDel);
         }
  
         public static void SendMessages(User user)
         {
             string msgs = GetMessages();
-            Send(user, msgs);
+            Send(user, msgs, null, null);
         }
 
         public static void StoreCrashReport()
@@ -99,10 +99,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return buffer;
         }
 
-        private static void Send(User user, string msgs)
+        private static void Send(User user, string msgs, Delegate del, Delegate networkDel)
         {
+#if IOS
+            WebServiceHelper.SendTrace(user, msgs, del, networkDel);
+#else
+            //byte[] bytes = Encoding.UTF8.GetBytes(msgs);
             byte[] bytes = EncodeString(msgs);
-            WebServiceHelper.SendTrace(user, bytes, null, null);
+            WebServiceHelper.SendTrace(user, bytes, del, networkDel);
+#endif
         }
 
         #endregion
