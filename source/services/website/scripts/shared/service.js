@@ -29,6 +29,8 @@ Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
 Service.cloudADConsentUri = "dashboard/CloudAD";
 
 Service.invokeAsync = true;
+Service.busyIcon = 'busy';
+Service.refreshIcon = 'refresh';
 
 // ---------------------------------------------------------
 // public methods
@@ -146,7 +148,7 @@ Service.beginRequest = function Service$beginRequest(request, successHandler, er
         Service.endRequest();
         errorHandler(jqXHR);
     };
-    $('.refresh').addClass('busy').removeClass('refresh');
+    $('.' + Service.refreshIcon).addClass(Service.busyIcon);
     Service.requestQueue.push(request);
     if (Service.requestQueue.length == 1) {
         Service.nextRequest();
@@ -159,7 +161,7 @@ Service.endRequest = function Service$endRequest() {
     if (Service.requestQueue.length > 0) {
         Service.nextRequest();
     } else {
-        $('.busy').addClass('refresh').removeClass('busy');
+        $('.' + Service.refreshIcon).removeClass(Service.busyIcon);
     }
 }
 

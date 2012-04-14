@@ -27,7 +27,6 @@ DataModel.timeStamp = '/Date(0)/';
 DataModel.Init = function DataModel$Init(jsonConstants, jsonUserData) {
     this.processConstants($.parseJSON(jsonConstants));
     this.processUserData($.parseJSON(jsonUserData));
-    $(window).unload(DataModel.Close);
 }
 
 DataModel.Close = function DataModel$Close() {

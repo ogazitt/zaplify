@@ -235,9 +235,19 @@ Dashboard Manager
     Xborder: 1px dashed green;
 }
 
+.add-icon {
+    display: inline-block; width: 16px; height: 16px;
+    background: transparent url(images/add-icon.png) no-repeat;
+}
+
+.delete-icon {
+    display: inline-block; width: 16px; height: 16px;
+    background: transparent url(images/delete-icon.png) no-repeat;
+}
+
 .item-path {
     width: 100%;
-    padding: 4px 0 2px 0;
+    padding: 4px 0 2px 0px;
     height: 18px;
     font-weight: bold;
     color: #E2E2E6;
@@ -246,7 +256,10 @@ Dashboard Manager
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
-.item-path span { padding-left: 8px }
+.item-path span {  cursor: pointer; padding-left: 8px }
+.item-path .icon { cursor: pointer; float: right; margin: 2px 8px 0 0; opacity:0.8; filter:alpha(opacity=80); }
+.item-path .icon:hover { opacity:1.0; filter:alpha(opacity=100); }
+
 
 .list-editor {
     width: 100%;

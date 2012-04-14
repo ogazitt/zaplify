@@ -29,11 +29,12 @@
 <body class="site-default">
     <div class="layout-region">
         <div class="header-region">
-            <% Html.RenderPartial("SignInControl"); %>            
             <div class="header-content">
                 <img class="logo" src="<%: Url.Content("~/content/images/zaplogo.png") %>" />
                 <asp:ContentPlaceHolder id="HeaderContent" runat="server" />
             </div>
+            <% Html.RenderPartial("SignInControl"); %>  
+            <div class="refresh"></div>          
         </div>
 
         <div class="main-content-region">

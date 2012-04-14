@@ -109,15 +109,13 @@ Layout elements
     Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
 }
 
-.header-content {
-}
+.header-content { }
+.header-region .logo { position: absolute; left: 20px; top: 8px; cursor: pointer; }
+.header-region .refresh { display:none; position: absolute; right: 12px; top: 30px; cursor: pointer; }
 
-.header-content .logo {
-    position: absolute;
-    left: 20px;
-    top: 8px;
-    cursor: pointer;
-}
+.signin-control { position: absolute; right:15px; top: 8px; }
+.signin-control a { color: #FFFFFF; }
+.signin-control span { color: #AEC2D0; }
 
 .main-content-region {
     min-width: 600px;
@@ -142,14 +140,10 @@ Layout elements
     Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
 }
 
+.footer-content { float: left; }
 .footer-copyright { float: right; margin: 6px 8px 0 0; }
 .footer-copyright a {  color: #FFFFFF; }
 
-.footer-content { float: left; }
-
-.signin-control { position: absolute; right:15px; top: 8px; }
-.signin-control a { color: #FFFFFF; }
-.signin-control span { color: #AEC2D0; }
 
 /*----------------------------------------------------------
 Dialogs and Forms
@@ -276,19 +270,10 @@ Validation
 Icons
 ----------------------------------------------------------*/
 
-.busy {
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    background: transparent url(images/busy.gif) no-repeat;
-}
-
-.refresh {
-    display: inline-block;
-    width: 32px;
-    height: 32px;
+.refresh { display: inline-block; width: 24px; height: 24px;
     background: transparent url(images/refresh.png) no-repeat;
 }
+.refresh.busy {  background: transparent url(images/busy.png) no-repeat; }
 
 /*----------------------------------------------------------
 Miscellaneous

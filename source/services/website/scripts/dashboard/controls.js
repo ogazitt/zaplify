@@ -108,6 +108,19 @@ Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
     // bind events
     $(window).bind('load', Dashboard.resize);
     $(window).bind('resize', Dashboard.resize);
+
+    // display refresh button
+    var $refreshBtn = $('.refresh');
+    $refreshBtn.click(function () { Dashboard.dataModel.Refresh(); });
+    $refreshBtn.attr('title', 'Refresh');
+    $refreshBtn.show();
+
+    $(window).unload(Dashboard.Close);
+}
+
+Dashboard.Close = function Dashboard$Close() {
+    $('.refresh').hide();
+    Dashboard.dataModel.Close();
 }
 
 // event handler, do not reference 'this' to access static Dashboard

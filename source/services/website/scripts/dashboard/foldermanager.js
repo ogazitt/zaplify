@@ -15,7 +15,7 @@ function FolderManager(dataModel) {
     this.container = '.manager-region';
     this.$managerRegion = null;
 
-    this.toolbar = new Toolbar(this);
+    //this.toolbar = new Toolbar(this);
     this.listEditor = new ListEditor(this);
     this.managerHelp = new FolderManagerHelp(this);
 }
@@ -24,7 +24,7 @@ FolderManager.prototype.render = function (container) {
     if (this.$managerRegion == null) {
         $(container).empty();
 
-        // toolbar
+        /* toolbar
         $('<div class="manager-toolbar"></div>').appendTo($(container));
         this.toolbar.render('.manager-toolbar');
         this.toolbar.bind(Toolbar.Refresh, 'click', this.dataModel.Refresh);
@@ -33,6 +33,7 @@ FolderManager.prototype.render = function (container) {
         this.toolbar.bind(Toolbar.AddItem, 'click', function (handlerObj) { handlerObj.addItem(false); }, this.listEditor);
         this.toolbar.bind(Toolbar.UpdateItem, 'click', function (handlerObj) { handlerObj.updateItem(); }, this.listEditor);
         this.toolbar.bind(Toolbar.DeleteItem, 'click', function (handlerObj) { handlerObj.deleteItem(); }, this.listEditor);
+        */
 
         // manager region
         this.$managerRegion = $('<div class="manager-region"></div>').appendTo($(container));
@@ -47,15 +48,15 @@ FolderManager.prototype.selectFolder = function (folder) {
     this.currentItem = null;
     if (this.currentFolder != null) {
         if (this.currentFolder.IsDefault) {
-            this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
+            //this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
         } else {
-            this.toolbar.disableTools([Toolbar.UpdateItem]);
+            //this.toolbar.disableTools([Toolbar.UpdateItem]);
         }
         this.managerHelp.hide();
         this.listEditor.render(this.container);
         this.listEditor.show();
     } else {
-        this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
+        //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
         this.listEditor.hide();
         this.managerHelp.show();
     }
@@ -67,10 +68,10 @@ FolderManager.prototype.selectItem = function (item) {
         this.currentFolder = this.currentItem.GetFolder();
         this.managerHelp.hide();
         if (this.currentItem.IsList) {
-            this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
+            //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
             this.listEditor.render(this.container);
         } else {
-            this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
+            //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
             this.listEditor.render(this.container);
         }
         this.listEditor.show();
@@ -309,16 +310,37 @@ ItemPath.prototype.render = function (container, folder, item) {
         this.$element = $('<div class="item-path"></div>').appendTo(container);
     }
 
+    var addBtnTitle;
+    var deleteBtnTitle;
     this.$element.empty();
     if (folder != null) {
         this.$element.append('<span>' + folder.Name + '</span>');
+        if (!folder.IsDefault) { deleteBtnTitle = 'Delete Folder'; }
+        if (item == null) { addBtnTitle = 'Add List'; }
     }
     if (item != null) {
+        deleteBtnTitle = 'Delete Item';
         if (item.IsList) {
             this.$element.append('<span> : ' + item.Name + '</span>');
+            deleteBtnTitle = 'Delete List';
         } else if (item.ParentID != null) {
             this.$element.append('<span> : ' + item.GetParent().Name + '</span>');
         }
+    }
+
+    if (deleteBtnTitle != null) {
+        var handler = this.parentControl;
+        var $deleteBtn = $('<div class="icon delete-icon"></div>').appendTo(this.$element);
+        $deleteBtn.attr('title', deleteBtnTitle);
+        $deleteBtn.unbind('click');
+        $deleteBtn.bind('click', function () { handler.deleteItem(); });
+    }
+    if (addBtnTitle != null) {
+        var handler = this.parentControl;
+        var $addBtn = $('<div class="icon add-icon"></div>').appendTo(this.$element);
+        $addBtn.attr('title', addBtnTitle);
+        $addBtn.unbind('click');
+        $addBtn.bind('click', function () { handler.addItem(true); });
     }
 }
 
@@ -413,7 +435,6 @@ ItemEditor.prototype.renderNameField = function (container, mode) {
     // render name field
     field = fields[FieldNames.Name];
     $field = this.renderText($wrapper, field);
-
     return $field;
 }
 
