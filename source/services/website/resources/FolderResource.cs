@@ -138,7 +138,7 @@
             catch (Exception ex)
             {
                 // folders not found - return 404 Not Found
-                TraceLog.TraceError("FolderResource.GetFolders: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("FolderResource.GetFolders: Not Found", ex);
                 return ReturnResult<List<Folder>>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -172,7 +172,7 @@
             catch (Exception ex)
             {
                 // folder not found - return 404 Not Found
-                TraceLog.TraceError("FolderResource.GetFolder: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("FolderResource.GetFolder: Not Found", ex);
                 return ReturnResult<Folder>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -263,14 +263,14 @@
                     }
                     else
                     {
-                        TraceLog.TraceError("FolderResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
+                        TraceLog.TraceException("FolderResource.Insert: Conflict (entity in database did not match)", ex);
                         return ReturnResult<Folder>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {
                     // folder not inserted - return 409 Conflict
-                    TraceLog.TraceError(String.Format("FolderResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
+                    TraceLog.TraceException(String.Format("FolderResource.Insert: Conflict (entity was not in database); ex: {0}", ex.Message), e);
                     return ReturnResult<Folder>(req, operation, HttpStatusCode.Conflict);
                 }
             }
@@ -347,7 +347,7 @@
             catch (Exception ex)
             {
                 // Folder not found - return 404 Not Found
-                TraceLog.TraceError("FolderResource.Update: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("FolderResource.Update: Not Found", ex);
                 return ReturnResult<Folder>(req, operation, HttpStatusCode.NotFound);
             }
         }

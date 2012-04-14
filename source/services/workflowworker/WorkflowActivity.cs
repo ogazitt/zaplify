@@ -102,6 +102,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             else
                 groupDisplayName = FormatParameterString(workflowInstance, groupDisplayName);
 
+            // get the suggestion parent ID if available
+            var parentID = GetInstanceData(workflowInstance, ActivityParameters.ParentID);
+
             // add suggestions received from the suggestion function
             try
             {
@@ -115,12 +118,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     var sugg = new Suggestion()
                     {
                         ID = Guid.NewGuid(),
+                        ParentID = parentID == null ? (Guid?) null : new Guid(parentID),
                         EntityID = entity.ID,
                         EntityType = entity.GetType().Name,
                         WorkflowType = workflowInstance.WorkflowType,
                         WorkflowInstanceID = workflowInstance.ID,
                         State = workflowInstance.State,
-                        FieldName = SuggestionType,
+                        SuggestionType = SuggestionType,
                         DisplayName = s,
                         GroupDisplayName = groupDisplayName,
                         SortOrder = num,
@@ -350,7 +354,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 WorkflowType = workflowInstance.WorkflowType,
                 WorkflowInstanceID = workflowInstance.ID,
                 State = SuggestionTypes.RefreshEntity,
-                FieldName = SuggestionTypes.RefreshEntity,
+                SuggestionType = SuggestionTypes.RefreshEntity,
                 DisplayName = SuggestionTypes.RefreshEntity,
                 GroupDisplayName = SuggestionTypes.RefreshEntity,
                 Value = null,

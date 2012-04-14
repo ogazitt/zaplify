@@ -64,7 +64,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 // get current state and corresponding activity
                 WorkflowState state = States.Single(s => s.Name == instance.State);
-                var activity = PrepareActivity(instance, state.Activity);
+                var activity = PrepareActivity(instance, state.Activity, UserContext, SuggestionsContext);
                 if (activity == null)
                 {
                     TraceLog.TraceError("Process: could not find or prepare Activity");
@@ -92,6 +92,56 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 TraceLog.TraceException("Workflow.Process failed", ex);
                 return WorkflowActivity.Status.Error;
             }
+        }
+
+        /// <summary>
+        /// Prepare an activity for execution
+        /// 1. Parse out the activity name
+        /// 2. Parse out each of the arguments and store them as instance data
+        /// </summary>
+        /// <param name="instance">workflow instance to operate over</param>
+        /// <param name="activityNameAndArguments">string containing activity names and arguments</param>
+        /// <returns>Activity ready to execute</returns>
+        public static WorkflowActivity PrepareActivity(WorkflowInstance instance, string activityNameAndArguments, UserStorageContext userContext, SuggestionsStorageContext suggestionsContext)
+        {
+            string activityName = activityNameAndArguments;
+            int paramIndex = activityNameAndArguments.IndexOf('(');
+            if (paramIndex >= 0)
+            {
+                activityName = activityNameAndArguments.Substring(0, paramIndex);
+                string args = activityNameAndArguments.Substring(paramIndex + 1);
+                // trim exactly one right paren if it is there
+                if (args.LastIndexOf(')') == args.Length - 1)
+                    args = args.Substring(0, args.Length - 1);
+
+                // process each one of the parameters, adding the name and value to the InstanceData
+                var parameters = args.Split(',');
+                foreach (var param in parameters)
+                    ProcessParameter(instance, param);
+
+                // save the instance data bag 
+                suggestionsContext.SaveChanges();
+            }
+
+            Type activityType;
+            if (ActivityList.Activities.TryGetValue(activityName, out activityType))
+            {
+                try
+                {
+                    WorkflowActivity activity = Activator.CreateInstance(activityType) as WorkflowActivity;
+                    activity.UserContext = userContext;
+                    activity.SuggestionsContext = suggestionsContext;
+                    return activity;
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException(String.Format("PrepareActivity: Could not create instance of {0} activity", activityName), ex);
+                    return null;
+                }
+            }
+
+            TraceLog.TraceError(String.Format("PrepareActivity: Activity {0} not found", activityName));
+            return null;
         }
 
         /// <summary>
@@ -197,46 +247,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 
         #region Helpers
 
-        private WorkflowActivity PrepareActivity(WorkflowInstance instance, string activityNameAndArguments)
-        {
-            string activityName = activityNameAndArguments;
-            int paramIndex = activityNameAndArguments.IndexOf('(');
-            if (paramIndex >= 0)
-            {
-                activityName = activityNameAndArguments.Substring(0, paramIndex);
-                string args = activityNameAndArguments.Substring(paramIndex + 1);
-                args = args.TrimEnd(')');
-                
-                // process each one of the parameters, adding the name and value to the InstanceData
-                var parameters = args.Split(',');
-                foreach (var param in parameters)
-                    ProcessParameter(instance, param);
-
-                // save the instance data bag 
-                SuggestionsContext.SaveChanges();
-            }
-
-            WorkflowActivity activity = null;
-            if (ActivityList.Activities.TryGetValue(activityName, out activity))
-            {
-                activity.UserContext = UserContext;
-                activity.SuggestionsContext = SuggestionsContext;
-                return activity;
-            }
-
-            TraceLog.TraceError(String.Format("PrepareActivity: Activity {0} not found", activityName));
-            return null;
-        }
-
-        private void ProcessParameter(WorkflowInstance instance, string parameter)
+        private static void ProcessParameter(WorkflowInstance instance, string parameter)
         {
             if (parameter == null)
                 return;
-            var strs = parameter.Split('=');
-            if (strs.Length != 2)
+            int index = parameter.IndexOf('=');
+            if (index < 0)
                 return;
-            var name = strs[0].Trim();
-            var value = strs[1].Trim();
+            var name = parameter.Substring(0, index).Trim();
+            var value = parameter.Substring(index + 1).Trim();
             StoreInstanceData(instance, name, value);
         }
 
@@ -246,7 +265,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="workflowInstance">Instance to retrieve the data from</param>
         /// <param name="key">Key to store under</param>
         /// <param name="data">Data to store under the key</param>
-        private void StoreInstanceData(WorkflowInstance workflowInstance, string key, string data)
+        private static void StoreInstanceData(WorkflowInstance workflowInstance, string key, string data)
         {
             JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
             dict[key] = data;

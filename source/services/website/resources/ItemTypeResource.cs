@@ -105,7 +105,7 @@
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
-                TraceLog.TraceError("ItemTypeResource.GetItemTypes: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("ItemTypeResource.GetItemTypes: Not Found", ex);
                 return ReturnResult<List<ItemType>>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -136,7 +136,7 @@
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
-                TraceLog.TraceError("ItemTypeResource.GetItemType: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("ItemTypeResource.GetItemType: Not Found", ex);
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -192,13 +192,13 @@
                     }
                     else
                     {
-                        TraceLog.TraceError("ItemTypeResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
+                        TraceLog.TraceException("ItemTypeResource.Insert: Conflict (entity in database did not match)", ex);
                         return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {   // itemtype not inserted - return 409 Conflict
-                    TraceLog.TraceError(String.Format("ItemTypeResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
+                    TraceLog.TraceException(String.Format("ItemTypeResource.Insert: Conflict (entity was not in database); ex: {0}", ex.Message), e);
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                 }
             }
@@ -269,7 +269,7 @@
             }
             catch (Exception ex)
             {   // itemtype not found - return 404 Not Found
-                TraceLog.TraceError("ItemTypeResource.Update: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("ItemTypeResource.Update: Not Found", ex);
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }

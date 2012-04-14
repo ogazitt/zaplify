@@ -168,7 +168,7 @@ namespace BuiltSteady.Zaplify.Website
                 }
                 catch (Exception ex) 
                 {
-                    TraceLog.TraceError("Failed to add AD credential to User; ex: " + ex.Message);
+                    TraceLog.TraceException("Failed to add AD credential to User", ex);
                     // TODO: should probably return some error to the user
                     tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
                 }
@@ -176,14 +176,14 @@ namespace BuiltSteady.Zaplify.Website
                 try
                 {   // timestamp suggestion
                     SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.FieldName == SuggestionTypes.GetADConsent);
+                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.SuggestionType == SuggestionTypes.GetADConsent);
                     suggestion.TimeSelected = DateTime.UtcNow;
                     suggestion.ReasonSelected = Reasons.Chosen;
                     suggestionsContext.SaveChanges();
                 }
                 catch (Exception ex) 
                 {
-                    TraceLog.TraceError("Failed to update and timestamp suggestion; ex: " + ex.Message);
+                    TraceLog.TraceException("Failed to update and timestamp suggestion", ex);
                 }
                 
                 // redirect back to the dashboard

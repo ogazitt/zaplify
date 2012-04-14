@@ -626,6 +626,30 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     dp.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(dp);
                     break;
+                case DisplayTypes.DateTimePicker:
+                    // create date picker
+                    DatePicker datePicker = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+                    // set up two-way data binding so that we don't have to pick up the new value in the event handler
+                    datePicker.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                    datePicker.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                    {
+                        folder.NotifyPropertyChanged("FirstDue");
+                        folder.NotifyPropertyChanged("FirstDueColor");
+                    });
+                    datePicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(datePicker);
+                    // create time picker
+                    TimePicker timePicker = new TimePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
+                    // set up two-way data binding so that we don't have to pick up the new value in the event handler
+                    timePicker.SetBinding(TimePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
+                    timePicker.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
+                    {                        
+                        folder.NotifyPropertyChanged("FirstDue");
+                        folder.NotifyPropertyChanged("FirstDueColor");
+                    });
+                    timePicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(timePicker);
+                    break;
                 case DisplayTypes.Checkbox:
                     CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
                     cb.SetBinding(CheckBox.IsCheckedProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });

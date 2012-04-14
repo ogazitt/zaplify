@@ -105,7 +105,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("Failed to add Facebook credential to User; ex: " + ex.Message);
+                TraceLog.TraceException("Failed to add Facebook credential to User", ex);
                 // TODO: should probably return some error to the user
                 return RedirectToAction("Home", "Dashboard");
             }
@@ -113,14 +113,14 @@
             try
             {   // timestamp suggestion
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.FieldName == SuggestionTypes.GetFBConsent);
+                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.SuggestionType == SuggestionTypes.GetFBConsent);
                 suggestion.TimeSelected = DateTime.UtcNow;
                 suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("Failed to update and timestamp suggestion; ex: " + ex.Message);
+                TraceLog.TraceException("Failed to update and timestamp suggestion", ex);
             }
 
             return RedirectToAction("Home", "Dashboard");
@@ -269,14 +269,14 @@
                 Suggestion connectToFacebook = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", SortOrder = 1, FieldName = SuggestionTypes.GetFBConsent,
+                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", SortOrder = 1, SuggestionType = SuggestionTypes.GetFBConsent,
                     WorkflowInstanceID = Guid.NewGuid(), WorkflowType="InitializeUser"
                 };
                 suggestionsContext.Suggestions.Add(connectToFacebook);
                 Suggestion connectToCloudAD = new Suggestion() 
                 {
                     ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", SortOrder = 2, FieldName = SuggestionTypes.GetADConsent, 
+                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", SortOrder = 2, SuggestionType = SuggestionTypes.GetADConsent, 
                     WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowType = connectToFacebook.WorkflowType
                 };
                 suggestionsContext.Suggestions.Add(connectToCloudAD);
@@ -285,7 +285,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("CreateDefaultFolders failed; ex: " + ex.Message);
+                TraceLog.TraceException("CreateDefaultFolders failed", ex);
                 throw;
             }
         }

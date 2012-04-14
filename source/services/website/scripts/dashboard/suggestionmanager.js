@@ -11,9 +11,9 @@ function SuggestionManager(dataModel) {
 
 SuggestionManager.prototype.select = function (suggestion) {
     var refresh = false;        // return true to indicate additional suggestions should be retrieved
-    switch (suggestion.FieldName) {
-        case FieldNames.Contacts: { refresh = this.addContact(suggestion); break; }
+    switch (suggestion.SuggestionType) {
         case SuggestionTypes.ChooseOne: { refresh = this.chooseSuggestion(suggestion); break; }
+        case SuggestionTypes.ChooseOneSubject: { refresh = this.chooseSuggestion(suggestion); break; }
         case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
         case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
@@ -68,8 +68,9 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
     return false;
 }
 
+/*
 SuggestionManager.prototype.addContact = function (suggestion) {
-    /*
+
     var dataModel = this.dataModel;
     var item = dataModel.FindItem(suggestion.EntityID);
     if (item != null) {
@@ -115,9 +116,9 @@ SuggestionManager.prototype.addContact = function (suggestion) {
             addContactFunc(contactsList);
         }
     }
-    */
     return this.chooseSuggestion(suggestion);
 }
+*/
 
 SuggestionManager.prototype.navigateLink = function (suggestion) {
     return this.likeSuggestion(suggestion,

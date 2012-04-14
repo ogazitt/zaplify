@@ -101,7 +101,7 @@
                 byte[] buffer = new byte[65536];
                 int len = traceStream.Read(buffer, 0, buffer.Length);
                 string s = Encoding.ASCII.GetString(buffer);
-                TraceLog.TraceError("Writing trace file failed: " + ex.Message);
+                TraceLog.TraceException("Writing trace file failed", ex);
                 return ex.Message;
             }
         }

@@ -124,7 +124,7 @@
             catch (Exception ex)
             {
                 // speech failed
-                TraceLog.TraceError("Speech recognition failed: " + ex.Message);
+                TraceLog.TraceException("Speech recognition failed", ex);
 
                 // release engine instance
                 ReleaseSpeechEngine(sre);
@@ -204,7 +204,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError(String.Format("Corrupted speex stream: {0}", ex.Message));
+                TraceLog.TraceException("Corrupted speex stream", ex);
                 return null;
             }
         }
@@ -302,7 +302,7 @@
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceError("InitializeGrammar: Create Directory " + appDataPath + " failed: " + ex.Message);
+                        TraceLog.TraceException("InitializeGrammar: Create Directory " + appDataPath + " failed", ex);
                     }
                 }
                 else
@@ -315,7 +315,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("InitializeGrammar: Cannot find grammars: " + ex.Message);
+                TraceLog.TraceException("InitializeGrammar: Cannot find grammar", ex);
             }
         }
 
@@ -338,7 +338,7 @@
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceError("InitializeGrammarCopyFiles: Copy file failed: " + ex.Message);
+                    TraceLog.TraceException("InitializeGrammarCopyFiles: Copy file failed", ex);
                 }
             }
             else
@@ -460,7 +460,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("WriteSpeechFile: Write speech file failed: " + ex.Message);
+                TraceLog.TraceException("WriteSpeechFile: Write speech file failed", ex);
                 return ex.Message;
             }
         }

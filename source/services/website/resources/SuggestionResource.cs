@@ -5,14 +5,14 @@
     using System.Linq;
     using System.Net;
     using System.Net.Http;
-    using System.Reflection;
+    using System.Net.Http.Headers;
     using System.ServiceModel;
     using System.ServiceModel.Web;
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
-    using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Shared.Entities;
+    using BuiltSteady.Zaplify.Website.Helpers;
 
     [ServiceContract]
     [LogMessages]
@@ -64,12 +64,14 @@
                 {   // entity associated with suggestions does not belong to the authenticated user, return 403 Forbidden
                     TraceLog.TraceError("SuggestionResource.GetSuggestion: Forbidden (associated entity does not belong to current user)");
                     return ReturnResult<Suggestion>(req, operation, HttpStatusCode.Forbidden);
-                }                
-                return ReturnResult<Suggestion>(req, operation, suggestion, HttpStatusCode.OK);
+                }
+                var response = ReturnResult<Suggestion>(req, operation, suggestion, HttpStatusCode.OK);
+                response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+                return response;
             }
             catch (Exception ex)
             {   // suggestion not found - return 404 Not Found
-                TraceLog.TraceError("SuggestionResource.GetSuggestion: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("SuggestionResource.GetSuggestion: Not Found", ex);
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -114,15 +116,17 @@
                 else
                 {
                     suggestions = this.SuggestionsStorageContext.Suggestions.
-                        Where(s => s.EntityID == filter.EntityID && s.FieldName == filter.FieldName && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
+                        Where(s => s.EntityID == filter.EntityID && s.SuggestionType == filter.FieldName && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
                         OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
                         ToList<Suggestion>();
                 }
-                return ReturnResult<List<Suggestion>>(req, operation, suggestions, HttpStatusCode.OK);
+                var response = ReturnResult<List<Suggestion>>(req, operation, suggestions, HttpStatusCode.OK);
+                response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
+                return response;
             }
-            catch (Exception)
+            catch (Exception ex)
             {   // suggestions not found - return 404 Not Found
-                TraceLog.TraceError("SuggestionResource.QuerySuggestion: Internal Server Error (database operation did not succeed)");
+                TraceLog.TraceException("SuggestionResource.QuerySuggestion: Internal Server Error", ex);
                 return ReturnResult<List<Suggestion>>(req, operation, HttpStatusCode.InternalServerError);
             }
         }
@@ -203,7 +207,7 @@
             }
             catch (Exception ex)
             {   // suggestion not found - return 404 Not Found
-                TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("SuggestionResource.UpdateSuggestion: Not Found", ex);
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.NotFound);
             }
         }

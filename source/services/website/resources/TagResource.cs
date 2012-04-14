@@ -115,7 +115,7 @@
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                TraceLog.TraceError("TagResource.GetTags: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("TagResource.GetTags: Not Found", ex);
                 return ReturnResult<List<Tag>>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -149,7 +149,7 @@
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                TraceLog.TraceError("TagResource.GetItemType: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("TagResource.GetItemType: Not Found", ex);
                 return ReturnResult<Tag>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -206,14 +206,14 @@
                     }
                     else
                     {
-                        TraceLog.TraceError("TagResource.Insert: Conflict (entity in database did not match); ex: " + ex.Message);
+                        TraceLog.TraceException("TagResource.Insert: Conflict (entity in database did not match)", ex);
                         return ReturnResult<Tag>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {
                     // tag not inserted - return 409 Conflict
-                    TraceLog.TraceError(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}, ex {1}", ex.Message, e.Message));
+                    TraceLog.TraceException(String.Format("TagResource.Insert: Conflict (entity was not in database); ex: {0}", ex.Message), e);
                     return ReturnResult<Tag>(req, operation, HttpStatusCode.Conflict);
                 }
             }
@@ -298,7 +298,7 @@
             catch (Exception ex)
             {
                 // tag not found - return 404 Not Found
-                TraceLog.TraceError("TagResource.Update: Not Found; ex: " + ex.Message);
+                TraceLog.TraceException("TagResource.Update: Not Found", ex);
                 return ReturnResult<Tag>(req, operation, HttpStatusCode.NotFound);
             }
         }

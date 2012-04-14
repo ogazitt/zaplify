@@ -12,8 +12,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
     {
         public override List<WorkflowState> States { get { return states; } }
 
-        private static string DetermineIntent = "Are you trying to";
-        private static string InvokeWorkflow = "Invoke Workflow";
+        private const string DetermineIntent = "DetermineIntent";
+        private const string InvokeWorkflow = "InvokeWorkflow";
 
         private static List<WorkflowState> states = new List<WorkflowState>()
         {

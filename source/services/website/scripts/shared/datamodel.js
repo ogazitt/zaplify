@@ -688,7 +688,7 @@ var FieldNames = {
 
     FacebookID: "FacebookID",               // String
     Intent: "Intent",                       // String
-    Sources: "Sources",                     // String
+    Sources: "Sources"                      // String
 };
 
 // ---------------------------------------------------------
@@ -696,6 +696,7 @@ var FieldNames = {
 
 var SuggestionTypes = {
     ChooseOne: "ChooseOne",  
+    ChooseOneSubject: "ChooseOneSubject",  
     ChooseMany: "ChooseMany",  
     GetFBConsent: "GetFBConsent",  
     GetADConsent: "GetADConsent",

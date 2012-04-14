@@ -14,7 +14,9 @@ Post-Deployment Script Template
 :r .\dbo.Intents.Table.sql
 GO
 :Setvar Intent "$(Intent)"
+:Setvar Like "$(Like)"
 :Setvar Likes "$(Likes)"
+:Setvar LikeSuggestionList "$(LikeSuggestionList)"
 :Setvar Relationship "$(Relationship)"
 :r .\dbo.WorkflowTypes.Table.sql
 GO

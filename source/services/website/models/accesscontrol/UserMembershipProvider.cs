@@ -39,7 +39,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("ChangePassword: ex: " + ex.Message);
+                TraceLog.TraceException("ChangePassword", ex);
             }
             return false;
         }

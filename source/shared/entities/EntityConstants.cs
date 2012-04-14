@@ -95,6 +95,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class SuggestionTypes
     {
         public const string ChooseOne = "ChooseOne";
+        public const string ChooseOneSubject = "ChooseOneSubject";
         public const string ChooseMany = "ChooseMany";
         public const string GetFBConsent = "GetFBConsent";
         public const string GetADConsent = "GetADConsent";
@@ -141,6 +142,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string TextArea = "TextArea";
         public const string Checkbox = "Checkbox";
         public const string DatePicker = "DatePicker";
+        public const string DateTimePicker = "DateTimePicker";
         public const string Phone = "Phone";
         public const string Email = "Email";
         public const string Link = "Link";
