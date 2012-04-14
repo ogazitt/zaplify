@@ -832,9 +832,10 @@ var DisplayTypes = {
 // SuggestionTypes constants
 
 var SuggestionTypes = {
-    ChooseOne: "ChooseOne",
-    ChooseMany: "ChooseMany",
-    GetFBConsent: "GetFBConsent",
+    ChooseOne: "ChooseOne",  
+    ChooseOneSubject: "ChooseOneSubject",  
+    ChooseMany: "ChooseMany",  
+    GetFBConsent: "GetFBConsent",  
     GetADConsent: "GetADConsent",
     NavigateLink: "NavigateLink",
     RefreshEntity: "RefreshEntity"

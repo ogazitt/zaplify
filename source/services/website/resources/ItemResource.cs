@@ -117,7 +117,7 @@
             }
             catch (Exception ex)
             {   // folder not found - return 404 Not Found
-                TraceLog.TraceError(String.Format("ItemResource.Delete: Not Found (folder not found); ex: " + ex.Message));
+                TraceLog.TraceException(String.Format("ItemResource.Delete: Not Found (folder not found)"), ex);
                 return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -155,13 +155,13 @@
                 }
                 catch (Exception ex)
                 {   // folder not found - return 404 Not Found
-                    TraceLog.TraceError("ItemResource.GetItem: Not Found (folder); ex: " + ex.Message);
+                    TraceLog.TraceException("ItemResource.GetItem: Not Found (folder)", ex);
                     return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception ex)
             {   // item not found - return 404 Not Found
-                TraceLog.TraceError("ItemResource.GetItem: Not Found (item); ex: " + ex.Message);
+                TraceLog.TraceException("ItemResource.GetItem: Not Found (item)", ex);
                 return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -385,13 +385,13 @@
                 }
                 catch (Exception ex)
                 {   // item not found - return 404 Not Found
-                    TraceLog.TraceError("ItemResource.Update: Not Found (item); ex: " + ex.Message);
+                    TraceLog.TraceException("ItemResource.Update: Not Found (item)", ex);
                     return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
                 }
             }
             catch (Exception ex)
             {   // folder not found - return 404 Not Found
-                TraceLog.TraceError("ItemResource.Update: Not Found (folder); ex: " + ex.Message);
+                TraceLog.TraceException("ItemResource.Update: Not Found (folder)", ex);
                 return ReturnResult<Item>(req, operation, HttpStatusCode.NotFound);
             }
         }

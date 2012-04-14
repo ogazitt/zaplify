@@ -111,7 +111,7 @@
             }
             catch (Exception ex)
             {   // username not found - return 404 Not Found
-                TraceLog.TraceError(String.Format("AuthenticateUser: Username not found: {0}; ex: {1}", credentials.Name, ex.Message));
+                TraceLog.TraceException(String.Format("AuthenticateUser: Username not found: {0}", credentials.Name), ex);
                 return HttpStatusCode.NotFound;
             }
         }
@@ -168,7 +168,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("ProcessRequestBody: deserialization failed: " + ex.Message);
+                TraceLog.TraceException("ProcessRequestBody: deserialization failed", ex);
             }
 
             if (skipOperation) return value;
@@ -225,7 +225,7 @@
             }
             catch (Exception ex)
             {   // log failure to record operation
-                TraceLog.TraceError("ProcessRequestBody: failed to record operation: " + ex.Message);
+                TraceLog.TraceException("ProcessRequestBody: failed to record operation", ex);
             }
 
             return value;

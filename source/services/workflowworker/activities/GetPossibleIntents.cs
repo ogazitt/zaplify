@@ -84,8 +84,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 Intent intent = SuggestionsContext.Intents.Single(i => i.Verb == verb && i.Noun == noun);
                 try
                 {
-                    var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.Name);
-                    suggestionList[intent.Name] = wt.Type;
+                    var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == intent.WorkflowType);
+                    suggestionList[intent.WorkflowType] = wt.Type;
                     return Status.Complete;
                 }
                 catch (Exception ex)
@@ -104,7 +104,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 // get a list of all approximate matches
                 var intentList = SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
                 foreach (var intent in intentList)
-                    suggestionList[intent.Name] = intent.Name;
+                    suggestionList[intent.WorkflowType] = intent.WorkflowType;
             }
             catch (Exception ex)
             {

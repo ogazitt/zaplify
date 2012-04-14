@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {

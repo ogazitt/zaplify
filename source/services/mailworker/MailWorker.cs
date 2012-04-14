@@ -65,7 +65,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceError("Can't contact mail server; ex: " + ex.Message);
+                    TraceLog.TraceException("Can't contact mail server", ex);
                 }
 
                 // sleep for the timeout period
@@ -294,7 +294,7 @@ namespace BuiltSteady.Zaplify.MailWorker
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("Exception while Printing Item: " + ex.Message);
+                TraceLog.TraceException("Exception while Printing Item", ex);
                 return "no fields parsed";
             }
         }

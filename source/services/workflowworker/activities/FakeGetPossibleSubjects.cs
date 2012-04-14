@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string GroupDisplayName { get { return "Who is this for?"; } }
         public override string OutputParameterName { get { return ActivityParameters.Contact; } }
-        public override string SuggestionType { get { return FieldNames.Contacts; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseOneSubject; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {

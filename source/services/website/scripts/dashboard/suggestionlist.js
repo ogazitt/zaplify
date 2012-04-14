@@ -123,7 +123,7 @@ ChoiceButton.prototype.render = function (container) {
     this.$element.click(function () { Control.get(this).select(); });
     this.$element.append('<span>' + this.choice.DisplayName + '</span>');
 
-    if (this.choice.FieldName == FieldNames.Contacts) {
+    if (this.choice.SuggestionType == SuggestionTypes.ChooseOneSubject) {
         var contact = $.extend(new Item(), $.parseJSON(this.choice.Value));
         Control.renderSourceIcons(this.$element, contact);
     }

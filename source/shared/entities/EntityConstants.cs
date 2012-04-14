@@ -95,6 +95,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class SuggestionTypes
     {
         public const string ChooseOne = "ChooseOne";
+        public const string ChooseOneSubject = "ChooseOneSubject";
         public const string ChooseMany = "ChooseMany";
         public const string GetFBConsent = "GetFBConsent";
         public const string GetADConsent = "GetADConsent";

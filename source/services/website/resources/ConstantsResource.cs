@@ -29,10 +29,10 @@
             {
                 return new HttpResponseMessageWrapper<Constants>(req, ConstantsModel.Constants, HttpStatusCode.OK);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // constants not found - return 404 Not Found
-                TraceLog.TraceError("ConstantsResource.Get: not found");
+                TraceLog.TraceException("ConstantsResource.Get: not found", ex);
                 return new HttpResponseMessageWrapper<Constants>(req, HttpStatusCode.NotFound);
             }
         }

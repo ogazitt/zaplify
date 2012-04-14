@@ -63,6 +63,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\Foreach.cs" />
+    <Compile Include="activities\GenerateSubjectLikes.cs" />
     <Compile Include="activities\FakeGetPossibleSubjects.cs" />
     <Compile Include="activities\FakeGetSubjectLikes.cs" />
     <Compile Include="activities\GetSubjectLikes.cs" />
