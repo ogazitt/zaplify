@@ -55,7 +55,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             //   sleep for the timeout period
             while (true)
             {
-                bool poisonMessage = false;
                 Guid lastOperationID = Guid.Empty;
                 try
                 {
