@@ -119,6 +119,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 controller.PushViewController(editViewController, true);
 			});
 			
+            actionsViewController.ViewDissapearing += (sender, e) => 
+            {
+                if (actionsViewController.IsMovingFromParentViewController)
+                    controller.ViewDidAppear(false);
+            };
+
 			// push the "view item" view onto the nav stack
 			controller.PushViewController (actionsViewController, true);
 		}

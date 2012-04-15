@@ -385,6 +385,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
         private void CreateItem(string name, Folder folder, ItemType itemType, Guid parentID)
         {
+            // figure out the sort value 
+            float sortOrder = 1000f;
+            var listItems = folder.Items.Where(it => it.ParentID == parentID).ToList();
+            if (listItems.Count > 0)
+                sortOrder += listItems.Max(it => it.SortOrder);
+            
             // create the new item
             Item item = new Item()
             {
@@ -392,6 +398,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 FolderID = folder.ID,
                 ItemTypeID = itemType.ID,
                 ParentID = parentID,
+                SortOrder = sortOrder
             };
 
             // hack: special case processing for item types that have a Complete field

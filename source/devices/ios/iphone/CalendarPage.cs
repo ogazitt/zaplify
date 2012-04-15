@@ -16,6 +16,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public class CalendarPage : UINavigationController
 	{
+        private DialogViewController dvc;
+        
 		public CalendarPage()
 		{
 			// trace event
@@ -29,7 +31,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		{
 			// trace event
             TraceHelper.AddMessage("Calendar: ViewDidAppear");
-			
+            
 			// initialize controls
 			var now = DateTime.Today;
 			var root = new RootElement("Calendar")
@@ -37,11 +39,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		        from it in App.ViewModel.Items
 			        where it.Due != null && it.Due >= now
 			        orderby it.Due ascending
-			        group it by it.Due into g
-			        select new Section (((DateTime) g.Key).ToString("d")) 
+			        group it by ((DateTime)it.Due).Date into g
+			        select new Section (((DateTime) g.Key).ToShortDateString())
 					{
 			            from hs in g
-			               	select (Element) new StringElement (((DateTime) hs.Due).ToString("d"),
+			               	select (Element) new StringElement (((DateTime) hs.Due).ToShortTimeString(),
 						        delegate 
 						        {
 									ItemPage itemPage = new ItemPage(this, hs);
@@ -53,12 +55,22 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					}
 		    };
 			
-			// create and push the dialog view onto the nav stack
-			var dvc = new DialogViewController(UITableViewStyle.Plain, root);
-			dvc.NavigationItem.HidesBackButton = true;	
-			dvc.Title = NSBundle.MainBundle.LocalizedString ("Calendar", "Calendar");
-			this.PushViewController(dvc, false);
-			
+			if (dvc == null)
+            {
+                // create and push the dialog view onto the nav stack
+                dvc = new DialogViewController(UITableViewStyle.Plain, root);
+    			dvc.NavigationItem.HidesBackButton = true;	
+    			dvc.Title = NSBundle.MainBundle.LocalizedString ("Calendar", "Calendar");
+    			this.PushViewController(dvc, false);
+			}
+            else
+            {
+                // refresh the dialog view controller with the new root
+                var oldroot = dvc.Root;
+                dvc.Root = root;
+                oldroot.Dispose();
+                dvc.ReloadData();
+            }
 			base.ViewDidAppear (animated);
 		}
 	}

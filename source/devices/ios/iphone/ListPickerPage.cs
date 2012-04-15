@@ -51,9 +51,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 Guid id = Guid.NewGuid();
                 valueList.ID = id;                
-                foreach (var it in valueList.Items)
-                    it.ParentID = id;
-
+                // fix the pickList's ParentID's to this new list ID (otherwise they stay Guid.Empty)
+                foreach (var i in pickList.Items)
+                    i.ParentID = id;
+                
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
@@ -68,7 +69,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
                 // store the list's Guid in the item's property 
                 pi.SetValue(container, id.ToString(), null);
-
+    
                 // save the item change, which will queue up the update item operation
                 itemPage.SaveButton_Click(null, null);
             }
