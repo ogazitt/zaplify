@@ -694,6 +694,12 @@
             // get the value of the IsList checkbox
             bool isChecked = (QuickAddPopupIsListCheckbox.IsChecked == null) ? false : (bool) QuickAddPopupIsListCheckbox.IsChecked;
 
+            // figure out the sort value 
+            float sortOrder = 1000f;
+            var listItems = folder.Items.Where(it => it.ParentID == list.ID).ToList();
+            if (listItems.Count > 0)
+                sortOrder += listItems.Max(it => it.SortOrder);
+
             // create the new item
             Item item = new Item()
             {
