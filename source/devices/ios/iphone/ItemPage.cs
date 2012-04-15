@@ -21,6 +21,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		Folder folder = null;
 		UINavigationController controller;
 		RootElement root = null;
+        DialogViewController actionsViewController;
         DialogViewController editViewController;
 		
 		public ItemPage(UINavigationController c, Item item)
@@ -50,18 +51,55 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // the iphone implementation will make changes to the "live" copy 
 	        ItemCopy = new Item(ThisItem);
 			root = RenderViewItem(ThisItem);			
-			var dvc = new DialogViewController (root, true);
-
+			actionsViewController = new DialogViewController (root, true);
+   
             // create an Edit button which pushes the edit view onto the nav stack
-			dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
+			actionsViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
                 var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
 				editViewController = new DialogViewController(editRoot, true);
                 editViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
-                    // navigate back to the list page
-                    TraceHelper.StartMessage("Item: Navigate back");
-                    NavigateBack();
+                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
+                    NSTimer.CreateScheduledTimer(0.5, delegate
+                    {
+                        // save the item and trigger a sync with the service  
+                        SaveButton_Click(null, null);
+                        // navigate back to the list page
+                        TraceHelper.StartMessage("Item: Navigate back");
+                        NavigateBack();
+                    });
                 });
 
+                UIImage actionsBackButtonImage = new UIImage("Images/actions-back-button.png");
+                UIImage actionsBackButtonImageSelected = new UIImage("Images/actions-back-button-selected.png");                
+                UIButton actionsBackButton = UIButton.FromType(UIButtonType.Custom);
+                actionsBackButton.SetImage(actionsBackButtonImage, UIControlState.Normal);
+                actionsBackButton.SetImage(actionsBackButtonImageSelected, UIControlState.Selected);
+                actionsBackButton.SetImage(actionsBackButtonImageSelected, UIControlState.Highlighted);
+                actionsBackButton.Frame = new System.Drawing.RectangleF(0, 0, actionsBackButtonImage.Size.Width, actionsBackButtonImage.Size.Height);
+                actionsBackButton.TouchUpInside += delegate {
+                //actionsViewController.NavigationItem.BackBarButtonItem = new UIBarButtonItem("Actions", UIBarButtonItemStyle.Bordered, delegate {
+                //editViewController.NavigationItem.LeftBarButtonItem = new UIBarButtonItem(new UIImage("Images/actions-back-button.png"), UIBarButtonItemStyle.Plain, delegate {
+                //editViewController.NavigationItem.LeftBarButtonItem = new UIBarButtonItem("Actions", UIBarButtonItemStyle.Bordered, delegate {
+                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
+                    NSTimer.CreateScheduledTimer(0.5, delegate
+                    {
+                        // save the item and trigger a sync with the service  
+                        SaveButton_Click(null, null);
+                        // reload the Actions page 
+                        var oldroot = root;
+                        root = RenderViewItem(ThisItem);
+                        actionsViewController.Root = root;
+                        actionsViewController.ReloadData();
+                        oldroot.Dispose();
+                        // pop back to actions page
+                        controller.PopViewControllerAnimated(true);
+                    });
+                //});
+                };
+                UIBarButtonItem actionsBackBarItem = new UIBarButtonItem(actionsBackButton);
+                editViewController.NavigationItem.LeftBarButtonItem = actionsBackBarItem;
+
+/*                
                 editViewController.ViewDissapearing += (sender, e) => 
                 { 
                     // schedule this out 0.5 seconds to give any Changed event handlers time to fire
@@ -77,11 +115,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         oldroot.Dispose();
                     });
                 };
+*/
                 controller.PushViewController(editViewController, true);
 			});
 			
 			// push the "view item" view onto the nav stack
-			controller.PushViewController (dvc, true);
+			controller.PushViewController (actionsViewController, true);
 		}
 				
         private void CancelButton_Click(object sender, EventArgs e)
@@ -431,7 +470,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case DisplayTypes.Email:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.EmailAddress;
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+                    entryElement.Changed += delegate { 
+                        pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Address:
                     entryElement.Value = (string) currentValue;
@@ -502,7 +542,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.DatePicker:
-                case DisplayTypes.DateTimePicker:
 					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
 					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
@@ -513,6 +552,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         folder.NotifyPropertyChanged("FirstDueColor");
                     };
 					element = dateElement;
+                    break;
+                case DisplayTypes.DateTimePicker:
+                    DateTime? dt = (currentValue == null) ? (DateTime?) null : Convert.ToDateTime((string) currentValue);
+                    DateTimeEventElement dateTimeElement = new DateTimeEventElement(field.DisplayName, dt);
+                    dateTimeElement.ValueSelected += (s, e) => 
+                    {
+                        pi.SetValue(container, dateTimeElement.DateValue == null ? null : ((DateTime) dateTimeElement.DateValue).ToString(), null);
+                        folder.NotifyPropertyChanged("FirstDue");
+                        folder.NotifyPropertyChanged("FirstDueColor");
+                    };
+                    element = dateTimeElement;
                     break;
                 case DisplayTypes.Checkbox:
 					/*
@@ -837,13 +887,24 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             stringElement.Value = "to tomorrow";
                             stringElement.Tapped += delegate
                             {
-                                item.DueDate = DateTime.Today.Date.AddDays(1.0).ToString("yyyy-MM-dd");
+                                TimeSpan time = Convert.ToDateTime(currentValue).TimeOfDay;
+                                fieldValue.Value = (DateTime.Today.Date.AddDays(1.0) + time).ToString();
+                                // save the item and trigger a sync with the service  
+                                SaveButton_Click(null, null);
+                                // reload the Actions page 
+                                var oldroot = root;
+                                root = RenderViewItem(ThisItem);
+                                actionsViewController.Root = root;
+                                actionsViewController.ReloadData();
+                                oldroot.Dispose();
+                                
                                 folder.NotifyPropertyChanged("FirstDue");
                                 folder.NotifyPropertyChanged("FirstDueColor");
                             };
                             break;
                         case ActionNames.AddToCalendar:
-                            stringElement.Value = item.DueDisplay;
+                            DateTime dt = Convert.ToDateTime(currentValue);
+                            stringElement.Value = dt.TimeOfDay == TimeSpan.FromSeconds(0d) ? dt.Date.ToString() : dt.ToString();
                             stringElement.Tapped += delegate
                             {
                                 folder.NotifyPropertyChanged("FirstDue");

@@ -157,6 +157,8 @@
     <Content Include="Images\zaplify-logo-iphone%402x.png" />
     <Content Include="Images\zaplify-launch-image-iphone.png" />
     <Content Include="Images\zaplify-launch-image-iphone%402x.png" />
+    <Content Include="Images\actions-back-button.png" />
+    <Content Include="Images\actions-back-button-selected.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -8,15 +8,28 @@ using MonoTouch.Foundation;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 {
+    public class DateTimeEventArgs : EventArgs
+    {
+        public DateTime? Value { get; set; }
+        public DateTimeEventArgs() { }
+        public DateTimeEventArgs(DateTime? dt)
+        {
+            Value = dt;
+        }
+    }
+    
+    public delegate void DateTimeEventHandler(object sender, DateTimeEventArgs eventArgs);
+    
 	public class DateTimeEventElement : StringElement {
-		public DateTime DateValue;
+		public DateTime? DateValue;
 		public UIDatePicker datePicker;
 		protected internal NSDateFormatter fmt = new NSDateFormatter () {
 			DateStyle = NSDateFormatterStyle.Short
 		};
-		public event NSAction ValueSelected;
+		//public event NSAction ValueSelected;
+        public event DateTimeEventHandler ValueSelected;
 
-		public DateTimeEventElement (string caption, DateTime date) : base (caption)
+		public DateTimeEventElement (string caption, DateTime? date) : base (caption)
 		{
 			DateValue = date;
 			Value = FormatDate (date);
@@ -45,9 +58,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			}
 		}
 
-		public virtual string FormatDate (DateTime dt)
+		public virtual string FormatDate (DateTime? dt)
 		{
-			return fmt.ToString (dt) + " " + dt.ToLocalTime ().ToShortTimeString ();
+            if (dt == null)
+                return null;
+            else
+            {
+                DateTime dateTime = (DateTime) dt;
+                return fmt.ToString(dateTime) + " " + dateTime.ToShortTimeString();
+			    //return fmt.ToString ((DateTime)dt) + " " + dt.ToLocalTime ().ToShortTimeString ();
+            }   
 		}
 
 		public virtual UIDatePicker CreatePicker ()
@@ -55,7 +75,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			var picker = new UIDatePicker (RectangleF.Empty){
 				AutoresizingMask = UIViewAutoresizing.FlexibleWidth,
 				Mode = UIDatePickerMode.DateAndTime,
-				Date = DateValue
+				Date = DateValue ?? DateTime.Now
 			};
 			return picker;
 		}
@@ -84,6 +104,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 
 		class MyViewController : UIViewController {
 			DateTimeEventElement container;
+            DateTimeEventArgs ea = new DateTimeEventArgs();
 
 			public MyViewController (DateTimeEventElement container)
 			{
@@ -93,9 +114,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			public override void ViewWillDisappear (bool animated)
 			{
 				base.ViewWillDisappear (animated);
-				container.DateValue = container.datePicker.Date;
+				container.DateValue = ((DateTime) container.datePicker.Date).ToLocalTime();
+                ea.Value = container.DateValue;
 				if (container.ValueSelected != null)
-					container.ValueSelected();
+					container.ValueSelected(this, ea);
 			}
 
 			public override void DidRotate (UIInterfaceOrientation fromInterfaceOrientation)
@@ -127,13 +149,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	}
 
 	public class DateEventElement : DateTimeEventElement {
-		public DateEventElement (string caption, DateTime date) : base (caption, date)
+		public DateEventElement (string caption, DateTime? date) : base (caption, date)
 		{
 			fmt.DateStyle = NSDateFormatterStyle.Medium;
 		}
 
-		public override string FormatDate (DateTime dt)
+		public override string FormatDate (DateTime? dt)
 		{
+            if (dt == null)
+                return null;
 			return fmt.ToString (dt);
 		}
 
@@ -146,13 +170,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	}
 
 	public class TimeEventElement : DateTimeEventElement {
-		public TimeEventElement (string caption, DateTime date) : base (caption, date)
+		public TimeEventElement (string caption, DateTime? date) : base (caption, date)
 		{
 		}
 
-		public override string FormatDate (DateTime dt)
+		public override string FormatDate (DateTime? dt)
 		{
-			return dt.ToLocalTime ().ToShortTimeString ();
+            if (dt == null)
+                return null;
+            DateTime dateTime = (DateTime) dt;
+            return dateTime.ToShortTimeString();
+			//return dt.ToLocalTime ().ToShortTimeString ();
 		}
 
 		public override UIDatePicker CreatePicker ()

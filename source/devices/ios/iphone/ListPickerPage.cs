@@ -104,11 +104,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             
             // get the clicked item
             Item currentItem = currentList[index];
+            Folder folder = App.ViewModel.Folders.Single(f => f.ID == currentItem.FolderID);
             
             if (isChecked)
             {
                 // add the clicked item to the value list
                 valueList.Items.Add(currentItem);
+                folder.Items.Add(currentItem);
+                StorageHelper.WriteFolder(folder);
                 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
@@ -122,6 +125,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 // remove the clicked item from the value list
                 valueList.Items.Remove(currentItem);
+                folder.Items.Remove(currentItem);
+                StorageHelper.WriteFolder(folder);
 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
