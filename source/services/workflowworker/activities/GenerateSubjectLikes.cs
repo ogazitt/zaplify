@@ -13,7 +13,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
         public override string OutputParameterName { get { return ActivityParameters.LikeSuggestionList; } }
-        public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseMany; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get

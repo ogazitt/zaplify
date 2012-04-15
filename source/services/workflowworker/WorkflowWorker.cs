@@ -55,6 +55,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             //   sleep for the timeout period
             while (true)
             {
+                bool poisonMessage = false;
+                Guid lastOperationID = Guid.Empty;
                 try
                 {
                     // get a message from the queue.  note that the Dequeue call doesn't block
@@ -77,10 +79,18 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
-                            // this shouldn't happen unless there is a weird race between the Operation getting saved and this message getting processed
-                            // or the database connection somehow wasn't initialized.  the best approach is to let this message expire and get dequeued again in the future
                             TraceLog.TraceException("WorkflowWorker: could not retrieve operation", ex);
-                            throw;  // caught by the outer try block, so as to execute the sleep call 
+
+                            // there are two possibilities - one is a transient issue with the database connection (e.g. DB wasn't initialized, or a weird race condition between 
+                            // the DB value not getting stored before the workflow message gets dequeued).  in this case we let message expire and get dequeued again in the future.
+                            // the other case is a poison message (one that points to an operation that doesn't exist in the database).  
+                            // so if we've seen this message before, we want to delete it.
+                            if (lastOperationID == operationID)
+                                MessageQueue.DeleteMessage(msg.MessageRef);
+                            else
+                                lastOperationID = operationID;
+
+                            throw;  // caught by the outer try block so as to hit the sleep call
                         }
 
                         Guid entityID = operation.EntityID;

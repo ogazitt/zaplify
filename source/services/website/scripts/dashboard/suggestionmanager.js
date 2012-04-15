@@ -14,6 +14,7 @@ SuggestionManager.prototype.select = function (suggestion) {
     switch (suggestion.SuggestionType) {
         case SuggestionTypes.ChooseOne: { refresh = this.chooseSuggestion(suggestion); break; }
         case SuggestionTypes.ChooseOneSubject: { refresh = this.chooseSuggestion(suggestion); break; }
+        case SuggestionTypes.ChooseMany: { refresh = this.chooseMany(suggestion); break; }
         case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
         case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
@@ -125,6 +126,13 @@ SuggestionManager.prototype.navigateLink = function (suggestion) {
         function () {
             window.open(suggestion.Value);
         });
+}
+
+SuggestionManager.prototype.chooseMany = function (suggestion) {
+    return this.likeSuggestion(suggestion,
+    function () {
+        // TODO: filter any child suggestions to this parent
+    });
 }
 
 SuggestionManager.prototype.getFacebookConsent = function (suggestion) {

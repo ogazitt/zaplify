@@ -277,7 +277,7 @@
         public static HttpCookie CreateAuthCookie(User user, out bool renewFBToken)
         {
             renewFBToken = false;
-            if (user.ID == Guid.Empty)
+            if (user.ID == Guid.Empty || user.UserCredentials == null)
             {   // get id from storage to attach to cookie 
                 user = LookupUserByName(user.Name, true);
             }
