@@ -53,9 +53,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             //   read a message off the queue
             //   dispatch the message appropriately
             //   sleep for the timeout period
+            Guid lastOperationID = Guid.Empty;
             while (true)
             {
-                Guid lastOperationID = Guid.Empty;
                 try
                 {
                     // get a message from the queue.  note that the Dequeue call doesn't block

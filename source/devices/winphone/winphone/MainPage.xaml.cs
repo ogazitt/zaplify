@@ -35,7 +35,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private bool addedItemsPropertyChangedHandler = false;
         private bool initialSync = false;
         Item list;
-        ListHelper ListHelper;
+        ScheduleHelper ScheduleHelper;
 
         // Constructor
         public MainPage()
@@ -385,17 +385,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             list = new Item() { Items = FilterItems(App.ViewModel.Items) };
 
             // create the ListHelper
-            ListHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ListHelper(
-                list,
-                new RoutedEventHandler(Items_CompleteCheckbox_Click), 
-                new RoutedEventHandler(Tag_HyperlinkButton_Click));
+            ScheduleHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ScheduleHelper(list);
 
             // store the current listbox and ordering
-            ListHelper.ListBox = ItemsListBox;
-            ListHelper.OrderBy = "due";
+            ScheduleHelper.ListBox = ItemsListBox;
 
             // render the items
-            ListHelper.RenderList(list);
+            ScheduleHelper.RenderList(list);
 
             // add a property changed handler for the Items property
             if (!addedItemsPropertyChangedHandler)
@@ -406,7 +402,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     if (args.PropertyName == "Items")
                     {
                         list.Items = FilterItems(App.ViewModel.Items);
-                        ListHelper.RenderList(list);
+                        ScheduleHelper.RenderList(list);
                     }
                 });
                 addedItemsPropertyChangedHandler = true;
@@ -438,6 +434,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     MainPivot.SelectedIndex = 0;  // switch to add tab
                     break;
                 case "Items":
+                case "Schedule":
                     MainPivot.SelectedIndex = 1;  // switch to items tab
                     break;
                 case "Folders":
@@ -474,7 +471,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             {
                 case 0: // add
                     break;
-                case 1: // items
+                case 1: // schedule
                     AddButton.Click += new EventHandler(Items_AddButton_Click);
                     var searchButton = new ApplicationBarIconButton() 
                     { 
@@ -505,7 +502,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // reset the items collection and render the new folder
             list.Items = FilterItems(App.ViewModel.Items);
-            ListHelper.RenderList(list);
+            ScheduleHelper.RenderList(list);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -517,7 +514,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // reset the items collection and render the new folder
             list.Items = FilterItems(App.ViewModel.Items);
-            ListHelper.RenderList(list);
+            ScheduleHelper.RenderList(list);
 
             // close the popup
             SearchPopup.IsOpen = false;
@@ -586,51 +583,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             NavigationService.Navigate(
                 new Uri("/ItemPage.xaml?ID=new",
                 UriKind.Relative));
-        }
-
-        /// <summary>
-        /// Handle click event on Complete checkbox
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Items_CompleteCheckbox_Click(object sender, RoutedEventArgs e)
-        {
-            CheckBox cb = (CheckBox)e.OriginalSource;
-            Guid itemID = (Guid)cb.Tag;
-
-            // get the item that was just updated, and ensure the Complete flag is in the correct state
-            Item item = App.ViewModel.Items.Single<Item>(t => t.ID == itemID);
-
-            // get a reference to the base folder that this item belongs to
-            Folder f = App.ViewModel.LoadFolder(item.FolderID);
-
-            // create a copy of that item
-            Item itemCopy = new Item(item);
-
-            // toggle the complete flag to reflect the checkbox click
-            item.Complete = !item.Complete;
-
-            // bump the last modified timestamp
-            item.LastModified = DateTime.UtcNow;
-
-            // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord()
-                {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Item>() { itemCopy, item },
-                    BodyTypeName = "Item",
-                    ID = item.ID
-                });
-
-            // remove the item from the list and ListBox (because it will now be complete)
-            ListHelper.RemoveItem(list, item);
-
-            // save the changes to local storage
-            StorageHelper.WriteFolder(f);
-
-            // trigger a sync with the Service 
-            App.ViewModel.SyncWithService();
         }
 
         private void Items_SearchButton_Click(object sender, EventArgs e)
@@ -1078,6 +1030,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                 // if the item is a list, don't list it
                 if (item.IsList)
+                    continue;
+
+                // if the item doesn't have a due date, or it's already passed, don't list it
+                if (item.Due == null || item.Due < DateTime.Now.Date)
                     continue;
 
                 // if there is no search term present, add this item and continue

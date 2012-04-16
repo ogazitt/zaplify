@@ -39,8 +39,8 @@
                 </Grid>
             </controls:PivotItem>
 
-            <!--items pivot item-->
-            <controls:PivotItem Header="items">
+            <!--schedule pivot item-->
+            <controls:PivotItem Header="schedule">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="20"/>
