@@ -237,7 +237,7 @@ DataModel.SelectSuggestion = function DataModel$SelectSuggestion(suggestion, rea
     }
 
 // helper for removing a suggestion from local suggestions
-DataModel.RemoveSuggestion = function DataModel$SelectSuggestion(suggestion) {
+DataModel.RemoveSuggestion = function DataModel$RemoveSuggestion(suggestion) {
     var group = DataModel.Suggestions[suggestion.GroupID];
     if (group != null) {
         delete group.Suggestions[suggestion.ID];
@@ -248,10 +248,12 @@ DataModel.RemoveSuggestion = function DataModel$SelectSuggestion(suggestion) {
 // private methods
 
 DataModel.fireDataChanged = function (folderID, itemID) {
-    for (var name in DataModel.onDataChangedHandlers) {
-        var handler = DataModel.onDataChangedHandlers[name];
-        if (typeof (handler) == "function") {
-            handler(folderID, itemID);
+    if (folderID != DataModel.UserSettings.Folder.ID) {
+        for (var name in DataModel.onDataChangedHandlers) {
+            var handler = DataModel.onDataChangedHandlers[name];
+            if (typeof (handler) == "function") {
+                handler(folderID, itemID);
+            }
         }
     }
 }

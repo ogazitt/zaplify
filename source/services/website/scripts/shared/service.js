@@ -40,6 +40,7 @@ Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
     this.resourceUrl = resourceUrl;
     this.domainUrl = domainUrl;
     this.fbAppID = fbAppID;
+    Service.invokeAsync = true;
     $('.header-content .logo').click(Service.NavigateToDashboard);
 }
 
