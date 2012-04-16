@@ -68,6 +68,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             get { return LastNetworkOperationStatus == true ? "/Images/connected.true.png" : "/Images/connected.false.png"; } 
         }
 
+        private Folder clientSettingsFolder;
+        public Folder ClientSettingsFolder
+        {
+            get
+            {
+                return clientSettingsFolder;
+            }
+            set
+            {
+                if (value != clientSettingsFolder)
+                {
+                    clientSettingsFolder = value;
+                    StorageHelper.WriteFolder(clientSettingsFolder);
+                    FolderDictionary[clientSettingsFolder.ID] = clientSettingsFolder;
+                    NotifyPropertyChanged("ClientSettingsFolder");
+                }
+            }
+        }
+
         private Constants constants;
         public Constants Constants
         {
@@ -788,6 +807,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
                 // reset and save the user's tags
                 Tags = user.Tags;
+
+                // find the $ClientSettings folder and handle it specially
+                if (user.Folders.Any(f => f.Name == "$ClientSettings"))
+                {
+                    var csf = user.Folders.Single(f => f.Name == "$ClientSettings");
+                    user.Folders.Remove(csf);
+                    ClientSettingsFolder = csf;
+                }
 
                 // reset and save the user's folders
                 Folders = user.Folders;

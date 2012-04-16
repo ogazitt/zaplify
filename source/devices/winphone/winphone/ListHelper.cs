@@ -306,7 +306,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             string icon = null;
             if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType))
                 icon = itemType.Icon;
-           
+
             FrameworkElement element;
             ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
             StackPanel sp = new StackPanel() { Margin = new Thickness(0, -5, 0, 0), Width = 432d };
