@@ -277,9 +277,17 @@
         public static HttpCookie CreateAuthCookie(User user, out bool renewFBToken)
         {
             renewFBToken = false;
-            if (user.ID == Guid.Empty || user.UserCredentials == null)
+            if (user.ID == Guid.Empty)
             {   // get id from storage to attach to cookie 
                 user = LookupUserByName(user.Name, true);
+
+                // check expiration of facebook consent token, renew if expiring soon
+                UserCredential credential = user.UserCredentials[0];
+                if (credential.FBConsentToken != null &&
+                    credential.FBConsentTokenExpiration < (DateTime.UtcNow + TimeSpan.FromDays(7)))
+                {
+                    renewFBToken = true;
+                }
             }
 
             string userData = user.ID.ToString();
@@ -292,15 +300,6 @@
 
             HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(authTicket));
             authCookie.Expires = DateTime.Now.AddHours(authTicketLifetime);
-
-            // check expiration of facebook consent token, renew if expiring soon
-            UserCredential credential = user.UserCredentials[0];
-            if (credential.FBConsentToken != null &&
-                credential.FBConsentTokenExpiration < (DateTime.UtcNow + TimeSpan.FromDays(7)))
-            {
-                renewFBToken = true;
-            }
-
             return authCookie;
         }
 
