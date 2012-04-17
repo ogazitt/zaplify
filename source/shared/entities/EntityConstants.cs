@@ -184,4 +184,10 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Facebook = "Facebook";
         public const string Local = "Local";
     }
+
+    public class SystemFolders
+    {
+        public const string ClientSettings = "$ClientSettings";
+        public const string User = "$User";
+    }
 }

@@ -708,6 +708,7 @@
                 ItemTypeID = itemType.ID,
                 ParentID = list.ID,
                 IsList = isChecked,
+                SortOrder = sortOrder
             };
 
             // hack: special case processing for item types that have a Complete field

@@ -368,11 +368,11 @@ DataModel.processFolders = function DataModel$processFolders(folders) {
         folders[i].IsDefault = (i < 4);
 
         // extract folder for UserSettings
-        if (folders[i].Name == UserSettings.FolderName) { settingsIndex = i; }
+        if (folders[i].Name == SystemFolders.ClientSettings) { settingsIndex = i; }
     }
     if (settingsIndex == null) {
         // UserSettings folder does not exist, create it
-        Service.InsertResource(Service.FoldersResource, { Name: UserSettings.FolderName, ItemTypeID: ItemTypes.NameValue, SortOrder: 0 },
+        Service.InsertResource(Service.FoldersResource, { Name: SystemFolders.ClientSettings, ItemTypeID: ItemTypes.NameValue, SortOrder: 0 },
             function (responseState) {                                      // successHandler
                 var settingsFolder = responseState.result;
                 settingsFolder = $.extend(new Folder(), settingsFolder);    // extend with Folder functions
@@ -708,7 +708,6 @@ function UserSettings(settingsFolder) {
     }
 }
 
-UserSettings.FolderName = '$ClientSettings';
 UserSettings.ViewStateKey = 'WebViewState';
 
 UserSettings.prototype.Save = function () {
@@ -858,4 +857,12 @@ var Sources = {
     Directory : "Directory",
     Facebook : "Facebook",
     Local : "Local"
+}
+
+// ---------------------------------------------------------
+// SystemFolders constants
+
+var SystemFolders = {
+    ClientSettings: "$ClientSettings",
+    User: "$User"
 }

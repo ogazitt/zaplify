@@ -809,9 +809,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 Tags = user.Tags;
 
                 // find the $ClientSettings folder and handle it specially
-                if (user.Folders.Any(f => f.Name == "$ClientSettings"))
+                if (user.Folders.Any(f => f.Name == Shared.Entities.SystemFolders.ClientSettings))
                 {
-                    var csf = user.Folders.Single(f => f.Name == "$ClientSettings");
+                    var csf = user.Folders.Single(f => f.Name == SystemFolders.ClientSettings);
                     user.Folders.Remove(csf);
                     ClientSettingsFolder = csf;
                 }
@@ -1126,9 +1126,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 new RequestQueue.RequestRecord()
                 { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = folder.ID });
 
+            // create the $ClientSettings folder
+            folder = new Folder() { Name = SystemFolders.ClientSettings, Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.NameValue, SortOrder = 0 };
+            FolderDictionary.Add(folder.ID, folder);
+            StorageHelper.WriteFolder(folder);
+            ClientSettingsFolder = folder;
+
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
+
             // save changes to local storage
             StorageHelper.WriteFolders(folders);
-            
+
             return folders;
         }
 

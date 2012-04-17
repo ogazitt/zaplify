@@ -69,7 +69,6 @@
         UserStorageContext storageContext;
         User currentUser;
         User userData;
-        UserCredential userCredentials;
         string jsonUserData;
 
         public UserDataModel(UserStorageContext storage, User user)
