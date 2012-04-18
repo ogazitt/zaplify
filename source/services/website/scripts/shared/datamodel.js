@@ -335,20 +335,40 @@ DataModel.processUserData = function DataModel$processUserData(jsonParsed) {
 
 DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed) {
     var suggestions = {};
+    var childSuggestions = [];
     var groupNameMap = {};
     var nGroup = 0;
 
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
-        var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
-        var groupID = groupNameMap[groupKey];
-        if (groupID === undefined) {
-            groupID = (s.GroupDisplayName == SuggestionTypes.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
-            groupNameMap[groupKey] = groupID;
-            suggestions[groupID] = { GroupID: groupID, DisplayName: s.GroupDisplayName, Suggestions: {} };
+        if (s.ParentID == null) {
+            var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
+            var groupID = groupNameMap[groupKey];
+            if (groupID === undefined) {
+                groupID = (s.GroupDisplayName == SuggestionTypes.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();
+                groupNameMap[groupKey] = groupID;
+                suggestions[groupID] = { GroupID: groupID, DisplayName: s.GroupDisplayName, Suggestions: {} };
+            }
+            s.GroupID = groupID;
+            suggestions[groupID].Suggestions[s.ID] = s;
+        } else {
+            childSuggestions.push(s);
         }
-        s.GroupID = groupID;
-        suggestions[groupID].Suggestions[s.ID] = s;
+    }
+    // nest child suggestions under parent suggestions
+    for (i in childSuggestions) {
+        var child = childSuggestions[i];
+        for (groupID in suggestions) {
+            var group = suggestions[groupID];
+            var parent = group.Suggestions[child.ParentID];
+            if (parent != null) {
+                if (parent.Suggestions == null) {
+                    parent.Suggestions = {};
+                }
+                parent.Suggestions[child.ID] = child;
+                break;
+            }
+        }
     }
     DataModel.Suggestions = suggestions;
 }

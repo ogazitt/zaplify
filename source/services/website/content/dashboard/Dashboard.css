@@ -35,6 +35,9 @@ Dashboard
     border-width-right: 0px;
     border-top-left-radius: 6px;
     border-bottom-left-radius: 6px;
+    
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /*----------------------------------------------------------
@@ -77,7 +80,7 @@ Dashboard Lists (Folders and Suggestions)
 
 .item-list-button.ui-state-default {
     padding: 2px;
-    max-height: 18px;
+    height: 20px;
     overflow: hidden;
     border-top-width: 0px;
     border-left-width: 0px;
@@ -88,7 +91,8 @@ Dashboard Lists (Folders and Suggestions)
 .item-button {
     padding: 2px;
     overflow:hidden;
-    max-height: 34px;
+    min-height: 18px;
+    max-height: 36px;
     border-width: 0px;
 }
 .item-button, .item-button.ui-state-active, .item-button.ui-state-highlight {
@@ -135,7 +139,7 @@ Dashboard Manager
 .item-path {
     width: 100%;
     padding: 4px 0 2px 0px;
-    height: 18px;
+    height: 20px;
     font-weight: bold;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
