@@ -63,6 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="activities\Activities.cs" />
+    <Compile Include="activities\ConnectToFacebook.cs" />
+    <Compile Include="activities\ConnectToActiveDirectory.cs" />
+    <Compile Include="activities\AddContactToPossibleSubjects.cs" />
+    <Compile Include="activities\ImportFromFacebook.cs" />
     <Compile Include="activities\Foreach.cs" />
     <Compile Include="activities\GenerateSubjectLikes.cs" />
     <Compile Include="activities\FakeGetPossibleSubjects.cs" />
@@ -73,15 +77,10 @@
     <Compile Include="activities\GetPossibleSubjects.cs" />
     <Compile Include="activities\GetPossibleIntents.cs" />
     <Compile Include="activities\StartWorkflow.cs" />
-    <Compile Include="workflows\ContactsChanged.cs" />
-    <Compile Include="workflows\NewTask.cs" />
-    <Compile Include="workflows\NewUser.cs" />
-    <Compile Include="workflows\NameChanged.cs" />
     <Compile Include="workflows\Workflows.cs" />
     <Compile Include="activities\GetBingSuggestions.cs" />
     <Compile Include="WorkflowActivity.cs" />
     <Compile Include="WorkflowState.cs" />
-    <Compile Include="workflows\FindIntent.cs" />
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowWorker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

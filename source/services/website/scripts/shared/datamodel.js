@@ -342,7 +342,10 @@ DataModel.processSuggestions = function DataModel$processSuggestions(jsonParsed)
     for (var i in jsonParsed) {
         var s = jsonParsed[i];
         if (s.ParentID == null) {
-            var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
+            // 2012-04-17 OG: change the key to just the GroupDisplayName
+            //var groupKey = s.WorkflowInstanceID + s.GroupDisplayName;
+            var groupKey = s.GroupDisplayName;
+
             var groupID = groupNameMap[groupKey];
             if (groupID === undefined) {
                 groupID = (s.GroupDisplayName == SuggestionTypes.RefreshEntity) ? s.GroupDisplayName : 'Group_' + (nGroup++).toString();

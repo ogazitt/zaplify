@@ -125,8 +125,18 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                                         Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
                                         entityID = suggestion.EntityID;
                                         entityType = suggestion.EntityType;
-                                        Item suggestionItem = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
-                                        entity = suggestionItem;
+                                        switch (entityType)
+                                        {
+                                            case "Item":
+                                                entity = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
+                                                break;
+                                            case "Folder":
+                                                entity = UserContext.Folders.Single(i => i.ID == entityID);
+                                                break;
+                                            case "User":
+                                                entity = UserContext.Users.Single(i => i.ID == entityID);
+                                                break;
+                                        }
                                         operationType = "SUGGESTION";
                                         break;
                                     default:
@@ -389,10 +399,16 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             {
                 if (item.ItemTypeID == SystemItemTypes.Task)
                     Workflow.StartWorkflow(WorkflowNames.NewTask, item, null, UserContext, SuggestionsContext);
+                if (item.ItemTypeID == SystemItemTypes.Contact)
+                    Workflow.StartWorkflow(WorkflowNames.NewContact, item, null, UserContext, SuggestionsContext);
             }
 
             if (folder != null)
             {
+                // the "New User" workflow gets triggered on the creation of a new User, but the Entity that gets 
+                // sent is the People folder, because the UI wants to anchor the suggestions off of the People folder
+                //if (folder.ItemTypeID == SystemItemTypes.Contact)
+                //    Workflow.StartWorkflow(WorkflowNames.NewUser, folder, null, UserContext, SuggestionsContext);
             }
 
             if (user != null)

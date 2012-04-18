@@ -103,8 +103,9 @@
                     }
                     else
                     {
-                        if (HostEnvironment.IsAzure)
-                            MessageQueue.EnqueueMessage(operation.ID);
+                        if (folder.Name.StartsWith("$") == false)
+                            if (HostEnvironment.IsAzure)
+                                MessageQueue.EnqueueMessage(operation.ID);
                         TraceLog.TraceInfo("ItemResource.Delete: Accepted");
                         return ReturnResult<Item>(req, operation, requestedItem, HttpStatusCode.Accepted);
                     }
@@ -236,8 +237,9 @@
                     else
                     {
                         // queue up the item for processing by the workflow worker
-                        if (HostEnvironment.IsAzure)
-                            MessageQueue.EnqueueMessage(operation.ID);
+                        if (folder.Name.StartsWith("$") == false)
+                            if (HostEnvironment.IsAzure)
+                                MessageQueue.EnqueueMessage(operation.ID);
                         TraceLog.TraceInfo("ItemResource.Insert: Created");
                         return ReturnResult<Item>(req, operation, item, HttpStatusCode.Created);     // return 201 Created
                     }
@@ -371,8 +373,9 @@
                         }
                         else
                         {
-                            if (HostEnvironment.IsAzure)
-                                MessageQueue.EnqueueMessage(operation.ID);
+                            if (newFolder.Name.StartsWith("$") == false)
+                                if (HostEnvironment.IsAzure)
+                                    MessageQueue.EnqueueMessage(operation.ID);
                             TraceLog.TraceInfo("ItemResource.Update: Accepted");
                             return ReturnResult<Item>(req, operation, requestedItem, HttpStatusCode.Accepted);
                         }

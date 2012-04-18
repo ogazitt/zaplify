@@ -156,15 +156,15 @@ namespace BuiltSteady.Zaplify.Website
             if (tokenReceivedEventArgs.Resource.StartsWith(AzureOAuthConfiguration.ProtectedResourceUrl))
             {
                 User user = null;
+                UserStorageContext userStorage = Storage.NewUserContext;
                 try
                 {   // store token
                     // TODO: encrypt token, store expiration
-                    var storage = Storage.NewUserContext;
                     var userid = new Guid(tokenReceivedEventArgs.State);
-                    user = storage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
+                    user = userStorage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
                     user.UserCredentials[0].ADConsentToken = refreshToken;
                     user.UserCredentials[0].LastModified = DateTime.UtcNow;
-                    storage.SaveChanges();
+                    userStorage.SaveChanges();
                 }
                 catch (Exception ex) 
                 {
@@ -174,16 +174,79 @@ namespace BuiltSteady.Zaplify.Website
                 }
 
                 try
-                {   // timestamp suggestion
+                {
+                    // find the People folder
+                    Folder peopleFolder = null;
+                    try
+                    {
+                        peopleFolder = userStorage.Folders.First(f => f.UserID == user.ID && f.ItemTypeID == SystemItemTypes.Contact);
+                        if (peopleFolder == null)
+                        {
+                            TraceLog.TraceError("Facebook Action: cannot find People folder");
+                            tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        TraceLog.TraceError("Facebook Action: cannot find People folder");
+                        tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                    }
+                    
+                    // timestamp suggestion
                     SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
                     Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.SuggestionType == SuggestionTypes.GetADConsent);
+                    Suggestion oldSuggestion = new Suggestion()
+                    {
+                        ID = suggestion.ID,
+                        DisplayName = suggestion.DisplayName,
+                        EntityID = suggestion.EntityID,
+                        EntityType = suggestion.EntityType,
+                        SuggestionType = suggestion.SuggestionType,
+                        GroupDisplayName = suggestion.GroupDisplayName,
+                        ParentID = suggestion.ParentID,
+                        ReasonSelected = suggestion.ReasonSelected,
+                        SortOrder = suggestion.SortOrder,
+                        State = suggestion.State,
+                        TimeSelected = suggestion.TimeSelected,
+                        Value = suggestion.Value,
+                        WorkflowInstanceID = suggestion.WorkflowInstanceID,
+                        WorkflowType = suggestion.WorkflowType
+                    };
                     suggestion.TimeSelected = DateTime.UtcNow;
                     suggestion.ReasonSelected = Reasons.Chosen;
                     suggestionsContext.SaveChanges();
+
+                    // create an operation corresponding to the new user creation
+                    // record the operation in the Operations table
+                    var operation = new Operation()
+                    {
+                        ID = Guid.NewGuid(),
+                        UserID = user.ID,
+                        Username = user.Name,
+                        EntityID = suggestion.ID,
+                        EntityName = suggestion.GroupDisplayName,
+                        EntityType = suggestion.GetType().Name,
+                        OperationType = "PUT",
+                        StatusCode = (int?) HttpStatusCode.Accepted,
+                        Body = JsonSerializer.Serialize(suggestion),
+                        OldBody = JsonSerializer.Serialize(oldSuggestion),
+                        Timestamp = DateTime.Now
+                    };
+                    userStorage.Operations.Add(operation);
+                    if (userStorage.SaveChanges() < 1)
+                    {   // log failure to record operation
+                        TraceLog.TraceError("AD Access Token Received: failed to record operation");
+                        tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                    }
+
+                    // enqueue a message for the Worker that will wake up the Connect to Active Directory workflow
+                    if (HostEnvironment.IsAzure)
+                        MessageQueue.EnqueueMessage(operation.ID);
+
                 }
                 catch (Exception ex) 
                 {
-                    TraceLog.TraceException("Failed to update and timestamp suggestion", ex);
+                    TraceLog.TraceException("Failed to update and timestamp suggestion or create operation", ex);
                 }
                 
                 // redirect back to the dashboard

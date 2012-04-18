@@ -8,6 +8,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class ActivityNames
     {
+        public const string AddContactToPossibleSubjects = "AddContactToPossibleSubjects";
+        public const string ConnectToActiveDirectory = "ConnectToActiveDirectory";
+        public const string ConnectToFacebook = "ConnectToFacebook";
         public const string FakeGetPossibleSubjects = "FakeGetPossibleSubjects";
         public const string FakeGetSubjectLikes = "FakeGetSubjectLikes";
         public const string Foreach = "Foreach";
@@ -19,6 +22,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         public const string GetSubjectAttributes = "GetSubjectAttributes";
         public const string GetSubjectLikes = "GetSubjectLikes";
         public const string GetBingSuggestions = "GetBingSuggestions";
+        public const string ImportFromFacebook = "ImportFromFacebook";
         public const string NoOp = "NoOp";
         public const string StartWorkflow = "StartWorkflow";
     }
@@ -27,6 +31,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public static Dictionary<string, Type> Activities = new Dictionary<string, Type>()
         {
+            { ActivityNames.AddContactToPossibleSubjects, typeof(AddContactToPossibleSubjects) },
+            { ActivityNames.ConnectToActiveDirectory, typeof(ConnectToActiveDirectory) },
+            { ActivityNames.ConnectToFacebook, typeof(ConnectToFacebook) },
             { ActivityNames.FakeGetPossibleSubjects, typeof(FakeGetPossibleSubjects) },
             { ActivityNames.FakeGetSubjectLikes, typeof(FakeGetSubjectLikes) },
             { ActivityNames.Foreach, typeof(Foreach) },
@@ -38,6 +45,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             { ActivityNames.GetPossibleSubjects, typeof(GetPossibleSubjects) },
             { ActivityNames.GetSubjectAttributes, typeof(GetSubjectAttributes) },
             { ActivityNames.GetSubjectLikes, typeof(GetSubjectLikes) },
+            { ActivityNames.ImportFromFacebook, typeof(ImportFromFacebook) },
             { ActivityNames.NoOp, typeof(NoOp) },
             { ActivityNames.StartWorkflow, typeof(StartWorkflow) },
         };
@@ -46,6 +54,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     public class ActivityParameters
     {
         public const string Contact = "Contact";
+        public const string FacebookID = "FacebookID";
         public const string ForeachArgument = "ForeachArgument";
         public const string ForeachBody = "ForeachBody";
         public const string ForeachOver = "ForeachOver";
@@ -58,5 +67,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         public const string ParentID = "ParentID";
         public const string SearchTemplate = "SearchTemplate";
         public const string SubjectHint = "SubjectHint";
+        public const string WorkflowType = "WorkflowType";
     }
 }

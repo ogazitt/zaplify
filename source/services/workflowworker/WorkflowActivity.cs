@@ -54,6 +54,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 {
                     StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
                     StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, targetField.Value);
+                    TraceLog.TraceDetail(String.Format("CheckTargetField: target field {0} was set to {1} for activity {2}", TargetFieldName, targetField.Value, Name));
                     return true;
                 }
             }
@@ -79,6 +80,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             // analyze the item for possible suggestions
             var suggestions = new Dictionary<string, string>();
             Status status = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
+            TraceLog.TraceDetail(String.Format("CreateSuggestions: retrieved {0} suggestions from activity {1}", suggestions.Count, Name));
 
             // if the function completed with an error, or without generating any data, return (this is typically a fail-fast state)
             if (status == Status.Error || suggestions.Count == 0)
@@ -92,6 +94,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     s = value;
                 StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, s);
                 StoreInstanceData(workflowInstance, OutputParameterName, s);
+                TraceLog.TraceDetail(String.Format("CreateSuggestions: exact match {0} was found for activity {1}", s, Name));
                 return status;
             }
 
@@ -132,6 +135,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         TimeSelected = null
                     };
                     SuggestionsContext.Suggestions.Add(sugg);
+
+                    TraceLog.TraceDetail(String.Format("CreateSuggestions: created suggestion {0} in group {1} for activity {2}", s, groupDisplayName, Name));
                 }
 
                 SuggestionsContext.SaveChanges();
@@ -321,6 +326,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     {
                         StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
                         StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, sugg.Value);
+                        TraceLog.TraceInfo(String.Format("ProcessActivityData: user selected suggestion {0} in group {1} for activity {2}",
+                            sugg.DisplayName, sugg.GroupDisplayName, Name));
                         return Status.Complete;
                     }
                 }

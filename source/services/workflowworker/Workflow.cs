@@ -63,6 +63,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             try
             {
                 // get current state and corresponding activity
+                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} entering state {1}", instance.WorkflowType, instance.State));
                 WorkflowState state = States.Single(s => s.Name == instance.State);
                 var activity = PrepareActivity(instance, state.Activity, UserContext, SuggestionsContext);
                 if (activity == null)
@@ -72,7 +73,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
 
                 // invoke the activity
+                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} invoking activity {1}", instance.WorkflowType, activity.Name));
                 var status = activity.Function.Invoke(instance, entity, data);
+                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0}: activity {1} returned status {2}", instance.WorkflowType, activity.Name, status.ToString()));
                 instance.LastModified = DateTime.Now;
 
                 // if the activity completed, advance the workflow state
@@ -81,7 +84,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     // store next state and terminate the workflow if next state is null
                     instance.State = state.NextState;
                     if (instance.State == null)
+                    {
                         status = WorkflowActivity.Status.WorkflowDone;
+                        TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} is done", instance.WorkflowType));
+                    }
                 }
                 SuggestionsContext.SaveChanges();
 
@@ -151,6 +157,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="entity"></param>
         public void Run(WorkflowInstance instance, ServerEntity entity)
         {
+            TraceLog.TraceInfo("Workflow.Run: running workflow " + instance.WorkflowType);
             var status = WorkflowActivity.Status.Complete;
             try
             {
@@ -162,7 +169,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("Run: workflow execution failed", ex);
+                TraceLog.TraceException("Workflow.Run: workflow execution failed", ex);
             }
 
             // if the workflow is done or experienced a fatal error, terminate it
@@ -176,7 +183,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("Run: could not remove workflow instance", ex);
+                    TraceLog.TraceException("Workflow.Run: could not remove workflow instance", ex);
                 }
             }
         }
@@ -225,6 +232,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 };
                 suggestionsContext.WorkflowInstances.Add(instance);
                 suggestionsContext.SaveChanges();
+
+                TraceLog.TraceInfo("Workflow.StartWorkflow: starting workflow " + type);
 
                 // invoke the workflow and process steps until workflow is blocked for user input or is done
                 workflow.Run(instance, entity);
