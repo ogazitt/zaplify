@@ -93,6 +93,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
                     }
 
+                    // get the current list of all possible subjects for this user ($User.PossibleSubjects)
+                    var currentPossibleSubjects = UserContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == userFolder.ID &&
+                        ps.ParentID == possibleSubjectList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
+                        ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID)).ToList();
+
+                    // get the current list of all Items that are Contacts for this user
+                    var currentContacts = UserContext.Items.Include("FieldValues").
+                                Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact).ToList();
+
                     // get all the user's friends and add them as serialized contacts to the $User.PossibleSubjects list
                     float sort = 1f;
                     try
@@ -102,16 +111,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         foreach (var friend in results)
                         {
                             // check if a possible subject by this name and with this FBID already exists - and if so, skip it
-                            if (UserContext.Items.Include("FieldValues").Any(ps => ps.UserID == user.ID && ps.FolderID == userFolder.ID &&
-                                ps.Name == friend.Name && ps.ParentID == possibleSubjectList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
-                                ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == friend.ID)))
+                            if (currentPossibleSubjects.Any(ps => ps.Name == friend.Name && 
+                                    ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == friend.ID)))
                                 continue;
 
                             bool process = true;
                             
                             // check if a contact by this name already exists
-                            var existingContacts = UserContext.Items.Include("FieldValues").
-                                Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact && c.Name == friend.Name).ToList();
+                            var existingContacts = currentContacts.Where(c => c.Name == friend.Name).ToList();
                             foreach (var existingContact in existingContacts)
                             {
                                 var fbFV = GetFieldValue(existingContact, FieldNames.FacebookID, true);
@@ -167,8 +174,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible subject, for easier dup handling
                                 nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = friend.ID });
 
-                                // add this new possible subject to the DB
+                                // add this new possible subject to the DB and to the working list of possible subjects
                                 UserContext.Items.Add(nameValItem);
+                                currentPossibleSubjects.Add(nameValItem);
                             }
                         }
 
