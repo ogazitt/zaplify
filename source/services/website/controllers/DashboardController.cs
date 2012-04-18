@@ -85,11 +85,11 @@
             }
 
             User user = null;
+            UserStorageContext storage = Storage.NewUserContext;
             try
             {   // store token
 
                 // TODO: encrypt token
-                UserStorageContext storage = Storage.NewUserContext;
                 user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == this.CurrentUser.Name);
                 user.UserCredentials[0].FBConsentToken = token;
                 user.UserCredentials[0].FBConsentTokenExpiration = expires;
@@ -104,12 +104,37 @@
             }
             
             try
-            {   // timestamp suggestion
+            {   
+                // find the People folder
+                Folder peopleFolder = null;
+                try
+                {
+                    peopleFolder = storage.Folders.First(f => f.UserID == this.CurrentUser.ID && f.ItemTypeID == SystemItemTypes.Contact);
+                    if (peopleFolder == null)
+                    {
+                        TraceLog.TraceError("Facebook Action: cannot find People folder");
+                        return RedirectToAction("Home", "Dashboard");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("Facebook Action: cannot find People folder", ex);
+                    return RedirectToAction("Home", "Dashboard");
+                }
+
+                // timestamp suggestion
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == this.CurrentUser.ID && s.SuggestionType == SuggestionTypes.GetFBConsent);
+                Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == peopleFolder.ID && s.SuggestionType == SuggestionTypes.GetFBConsent);
                 suggestion.TimeSelected = DateTime.UtcNow;
                 suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
+
+                // create an operation corresponding to the new user creation
+                Operation operation = CreateOperation<Suggestion>(suggestion, "PUT", HttpStatusCode.Accepted);
+
+                // enqueue a message for the Worker that will wake up the Connect to Facebook workflow
+                if (HostEnvironment.IsAzure)
+                    MessageQueue.EnqueueMessage(operation.ID);
             }
             catch (Exception ex)
             {
@@ -239,6 +264,7 @@
                     FolderUsers = new List<FolderUser>() { folderUser }
                 };
                 model.StorageContext.Folders.Add(folder);
+                model.StorageContext.SaveChanges();
 
                 // create Places folder
                 folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = Guid.NewGuid(), UserID = this.CurrentUser.ID, PermissionID = Permissions.Full };
@@ -261,30 +287,72 @@
 
                 model.StorageContext.SaveChanges();
 
-                // TEMPORARY: add "Get Connected" suggestions for User
-                SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                Suggestion connectToFacebook = new Suggestion() 
-                {
-                    ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Facebook", GroupDisplayName = "Get Connected", SortOrder = 1, SuggestionType = SuggestionTypes.GetFBConsent,
-                    WorkflowInstanceID = Guid.NewGuid(), WorkflowType="InitializeUser"
-                };
-                suggestionsContext.Suggestions.Add(connectToFacebook);
-                Suggestion connectToCloudAD = new Suggestion() 
-                {
-                    ID = Guid.NewGuid(), EntityID = this.CurrentUser.ID, EntityType = typeof(User).Name,
-                    State = "Get Connected", DisplayName = "Connect to Active Directory", GroupDisplayName = "Get Connected", SortOrder = 2, SuggestionType = SuggestionTypes.GetADConsent, 
-                    WorkflowInstanceID = connectToFacebook.WorkflowInstanceID, WorkflowType = connectToFacebook.WorkflowType
-                };
-                suggestionsContext.Suggestions.Add(connectToCloudAD);
+                // create an operation corresponding to the new user creation
+                Operation operation = CreateOperation<User>(this.CurrentUser, "POST", HttpStatusCode.Created);
 
-                suggestionsContext.SaveChanges();
+                // enqueue a message for the Worker that will kick off the New User workflow
+                if (HostEnvironment.IsAzure)
+                    MessageQueue.EnqueueMessage(operation.ID);
             }
             catch (Exception ex)
             {
                 TraceLog.TraceException("CreateDefaultFolders failed", ex);
                 throw;
             }
+        }
+
+        private Operation CreateOperation<T>(object value, string opType, HttpStatusCode code)
+        {
+            Operation operation = null;
+            try
+            {
+                // log the operation in the operations table
+
+                // initialize the body / oldbody
+                object body = value;
+                object oldBody = null;
+                Type bodyType = typeof(T);
+
+                // if this is an update, get the payload as a list
+
+                string name;
+                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
+                if (body is Suggestion)
+                {   // Suggestion does not have a Name property, use State property
+                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
+                }
+                else
+                {
+                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
+                }
+
+                // record the operation in the Operations table
+                operation = new Operation()
+                {
+                    ID = Guid.NewGuid(),
+                    UserID = CurrentUser.ID,
+                    Username = CurrentUser.Name,
+                    EntityID = id,
+                    EntityName = name,
+                    EntityType = bodyType.Name,
+                    OperationType = opType,
+                    StatusCode = (int?)code,
+                    Body = JsonSerializer.Serialize(body),
+                    OldBody = JsonSerializer.Serialize(oldBody),
+                    Timestamp = DateTime.Now
+                };
+                this.StorageContext.Operations.Add(operation);
+                if (this.StorageContext.SaveChanges() < 1)
+                {   // log failure to record operation
+                    TraceLog.TraceError("CreateOperation: failed to record operation: " + opType);
+                }
+            }
+            catch (Exception ex)
+            {   // log failure to record operation
+                TraceLog.TraceException("CreateOperation: failed to record operation", ex);
+            }
+
+            return operation;
         }
 
     }

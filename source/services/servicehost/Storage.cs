@@ -1,9 +1,11 @@
 ﻿namespace BuiltSteady.Zaplify.ServiceHost
 {
+    using System;
     using System.Data.Entity;
-    using System.Web.Configuration;
+    using System.Linq;
     using BuiltSteady.Zaplify.ServerEntities;
-    using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
+    using System.Collections.Generic;
 
     public static class Storage
     {
@@ -82,6 +84,40 @@
         public DbSet<Operation> Operations { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
+
+        public Folder GetOrCreateUserFolder(User user)
+        {
+            try
+            {
+                // get the $User folder
+                if (Folders.Any(f => f.UserID == user.ID && f.Name == SystemFolders.User))
+                    return Folders.Single(f => f.UserID == user.ID && f.Name == SystemFolders.User);
+                else
+                {
+                    // create the $User folder
+                    var folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = Guid.NewGuid(), UserID = user.ID, PermissionID = BuiltSteady.Zaplify.Shared.Entities.Permissions.Full };
+                    var userFolder = new Folder()
+                    {
+                        ID = folderUser.FolderID,
+                        SortOrder = 0,
+                        Name = SystemFolders.User,
+                        UserID = user.ID,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        Items = new List<Item>(),
+                        FolderUsers = new List<FolderUser>() { folderUser }
+                    };
+                    Folders.Add(userFolder);
+                    SaveChanges();
+                    TraceLog.TraceInfo("GetOrCreateUserFolder: created $User folder for user " + user.Name);
+                    return userFolder;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("GetOrCreateUserFolder: could not find or create $User folder", ex);
+                return null;
+            }
+        }
     }
 
 }

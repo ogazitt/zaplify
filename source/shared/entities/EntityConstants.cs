@@ -188,6 +188,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class SystemFolders
     {
         public const string ClientSettings = "$ClientSettings";
+        public const string PossibleSubjects = "PossibleSubjects";
         public const string User = "$User";
     }
 }

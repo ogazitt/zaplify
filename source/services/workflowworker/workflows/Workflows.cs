@@ -7,9 +7,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
 {
     public class WorkflowNames
     {
-        public const string ContactsChanged = "Contacts Changed";
-        public const string FindIntent = "Find Intent";
-        public const string NameChanged = "Name Changed";
+        public const string NewContact = "New Contact";
+        public const string NewFolder = "New Folder";
         public const string NewTask = "New Task";
         public const string NewUser = "New User";
     }
@@ -18,11 +17,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Workflows
     {
         public static Dictionary<string, Workflow> Workflows = new Dictionary<string, Workflow>()
         {
-            { WorkflowNames.ContactsChanged, new ContactsChanged() },
-            { WorkflowNames.FindIntent, new FindIntent() },
-            { WorkflowNames.NameChanged, new NameChanged() },
-            { WorkflowNames.NewTask, new NewTask() },
-            { WorkflowNames.NewUser, new NewUser() },
         };
     }
 }

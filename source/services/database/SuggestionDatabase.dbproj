@@ -31,7 +31,7 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>..\..\..\bin\database\debug\</OutputPath>
+    <OutputPath>..\..\..\bin\database\release\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetConnectionString>
