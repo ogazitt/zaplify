@@ -5,12 +5,9 @@
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
-<div class="dialog-panel-top">&nbsp;</div>
-<div class="dialog-panel">
-    <h2>Change Password</h2>    
+<div class="dialog-panel ui-widget ui-widget-content ui-corner-all">
     <p>
         Your password has been changed.
     </p>
 </div>
-<div class="dialog-panel-bottom">&nbsp;</div>
 </asp:Content>

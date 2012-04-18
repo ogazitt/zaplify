@@ -23,14 +23,16 @@ Service.resourceUrl = null;
 Service.domainUrl = null;
 Service.requestQueue = [];
 
-Service.fbConsentUri = "https://www.facebook.com/dialog/oauth";
-Service.fbRedirectPath = "dashboard/facebook";
-Service.fbScopes = "user_birthday,friends_likes,friends_birthday";
-Service.cloudADConsentUri = "dashboard/CloudAD";
+Service.fbConsentUri = 'https://www.facebook.com/dialog/oauth';
+Service.fbRedirectPath = 'dashboard/facebook';
+Service.fbScopes = 'user_birthday,friends_likes,friends_birthday';
+Service.cloudADConsentUri = 'dashboard/cloudAD';
 
 Service.invokeAsync = true;
 Service.busyIcon = 'busy';
 Service.refreshIcon = 'refresh';
+Service.signOutUri = 'account/signout';
+Service.signingOut = false;
 
 // ---------------------------------------------------------
 // public methods
@@ -68,6 +70,12 @@ Service.NavigateToDashboard = function Service$NavigateToDashboard() {
     window.navigate(Service.siteUrl);
 }
 
+Service.SignOut = function Service$SignOut() {
+    Service.signingOut = true;
+    //window.navigate(Service.siteUrl + Service.signOutUri);
+    //return false;
+}
+
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
     var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppID + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
     window.navigate(uri);
@@ -90,7 +98,7 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
 
     // wrap success handler to check for json errors
     var jsonSuccessHandler = function (response, status, jqXHR) {
-        if (response == null || HttpStatusCode.IsError(status) || 
+        if (response == null || HttpStatusCode.IsError(status) ||
             response.StatusCode == null || HttpStatusCode.IsError(response.StatusCode)) {
             jsonErrorHandler(jqXHR);
             return;
@@ -132,7 +140,9 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
         async: Service.invokeAsync
     };
 
-    Service.beginRequest(request, jsonSuccessHandler, jsonErrorHandler);
+    if (!Service.signingOut) {
+        Service.beginRequest(request, jsonSuccessHandler, jsonErrorHandler);
+    }
 }
 
 Service.isRequestPending = function Service$isRequestPending() {

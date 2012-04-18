@@ -67,11 +67,8 @@ Default site styling
 ----------------------------------------------------------*/
 .site-default 
 {
-    Xoverflow-y: hidden;
     font-size: 0.8em;
     font-family: "segoe ui", tahoma, verdana, arial, sans-serif;
-    color: #202030;
-    background-color: #E2E6E6;
 }
 
 a { color: #2020D0; outline: none; cursor: pointer; }
@@ -99,28 +96,25 @@ Layout elements
     width: auto;
 }
 
-.header-region {   
+.header-region.ui-widget-header {   
     position: relative;
     min-width: 840px;
     width: 100%;
     height: 60px;
-    background-color: #3B5998; 
-    border-bottom: 2px ridge #E2E6E6;
-    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left -40px;
+    border-width: 0;
+    border-bottom: 2px ridge #FFFFFF;
 }
 
 .header-content { }
 .header-region .logo { position: absolute; left: 20px; top: 8px; cursor: pointer; }
 .header-region .refresh { display:none; position: absolute; right: 12px; top: 30px; cursor: pointer; }
 
-.signin-control { position: absolute; right:15px; top: 8px; }
-.signin-control a { color: #FFFFFF; }
-.signin-control span { color: #AEC2D0; }
+.signin-control { position: absolute; right:15px; top: 8px; font-weight: normal; }
+.signin-control span { font-weight: normal; opacity:0.6; filter:alpha(opacity=60); }
 
 .main-content-region {
     min-width: 600px;
     min-height: 400px;
-    Xmargin: 20px 20px 20px 20px;
     margin: 15px 0px 15px 0px;
 }
 
@@ -129,20 +123,19 @@ Layout elements
     width: 100%;
 }
 
-.footer-region {
+.footer-region.ui-widget-header {
     position: fixed; 
     bottom: 0px;
     min-width: 600px;
     width: 100%;
     height: 25px;
-    background-color: #3B5998; 
-    border-top: 2px groove #E2E6E6;
-    Xbackground: transparent url(images/banner-bkgnd.png) repeat-x left 0px;   
+    border-width: 0;
+    border-top: 2px groove #FFFFFF;
 }
 
 .footer-content { float: left; }
 .footer-copyright { float: right; margin: 6px 8px 0 0; }
-.footer-copyright a {  color: #FFFFFF; }
+.footer-copyright a {  font-weight: normal; }
 
 
 /*----------------------------------------------------------
@@ -152,29 +145,13 @@ Dialogs and Forms
 .dialog-panel {
     max-width: 490px;
     margin-left: 50px;
-    padding: 0 20px 10px 30px;
-    background: transparent url(images/panel-middle-bkgnd.png) repeat-y;
+    padding: 30px 20px 10px 30px;
+    border-right-width: 2px;
     Xborder: 1px solid red;
 }
 
 .dialog-panel p {
     padding-right: 20px;
-}
-
-.dialog-panel-top {
-    max-width: 540px;
-    margin-left: 50px;
-    height: 20px;
-    background: transparent url(images/panel-bkgnd.png) no-repeat left top;
-    Xborder: 1px solid green;
-}
-
-.dialog-panel-bottom {
-    max-width: 540px;
-    margin-left: 50px;
-    height: 20px;
-    background: transparent url(images/panel-bkgnd.png) no-repeat left bottom;
-    Xborder: 1px solid blue;
 }
 
 .dialog-label {
@@ -185,24 +162,19 @@ Dialogs and Forms
     margin: 0 0 6px 0;
 }
 
-.dialog-button {
-    cursor: pointer;
-    color: #202030;
-    display: inline-block;
-    width: 120px;
-    height: 28px;
-    text-align: center;
+.dialog-panel .ui-button {
+    min-width: 120px;
+    border-radius: 4px;
 }
 
-fieldset {
+.dialog-panel.ui-widget fieldset {
     margin: 10px 0;
     padding: 12px;
-    border: 1px solid #C0C0B2;
     max-width: 460px;
+    background-color: transparent;
 }
 
-legend {
-    color: #7C7C70;
+.dialog-panel legend {
     font-size: 1.2em;
     padding: 0 4px;
 }
@@ -210,30 +182,22 @@ legend {
 textarea {
     min-height: 64px;
     overflow: hidden;     
-    border: 1px solid #C0C0B2;
     padding: 2px 3px 2px 3px;
     margin-top: 3px;
     font-size: 1em;
-    color: #202030;
-    background-color: #ECECE6;
 }
 
 input[type="text"], 
 input[type="password"] {
-    border: 1px solid #C0C0B2;
     padding: 2px 3px 2px 3px;
     margin-top: 3px;
     font-size: 1em;
-    color: #202030;
     width: 200px;
-    background-color: #ECECE6;
 }
 
 select {
-    border: 1px solid #C0C0B2;
     padding: 2px;
     font-size: 1.2em;
-    color: #202030;
 }
 
 input[type="submit"] {

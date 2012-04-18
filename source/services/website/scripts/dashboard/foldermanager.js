@@ -15,7 +15,6 @@ function FolderManager(dataModel) {
     this.container = '.manager-region';
     this.$managerRegion = null;
 
-    //this.toolbar = new Toolbar(this);
     this.listEditor = new ListEditor(this);
     this.managerHelp = new FolderManagerHelp(this);
 }
@@ -23,17 +22,6 @@ function FolderManager(dataModel) {
 FolderManager.prototype.render = function (container) {
     if (this.$managerRegion == null) {
         $(container).empty();
-
-        /* toolbar
-        $('<div class="manager-toolbar"></div>').appendTo($(container));
-        this.toolbar.render('.manager-toolbar');
-        this.toolbar.bind(Toolbar.Refresh, 'click', this.dataModel.Refresh);
-        this.toolbar.bind(Toolbar.AddFolder, 'click', function (handlerObj) { handlerObj.addFolder(); }, this.listEditor);
-        this.toolbar.bind(Toolbar.AddList, 'click', function (handlerObj) { handlerObj.addItem(true); }, this.listEditor);
-        this.toolbar.bind(Toolbar.AddItem, 'click', function (handlerObj) { handlerObj.addItem(false); }, this.listEditor);
-        this.toolbar.bind(Toolbar.UpdateItem, 'click', function (handlerObj) { handlerObj.updateItem(); }, this.listEditor);
-        this.toolbar.bind(Toolbar.DeleteItem, 'click', function (handlerObj) { handlerObj.deleteItem(); }, this.listEditor);
-        */
 
         // manager region
         this.$managerRegion = $('<div class="manager-region"></div>').appendTo($(container));
@@ -47,16 +35,10 @@ FolderManager.prototype.selectFolder = function (folder) {
     this.currentFolder = folder;
     this.currentItem = null;
     if (this.currentFolder != null) {
-        if (this.currentFolder.IsDefault) {
-            //this.toolbar.disableTools([Toolbar.UpdateItem, Toolbar.DeleteItem]);
-        } else {
-            //this.toolbar.disableTools([Toolbar.UpdateItem]);
-        }
         this.managerHelp.hide();
         this.listEditor.render(this.container);
         this.listEditor.show();
     } else {
-        //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem, Toolbar.UpdateItem, Toolbar.DeleteItem]);
         this.listEditor.hide();
         this.managerHelp.show();
     }
@@ -67,13 +49,7 @@ FolderManager.prototype.selectItem = function (item) {
     if (this.currentItem != null) {
         this.currentFolder = this.currentItem.GetFolder();
         this.managerHelp.hide();
-        if (this.currentItem.IsList) {
-            //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList]);
-            this.listEditor.render(this.container);
-        } else {
-            //this.toolbar.disableTools([Toolbar.AddFolder, Toolbar.AddList, Toolbar.AddItem]);
-            this.listEditor.render(this.container);
-        }
+        this.listEditor.render(this.container);
         this.listEditor.show();
     } else {
         this.selectFolder(this.currentFolder);
@@ -101,111 +77,6 @@ FolderManagerHelp.prototype.show = function () {
     if (this.$element == null) {
         this.render(this.parentControl.container);
     }
-    this.$element.show();
-}
-
-// ---------------------------------------------------------
-// Toolbar control
-function Toolbar(parentControl) {
-    this.parentControl = parentControl;
-
-    // elements
-    this.toolButtons = {};
-    this.$element = null;
-
-    // create button for each tool in table
-    for (name in Toolbar.Tools) {
-        this.toolButtons[name] = new ToolButton(this, Toolbar.Tools[name]);
-    }
-}
-
-// use table to define tools
-Toolbar.Refresh = 'refresh';
-Toolbar.AddFolder = 'addFolder';
-Toolbar.AddList = 'addList';
-Toolbar.AddItem = 'addItem';
-Toolbar.UpdateItem = 'updateItem';
-Toolbar.DeleteItem = 'deleteItem';
-Toolbar.Tools = {};
-Toolbar.Tools[Toolbar.Refresh] = { css: 'refresh', toolTip: "Refresh", separator: true };
-Toolbar.Tools[Toolbar.AddFolder] = { css: 'add-folder', toolTip: "Add Folder", disabled: true };
-Toolbar.Tools[Toolbar.AddList] = { css: 'add-list', toolTip: "Add List", disabled: true };
-Toolbar.Tools[Toolbar.AddItem] = { css: 'add-item', toolTip: "Add Item", separator: true, disabled: true };
-Toolbar.Tools[Toolbar.UpdateItem] = { css: 'update-item', toolTip: "Update", disabled: true };
-Toolbar.Tools[Toolbar.DeleteItem] = { css: 'delete-item', toolTip: "Delete", disabled: true };
-
-Toolbar.prototype.render = function (container) {
-    $container = $(container).empty();
-
-    for (tool in this.toolButtons) {
-        this.toolButtons[tool].render(container)
-    }
-}
-
-Toolbar.prototype.bind = function (tool, event, handler, handlerControl) {
-    var toolButton = this.toolButtons[tool];
-    if (toolButton != null) {
-        // pass handlerControl as parameter to handler
-        toolButton.$element.bind(event, function () { if (!$(this).hasClass('disabled')) { handler(handlerControl) } });
-        return true;
-    }
-    return false;
-}
-
-Toolbar.prototype.disableTools = function (tools) {
-    for (var name in this.toolButtons) {
-        this.toolButtons[name].enable();
-    }
-    for (i in tools) {
-        var name = tools[i];
-        this.toolButtons[name].disable();
-    }
-}
-
-Toolbar.prototype.hide = function () {
-    this.$element.hide();
-}
-
-Toolbar.prototype.show = function () {
-    this.$element.show();
-}
-
-// ---------------------------------------------------------
-// ToolbarButton control
-function ToolButton(parentControl, tool) {
-    this.parentControl = parentControl;
-    this.tool = tool;
-
-    // elements
-    this.$element = null;
-}
-
-ToolButton.prototype.render = function (container) {
-    this.$element = $('<div class="toolbar-button"></div>').appendTo($(container));
-    this.$element.attr('title', this.tool.toolTip);
-    $('<div class="' + this.tool.css + '"></div>').appendTo(this.$element);
-
-    if (this.tool.separator) {
-        this.$element.addClass('tool-separator');
-    }
-    if (this.tool.disabled) {
-        this.$element.addClass('disabled');
-    }
-}
-
-ToolButton.prototype.disable = function () {
-    this.$element.addClass('disabled');
-}
-
-ToolButton.prototype.enable = function () {
-    this.$element.removeClass('disabled');
-}
-
-ToolButton.prototype.hide = function () {
-    this.$element.hide();
-}
-
-ToolButton.prototype.show = function () {
     this.$element.show();
 }
 
@@ -307,7 +178,7 @@ function ItemPath(parentControl) {
 
 ItemPath.prototype.render = function (container, folder, item) {
     if (this.$element == null) {
-        this.$element = $('<div class="item-path"></div>').appendTo(container);
+        this.$element = $('<div class="item-path ui-widget ui-state-active"></div>').appendTo(container);
     }
 
     var addBtnTitle;
@@ -381,7 +252,7 @@ ItemEditor.Modes = { NotSet: 0, New: 1, Edit: 2, Expand: 3, View: 4 };
 
 ItemEditor.prototype.render = function (container, folder, item, mode) {
     if (this.$element == null) {
-        this.$element = $('<div class="item-editor"></div>').appendTo(container);
+        this.$element = $('<div class="item-editor ui-widget ui-widget-content"></div>').appendTo(container);
     }
 
     if (folder == null && item == null)

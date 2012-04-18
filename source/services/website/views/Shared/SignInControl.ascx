@@ -3,10 +3,10 @@
 <% if (Request.IsAuthenticated) { %>
         <span><%: Page.User.Identity.Name %></span>
         <span>&nbsp;|&nbsp;</span>
-        <span><%: Html.ActionLink("Sign Out", "SignOut", "Account") %> </span>
+        <%: Html.ActionLink("Sign Out", "SignOut", "Account", null, new { onclick = "Service.SignOut();" })%> 
 <% } else if (Request.Path.EndsWith("SignIn", StringComparison.OrdinalIgnoreCase)) { %> 
-        <span><%: Html.ActionLink("Register New User", "Register", "Account") %></span>
+        <%: Html.ActionLink("Register New User", "Register", "Account") %>
 <% } else { %> 
-        <span><%: Html.ActionLink("Sign In", "SignIn", "Account") %></span>
+        <%: Html.ActionLink("Sign In", "SignIn", "Account") %>
 <% } %>
 </div>

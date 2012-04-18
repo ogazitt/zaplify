@@ -37,7 +37,9 @@
                         Colors = colors,
                         ItemTypes = itemTypes,
                         Permissions = permissions,
-                        Priorities = priorities
+                        Priorities = priorities,
+                        // TODO: inspect themes folder to fetch installed themes
+                        Themes = new List<string>() { "Default", "Redmond", "Overcast" }
                     };
                 }
                 return constants;
@@ -54,13 +56,6 @@
                 }
                 return jsonConstants;
             }
-        }
-
-        public static FieldValue CreateFieldValue(Guid itemID, Guid itemTypeID, string fieldName, string value)
-        {
-            //ItemType itemType = Constants.ItemTypes.Single<ItemType>(item => item.ID == itemTypeID);
-            //Field field = itemType.Fields.Single<Field>(fld => fld.Name == fieldName);
-            return new FieldValue() { /*ID = Guid.NewGuid(),*/ ItemID = itemID, FieldName = fieldName, Value = value };
         }
     }
 
@@ -125,6 +120,7 @@
                         userData.Folders[i].Items = userData.Folders[i].Items.OrderBy(item => item.SortOrder).ToList(); 
                     }
                 }
+
                 return userData;
             }
         }

@@ -192,9 +192,9 @@
                 model.StorageContext.Items.Add(item);
 
                 item.FieldValues.Add(
-                    ConstantsModel.CreateFieldValue(item.ID, SystemItemTypes.Task, FieldNames.DueDate, DateTime.Today.Date.ToString("yyyy/MM/dd")));
+                    Item.CreateFieldValue(item.ID, FieldNames.DueDate, DateTime.Today.Date.ToString("yyyy/MM/dd")));
                 item.FieldValues.Add(
-                    ConstantsModel.CreateFieldValue(item.ID, SystemItemTypes.Task, FieldNames.Description, "Tap the browse button below to discover more about Zaplify."));
+                    Item.CreateFieldValue(item.ID, FieldNames.Description, "Tap the browse button below to discover more about Zaplify."));
 
                 // create Lists folder
                 folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = Guid.NewGuid(), UserID = this.CurrentUser.ID, PermissionID = Permissions.Full };

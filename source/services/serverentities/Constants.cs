@@ -12,5 +12,6 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public List<ItemType> ItemTypes { get; set; }
         public List<Permission> Permissions { get; set; }
         public List<Priority> Priorities { get; set; }
+        public List<string> Themes { get; set; }
     }
 }

@@ -29,7 +29,7 @@
 
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
     <div class="dashboard-region">
-        <div class="dashboard-folders dashboard-list">
+        <div class="dashboard-folders dashboard-list ui-widget-content">
             &nbsp;
         </div>        
         
@@ -38,7 +38,7 @@
         <div class="working">         
         </div>
       
-        <div class="dashboard-suggestions dashboard-list">
+        <div class="dashboard-suggestions dashboard-list ui-widget-content">
             &nbsp;
         </div>
     </div>

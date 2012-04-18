@@ -59,5 +59,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
                         this.FieldValues.Add(new FieldValue(fv));
             }
         }
+
+        public static FieldValue CreateFieldValue(Guid itemID, string fieldName, string value)
+        {
+            return new FieldValue() { /*ID = Guid.NewGuid(),*/ ItemID = itemID, FieldName = fieldName, Value = value };
+        }
     }
 }

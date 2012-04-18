@@ -5,11 +5,17 @@
     <title>Sign-in</title>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js") %>" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        // document ready handler
+        $(function () {
+            $('.ui-button').hover(function () { $(this).addClass('ui-state-hover'); }, function () { $(this).removeClass('ui-state-hover'); });
+        });
+    </script>
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
-<div class="dialog-panel-top">&nbsp;</div>
-<div class="dialog-panel">
+<div class="dialog-panel ui-widget ui-widget-content ui-corner-all">
     <h2>Sign In</h2>
 
     <% using (Html.BeginForm()) { %>
@@ -39,7 +45,7 @@
                 </div>
                 
                 <p>
-                    <input class="dialog-button" type="submit" value="Sign-in" />
+                    <input class="ui-button ui-state-default" type="submit" value="Sign-in" />
                 </p>
             </fieldset>
         </div>
@@ -48,5 +54,4 @@
     <% } %>
 
 </div>
-<div class="dialog-panel-bottom">&nbsp;</div>
 </asp:Content>

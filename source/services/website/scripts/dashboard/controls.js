@@ -120,7 +120,7 @@ Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
     $refreshBtn.show();
 }
 
-Dashboard.Close = function Dashboard$Close() {
+Dashboard.Close = function Dashboard$Close(event) {
     $('.refresh').hide();
     Dashboard.dataModel.Close();
 }

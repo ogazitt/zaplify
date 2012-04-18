@@ -74,7 +74,8 @@ function FolderButton(parentControl, folder) {
 }
 
 FolderButton.prototype.render = function (container) {
-    this.$element = $('<div class="folder-button"></div>').attr('id', this.folder.ID).appendTo(container);
+    this.$element = $('<div class="folder-button ui-widget ui-state-default"></div>').attr('id', this.folder.ID).appendTo(container);
+    this.$element.hover(function () { $(this).addClass('ui-state-hover'); }, function () { $(this).removeClass('ui-state-hover'); });
     this.$element.data('control', this);
     this.$element.click(function () { Control.get(this).select(); });
     this.$element.append('<span>' + this.folder.Name + '</span>');
@@ -106,6 +107,7 @@ FolderButton.prototype.select = function (fireSelectionChanged) {
         this.deselectAll();
         this.folder.ViewState.Select = true;
         this.$element.toggleClass('selected');
+        this.$element.toggleClass('ui-state-active');
         this.expand();
         if (this.selectionChanged) {
             var selectedItem = this.folder.GetSelectedItem();
@@ -120,6 +122,7 @@ FolderButton.prototype.deselectAll = function () {
     for (i in folderButtons) {
         if (folderButtons[i].$element != null) {
             folderButtons[i].$element.removeClass('selected');
+            folderButtons[i].$element.removeClass('ui-state-active');
         }
         folderButtons[i].folder.ViewState.Select = false;
     }
@@ -137,11 +140,11 @@ FolderButton.prototype.expand = function () {
 
 FolderButton.prototype.expandItems = function () {
     var parentHeight = this.parentControl.$element.height();
-    var itemsHeight = parentHeight - (this.parentControl.folderButtons.length * 32);
+    var itemsHeight = parentHeight - (this.parentControl.folderButtons.length * 34);
     var $container = $('<div class="folder-items"></div>').insertAfter(this.$element);
     $container.css('max-height', itemsHeight);
     var itemList = new ItemList(this, this.folder.GetItems());
-    itemList.render('.folder-items');
+    itemList.render($container);
 }
 
 FolderButton.prototype.collapseItems = function () {
@@ -189,9 +192,11 @@ function ItemButton(parentControl, item) {
 
 ItemButton.prototype.render = function (container) {
     this.$element = $('<div></div>').attr('id', this.item.ID).appendTo(container);
+    this.$element.hover(function () { $(this).addClass('ui-state-highlight'); }, function () { $(this).removeClass('ui-state-highlight'); });
     this.$element.data('control', this);
     if (this.item.IsList) {
         this.$element.addClass('item-list-button');
+        this.$element.addClass('ui-state-default');
     } else {
         this.$element.addClass('item-button');
     }
@@ -257,6 +262,7 @@ ItemButton.prototype.selectList = function (folderButton) {
         if (!selected) {
             folderButton.deselectItems();
             this.$element.addClass('selected');
+            this.$element.addClass('ui-state-active');
             this.item.ViewState.Select = true;
             if (!expanded) {
                 this.collapseAllItems();
@@ -277,6 +283,7 @@ ItemButton.prototype.selectItem = function (folderButton) {
         if (!selected) {
             folderButton.deselectItems();
             this.$element.addClass('selected');
+            this.$element.addClass('ui-state-active');
             this.item.ViewState.Select = true;
             if (isFolderItem) { this.collapseAllItems(); }
             if (this.selectionChanged) {
@@ -289,6 +296,7 @@ ItemButton.prototype.selectItem = function (folderButton) {
 ItemButton.prototype.deselect = function () {
     this.item.ViewState.Select = false;
     this.$element.removeClass('selected');
+    this.$element.removeClass('ui-state-active');
 }
 
 // return parent FolderButton
