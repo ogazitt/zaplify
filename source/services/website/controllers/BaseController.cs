@@ -36,6 +36,28 @@
             }
         }
 
+        public const string UserThemeKey = "UserTheme";
+        const string defaultTheme = "default";
+        public static string UserTheme
+        {
+            get
+            {
+                if (System.Web.HttpContext.Current != null &&
+                    System.Web.HttpContext.Current.Items.Contains(UserThemeKey))
+                {
+                    return (string)System.Web.HttpContext.Current.Items[UserThemeKey];
+                }
+                return defaultTheme;
+            }
+            set
+            {
+                if (System.Web.HttpContext.Current != null)
+                {
+                    System.Web.HttpContext.Current.Items[UserThemeKey] = value;
+                }
+            }
+        }
+
         User currentUser;
         public User CurrentUser
         {

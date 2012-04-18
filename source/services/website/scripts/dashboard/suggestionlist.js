@@ -76,11 +76,12 @@ function GroupButton(parentControl, group) {
 
 GroupButton.prototype.render = function (container) {
     if (this.group.Suggestions != {}) {
-        this.$element = $('<div class="group-button"></div>').appendTo(container);
+        this.$element = $('<div class="folder-button ui-widget ui-state-active"></div>').appendTo(container);
         this.$element.append('<span>' + this.group.DisplayName + '</span>');
+        this.$element.hover(function () { $(this).addClass('ui-state-hover'); }, function () { $(this).removeClass('ui-state-hover'); });
 
         var choiceList = new ChoiceList(this, this.group.Suggestions);
-        var $container = $('<div class="group-choices"></div>').insertAfter(this.$element);
+        var $container = $('<div class="folder-items"></div>').insertAfter(this.$element);
         choiceList.render($container);
     }
 }
@@ -119,8 +120,9 @@ function ChoiceButton(parentControl, choice) {
 ChoiceButton.prototype.render = function (container) {
     this.$element = $('<div></div>').attr('id', this.choice.ID).appendTo(container);
     this.$element.data('control', this);
-    this.$element.addClass('choice-button');
+    this.$element.addClass('item-button');
     this.$element.click(function () { Control.get(this).select(); });
+    this.$element.hover(function () { $(this).addClass('ui-state-highlight'); }, function () { $(this).removeClass('ui-state-highlight'); });
     this.$element.append('<span>' + this.choice.DisplayName + '</span>');
 
     if (this.choice.SuggestionType == SuggestionTypes.ChooseOneSubject) {

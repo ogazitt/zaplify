@@ -4,11 +4,17 @@
     <title>Register</title>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js") %>" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        // document ready handler
+        $(function () {
+            $('.ui-button').hover(function () { $(this).addClass('ui-state-hover'); }, function () { $(this).removeClass('ui-state-hover'); });
+        });
+    </script>
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="MainContent" runat="server">
-<div class="dialog-panel-top">&nbsp;</div>
-<div class="dialog-panel">
+<div class="dialog-panel ui-widget ui-widget-content ui-corner-all">
     <h2>Register New User</h2>
 
     <% using (Html.BeginForm()) { %>
@@ -48,7 +54,7 @@
                     <%: Html.ValidationMessageFor(m => m.AccessCode) %>
                 </div>
                                 
-                <input class="dialog-button" type="submit" value="Register" />
+                <input class="ui-button ui-state-default" type="submit" value="Register" />
             </fieldset>
         </div>
         <%: Html.ValidationSummary(true, "Unable to complete registration. Resolve issues and try again.") %>
@@ -58,5 +64,4 @@
     To request an access code, register an email address at <a href="http://www.builtsteady.com">www.builtsteady.com</a>.
     </p>
 </div>
-<div class="dialog-panel-bottom">&nbsp;</div>
 </asp:Content>
