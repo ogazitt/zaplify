@@ -719,37 +719,55 @@ ItemMap.errorMustHaveID = 'ItemMap requires all items in array to have an ID pro
 
 function UserSettings(settingsFolder) {
     this.Folder = settingsFolder;
-    
-    this.viewStateItem = this.Folder.GetItemByName(UserSettings.ViewStateKey, null);
-    if (this.viewStateItem == null) {
-        this.ViewState = {};
-        this.Folder.InsertItem({ Name: UserSettings.ViewStateKey, ItemTypeID: ItemTypes.NameValue }, null, null, null);
-    } else {
-        var value = this.viewStateItem.GetFieldValue(FieldNames.Value);
-        this.ViewState = (value == null) ? {} : $.parseJSON(value);
-    }
+
+    this.init(UserSettings.viewStateName, UserSettings.viewStateKey);
+    this.init(UserSettings.preferencesName, UserSettings.preferencesKey);
 }
 
-UserSettings.ViewStateKey = 'WebViewState';
+UserSettings.viewStateName = 'ViewState';
+UserSettings.preferencesName = 'Preferences';
 
-UserSettings.prototype.Save = function () {
-    this.UpdateViewState();
-}
-
-UserSettings.prototype.UpdateViewState = function () { 
-    if (this.viewStateItem == null) {
-        this.viewStateItem = this.Folder.GetItemByName(UserSettings.ViewStateKey, null);
-    }
-    var updatedItem = $.extend({}, this.viewStateItem);
-    updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this.ViewState));
-    this.viewStateItem.Update(updatedItem);
-}
+UserSettings.viewStateKey = 'WebViewState';
+UserSettings.preferencesKey = 'WebPreferences';
 
 UserSettings.prototype.Selection = function (folderID, itemID) {
     this.ViewState.SelectedFolder = folderID;
     this.ViewState.SelectedItem = itemID;
 }
 
+UserSettings.prototype.Save = function () {
+    this.update(UserSettings.viewStateName, UserSettings.viewStateKey);
+}
+
+UserSettings.prototype.UpdateTheme = function (theme) {
+    if (this.Preferences.Theme != theme) {
+        this.Preferences.Theme = theme;
+        this.update(UserSettings.preferencesName, UserSettings.preferencesKey);
+        Service.ChangeTheme(theme);
+    }
+}
+
+UserSettings.prototype.init = function (name, itemKey) {
+    var itemName = 'item' + name;
+    this[itemName] = this.Folder.GetItemByName(itemKey, null);
+    if (this[itemName] == null) {
+        this[name] = {};
+        this.Folder.InsertItem({ Name: itemKey, ItemTypeID: ItemTypes.NameValue }, null, null, null);
+    } else {
+        var value = this[itemName].GetFieldValue(FieldNames.Value);
+        this[name] = (value == null) ? {} : $.parseJSON(value);
+    }
+}
+
+UserSettings.prototype.update = function (name, itemKey) {
+    var itemName = 'item' + name;
+    if (this[itemName] == null) {
+        this[itemName] = this.Folder.GetItemByName(itemKey, null);
+    }
+    var updatedItem = $.extend({}, this[itemName]);
+    updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
+    this[itemName].Update(updatedItem);
+}
 
 // ---------------------------------------------------------
 // DATAMODEL CONSTANTS (keep in sync with EntityConstants.cs)

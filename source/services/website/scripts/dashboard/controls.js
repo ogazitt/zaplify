@@ -113,15 +113,12 @@ Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
     $logo.unbind('click');
     $logo.click(function () { Dashboard.dataModel.Refresh(); });
 
-    // display refresh button
-    var $refreshBtn = $('.refresh');
-    $refreshBtn.click(function () { Dashboard.dataModel.Refresh(); });
-    $refreshBtn.attr('title', 'Refresh');
-    $refreshBtn.show();
+    // display header icons
+    Dashboard.renderHeaderIcons();
 }
 
 Dashboard.Close = function Dashboard$Close(event) {
-    $('.refresh').hide();
+    $('.header-icons').hide();
     Dashboard.dataModel.Close();
 }
 
@@ -177,6 +174,21 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
 
 Dashboard.render = function Dashboard$render(folderID, itemID) {
     Dashboard.folderList.render(".dashboard-folders");
+}
+
+// displays icons in header (refresh, settings, etc.)
+Dashboard.renderHeaderIcons = function Dashboard$renderHeaderIcons() {
+    $icons = $('<div class="header-icons"></div>').appendTo('.header-content');
+
+    $refresh = $('<div class="icon refresh"></div>').appendTo($icons);
+    $refresh.click(function () { Dashboard.dataModel.Refresh(); });
+    $refresh.attr('title', 'Refresh');
+
+    $settings = $('<div class="icon settings"></div>').appendTo($icons);
+    $settings.click(function () { Dashboard.folderManager.selectSettings(); });
+    $settings.attr('title', 'User Preferences');
+
+    $icons.show();
 }
 
 Dashboard.resize = function Dashboard$resize() {
@@ -242,3 +254,5 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
         $('.working').hide();
     }
 }
+
+

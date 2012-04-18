@@ -29,10 +29,14 @@ Service.fbScopes = 'user_birthday,friends_likes,friends_birthday';
 Service.cloudADConsentUri = 'dashboard/cloudAD';
 
 Service.invokeAsync = true;
-Service.busyIcon = 'busy';
-Service.refreshIcon = 'refresh';
 Service.signOutUri = 'account/signout';
 Service.signingOut = false;
+Service.busyIcon = 'busy';
+Service.refreshIcon = 'refresh';
+
+Service.cssTheme = '#cssTheme';
+Service.cssPath = 'content/themes/';
+Service.cssThemeFile = 'jquery-ui-1.8.18.css';
 
 // ---------------------------------------------------------
 // public methods
@@ -68,6 +72,11 @@ Service.DeleteResource = function Service$DeleteResource(resource, id, data, suc
 
 Service.NavigateToDashboard = function Service$NavigateToDashboard() {
     window.navigate(Service.siteUrl);
+}
+
+Service.ChangeTheme = function Service$ChangeTheme(theme) {
+    var cssThemeUri = Service.siteUrl.concat(Service.cssPath, theme, '/', Service.cssThemeFile);
+    $(Service.cssTheme).attr('href', cssThemeUri);
 }
 
 Service.SignOut = function Service$SignOut() {

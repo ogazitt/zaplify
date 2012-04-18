@@ -47,8 +47,8 @@ Dashboard Lists (Folders and Suggestions)
 .folder-button {
     cursor: pointer;
     margin: 4px 10px 0 10px;
-    padding: 4px 0 2px 0;
-    width: 180px;
+    padding: 4px 4px 2px 4px;
+    width: 172px;
     min-height: 20px;
     position: relative;
     text-align: center;
@@ -136,7 +136,7 @@ Dashboard Manager
     background: transparent url(images/delete-icon.png) no-repeat;
 }
 
-.item-path {
+.manager-header {
     width: 100%;
     padding: 4px 0 2px 0px;
     height: 20px;
@@ -144,20 +144,22 @@ Dashboard Manager
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
-.item-path span {  cursor: pointer; padding-left: 8px }
-.item-path .icon { cursor: pointer; float: right; margin: 2px 8px 0 0; opacity:0.8; filter:alpha(opacity=80); }
-.item-path .icon:hover { opacity:1.0; filter:alpha(opacity=100); }
+.manager-header span {  cursor: pointer; padding-left: 8px }
+.manager-header .icon { cursor: pointer; float: right; margin: 2px 8px 0 0; opacity:0.8; filter:alpha(opacity=80); }
+.manager-header .icon:hover { opacity:1.0; filter:alpha(opacity=100); }
 
-.list-editor {
-    width: 100%;
-    Xborder: 1px dashed green;
-}
-
-.item-editor {
+.manager-panel {
     width: 100%;
     padding: 4px 0px 8px 0px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+}
+.manager-panel .setting { margin: 15px 8px 8px 10px; position: relative; }
+.manager-panel .setting label { position: absolute; top: -13px; left: 8px; font-size: 8pt; opacity:0.7; filter:alpha(opacity=70); }
+
+.list-editor {
+    width: 100%;
+    Xborder: 1px dashed green;
 }
 
 /*----------------------------------------------------------
@@ -178,7 +180,8 @@ Item Fields
     position: absolute;    
     top: 0; left: 10px;
     font-size: 8pt;
-    color: #50738A;
+    Xcolor: #50738A;
+    opacity:0.7; filter:alpha(opacity=70);
 }
 .item-field-label.inline {
     position: relative; 

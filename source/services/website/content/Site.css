@@ -107,7 +107,10 @@ Layout elements
 
 .header-content { }
 .header-region .logo { position: absolute; left: 20px; top: 8px; cursor: pointer; }
-.header-region .refresh { display:none; position: absolute; right: 12px; top: 30px; cursor: pointer; }
+
+.header-icons { display:none; position: absolute; right: 12px; top: 32px; }
+.header-icons .icon { cursor: pointer; float: right; opacity:0.8; filter:alpha(opacity=80); margin-left: 8px; }
+.header-icons .icon:hover { opacity:1.0; filter:alpha(opacity=100); }
 
 .signin-control { position: absolute; right:15px; top: 8px; font-weight: normal; }
 .signin-control span { font-weight: normal; opacity:0.6; filter:alpha(opacity=60); }
@@ -239,6 +242,10 @@ Icons
 }
 .refresh.busy {  background: transparent url(images/busy.png) no-repeat; }
 
+.settings { display: inline-block; width: 24px; height: 24px;
+    background: transparent url(images/settings.png) no-repeat;
+}
+
 /*----------------------------------------------------------
 Miscellaneous
 ----------------------------------------------------------*/
@@ -261,3 +268,10 @@ jquery-ui timepicker extension
 .ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
 .ui-timepicker-div td { font-size: 90%; }
 .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+/*----------------------------------------------------------
+jquery-ui combobox extension
+----------------------------------------------------------*/
+.ui-combobox { position: relative; display: inline-block; }
+.ui-combobox .ui-button { position: absolute; margin-left: -1px; padding: 0; top: 0; bottom: 0; }
+.ui-autocomplete-input { margin: 0; padding: 0.3em }
