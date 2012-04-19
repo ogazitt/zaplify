@@ -21,6 +21,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         if (workflowName == null)
                             workflowName = GetInstanceData(workflowInstance, ActivityParameters.LastStateData);
                         
+                        // process any parameters in the workflow name
+                        workflowName = FormatParameterString(workflowInstance, workflowName);
+
                         // if the data passed in isn't null, use this instead
                         if (data != null)
                             workflowName = (string)data;
