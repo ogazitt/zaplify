@@ -8,8 +8,8 @@
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <!-- SQL Azure databases for Dev1 deployment -->
-      <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapusers_041412;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapsuggestions_041712;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapusers_041812;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapsuggestions_041812;User Id=builtsteady;Password=zrc022.." />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -28,8 +28,8 @@
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <!-- SQL Azure databases for Dev1 deployment -->
-      <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapusers_041412;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapsuggestions_041712;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapusers_041812;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=zapsuggestions_041812;User Id=builtsteady;Password=zrc022.." />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <!-- Facebook Application 'ZaplifyDev1' -->
       <Setting name="FBAppID" value="328179963908183"/>
