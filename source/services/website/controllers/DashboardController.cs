@@ -23,6 +23,7 @@
             try
             {   // force access to validate current user
                 var userData = model.UserData;
+                UserDataModel.CurrentTheme = model.UserTheme;
                 model.RenewFBToken = renewFBToken;
             }
             catch

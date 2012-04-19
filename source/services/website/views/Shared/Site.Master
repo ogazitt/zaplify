@@ -9,11 +9,11 @@
     var siteUrl = ResolveUrl("~/");
     var resourceUrl = siteUrl;
     var fbAppID = BuiltSteady.Zaplify.Website.Controllers.BaseController.FBAppID;
-    var cssTheme = BuiltSteady.Zaplify.Website.Controllers.BaseController.UserTheme + "/jquery-ui-1.8.18.css";
+    var cssTheme = BuiltSteady.Zaplify.Website.Models.UserDataModel.CurrentTheme + "/jquery-ui-1.8.18.css";
 %>
 
     <link href="<%: Url.Content("~/content/site.css") %>" rel="stylesheet" type="text/css" />
-    <link href="<%: Url.Content("~/content/themes/" + cssTheme) %>" rel="stylesheet" type="text/css" />
+    <link id="cssTheme" href="<%: Url.Content("~/content/themes/" + cssTheme) %>" rel="stylesheet" type="text/css" />
     <script src="<%: Url.Content("~/scripts/jquery-1.7.1.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/jquery-ui-1.8.16.min.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/shared/service.js") %>" type="text/javascript"></script>
@@ -32,11 +32,10 @@
     <div class="layout-region">
         <div class="header-region ui-widget-header">
             <div class="header-content">
-                <img class="logo" src="<%: Url.Content("~/content/images/zaplogo.png") %>" />
+                <img class="logo" alt="Zaplify" src="<%: Url.Content("~/content/images/zaplogo.png") %>" />
                 <asp:ContentPlaceHolder id="HeaderContent" runat="server" />
             </div>
             <% Html.RenderPartial("SignInControl"); %>  
-            <div class="refresh"></div>          
         </div>
 
         <div class="main-content-region">

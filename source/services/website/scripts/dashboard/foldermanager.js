@@ -16,7 +16,8 @@ function FolderManager(dataModel) {
     this.$managerRegion = null;
 
     this.listEditor = new ListEditor(this);
-    this.managerHelp = new FolderManagerHelp(this);
+    this.managerHelp = new ManagerHelp(this);
+    this.managerSettings = new ManagerSettings(this);
 }
 
 FolderManager.prototype.render = function (container) {
@@ -36,10 +37,12 @@ FolderManager.prototype.selectFolder = function (folder) {
     this.currentItem = null;
     if (this.currentFolder != null) {
         this.managerHelp.hide();
+        this.managerSettings.hide();
         this.listEditor.render(this.container);
         this.listEditor.show();
     } else {
         this.listEditor.hide();
+        this.managerSettings.hide();
         this.managerHelp.show();
     }
 }
@@ -49,6 +52,7 @@ FolderManager.prototype.selectItem = function (item) {
     if (this.currentItem != null) {
         this.currentFolder = this.currentItem.GetFolder();
         this.managerHelp.hide();
+        this.managerSettings.hide();
         this.listEditor.render(this.container);
         this.listEditor.show();
     } else {
@@ -56,28 +60,78 @@ FolderManager.prototype.selectItem = function (item) {
     }
 }
 
+FolderManager.prototype.selectSettings = function () {
+    this.listEditor.hide();
+    this.managerHelp.hide();
+    this.managerSettings.show();
+}
+
 // ---------------------------------------------------------
-// FolderManagerHelp control
-function FolderManagerHelp(parentControl) {
+// ManagerHelp control
+function ManagerHelp(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
 }
 
-FolderManagerHelp.prototype.render = function (container) {
+ManagerHelp.prototype.render = function (container) {
     this.$element = $('<div class="manager-help"><h1>Welcome to Zaplify!</h1></div>').appendTo($(container));
 }
 
-FolderManagerHelp.prototype.hide = function () {
+ManagerHelp.prototype.hide = function () {
     if (this.$element != null) {
         this.$element.hide();
     }
 }
 
-FolderManagerHelp.prototype.show = function () {
+ManagerHelp.prototype.show = function () {
     if (this.$element == null) {
         this.render(this.parentControl.container);
     }
     this.$element.show();
+}
+
+// ---------------------------------------------------------
+// ManagerSettings control
+function ManagerSettings(parentControl) {
+    this.parentControl = parentControl;
+    this.$element = null;
+}
+
+ManagerSettings.prototype.render = function (container) {
+    this.$element = $('<div class="manager-settings"></div>').appendTo($(container));
+    this.$element.append('<div class="manager-header ui-state-active"><span>User Preferences</span></div>');
+    var $settings = $('<div class="manager-panel ui-widget-content"></div>').appendTo(this.$element);
+    this.renderThemePicker($settings);
+}
+
+ManagerSettings.prototype.hide = function () {
+    if (this.$element != null) {
+        this.$element.hide();
+    }
+}
+
+ManagerSettings.prototype.show = function () {
+    if (this.$element == null) {
+        this.render(this.parentControl.container);
+    }
+    this.$element.show();
+}
+
+ManagerSettings.prototype.renderThemePicker = function (container) {
+    var dataModel = this.parentControl.dataModel;
+    var themes = dataModel.Constants.Themes;
+    var currentTheme = dataModel.UserSettings.Preferences.Theme;
+    var $wrapper = $('<div class="ui-widget setting"><label>Theme </label></div>').appendTo(container);
+
+    var $themePicker = $('<select></select>').appendTo($wrapper);
+    for (var i in themes) {
+        var $option = $('<option value="' + themes[i] + '">' + themes[i] + '</option>').appendTo($themePicker);
+    }
+    $themePicker.val(currentTheme);
+    $themePicker.combobox({ selected: function () {
+        var theme = $(this).val();
+        dataModel.UserSettings.UpdateTheme(theme);
+    } });
 }
 
 // ---------------------------------------------------------
@@ -178,7 +232,7 @@ function ItemPath(parentControl) {
 
 ItemPath.prototype.render = function (container, folder, item) {
     if (this.$element == null) {
-        this.$element = $('<div class="item-path ui-widget ui-state-active"></div>').appendTo(container);
+        this.$element = $('<div class="manager-header ui-widget ui-state-active"></div>').appendTo(container);
     }
 
     var addBtnTitle;
@@ -252,7 +306,7 @@ ItemEditor.Modes = { NotSet: 0, New: 1, Edit: 2, Expand: 3, View: 4 };
 
 ItemEditor.prototype.render = function (container, folder, item, mode) {
     if (this.$element == null) {
-        this.$element = $('<div class="item-editor ui-widget ui-widget-content"></div>').appendTo(container);
+        this.$element = $('<div class="manager-panel ui-widget-content"></div>').appendTo(container);
     }
 
     if (folder == null && item == null)
