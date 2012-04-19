@@ -61,6 +61,8 @@
 
     public class UserDataModel
     {
+        public const string DefaultTheme = "default";
+
         UserStorageContext storageContext;
         User currentUser;
         User userData;
@@ -85,6 +87,37 @@
         }
 
         public bool RenewFBToken { get; set; }
+
+        public string UserTheme
+        {
+            get
+            {
+                foreach (var folder in UserData.Folders)
+                {
+                    if (folder.Name.Equals(SystemFolders.ClientSettings))
+                    {
+                        foreach (var item in folder.Items)
+                        {
+
+                            if (item.Name.Equals(UserPreferences.UserPreferencesKey))
+                            {
+                                foreach (var fv in item.FieldValues)
+                                {
+                                    if (fv.FieldName.Equals(FieldNames.Value))
+                                    {
+                                        UserPreferences preferences = JsonSerializer.Deserialize<UserPreferences>(fv.Value);
+                                        return preferences.Theme;
+                                    }
+                                }                                
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                return UserDataModel.DefaultTheme;
+            }
+        }
 
         public UserStorageContext StorageContext
         {
@@ -142,12 +175,40 @@
                         }
                     }
                     userData.Folders = folders;
-                    JavaScriptSerializer serializer = new JavaScriptSerializer();
                     jsonUserData = JsonSerializer.Serialize(UserData);
                 }
                 return jsonUserData;
             }
         }
 
+        // static accessor uses HttpContext to give access to Master page
+        const string currentThemeKey = "CurrentTheme";
+        public static string CurrentTheme
+        {
+            get
+            {
+                if (System.Web.HttpContext.Current != null &&
+                    System.Web.HttpContext.Current.Items.Contains(currentThemeKey))
+                {
+                    return (string)System.Web.HttpContext.Current.Items[currentThemeKey];
+                }
+                return UserDataModel.DefaultTheme;
+            }
+            set
+            {
+                if (System.Web.HttpContext.Current != null)
+                {
+                    System.Web.HttpContext.Current.Items[currentThemeKey] = value;
+                }
+            }
+        }
+
+    }
+
+    public class UserPreferences
+    {
+        public const string UserPreferencesKey = "WebPreferences";
+
+        public string Theme { get; set; }
     }
 }

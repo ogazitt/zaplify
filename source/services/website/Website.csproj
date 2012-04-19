@@ -182,6 +182,7 @@
     <Content Include="content\dashboard\images\facebook.png" />
     <Content Include="content\images\busy.png" />
     <Content Include="content\images\refresh.png" />
+    <Content Include="content\images\settings.png" />
     <Content Include="content\images\zaplogo.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_c8ccd5_40x100.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_ccccee_40x100.png" />
