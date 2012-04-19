@@ -173,60 +173,20 @@
 
             if (skipOperation) return value;
 
-            try
-            {   
-                // log the operation in the operations table
+            // initialize the body / oldbody
+            object body = value;
+            object oldBody = null;
 
-                // initialize the body / oldbody
-                object body = value;
-                object oldBody = null;
-                Type bodyType = t;
-
-                // if this is an update, get the payload as a list
-                if (req.Method == HttpMethod.Put)
-                {
-                    IList list = (IList)value;
-                    oldBody = list[0];
-                    body = list[1];
-                    bodyType = body.GetType();
-                }
-
-                string name;
-                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
-                if (body is Suggestion)
-                {   // Suggestion does not have a Name property, use State property
-                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
-                }
-                else
-                {
-                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
-                }
-
-
-                // record the operation in the Operations table
-                operation = new Operation()
-                {
-                    ID = Guid.NewGuid(),
-                    UserID = CurrentUser.ID,
-                    Username = CurrentUser.Name,
-                    EntityID = id,
-                    EntityName = name,
-                    EntityType = bodyType.Name,
-                    OperationType = req.Method.Method,
-                    Body = JsonSerializer.Serialize(body),
-                    OldBody = JsonSerializer.Serialize(oldBody),
-                    Timestamp = DateTime.Now
-                };
-                this.StorageContext.Operations.Add(operation);
-                if (this.StorageContext.SaveChanges() < 1)
-                {   // log failure to record operation
-                    TraceLog.TraceError("ProcessRequestBody: failed to record operation: " + req.Method.Method);
-                }
+            // if this is an update, get the payload as a list
+            if (req.Method == HttpMethod.Put)
+            {
+                IList list = (IList)value;
+                oldBody = list[0];
+                body = list[1];
             }
-            catch (Exception ex)
-            {   // log failure to record operation
-                TraceLog.TraceException("ProcessRequestBody: failed to record operation", ex);
-            }
+
+            // create an operation corresponding to the new contact creation
+            operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, body, oldBody);
 
             return value;
         }
@@ -263,7 +223,7 @@
                         if (entity != null)
                             operation.EntityID = entity.ID;
                     }
-
+                    
                     this.StorageContext.SaveChanges();
                 }
             }

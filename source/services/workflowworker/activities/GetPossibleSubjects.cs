@@ -204,32 +204,61 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             // update the contact if it already exists, otherwise add a new contact
-            try
+            if (UserContext.Items.Any(c => c.ID == contact.ID))
             {
-                Item dbContact = UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
-                foreach (var fv in contact.FieldValues)
+                try
                 {
-                    // add or update each of the fieldvalues
-                    var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
-                    dbfv.Copy(fv);
+                    UserContext.SaveChanges();
+                    Item dbContact = UserContext.Items.Include("FieldValues").Single(c => c.ID == contact.ID);
+                    foreach (var fv in contact.FieldValues)
+                    {
+                        // add or update each of the fieldvalues
+                        var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
+                        dbfv.Copy(fv);
+                    }
+                    dbContact.LastModified = now;
+                    UserContext.SaveChanges();
                 }
-                dbContact.LastModified = now;
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("CreateContact: update contact failed", ex);
+                    return Status.Error;
+                }
             }
-            catch (Exception)
+            else
             {
-                Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
-                if (folder != null)
-                    contact.FolderID = folder.ID;
-                UserContext.Items.Add(contact);
-            }
-            try
-            {
-                UserContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("CreateContact: creating or adding contact failed", ex);
-                return Status.Error;
+                try
+                {
+                    Folder folder = FindDefaultFolder(contact.UserID, contact.ItemTypeID);
+                    if (folder != null)
+                        contact.FolderID = folder.ID;
+                    UserContext.Items.Add(contact);
+                    UserContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("CreateContact: creating contact failed", ex);
+                    return Status.Error;
+                }
+
+                User user = CurrentUser(item);
+                if (user == null)
+                {
+                    TraceLog.TraceError("CreateContact: couldn't find the user associated with item " + item.Name);
+                    return Status.Error;
+                }
+
+                // create an operation corresponding to the new contact creation
+                var operation = UserContext.CreateOperation(user, "POST", (int?)System.Net.HttpStatusCode.Created, contact, null);
+                if (operation == null)
+                {
+                    TraceLog.TraceError("CreateContact: failed to create operation");
+                    return Status.Error;
+                }
+
+                // enqueue a message for the Worker that will kick off the New Contact workflow
+                if (HostEnvironment.IsAzure)
+                    MessageQueue.EnqueueMessage(operation.ID);
             }
 
             // add a contact reference to the contact list

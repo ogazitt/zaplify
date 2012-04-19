@@ -98,7 +98,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 var results = fbApi.Query(fbID.Value, FBQueries.Likes);
                 foreach (var like in results)
                 {
-                    string name = like.Name;
+                    string name = like[FBQueryResult.Name];
                     suggestionList[name] = name;
                 }
             }

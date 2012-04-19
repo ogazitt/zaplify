@@ -15,13 +15,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         public const string FakeGetSubjectLikes = "FakeGetSubjectLikes";
         public const string Foreach = "Foreach";
         public const string GenerateSubjectLikes = "GenerateSubjectLikes";
+        public const string GetBingSuggestions = "GetBingSuggestions";
+        public const string GetContactInfoFromFacebook = "GetContactInfoFromFacebook";
         public const string GetPossibleIntents = "GetPossibleIntents";
         public const string GetPossibleDates = "GetPossibleDates";
         public const string GetPossibleLocations = "GetPossibleLocations";
         public const string GetPossibleSubjects = "GetPossibleSubjects";
         public const string GetSubjectAttributes = "GetSubjectAttributes";
         public const string GetSubjectLikes = "GetSubjectLikes";
-        public const string GetBingSuggestions = "GetBingSuggestions";
         public const string ImportFromFacebook = "ImportFromFacebook";
         public const string NoOp = "NoOp";
         public const string StartWorkflow = "StartWorkflow";
@@ -39,6 +40,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             { ActivityNames.Foreach, typeof(Foreach) },
             { ActivityNames.GenerateSubjectLikes, typeof(GenerateSubjectLikes) },
             { ActivityNames.GetBingSuggestions, typeof(GetBingSuggestions) },
+            { ActivityNames.GetContactInfoFromFacebook, typeof(GetContactInfoFromFacebook) },
             { ActivityNames.GetPossibleIntents, typeof(GetPossibleIntents) },
             { ActivityNames.GetPossibleDates, null },
             { ActivityNames.GetPossibleLocations, null },

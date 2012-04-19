@@ -123,15 +123,39 @@
                     return RedirectToAction("Home", "Dashboard");
                 }
 
-                // timestamp suggestion
+                // get the Connect to Facebook suggestion and make a copy
                 SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
                 Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == peopleFolder.ID && s.SuggestionType == SuggestionTypes.GetFBConsent);
+                Suggestion oldSuggestion = new Suggestion()
+                {
+                    ID = suggestion.ID,
+                    DisplayName = suggestion.DisplayName,
+                    EntityID = suggestion.EntityID,
+                    EntityType = suggestion.EntityType,
+                    SuggestionType = suggestion.SuggestionType,
+                    GroupDisplayName = suggestion.GroupDisplayName,
+                    ParentID = suggestion.ParentID,
+                    ReasonSelected = suggestion.ReasonSelected,
+                    SortOrder = suggestion.SortOrder,
+                    State = suggestion.State,
+                    TimeSelected = suggestion.TimeSelected,
+                    Value = suggestion.Value,
+                    WorkflowInstanceID = suggestion.WorkflowInstanceID,
+                    WorkflowType = suggestion.WorkflowType
+                };
+
+                // timestamp suggestion
                 suggestion.TimeSelected = DateTime.UtcNow;
                 suggestion.ReasonSelected = Reasons.Chosen;
                 suggestionsContext.SaveChanges();
 
                 // create an operation corresponding to the new user creation
-                Operation operation = CreateOperation<Suggestion>(suggestion, "PUT", HttpStatusCode.Accepted);
+                var operation = storage.CreateOperation(user, "PUT", (int?)HttpStatusCode.Accepted, suggestion, oldSuggestion);
+                if (operation == null)
+                {   
+                    TraceLog.TraceError("Facebook Action: failed to create operation");
+                    return RedirectToAction("Home", "Dashboard");
+                }
 
                 // enqueue a message for the Worker that will wake up the Connect to Facebook workflow
                 if (HostEnvironment.IsAzure)
@@ -139,7 +163,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("Failed to update and timestamp suggestion", ex);
+                TraceLog.TraceException("Facebook Action: Failed to update and timestamp suggestion", ex);
             }
 
             return RedirectToAction("Home", "Dashboard");
@@ -289,7 +313,7 @@
                 model.StorageContext.SaveChanges();
 
                 // create an operation corresponding to the new user creation
-                Operation operation = CreateOperation<User>(this.CurrentUser, "POST", HttpStatusCode.Created);
+                var operation = model.StorageContext.CreateOperation(this.CurrentUser, "POST", (int?) HttpStatusCode.Created, this.CurrentUser, null);
 
                 // enqueue a message for the Worker that will kick off the New User workflow
                 if (HostEnvironment.IsAzure)
@@ -301,60 +325,5 @@
                 throw;
             }
         }
-
-        private Operation CreateOperation<T>(object value, string opType, HttpStatusCode code)
-        {
-            Operation operation = null;
-            try
-            {
-                // log the operation in the operations table
-
-                // initialize the body / oldbody
-                object body = value;
-                object oldBody = null;
-                Type bodyType = typeof(T);
-
-                // if this is an update, get the payload as a list
-
-                string name;
-                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
-                if (body is Suggestion)
-                {   // Suggestion does not have a Name property, use State property
-                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
-                }
-                else
-                {
-                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
-                }
-
-                // record the operation in the Operations table
-                operation = new Operation()
-                {
-                    ID = Guid.NewGuid(),
-                    UserID = CurrentUser.ID,
-                    Username = CurrentUser.Name,
-                    EntityID = id,
-                    EntityName = name,
-                    EntityType = bodyType.Name,
-                    OperationType = opType,
-                    StatusCode = (int?)code,
-                    Body = JsonSerializer.Serialize(body),
-                    OldBody = JsonSerializer.Serialize(oldBody),
-                    Timestamp = DateTime.Now
-                };
-                this.StorageContext.Operations.Add(operation);
-                if (this.StorageContext.SaveChanges() < 1)
-                {   // log failure to record operation
-                    TraceLog.TraceError("CreateOperation: failed to record operation: " + opType);
-                }
-            }
-            catch (Exception ex)
-            {   // log failure to record operation
-                TraceLog.TraceException("CreateOperation: failed to record operation", ex);
-            }
-
-            return operation;
-        }
-
     }
 }

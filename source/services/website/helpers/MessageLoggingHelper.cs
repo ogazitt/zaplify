@@ -9,34 +9,31 @@
     using Microsoft.ApplicationServer.Http.Channels;
 
     using BuiltSteady.Zaplify.ServiceHost;
+    using System.IO;
 
     public class LoggingMessageTracer : IDispatchMessageInspector,
         IClientMessageInspector
     {
         private Message TraceHttpRequestMessage(HttpRequestMessage msg)
         {
+            // trace request
+            string messageText = msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)";
             string tracemsg = String.Format(
-                "Web Request on URL: {0}\n" +
-                "Header: {1}\n" +
-                "Body: {2}",
+                "\n{0} {1}; User-Agent: {2}; Content-Type: {3}; Content-Length: {4}\n" +
+                "Body: {5}",
+                msg.Method,
                 msg.RequestUri.AbsoluteUri,
-                msg,
-                msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
-
-            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Info);
+                msg.Headers.UserAgent,
+                msg.Content.Headers.ContentType,
+                msg.Content.Headers.ContentLength,
+                messageText);
+            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Detail);
             return msg.ToMessage(); 
         }
 
         private Message TraceHttpResponseMessage(HttpResponseMessage msg)
         {
-            string tracemsg = String.Format(
-                "Web Response Header: {0}\n" +
-                "Web Response Body: {1}",
-                msg,
-                msg.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)");
-
-            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Info);
-
+            // response tracing is done in BaseResource.ReturnResult
             return msg.ToMessage();
         }
 

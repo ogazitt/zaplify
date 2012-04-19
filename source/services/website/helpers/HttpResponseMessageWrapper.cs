@@ -6,6 +6,7 @@
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     // wrapper around the type which contains the status code
     public class MessageWrapper<T>
@@ -39,11 +40,21 @@
         {
             MessageWrapper<T> messageWrapper = new MessageWrapper<T>() { StatusCode = statusCode, Value = type };
             this.Content = new ObjectContent<MessageWrapper<T>>(messageWrapper);
-
             if (IsWinPhone7(msg))
             {
                 this.StatusCode = HttpStatusCode.OK;
             }
+
+            string messageText = this.Content != null ? msg.Content.ReadAsStringAsync().Result : "(empty)";
+            string tracemsg = String.Format(
+                "\nWeb Response: Status: {0} {1}; Content-Type: {2}\n" +
+                "Web Response Body: {3}",
+                (int) statusCode,
+                statusCode,
+                msg.Content.Headers.ContentType,
+                messageText);
+
+            TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Detail);
         }
 
         private static bool IsWinPhone7(HttpRequestMessage msg)

@@ -113,6 +113,11 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
                     yield return new FBQueryResult(jobjResult);
                 }
             }
+            else
+            {
+                var obj = jObject["data"] as JObject;
+                yield return new FBQueryResult(obj); 
+            }
         }
 
         #endregion Query methods

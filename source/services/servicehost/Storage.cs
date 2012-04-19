@@ -6,6 +6,7 @@
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.Shared.Entities;
     using System.Collections.Generic;
+    using System.Collections;
 
     public static class Storage
     {
@@ -84,6 +85,54 @@
         public DbSet<Operation> Operations { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
+
+        public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody)
+        {
+            Operation operation = null;
+            try
+            {
+                // log the operation in the operations table
+                Type bodyType = body.GetType();
+
+                string name;
+                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
+                if (body is Suggestion)
+                {   // Suggestion does not have a Name property, use State property
+                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
+                }
+                else
+                {
+                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
+                }
+
+                // record the operation in the Operations table
+                operation = new Operation()
+                {
+                    ID = Guid.NewGuid(),
+                    UserID = user.ID,
+                    Username = user.Name,
+                    EntityID = id,
+                    EntityName = name,
+                    EntityType = bodyType.Name,
+                    OperationType = opType,
+                    StatusCode = (int?)code,
+                    Body = JsonSerializer.Serialize(body),
+                    OldBody = JsonSerializer.Serialize(oldBody),
+                    Timestamp = DateTime.Now
+                };
+                Operations.Add(operation);
+                if (SaveChanges() < 1)
+                {   // log failure to record operation
+                    TraceLog.TraceError("CreateOperation: failed to record operation: " + opType);
+                }
+            }
+            catch (Exception ex)
+            {   // log failure to record operation
+                TraceLog.TraceException("CreateOperation: failed to record operation", ex);
+            }
+
+            return operation;
+        }
 
         public Folder GetOrCreateUserFolder(User user)
         {

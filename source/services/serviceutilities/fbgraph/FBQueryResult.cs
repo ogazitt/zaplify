@@ -4,6 +4,13 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
 {
     public class FBQueryResult
     {
+        public const string Birthday = "birthday";
+        public const string Gender = "gender";
+        public const string ID = "id";
+        public const string Link = "link";
+        public const string Name = "name";
+        public const string Website = "website";
+
         JObject jobject = null;
 
         public FBQueryResult()
@@ -17,22 +24,6 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
                 jobject = obj;
             else
                 jobject = new JObject();
-        }
-
-        public string Name
-        {
-            get
-            {
-                return (string)jobject["name"];
-            }
-        }
-
-        public string ID
-        {
-            get
-            {
-                return (string)jobject["id"];
-            }
         }
 
         public static FBQueryResult Parse(string str)

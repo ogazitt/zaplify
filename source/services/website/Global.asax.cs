@@ -38,9 +38,10 @@ namespace BuiltSteady.Zaplify.Website
             );
 
             // map the WCF WebApi service routes
+            HttpConfiguration config = new HttpConfiguration() { MaxBufferSize = 1024 * 1024, MaxReceivedMessageSize = 1024 * 1024 };
             RouteTable.Routes.MapServiceRoute<ConstantsResource>("constants", null);
             RouteTable.Routes.MapServiceRoute<FolderResource>("folders", null);
-            RouteTable.Routes.MapServiceRoute<ItemResource>("items", null);
+            RouteTable.Routes.MapServiceRoute<ItemResource>("items", config);
             RouteTable.Routes.MapServiceRoute<ItemTypeResource>("itemtypes", null);
             RouteTable.Routes.MapServiceRoute<OperationResource>("operations", null);
             RouteTable.Routes.MapServiceRoute<SpeechResource>("speech",
@@ -52,7 +53,7 @@ namespace BuiltSteady.Zaplify.Website
             RouteTable.Routes.MapServiceRoute<SuggestionResource>("suggestions", null);
             RouteTable.Routes.MapServiceRoute<TagResource>("tags", null);
             RouteTable.Routes.MapServiceRoute<TraceResource>("trace", null);
-            RouteTable.Routes.MapServiceRoute<UserResource>("users", null);
+            RouteTable.Routes.MapServiceRoute<UserResource>("users", config);
         }
 
         public class NotInValuesConstraint : IRouteConstraint
@@ -216,26 +217,11 @@ namespace BuiltSteady.Zaplify.Website
                     suggestion.ReasonSelected = Reasons.Chosen;
                     suggestionsContext.SaveChanges();
 
-                    // create an operation corresponding to the new user creation
-                    // record the operation in the Operations table
-                    var operation = new Operation()
+                    // create an operation corresponding to choosing the Connect to AD suggestion
+                    var operation = userStorage.CreateOperation(user, "PUT", (int?)HttpStatusCode.Accepted, suggestion, oldSuggestion);
+                    if (operation == null)
                     {
-                        ID = Guid.NewGuid(),
-                        UserID = user.ID,
-                        Username = user.Name,
-                        EntityID = suggestion.ID,
-                        EntityName = suggestion.GroupDisplayName,
-                        EntityType = suggestion.GetType().Name,
-                        OperationType = "PUT",
-                        StatusCode = (int?) HttpStatusCode.Accepted,
-                        Body = JsonSerializer.Serialize(suggestion),
-                        OldBody = JsonSerializer.Serialize(oldSuggestion),
-                        Timestamp = DateTime.Now
-                    };
-                    userStorage.Operations.Add(operation);
-                    if (userStorage.SaveChanges() < 1)
-                    {   // log failure to record operation
-                        TraceLog.TraceError("AD Access Token Received: failed to record operation");
+                        TraceLog.TraceError("AD Access Token Received: failed to create operation");
                         tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
                     }
 

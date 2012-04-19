@@ -111,25 +111,25 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         foreach (var friend in results)
                         {
                             // check if a possible subject by this name and with this FBID already exists - and if so, skip it
-                            if (currentPossibleSubjects.Any(ps => ps.Name == friend.Name && 
-                                    ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == friend.ID)))
+                            if (currentPossibleSubjects.Any(ps => ps.Name == friend[FBQueryResult.Name] &&
+                                    ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == friend[FBQueryResult.ID])))
                                 continue;
 
                             bool process = true;
                             
                             // check if a contact by this name already exists
-                            var existingContacts = currentContacts.Where(c => c.Name == friend.Name).ToList();
+                            var existingContacts = currentContacts.Where(c => c.Name == friend[FBQueryResult.Name]).ToList();
                             foreach (var existingContact in existingContacts)
                             {
                                 var fbFV = GetFieldValue(existingContact, FieldNames.FacebookID, true);
                                 if (fbFV.Value == null)
                                 {
                                     // contact by this name exists but facebook ID isn't set; assume this is a duplicate and set the FBID
-                                    fbFV.Value = friend.ID;
+                                    fbFV.Value = friend[FBQueryResult.ID];
                                     process = false;
                                     break;
                                 }
-                                if (fbFV.Value == friend.ID)
+                                if (fbFV.Value == friend[FBQueryResult.ID])
                                 {
                                     // this is definitely a duplicate - don't add it
                                     process = false;
@@ -144,7 +144,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 var contact = new Item()
                                 {
                                     ID = Guid.NewGuid(),
-                                    Name = friend.Name,
+                                    Name = friend[FBQueryResult.Name],
                                     ParentID = null,
                                     UserID = user.ID,
                                     FolderID = folder.ID,
@@ -154,14 +154,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                     LastModified = now,
                                     FieldValues = new List<FieldValue>(),
                                 };
-                                contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = friend.ID });
+                                contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = friend[FBQueryResult.ID] });
                                 string jsonContact = JsonSerializer.Serialize(contact);
 
                                 // store the serialized contact in the value of a new NameValue item on the PossibleSubjects list
                                 var nameValItem = new Item()
                                 {
                                     ID = Guid.NewGuid(),
-                                    Name = friend.Name,
+                                    Name = friend[FBQueryResult.Name],
                                     FolderID = userFolder.ID,
                                     ParentID = possibleSubjectList.ID,
                                     UserID = user.ID,
@@ -172,7 +172,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 };
                                 nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.Value, ItemID = nameValItem.ID, Value = jsonContact });
                                 // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible subject, for easier dup handling
-                                nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = friend.ID });
+                                nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = friend[FBQueryResult.ID] });
 
                                 // add this new possible subject to the DB and to the working list of possible subjects
                                 UserContext.Items.Add(nameValItem);
