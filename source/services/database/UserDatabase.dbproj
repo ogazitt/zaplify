@@ -31,19 +31,19 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <OutputPath>..\..\..\bin\database\debug\</OutputPath>
+    <OutputPath>..\..\..\bin\database\release\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetConnectionString>
     </TargetConnectionString>
-    <TargetDatabase>
-    </TargetDatabase>
+    <TargetDatabase>ZapUsers</TargetDatabase>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <SuppressWarnings>
     </SuppressWarnings>
     <DeployToDatabase>False</DeployToDatabase>
     <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
     <ValidatePolicy>True</ValidatePolicy>
+    <DBSchemaFileName>ZapUsers</DBSchemaFileName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>..\..\..\bin\database\debug\</OutputPath>

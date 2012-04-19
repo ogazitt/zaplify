@@ -66,6 +66,8 @@
         UserStorageContext storageContext;
         User currentUser;
         User userData;
+        List<Folder> folders;
+        List<Folder> clientFolders; 
         string jsonUserData;
 
         public UserDataModel(UserStorageContext storage, User user)
@@ -92,13 +94,13 @@
         {
             get
             {
-                foreach (var folder in UserData.Folders)
+                List<Folder> folders = UserData.Folders;
+                foreach (var folder in folders)
                 {
                     if (folder.Name.Equals(SystemFolders.ClientSettings))
                     {
                         foreach (var item in folder.Items)
                         {
-
                             if (item.Name.Equals(UserPreferences.UserPreferencesKey))
                             {
                                 foreach (var fv in item.FieldValues)
@@ -114,7 +116,6 @@
                         break;
                     }
                 }
-
                 return UserDataModel.DefaultTheme;
             }
         }
@@ -147,13 +148,37 @@
 
                     // Include does not support filtering or sorting
                     // post-process ordering of folders and items in memory by SortOrder field
-                    userData.Folders = userData.Folders.OrderBy(f => f.SortOrder).ToList();
-                    for (var i=0; i < userData.Folders.Count; i++)
+                    this.folders = userData.Folders.OrderBy(f => f.SortOrder).ToList();
+                    for (var i=0; i < this.folders.Count; i++)
                     {   // sort items by SortOrder field
-                        userData.Folders[i].Items = userData.Folders[i].Items.OrderBy(item => item.SortOrder).ToList(); 
+                        this.folders[i].Items = this.folders[i].Items.OrderBy(item => item.SortOrder).ToList(); 
                     }
                 }
+                // include ALL folders
+                userData.Folders = this.folders;
+                return userData;
+            }
+        }
 
+        // exclude SystemFolders except for $ClientSettings
+        public User ClientUserData
+        {
+            get
+            {
+                User userData = UserData;
+                if (clientFolders == null)
+                {
+                    clientFolders = new List<Folder>();
+                    for (var i = 0; i < this.folders.Count; i++)
+                    {
+                        Folder folder = this.folders[i];
+                        if (!folder.Name.StartsWith("$") || folder.Name.Equals(SystemFolders.ClientSettings))
+                        {
+                            clientFolders.Add(folder);
+                        }
+                    }
+                }
+                userData.Folders = clientFolders;
                 return userData;
             }
         }
@@ -163,19 +188,8 @@
             get
             {
                 if (jsonUserData == null)
-                {   // do not serialize system folders except for $ClientSettings
-                    User userData = UserData;
-                    List<Folder> folders = new List<Folder>();
-                    for (var i = 0; i < userData.Folders.Count; i++)
-                    {
-                        Folder folder = userData.Folders[i];
-                        if (!folder.Name.StartsWith("$") || folder.Name.StartsWith("$Client"))
-                        {
-                            folders.Add(folder);
-                        }
-                    }
-                    userData.Folders = folders;
-                    jsonUserData = JsonSerializer.Serialize(UserData);
+                {   // serialize ClientUserData
+                    jsonUserData = JsonSerializer.Serialize(ClientUserData);
                 }
                 return jsonUserData;
             }

@@ -36,14 +36,14 @@
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetConnectionString>
     </TargetConnectionString>
-    <TargetDatabase>
-    </TargetDatabase>
+    <TargetDatabase>ZapSuggestions</TargetDatabase>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <SuppressWarnings>
     </SuppressWarnings>
     <DeployToDatabase>False</DeployToDatabase>
     <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
     <ValidatePolicy>True</ValidatePolicy>
+    <DBSchemaFileName>ZapSuggestions</DBSchemaFileName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <OutputPath>..\..\..\bin\database\debug\</OutputPath>
