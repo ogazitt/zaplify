@@ -139,8 +139,8 @@
             try
             {
                 // get the $User folder
-                if (Folders.Any(f => f.UserID == user.ID && f.Name == SystemFolders.User))
-                    return Folders.Single(f => f.UserID == user.ID && f.Name == SystemFolders.User);
+                if (Folders.Any(f => f.UserID == user.ID && f.Name == SystemEntities.User))
+                    return Folders.Single(f => f.UserID == user.ID && f.Name == SystemEntities.User);
                 else
                 {
                     // create the $User folder
@@ -149,9 +149,9 @@
                     {
                         ID = folderUser.FolderID,
                         SortOrder = 0,
-                        Name = SystemFolders.User,
+                        Name = SystemEntities.User,
                         UserID = user.ID,
-                        ItemTypeID = SystemItemTypes.NameValue,
+                        ItemTypeID = SystemItemTypes.System,
                         Items = new List<Item>(),
                         FolderUsers = new List<FolderUser>() { folderUser }
                     };

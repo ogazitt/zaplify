@@ -33,7 +33,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class SystemItemTypes
     {   
-        public static List<Guid> List = new List<Guid>() { Task, Location, Contact, ListItem, ShoppingItem, Reference, NameValue};
+        public static List<Guid> List = new List<Guid>() { System, Task, Location, Contact, ListItem, ShoppingItem, Reference, NameValue};
         // standard item types
         public static Guid Task = new Guid("00000000-0000-0000-0000-000000000001");
         public static Guid Location = new Guid("00000000-0000-0000-0000-000000000002");
@@ -41,6 +41,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000004");
         public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000005");
         // system item types
+        public static Guid System = new Guid("00000000-0000-0000-0000-000000000000");
         public static Guid Reference = new Guid("00000000-0000-0000-0000-000000000006");
         public static Guid NameValue = new Guid("00000000-0000-0000-0000-000000000007");
     }
@@ -185,10 +186,12 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Local = "Local";
     }
 
-    public class SystemFolders
-    {
+    public class SystemEntities
+    {   // system folders
         public const string ClientSettings = "$ClientSettings";
-        public const string PossibleSubjects = "PossibleSubjects";
         public const string User = "$User";
+
+        // system items
+        public const string PossibleSubjects = "PossibleSubjects";
     }
 }

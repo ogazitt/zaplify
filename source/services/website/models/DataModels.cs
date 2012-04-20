@@ -66,8 +66,6 @@
         UserStorageContext storageContext;
         User currentUser;
         User userData;
-        List<Folder> folders;
-        List<Folder> clientFolders; 
         string jsonUserData;
 
         public UserDataModel(UserStorageContext storage, User user)
@@ -94,10 +92,9 @@
         {
             get
             {
-                List<Folder> folders = UserData.Folders;
-                foreach (var folder in folders)
+                foreach (var folder in UserData.Folders)
                 {
-                    if (folder.Name.Equals(SystemFolders.ClientSettings))
+                    if (folder.Name.Equals(SystemEntities.ClientSettings))
                     {
                         foreach (var item in folder.Items)
                         {
@@ -130,55 +127,38 @@
             get
             {
                 if (userData == null)
-                {
-                    userData = storageContext.Users.Include("Folders").Single<User>(u => u.Name == currentUser.Name);
-                    if (userData.Folders != null && userData.Folders.Count > 0)
-                    {   // get user and all top-level data
-                        userData = storageContext.Users.
-                            Include("ItemTypes.Fields").
-                            Include("Tags").
-                            Include("Folders.FolderUsers").
-                            Include("Folders.Items.ItemTags").
-                            Include("Folders.Items.FieldValues").
-                            Single<User>(u => u.ID == userData.ID && u.Folders.Any(f => f.FolderUsers.Any(fu => fu.UserID == userData.ID)));
+                { 
+                    userData = storageContext.Users.
+                        Include("ItemTypes.Fields").
+                        Include("Tags").
+                        Single<User>(u => u.Name == currentUser.Name);
 
-                        // Items already serialized under Folders, don't serialize another copy
-                        userData.Items = null;
-                    }
+                    // retrieve non-system folders for this user 
+                    // (does not include other user folders this user has been given access to via FolderUsers)
+                    List<Folder> folders = this.StorageContext.Folders.
+                        Include("FolderUsers").
+                        Include("Items.ItemTags").
+                        Include("Items.FieldValues").
+                        Where(f => f.UserID == userData.ID && f.ItemTypeID != SystemItemTypes.System).
+                        OrderBy(f => f.SortOrder).
+                        ToList();
 
-                    // Include does not support filtering or sorting
-                    // post-process ordering of folders and items in memory by SortOrder field
-                    this.folders = userData.Folders.OrderBy(f => f.SortOrder).ToList();
-                    for (var i=0; i < this.folders.Count; i++)
-                    {   // sort items by SortOrder field
-                        this.folders[i].Items = this.folders[i].Items.OrderBy(item => item.SortOrder).ToList(); 
-                    }
-                }
-                // include ALL folders
-                userData.Folders = this.folders;
-                return userData;
-            }
-        }
-
-        // exclude SystemFolders except for $ClientSettings
-        public User ClientUserData
-        {
-            get
-            {
-                User userData = UserData;
-                if (clientFolders == null)
-                {
-                    clientFolders = new List<Folder>();
-                    for (var i = 0; i < this.folders.Count; i++)
+                    if (folders != null && folders.Count > 0)
                     {
-                        Folder folder = this.folders[i];
-                        if (!folder.Name.StartsWith("$") || folder.Name.Equals(SystemFolders.ClientSettings))
-                        {
-                            clientFolders.Add(folder);
+                        userData.Folders = folders;
+
+                        // Include does not support filtering or sorting
+                        // post-process ordering of Items in memory by SortOrder field
+                        for (var i = 0; i < userData.Folders.Count; i++)
+                        {   // sort items by SortOrder field
+                            userData.Folders[i].Items = userData.Folders[i].Items.OrderBy(item => item.SortOrder).ToList();
                         }
                     }
+                    else
+                    {
+                        userData.Folders = new List<Folder>();
+                    }
                 }
-                userData.Folders = clientFolders;
                 return userData;
             }
         }
@@ -188,8 +168,8 @@
             get
             {
                 if (jsonUserData == null)
-                {   // serialize ClientUserData
-                    jsonUserData = JsonSerializer.Serialize(ClientUserData);
+                {   // serialize UserData
+                    jsonUserData = JsonSerializer.Serialize(UserData);
                 }
                 return jsonUserData;
             }

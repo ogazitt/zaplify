@@ -141,7 +141,7 @@
             {
                 UserDataModel model = new UserDataModel(this);
                 // make sure the response isn't cached
-                var response = ReturnResult<User>(req, operation, model.ClientUserData, HttpStatusCode.OK);
+                var response = ReturnResult<User>(req, operation, model.UserData, HttpStatusCode.OK);
                 response.Headers.CacheControl = new CacheControlHeaderValue() { NoCache = true };
                 return response;
             }

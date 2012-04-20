@@ -389,8 +389,8 @@ DataModel.processFolders = function DataModel$processFolders(folders) {
         }
         folders[i].ItemsMap = new ItemMap(items);
         folders[i].Items = folders[i].ItemsMap.Items;
-        // TODO: mark 'default' folders in database
-        folders[i].IsDefault = (i < 4);
+        // TODO: track 'default' folders in UserSettings
+        folders[i].IsDefault = (i < 5);
 
         // extract folder for UserSettings
         if (folders[i].Name == SystemFolders.ClientSettings) { settingsIndex = i; }

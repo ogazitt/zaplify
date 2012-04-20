@@ -30,15 +30,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     try
                     {
                         // get the PossibleSubjects list
-                        if (UserContext.Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemFolders.PossibleSubjects))
-                            possibleSubjectList = UserContext.Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemFolders.PossibleSubjects);
+                        if (UserContext.Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects))
+                            possibleSubjectList = UserContext.Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects);
                         else
                         {
                             // create PossibleSubjects list
                             possibleSubjectList = new Item()
                             {
                                 ID = Guid.NewGuid(),
-                                Name = SystemFolders.PossibleSubjects,
+                                Name = SystemEntities.PossibleSubjects,
                                 FolderID = userFolder.ID,
                                 UserID = user.ID,
                                 IsList = true,
