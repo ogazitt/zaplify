@@ -18,9 +18,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
         }
     }
 
-    public class JsonValue
+    public class JsonValue 
     {
         JObject jobject = null;
+
+        public Dictionary<string, object> Properties = new Dictionary<string, object>();
 
         public JsonValue()
         {
@@ -30,6 +32,27 @@ namespace BuiltSteady.Zaplify.ServiceHost
         public JsonValue(JObject obj)
         {
             jobject = obj;
+            foreach (var token in obj)
+            {
+                switch (token.Value.Type)
+                {
+                    case JTokenType.Object:
+                        Properties[token.Key] = new JsonValue(new JObject(token.Value));
+                        break;
+                    case JTokenType.Array:
+                        JArray list = token.Value as JArray;
+                        var query = from jobj in list select new JsonValue(new JObject(jobj));
+                        var jlist = new JsonList();
+                        jlist.AddRange(query);
+                        break;
+                    case JTokenType.Null:
+                        Properties[token.Key] = null;
+                        break;
+                    default:
+                        Properties[token.Key] = token.Value.ToString();
+                        break;
+                }
+            }
         }
 
         public static JsonValue Parse(string str)
@@ -56,7 +79,10 @@ namespace BuiltSteady.Zaplify.ServiceHost
             set
             {
                 if (jobject[key] != null)
+                {
                     jobject.Remove(key);
+                    Properties.Remove(key);
+                }
                 jobject.Add(new JProperty(key, value));
             }
         }
@@ -64,6 +90,14 @@ namespace BuiltSteady.Zaplify.ServiceHost
         public override string ToString()
         {
             return jobject.ToString();
+        }
+
+        public bool IsString
+        {
+            get
+            {
+                return jobject.Type == JTokenType.String;
+            }
         }
     }
 

@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class FakeGetSubjectLikes : WorkflowActivity
     {
-        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
-        public override string OutputParameterName { get { return ActivityParameters.Likes; } }
+        public override string GroupDisplayName { get { return JsonSerializer.Serialize(new List<string>() { "Choose from", "$(" + ActivityVariables.SubjectHint + ")'s", "Facebook interests" }); } }
+        public override string OutputParameterName { get { return ActivityVariables.Likes; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceHost;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {

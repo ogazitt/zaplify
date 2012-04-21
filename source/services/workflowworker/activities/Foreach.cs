@@ -1,72 +1,68 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using Newtonsoft.Json.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.Shared.Entities;
-using Microsoft.IdentityModel.Protocols.OAuth;
-using Microsoft.IdentityModel.Protocols.OAuth.Client;
-using BuiltSteady.Zaplify.ServiceUtilities.ADGraph;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class Foreach : WorkflowActivity
     {
+        public class ActivityParameters
+        {
+            public const string List = "List";
+            public const string Activity = "Activity";
+        }
+
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
             {
                 return ((workflowInstance, entity, data) =>
                 {
-                    //string foreachArgument = GetInstanceData(workflowInstance, ActivityParameters.ForeachArgument);
-                    string foreachOver = GetInstanceData(workflowInstance, ActivityParameters.ForeachOver);
-                    string foreachBody = GetInstanceData(workflowInstance, ActivityParameters.ForeachBody);
-                    if (foreachOver == null || foreachBody == null)
+                    string foreachList = null; 
+                    string foreachBody = null; 
+                    if (InputParameters.TryGetValue(ActivityParameters.List, out foreachList) == false ||
+                        InputParameters.TryGetValue(ActivityParameters.Activity, out foreachBody) == false)
                     {
                         TraceLog.TraceError("Foreach: could not find ForeachOver or ForeachBody arguments");
                         return Status.Error;
                     }
 
-                    // the ForeachOver will typically be a substitution variable - $(varname) - expand it now
-                    string foreachList = FormatParameterString(workflowInstance, foreachOver);
-
-                    // parse and iterate over the foreach string - it will be in the following format:
-                    //   param1=val1,param2=val2;param1=val1,param2=val2;...
-                    foreach (var item in foreachList.Split(';'))
+                    try
                     {
-                        // prepare the input parameters for the activity
-                        foreach (var parameter in item.Split(','))
-                            ProcessParameter(workflowInstance, parameter);
+                        // parse the body definition string into a JSON object containing the activity definition
+                        JObject foreachBodyActivityDefinition = JObject.Parse(foreachBody);
 
-                        // prepare the activity itself by subtituting any input parameters
-                        WorkflowActivity activity = Workflow.PrepareActivity(workflowInstance, foreachBody, UserContext, SuggestionsContext);
-                        activity.Function.Invoke(workflowInstance, entity, null);
+                        // the ForeachOver will typically be a substitution variable - $(varname) - expand it now
+                        //string foreachList = FormatParameterString(workflowInstance, foreachOver);
+
+                        // parse and iterate over the foreach list - it will be in the following (array of objects) format:
+                        //   [ { "param1": "val1", "param2": "val2" }, { ... } ]
+                        var list = JArray.Parse(foreachList);
+                        foreach (JObject item in list)
+                        {
+                            // prepare the current values of the variables for the activity (these will be picked up by input parameters)
+                            foreach (var parameter in item)
+                                StoreInstanceData(workflowInstance, parameter.Key, parameter.Value.ToString());
+
+                            // prepare the activity itself by subtituting any input parameters
+                            //WorkflowActivity activity = Workflow.PrepareActivity(workflowInstance, foreachBody, UserContext, SuggestionsContext);
+                            // create and invoke the activity (the input parameters will be bound to the variables during this process)
+                            var activity = WorkflowActivity.CreateActivity(foreachBodyActivityDefinition, workflowInstance);
+                            activity.UserContext = UserContext;
+                            activity.SuggestionsContext = SuggestionsContext;
+                            activity.Function.Invoke(workflowInstance, entity, null);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceLog.TraceException("Foreach: processing failed", ex);
+                        return Status.Error;
                     }
 
                     return Status.Complete;
                 });
             }
         }
-
-        #region Helpers
-
-        /// <summary>
-        /// Parses out a parameter definition in the form of 'param=value' and stores in InstanceData with the param as the key 
-        /// </summary>
-        /// <param name="instance">Workflow instance to operate over</param>
-        /// <param name="parameter">Parameter in 'key=value' format</param>
-        private void ProcessParameter(WorkflowInstance instance, string parameter)
-        {
-            if (parameter == null)
-                return;
-            int index = parameter.IndexOf('=');
-            if (index < 0)
-                return;
-            var name = parameter.Substring(0, index).Trim();
-            var value = parameter.Substring(index + 1).Trim();
-            StoreInstanceData(instance, name, value);
-        }
-
-        #endregion Helpers
     }
 }

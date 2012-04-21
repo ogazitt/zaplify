@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
@@ -11,8 +10,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GenerateSubjectLikes : WorkflowActivity
     {
-        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
-        public override string OutputParameterName { get { return ActivityParameters.LikeSuggestionList; } }
+        public override string GroupDisplayName { get { return JsonSerializer.Serialize(new List<string>() { "Choose from", "$(" + ActivityVariables.SubjectHint + ")'s", "Facebook interests" }); } }
+        public override string OutputParameterName { get { return ActivityVariables.LikeSuggestionList; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseMany; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
@@ -47,12 +46,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     if (groupDisplayName == null)
                         groupDisplayName = workflowInstance.State;
                     else
-                        groupDisplayName = FormatParameterString(workflowInstance, groupDisplayName);
+                        groupDisplayName = FormatStringTemplate(workflowInstance, groupDisplayName);
 
                     // add suggestions received from the suggestion function
                     try
                     {
-                        StringBuilder sb = new StringBuilder();
+                        // build the JSON-formated output list: [ { "Like": "val", "ParentID": "guid" }, { ... } ]
+                        var likeList = new List<Dictionary<string, string>>();
                         int num = 0;
                         foreach (var s in suggestions.Keys)
                         {
@@ -77,20 +77,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             };
                             SuggestionsContext.Suggestions.Add(sugg);
 
-                            // build the output list
-                            if (!String.IsNullOrEmpty(sb.ToString()))
-                                sb.Append(";");
-                            sb.Append(String.Format("{0}={1},{2}={3}", 
-                                ActivityParameters.Like, s, // Like=suggestion name
-                                ActivityParameters.ParentID, sugg.ID));  // ParentID=suggestion guid
+                            // build this iteration of the JSON-formated output list: [ { "Like": "val", "ParentID": "guid" }, { ... } ]
+                            var vars = new Dictionary<string, string>()
+                            {
+                                { ActivityVariables.Like, s},
+                                { ActivityVariables.ParentID, sugg.ID.ToString() }
+                            };
+                            likeList.Add(vars);
                         }
 
+                        // save the generated suggestions
                         SuggestionsContext.SaveChanges();
-                        
+
                         // set the results of this state
-                        string likeList = sb.ToString();
-                        StoreInstanceData(workflowInstance, OutputParameterName, likeList);
-                        StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, likeList);
+                        string serializedLikeList = JsonSerializer.Serialize(likeList);
+                        StoreInstanceData(workflowInstance, OutputParameterName, serializedLikeList);
+                        StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, serializedLikeList);
 
                         return status;
                     }
@@ -113,7 +115,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             // make sure the subject was identified - if not move the state forward 
-            string subjectItem = GetInstanceData(workflowInstance, ActivityParameters.Contact);
+            string subjectItem = GetInstanceData(workflowInstance, ActivityVariables.Contact);
             if (subjectItem == null)
                 return Status.Complete;
 
