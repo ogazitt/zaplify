@@ -1,13 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class StartWorkflow : WorkflowActivity
     {
+        public class ActivityParameters
+        {
+            public const string WorkflowType = "WorkflowType";
+        }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
@@ -16,18 +18,18 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 {
                     try
                     {
-                        // get the last state's result as the workflow name
-                        string workflowName = GetInstanceData(workflowInstance, ActivityParameters.WorkflowType);
-                        if (workflowName == null)
-                            workflowName = GetInstanceData(workflowInstance, ActivityParameters.LastStateData);
+                        // if the WorkflowType parameter was omitted, get the last state's result as the workflow name
+                        string workflowName = null;
+                        if (InputParameters.TryGetValue(ActivityParameters.WorkflowType, out workflowName) == false)
+                            workflowName = GetInstanceData(workflowInstance, ActivityVariables.LastStateData);
                         
-                        // process any parameters in the workflow name
-                        workflowName = FormatParameterString(workflowInstance, workflowName);
-
                         // if the data passed in isn't null, use this instead
                         if (data != null)
                             workflowName = (string)data;
-                         
+
+                        // process any parameters in the workflow name
+                        workflowName = ExpandVariables(workflowInstance, workflowName);
+
                         if (workflowName != null)
                             Workflow.StartWorkflow(workflowName, entity, workflowInstance.InstanceData, UserContext, SuggestionsContext);
                     }

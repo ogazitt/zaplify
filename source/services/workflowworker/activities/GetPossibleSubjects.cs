@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.Shared.Entities;
 using Microsoft.IdentityModel.Protocols.OAuth;
 using Microsoft.IdentityModel.Protocols.OAuth.Client;
+using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.ADGraph;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleSubjects : WorkflowActivity
     {
         public override string GroupDisplayName { get { return "Who is this for?"; } }
-        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
+        public override string OutputParameterName { get { return ActivityVariables.Contact; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOneSubject; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
@@ -43,7 +43,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                             // use the first contact as the subject
                             var contact = UserContext.Items.Include("FieldValues").First(c => c.ParentID == contactsListID);
-                            StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, JsonSerializer.Serialize(contact));
+                            StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, JsonSerializer.Serialize(contact));
                             StoreInstanceData(workflowInstance, OutputParameterName, JsonSerializer.Serialize(contact));
                             return Status.Complete;
                         }

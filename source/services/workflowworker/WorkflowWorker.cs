@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
-using System.Collections.Generic;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -265,18 +264,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     foreach (var instance in wis)
                     {
                         Workflow workflow = null;
-                        if (WorkflowList.Workflows.TryGetValue(instance.WorkflowType, out workflow) == false)
+                        try
                         {
-                            try
-                            {
-                                var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == instance.WorkflowType);
-                                workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
-                            }
-                            catch (Exception ex)
-                            {
-                                TraceLog.TraceException("ExecuteWorkflows: could not find or deserialize workflow definition", ex);
-                                continue;
-                            }
+                            var wt = SuggestionsContext.WorkflowTypes.Single(t => t.Type == instance.WorkflowType);
+                            workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
+                        }
+                        catch (Exception ex)
+                        {
+                            TraceLog.TraceException("ExecuteWorkflows: could not find or deserialize workflow definition", ex);
+                            continue;
                         }
 
                         // set the database contexts

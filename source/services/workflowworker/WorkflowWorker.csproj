@@ -51,6 +51,9 @@
     <Reference Include="Microsoft.IdentityModel.Protocols.OAuth">
       <HintPath>..\..\packages\Microsoft.IdentityModel.1.0\lib\net40\Microsoft.IdentityModel.Protocols.OAuth.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -62,7 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="activities\Activities.cs" />
     <Compile Include="activities\ConnectToFacebook.cs" />
     <Compile Include="activities\ConnectToActiveDirectory.cs" />
     <Compile Include="activities\AddContactToPossibleSubjects.cs" />
@@ -78,9 +80,8 @@
     <Compile Include="activities\GetPossibleSubjects.cs" />
     <Compile Include="activities\GetPossibleIntents.cs" />
     <Compile Include="activities\StartWorkflow.cs" />
-    <Compile Include="workflows\Workflows.cs" />
     <Compile Include="activities\GetBingSuggestions.cs" />
-    <Compile Include="WorkflowActivity.cs" />
+    <Compile Include="activities\WorkflowActivity.cs" />
     <Compile Include="WorkflowState.cs" />
     <Compile Include="Workflow.cs" />
     <Compile Include="WorkflowWorker.cs" />

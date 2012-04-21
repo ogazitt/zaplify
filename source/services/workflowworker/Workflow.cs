@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.WorkflowWorker.Activities;
-using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
+    // some well-known workflow names
+    public class WorkflowNames
+    {
+        public const string NewContact = "New Contact";
+        public const string NewFolder = "New Folder";
+        public const string NewTask = "New Task";
+        public const string NewUser = "New User";
+    }
+
     public class Workflow
     {
         public virtual List<WorkflowState> States { get; set; }
@@ -65,11 +71,23 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 // get current state and corresponding activity
                 TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} entering state {1}", instance.WorkflowType, instance.State));
                 WorkflowState state = States.Single(s => s.Name == instance.State);
-                var activity = PrepareActivity(instance, state.Activity, UserContext, SuggestionsContext);
+                //var activity = PrepareActivity(instance, state.Activity, UserContext, SuggestionsContext);
+                
+                WorkflowActivity activity = null;
+                if (state.Activity != null)
+                    activity = WorkflowActivity.CreateActivity(state.Activity);
+                else if (state.ActivityDefinition != null)
+                    activity = WorkflowActivity.CreateActivity(state.ActivityDefinition, instance);
+
                 if (activity == null)
                 {
                     TraceLog.TraceError("Process: could not find or prepare Activity");
                     return WorkflowActivity.Status.Error;
+                }
+                else
+                {
+                    activity.UserContext = UserContext;
+                    activity.SuggestionsContext = SuggestionsContext;
                 }
 
                 // invoke the activity
@@ -98,56 +116,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 TraceLog.TraceException("Workflow.Process failed", ex);
                 return WorkflowActivity.Status.Error;
             }
-        }
-
-        /// <summary>
-        /// Prepare an activity for execution
-        /// 1. Parse out the activity name
-        /// 2. Parse out each of the arguments and store them as instance data
-        /// </summary>
-        /// <param name="instance">workflow instance to operate over</param>
-        /// <param name="activityNameAndArguments">string containing activity names and arguments</param>
-        /// <returns>Activity ready to execute</returns>
-        public static WorkflowActivity PrepareActivity(WorkflowInstance instance, string activityNameAndArguments, UserStorageContext userContext, SuggestionsStorageContext suggestionsContext)
-        {
-            string activityName = activityNameAndArguments;
-            int paramIndex = activityNameAndArguments.IndexOf('(');
-            if (paramIndex >= 0)
-            {
-                activityName = activityNameAndArguments.Substring(0, paramIndex);
-                string args = activityNameAndArguments.Substring(paramIndex + 1);
-                // trim exactly one right paren if it is there
-                if (args.LastIndexOf(')') == args.Length - 1)
-                    args = args.Substring(0, args.Length - 1);
-
-                // process each one of the parameters, adding the name and value to the InstanceData
-                var parameters = args.Split(',');
-                foreach (var param in parameters)
-                    ProcessParameter(instance, param);
-
-                // save the instance data bag 
-                suggestionsContext.SaveChanges();
-            }
-
-            Type activityType;
-            if (ActivityList.Activities.TryGetValue(activityName, out activityType))
-            {
-                try
-                {
-                    WorkflowActivity activity = Activator.CreateInstance(activityType) as WorkflowActivity;
-                    activity.UserContext = userContext;
-                    activity.SuggestionsContext = suggestionsContext;
-                    return activity;
-                }
-                catch (Exception ex)
-                {
-                    TraceLog.TraceException(String.Format("PrepareActivity: Could not create instance of {0} activity", activityName), ex);
-                    return null;
-                }
-            }
-
-            TraceLog.TraceError(String.Format("PrepareActivity: Activity {0} not found", activityName));
-            return null;
         }
 
         /// <summary>
@@ -194,20 +162,19 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             try
             {
                 Workflow workflow = null;
-                if (WorkflowList.Workflows.TryGetValue(type, out workflow) == false)
+
+                // get the workflow definition out of the database
+                try
                 {
-                    // get the workflow definition out of the database
-                    try
-                    {
-                        var wt = suggestionsContext.WorkflowTypes.Single(t => t.Type == type);
-                        workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceException("StartWorkflow: could not find or deserialize workflow definition", ex);
-                        return;
-                    }
+                    var wt = suggestionsContext.WorkflowTypes.Single(t => t.Type == type);
+                    workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
                 }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("StartWorkflow: could not find or deserialize workflow definition", ex);
+                    return;
+                }
+
                 // don't start a workflow with no states
                 if (workflow.States.Count == 0)
                     return;
@@ -253,34 +220,5 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
             }
         }
-
-        #region Helpers
-
-        private static void ProcessParameter(WorkflowInstance instance, string parameter)
-        {
-            if (parameter == null)
-                return;
-            int index = parameter.IndexOf('=');
-            if (index < 0)
-                return;
-            var name = parameter.Substring(0, index).Trim();
-            var value = parameter.Substring(index + 1).Trim();
-            StoreInstanceData(instance, name, value);
-        }
-
-        /// <summary>
-        /// Store a value for a key on the instance data bag
-        /// </summary>
-        /// <param name="workflowInstance">Instance to retrieve the data from</param>
-        /// <param name="key">Key to store under</param>
-        /// <param name="data">Data to store under the key</param>
-        private static void StoreInstanceData(WorkflowInstance workflowInstance, string key, string data)
-        {
-            JsonValue dict = JsonValue.Parse(workflowInstance.InstanceData);
-            dict[key] = data;
-            workflowInstance.InstanceData = dict.ToString();
-        }
-
-        #endregion Helpers
     }
 }

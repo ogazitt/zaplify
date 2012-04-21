@@ -10,8 +10,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetSubjectLikes : WorkflowActivity
     {
-        public override string GroupDisplayName { get { return "Choose from {$(" + FieldNames.SubjectHint + ")'s }Facebook interests"; } }
-        public override string OutputParameterName { get { return ActivityParameters.Likes; } }
+        public override string GroupDisplayName { get { return JsonSerializer.Serialize(new List<string>() { "Choose from", "$(" + ActivityVariables.SubjectHint + ")'s", "Facebook interests" }); } }
+        public override string OutputParameterName { get { return ActivityVariables.Likes; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
@@ -39,7 +39,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
 
             // make sure the subject was identified - if not move the state forward 
-            string subjectItem = GetInstanceData(workflowInstance, ActivityParameters.Contact);
+            string subjectItem = GetInstanceData(workflowInstance, ActivityVariables.Contact);
             if (subjectItem == null)
                 return Status.Complete;
 

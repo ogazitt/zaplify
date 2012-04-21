@@ -10,6 +10,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetBingSuggestions : WorkflowActivity
     {
+        public class ActivityParameters
+        {
+            public const string SearchTemplate = "SearchTemplate";
+        }
         public override string GroupDisplayName { get { return "Helpful links"; } }
         public override string SuggestionType { get { return SuggestionTypes.NavigateLink; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
@@ -42,10 +46,17 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 BingSearch bingSearch = new BingSearch();
 
                 // retrieve and format the search template, or if one doesn't exist, use $(Intent)
-                string searchTemplate = GetInstanceData(workflowInstance, ActivityParameters.SearchTemplate);
-                if (searchTemplate == null)
-                    searchTemplate = String.Format("$({0})", ActivityParameters.Intent);
-                string query = FormatParameterString(workflowInstance, searchTemplate);
+
+                string searchTemplate = null;
+                if (InputParameters.TryGetValue(ActivityParameters.SearchTemplate, out searchTemplate) == false)
+                    searchTemplate = String.Format("$({0})", ActivityVariables.Intent);
+                string query = ExpandVariables(workflowInstance, searchTemplate);
+
+                if (String.IsNullOrWhiteSpace(query))
+                {
+                    TraceLog.TraceInfo("GenerateSuggestions: no query to issue Bing");
+                    return Status.Complete;
+                }
 
                 // make a synchronous webservice call to bing 
                 //

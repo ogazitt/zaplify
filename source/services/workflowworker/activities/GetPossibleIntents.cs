@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using System.Text;
-using BuiltSteady.Zaplify.WorkflowWorker.Workflows;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
     public class GetPossibleIntents : WorkflowActivity
     {
         public override string GroupDisplayName { get { return "Are you trying to"; } }
-        public override string OutputParameterName { get { return ActivityParameters.Intent; } }
+        public override string OutputParameterName { get { return ActivityVariables.Intent; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {

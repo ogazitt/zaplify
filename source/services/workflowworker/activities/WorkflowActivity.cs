@@ -2,13 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.WorkflowWorker.Activities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker
+namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
+    /// <summary>
+    /// These variables flow between activities
+    /// </summary>
+    public class ActivityVariables
+    {
+        public const string Contact = "Contact";
+        public const string Intent = "Intent";
+        public const string LastStateData = "LastStateData";
+        public const string Like = "Like";
+        public const string Likes = "Likes";
+        public const string LikeSuggestionList = "LikeSuggestionList";
+        public const string ParentID = "ParentID";
+        public const string SubjectHint = "SubjectHint";
+    }
+
     public abstract class WorkflowActivity
     {
         public virtual string Name { get { return this.GetType().Name; } }
@@ -34,6 +50,69 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         public UserStorageContext UserContext { get; set; }
         public SuggestionsStorageContext SuggestionsContext { get; set; }
 
+        public Dictionary<string, string> InputParameters = new Dictionary<string, string>();
+
+        /// <summary>
+        /// Factory method to construct a typed activity based on its typename
+        /// </summary>
+        /// <param name="typeName">Type name to instantiate</param>
+        /// <returns>typed activity</returns>
+        public static WorkflowActivity CreateActivity(string typeName)
+        {
+            if (typeName == null)
+                return null;
+
+            // ensure that the activity is in the fully-qualified form
+            // this assumes the WorkflowActivity class is in the same namespace as the one we are about to load
+            string fullName = typeof(WorkflowActivity).FullName;
+            if (typeName.StartsWith(fullName) == false)
+            {
+                fullName = fullName.Replace(typeof(WorkflowActivity).Name, "");
+                typeName = fullName + typeName;
+            }
+
+            Type activityType = Type.GetType(typeName);
+            if (activityType == null)
+            {
+                TraceLog.TraceError("WorkflowActivity.CreateActivity: could not find type name " + typeName);
+                return null;
+            }
+
+            WorkflowActivity activity = Activator.CreateInstance(activityType) as WorkflowActivity;
+            return activity;
+        }
+
+        /// <summary>
+        /// Factory method to construct a typed activity based on its definition
+        /// </summary>
+        /// <param name="definition">Json value corresponding to activity definition</param>
+        /// <param name="instance">Workflow instance</param>
+        /// <returns>typed activity</returns>
+        public static WorkflowActivity CreateActivity(JObject definition, WorkflowInstance instance)
+        {
+            string typeName = (string) definition["Name"];
+            WorkflowActivity activity = CreateActivity(typeName);
+            if (activity == null)
+                return null;
+
+            foreach (var prop in definition)
+            {
+                switch (prop.Value.Type)
+                {
+                    case JTokenType.Object: // a sub-object (typically a nested activity) - store as a string
+                        activity.InputParameters[prop.Key] = prop.Value.ToString();
+                        break;
+                    case JTokenType.Array: // treat as a string template and format appropriately
+                        activity.InputParameters[prop.Key] = FormatStringTemplate(instance, prop.Value.ToString());
+                        break;
+                    default: // treat as a string and expand any variables
+                        activity.InputParameters[prop.Key] = ExpandVariables(instance, (string)prop.Value.ToString());
+                        break;
+                }
+            }
+            return activity;
+        }
+
         /// <summary>
         /// Check and process the target field - if it is on the item, store the value in the 
         /// state bag and return true
@@ -53,7 +132,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 if (targetField != null && targetField.Value != null)
                 {
                     StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
-                    StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, targetField.Value);
+                    StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, targetField.Value);
                     TraceLog.TraceDetail(String.Format("CheckTargetField: target field {0} was set to {1} for activity {2}", TargetFieldName, targetField.Value, Name));
                     return true;
                 }
@@ -92,7 +171,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 string s = null;
                 foreach (var value in suggestions.Values)
                     s = value;
-                StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, s);
+                StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, s);
                 StoreInstanceData(workflowInstance, OutputParameterName, s);
                 TraceLog.TraceDetail(String.Format("CreateSuggestions: exact match {0} was found for activity {1}", s, Name));
                 return status;
@@ -103,10 +182,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (groupDisplayName == null)
                 groupDisplayName = workflowInstance.State;
             else
-                groupDisplayName = FormatParameterString(workflowInstance, groupDisplayName);
+                groupDisplayName = FormatStringTemplate(workflowInstance, groupDisplayName);
 
             // get the suggestion parent ID if available
-            var parentID = GetInstanceData(workflowInstance, ActivityParameters.ParentID);
+            var parentID = GetInstanceData(workflowInstance, ActivityVariables.ParentID);
 
             // add suggestions received from the suggestion function
             try
@@ -211,49 +290,66 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         }
 
         /// <summary>
-        /// This function takes a format string that contains zero or more terms (bracketed in "{}")
-        /// Each term may have zero or more variables defined (bracketed in "()") 
-        /// At the end of execution, all variables will be bound from the workflow's InstanceData and
-        /// the resultant string returned.  If an unbound variable is found, the term is discarded.
-        /// Ex: "Choose from {$(Subject)'s }likes" will return "Choose from Mike's likes" if Subject is
-        /// bound to "Mike", otherwise will return "Choose from likes".
+        /// Expand each of the variables in a format string based on the InstanceData
+        /// Variable syntax is $(varname)
         /// </summary>
-        /// <param name="workflowInstance"></param>
-        /// <param name="formatString"></param>
+        /// <param name="workflowInstance">Workflow instance to operate over</param>
+        /// <param name="formatExpr">Format expression to expand</param>
         /// <returns></returns>
-        protected string FormatParameterString(WorkflowInstance workflowInstance, string formatString)
+        protected static string ExpandVariables(WorkflowInstance workflowInstance, string formatExpr)
         {
-            if (formatString == null)
+            if (formatExpr == null)
                 return "";
 
             StringBuilder returnString = new StringBuilder();
 
-            // go through each term and do appropriate substitution
-            int start = 0;
-            int pos = formatString.IndexOf('{', start);
-            while (pos > -1)
+            // successively substitute all variables until none are left, or an
+            // unbound variable is found.  If the latter, ignore the whole term
+            string newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
+            while (newExpr != null && newExpr != formatExpr)
             {
-                returnString.Append(formatString.Substring(start, pos - start));
-
-                int end = formatString.IndexOf('}', pos);
-                string formatExpr = formatString.Substring(pos + 1, end - pos - 1);
-
-                // successively substitute all variables until none are left, or an
-                // unbound variable is found.  If the latter, ignore the whole term
-                string newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
-                while (newExpr != null && newExpr != formatExpr)
-                {
-                    formatExpr = newExpr;
-                    newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
-                }
-                if (newExpr != null)
-                    returnString.Append(newExpr);
-
-                start = end + 1;
-                pos = formatString.IndexOf('{', start);
+                formatExpr = newExpr;
+                newExpr = SubstituteNextVariable(workflowInstance, formatExpr);
             }
-            returnString.Append(formatString.Substring(start));
+            if (newExpr != null)
+                returnString.Append(newExpr);
+
             return returnString.ToString();
+        }
+
+        /// <summary>
+        /// This function takes a string containing a JSON-serialized array of terms
+        /// Each term may have zero or more variables defined (bracketed in "$()") 
+        /// At the end of execution, all variables will be bound from the workflow's InstanceData and
+        /// the resultant (space-concatenated) string returned.  If an unbound variable is found, the term is discarded.
+        /// Ex: ["Choose from", "$(Subject)'s", "likes"] will return "Choose from Mike's likes" if Subject is
+        /// bound to "Mike", otherwise will return "Choose from likes".
+        /// </summary>
+        /// <param name="workflowInstance"></param>
+        /// <param name="stringTemplate"></param>
+        /// <returns></returns>
+        protected static string FormatStringTemplate(WorkflowInstance workflowInstance, string stringTemplate)
+        {
+            if (stringTemplate == null)
+                return "";
+
+            try
+            {
+                JArray array = JArray.Parse(stringTemplate);
+                StringBuilder returnString = new StringBuilder();
+
+                foreach (var str in array)
+                {
+                    returnString.Append(ExpandVariables(workflowInstance, str.ToString()));
+                    returnString.Append(" ");
+                }
+                return returnString.ToString().Trim();
+            }
+            catch (Exception)
+            {
+                // if the string template is not a JSON-serialized array, then just return the string as-is
+                return stringTemplate;
+            }
         }
 
         /// <summary>
@@ -294,7 +390,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="workflowInstance">Instance to retrieve the data from</param>
         /// <param name="key">Key of the value to return</param>
         /// <returns>Value for the key</returns>
-        protected string GetInstanceData(WorkflowInstance workflowInstance, string key)
+        protected static string GetInstanceData(WorkflowInstance workflowInstance, string key)
         {
             if (key == null)
                 return null;
@@ -325,7 +421,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     if (sugg.ReasonSelected == Reasons.Chosen || sugg.ReasonSelected == Reasons.Like)
                     {
                         StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
-                        StoreInstanceData(workflowInstance, ActivityParameters.LastStateData, sugg.Value);
+                        StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, sugg.Value);
                         TraceLog.TraceInfo(String.Format("ProcessActivityData: user selected suggestion {0} in group {1} for activity {2}",
                             sugg.DisplayName, sugg.GroupDisplayName, Name));
                         return Status.Complete;
@@ -414,7 +510,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
         /// <param name="workflowInstance">Workflow instance to operate over</param>
         /// <param name="formatString">Format string that contains variables to substitute</param>
         /// <returns>null if the variable wasn't bound, the new string if it was (or if no variables were found)</returns>
-        private string SubstituteNextVariable(WorkflowInstance workflowInstance, string formatString)
+        private static string SubstituteNextVariable(WorkflowInstance workflowInstance, string formatString)
         {
             if (formatString == null)
                 return null;

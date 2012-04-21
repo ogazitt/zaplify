@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
@@ -10,7 +9,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     public class GetSubjectAttributes : WorkflowActivity
     {
         public override string GroupDisplayName { get { return "Contact attributes"; } }
-        public override string OutputParameterName { get { return ActivityParameters.Contact; } }
+        public override string OutputParameterName { get { return ActivityVariables.Contact; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
         public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
