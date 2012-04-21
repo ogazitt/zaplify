@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BuiltSteady.Zaplify.ServiceUtilities.Bing")]
+[assembly: AssemblyTitle("BuiltSteady.Zaplify.ServiceUtilities.Supermarket")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("BuiltSteady")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("84b8a000-9bae-4195-816a-ab849ab1511f")]
+[assembly: Guid("9f2da282-771f-4f0e-9542-0bc9d58d0221")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -12,6 +12,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     {
         public const string NewContact = "New Contact";
         public const string NewFolder = "New Folder";
+        public const string NewShoppingItem = "New ShoppingItem";
         public const string NewTask = "New Task";
         public const string NewUser = "New User";
     }

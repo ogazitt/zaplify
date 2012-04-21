@@ -397,6 +397,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     Workflow.StartWorkflow(WorkflowNames.NewTask, item, null, UserContext, SuggestionsContext);
                 if (item.ItemTypeID == SystemItemTypes.Contact)
                     Workflow.StartWorkflow(WorkflowNames.NewContact, item, null, UserContext, SuggestionsContext);
+                if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
+                    Workflow.StartWorkflow(WorkflowNames.NewShoppingItem, item, null, UserContext, SuggestionsContext);
             }
 
             if (folder != null)

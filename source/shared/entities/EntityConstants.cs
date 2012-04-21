@@ -83,14 +83,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Contacts = "Contacts";          // ItemID
         public const string Locations = "Locations";        // ItemID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
+        public const string Category = "Category";          // String (grocery category)
 
         // non user-visible FieldNames
         public const string FacebookID = "FacebookID";      // String
-        public const string Intent = "Intent";              // String
         public const string Sources = "Sources";            // String (comma-delimited) 
-        
-        // TODO: this should be a WorkflowParameter, not a FieldName
-        public const string SubjectHint = "SubjectHint";    // String
     }
 
     public class SuggestionTypes
@@ -98,6 +95,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ChooseOne = "ChooseOne";
         public const string ChooseOneSubject = "ChooseOneSubject";
         public const string ChooseMany = "ChooseMany";
+        public const string ChooseManyWithChildren = "ChooseManyWithChildren";
         public const string GetFBConsent = "GetFBConsent";
         public const string GetADConsent = "GetADConsent";
         public const string NavigateLink = "NavigateLink";

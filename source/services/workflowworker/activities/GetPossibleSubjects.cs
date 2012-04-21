@@ -134,7 +134,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // TODO: also get local contacts from the Contacts folder
             try
             {
-                string subjectHint = GetInstanceData(workflowInstance, FieldNames.SubjectHint);
+                string subjectHint = GetInstanceData(workflowInstance, ActivityVariables.SubjectHint);
                 var results = adApi.Query(subjectHint ?? "");  
                 foreach (var subject in results)
                 {

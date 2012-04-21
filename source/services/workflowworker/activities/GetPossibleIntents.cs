@@ -74,7 +74,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     // capitalize and store the word following "for" in the SubjectHint workflow parameter
                     subject = parts[3];
                     subject = subject.Substring(0, 1).ToUpper() + subject.Substring(1);
-                    StoreInstanceData(workflowInstance, FieldNames.SubjectHint, subject);
+                    StoreInstanceData(workflowInstance, ActivityVariables.SubjectHint, subject);
                 }
             }
 

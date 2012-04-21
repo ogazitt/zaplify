@@ -42,6 +42,9 @@
     <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.FBGraph">
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.FBGraph.dll</HintPath>
     </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Supermarket">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Supermarket.dll</HintPath>
+    </Reference>
     <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
@@ -68,6 +71,7 @@
     <Compile Include="activities\ConnectToFacebook.cs" />
     <Compile Include="activities\ConnectToActiveDirectory.cs" />
     <Compile Include="activities\AddContactToPossibleSubjects.cs" />
+    <Compile Include="activities\GetGroceryCategory.cs" />
     <Compile Include="activities\GetContactInfoFromFacebook.cs" />
     <Compile Include="activities\ImportFromFacebook.cs" />
     <Compile Include="activities\Foreach.cs" />

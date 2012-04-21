@@ -12,7 +12,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
     {
         public override string GroupDisplayName { get { return JsonSerializer.Serialize(new List<string>() { "Choose from", "$(" + ActivityVariables.SubjectHint + ")'s", "Facebook interests" }); } }
         public override string OutputParameterName { get { return ActivityVariables.LikeSuggestionList; } }
-        public override string SuggestionType { get { return SuggestionTypes.ChooseMany; } }
+        public override string SuggestionType { get { return SuggestionTypes.ChooseManyWithChildren; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
