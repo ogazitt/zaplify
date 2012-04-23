@@ -20,3 +20,5 @@ GO
 :Setvar Relationship "$(Relationship)"
 :r .\dbo.WorkflowTypes.Table.sql
 GO
+:r .\dbo.DatabaseVersions.Table.sql
+GO

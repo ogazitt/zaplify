@@ -1,0 +1,19 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "GetPossibleSubjects", "Activity": "GetPossibleSubjects", "NextState": "GenerateSubjectLikes" },
+		{ "Name": "GenerateSubjectLikes", "Activity": "GenerateSubjectLikes", "NextState": "Foreach" },
+		{ 
+			"Name": "Foreach", 
+			"ActivityDefinition": { 
+				"Name": "Foreach",
+				"List": "$(LikeSuggestionList)",
+				"Activity": {
+					"Name": "GetBingSuggestions",
+					"SearchTemplate": ["buy gift","$(Like)","for $(Relationship)"]
+				}
+			},
+			"NextState": null 
+		} 
+	] 
+}

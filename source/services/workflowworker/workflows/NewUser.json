@@ -1,0 +1,23 @@
+﻿{
+	"States": 
+	[ 
+		{ 
+			"Name": "InvokeFBWorkflow",
+			"ActivityDefinition": 
+			{
+				"Name": "StartWorkflow",
+				"WorkflowType": "ConnectToFacebook"
+			}, 
+			"NextState": "InvokeADWorkflow" 
+		},
+		{ 
+			"Name": "InvokeADWorkflow", 
+			"ActivityDefinition": 
+			{
+				"Name": "StartWorkflow",
+				"WorkflowType": "ConnectToActiveDirectory"
+			}, 
+			"NextState": null 
+		}
+	] 
+}

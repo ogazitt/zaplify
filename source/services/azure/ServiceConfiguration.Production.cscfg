@@ -5,6 +5,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="UserDatabaseVersion" value="2012-04-21" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-21" />
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="2" />
       <!-- SQL Azure databases for Production deployment -->
@@ -27,6 +29,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="UserDatabaseVersion" value="2012-04-21" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-21" />
       <!-- SQL Azure databases for Production deployment -->
       <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers_042012;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions_042012;User Id=builtsteady;Password=zrc022.." />

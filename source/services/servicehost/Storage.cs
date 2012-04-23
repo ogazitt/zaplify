@@ -56,6 +56,97 @@
         public DbSet<Suggestion> Suggestions { get; set; }
         public DbSet<WorkflowInstance> WorkflowInstances { get; set; }
         public DbSet<WorkflowType> WorkflowTypes { get; set; }
+        public DbSet<DatabaseVersion> Versions { get; set; }
+
+        /// <summary>
+        /// Initialize or update the database version if necessary
+        /// </summary>
+        /// <param name="me">Identity of the current unit of execution</param>
+        /// <returns>true for success, false if database is broken</returns>
+        public bool VersionDatabase(string me)
+        {
+            try
+            {
+                bool updateDB = false;
+                if (Versions.Any(v => v.VersionString == HostEnvironment.SuggestionsDatabaseVersion) == false)
+                {
+                    // no database - create and lock the new version entry
+                    DatabaseVersion version = new DatabaseVersion() { VersionString = HostEnvironment.SuggestionsDatabaseVersion, Updating = me };
+                    Versions.Add(version);
+                    SaveChanges();
+                    updateDB = true;
+                }
+                else
+                {
+                    var dbVersion = Versions.Single(v => v.VersionString == HostEnvironment.SuggestionsDatabaseVersion);
+                    if (dbVersion.Updating == DatabaseVersion.Corrupted)
+                    {
+                        // try to update the database again - take a lock
+                        dbVersion.Updating = me;
+                        SaveChanges();
+                        updateDB = true;
+                    }
+                }
+                if (updateDB == false)
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("SuggestionsStorageContext.VersionDatabase: could not find database version", ex);
+                return false;
+            }
+
+            // update the default database values
+            try
+            {
+                // verify that this unit of execution owns the update lock for the database version
+                SuggestionsStorageContext versionContext = Storage.NewSuggestionsContext;
+                DatabaseVersion version = versionContext.Versions.Single(v => v.VersionString == HostEnvironment.SuggestionsDatabaseVersion);
+                if (version.Updating != me)  // someone else is update the database
+                    return true;
+
+                // replace intents 
+                foreach (var entity in Intents.ToList())
+                    Intents.Remove(entity);
+                var intents = WorkflowConstants.DefaultIntents();
+                if (intents == null)
+                {
+                    TraceLog.TraceError("SuggestionsStorageContext.VersionDatabase: could not find or load intents");
+                    version.Updating = DatabaseVersion.Corrupted;
+                    versionContext.SaveChanges();
+                    return false;
+                }
+                foreach (var entity in intents)
+                    Intents.Add(entity);
+                SaveChanges();
+
+                // replace workflow types
+                foreach (var entity in WorkflowTypes.ToList())
+                    WorkflowTypes.Remove(entity);
+                var workflowTypes = WorkflowConstants.DefaultWorkflowTypes();
+                if (workflowTypes == null)
+                {
+                    TraceLog.TraceError("SuggestionsStorageContext.VersionDatabase: could not find or load workflow definitions");
+                    version.Updating = DatabaseVersion.Corrupted;
+                    versionContext.SaveChanges();
+                    return false;
+                }
+                foreach (var entity in workflowTypes)
+                    WorkflowTypes.Add(entity);
+                SaveChanges();
+
+                // save the new version number
+                version.Updating = DatabaseVersion.OK;
+                versionContext.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("SuggestionsStorageContext.VersionDatabase failed", ex);
+                return false;
+            }
+        }
     }
 
     // DbContext for the user DB
@@ -73,6 +164,7 @@
         public DbSet<Color> Colors { get; set; }
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<Priority> Priorities { get; set; }
+        public DbSet<DatabaseVersion> Versions { get; set; }
 
         // user-specific tables
         public DbSet<Field> Fields { get; set; }
@@ -85,6 +177,136 @@
         public DbSet<Operation> Operations { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
+
+        /// <summary>
+        /// Initialize or update the database version if necessary
+        /// <param name="me">Identity of the current unit of execution</param>
+        /// </summary>
+        /// <returns>true for success, false if database is broken</returns>
+        public bool VersionDatabase(string me)
+        {
+            try
+            {
+                bool updateDB = false;
+                if (Versions.Any(v => v.VersionString == HostEnvironment.UserDatabaseVersion) == false)
+                {
+                    // no database - create and lock the new version entry
+                    DatabaseVersion ver = new DatabaseVersion() { VersionString = HostEnvironment.UserDatabaseVersion, Updating = me };
+                    Versions.Add(ver);
+                    SaveChanges();
+                    updateDB = true;
+                }
+                else
+                {
+                    var dbVersion = Versions.Single(v => v.VersionString == HostEnvironment.UserDatabaseVersion);
+                    if (dbVersion.Updating == DatabaseVersion.Corrupted)
+                    {
+                        // try to update the database again - take a lock
+                        dbVersion.Updating = me;
+                        SaveChanges();
+                        updateDB = true;
+                    }
+                }
+                if (updateDB == false)
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("UserStorageContext.VersionDatabase: could not find database version", ex);
+                return false;
+            }
+
+            // update the default database values
+            DatabaseVersion version = null;
+            UserStorageContext versionContext = Storage.NewUserContext;
+            try
+            {
+                // verify that this unit of execution owns the update lock for the database version
+                version = versionContext.Versions.Single(v => v.VersionString == HostEnvironment.UserDatabaseVersion);
+                if (version.Updating != me)  // someone else is update the database
+                    return true;
+
+                // replace action types
+                foreach (var entity in ActionTypes.ToList())
+                    ActionTypes.Remove(entity);
+                foreach (var entity in UserDatabase.DefaultActionTypes())
+                    ActionTypes.Add(entity);
+                SaveChanges();
+
+                // replace colors
+                foreach (var entity in Colors.ToList())
+                    Colors.Remove(entity);
+                foreach (var entity in UserDatabase.DefaultColors())
+                    Colors.Add(entity);
+                SaveChanges();
+
+                // replace permissions
+                foreach (var entity in Permissions.ToList())
+                    Permissions.Remove(entity);
+                foreach (var entity in UserDatabase.DefaultPermissions())
+                    Permissions.Add(entity);
+                SaveChanges();
+
+                // replace priorities
+                foreach (var entity in Priorities.ToList())
+                    Priorities.Remove(entity);
+                foreach (var entity in UserDatabase.DefaultPriorities())
+                    Priorities.Add(entity);
+                SaveChanges();
+
+                // replace built-in users 
+                foreach (var user in UserDatabase.DefaultUsers())
+                {
+                    if (Users.Any(u => u.ID == user.ID))
+                    {
+                        var existing = Users.Single(u => u.ID == user.ID);
+                        existing.Name = user.Name;
+                        existing.Email = user.Email;
+                        existing.CreateDate = user.CreateDate;
+                    }
+                    else
+                        Users.Add(user);
+                }
+
+                // replace built-in itemtypes and fields
+                foreach (var itemType in UserDatabase.DefaultItemTypes())
+                {
+                    if (ItemTypes.Any(it => it.ID == itemType.ID))
+                    {
+                        var existing = ItemTypes.Include("Fields").Single(it => it.ID == itemType.ID);
+                        existing.Copy(itemType);
+                        foreach (var field in itemType.Fields)
+                        {
+                            if (existing.Fields.Any(f => f.ID == field.ID))
+                            {
+                                var existingField = existing.Fields.Single(f => f.ID == field.ID);
+                                existingField.Copy(field);
+                            }
+                            else
+                                existing.Fields.Add(field);
+                        }
+                    }
+                    else
+                        ItemTypes.Add(itemType);
+                }
+                SaveChanges();
+
+                // save the new version number
+                version.Updating = DatabaseVersion.OK;
+                versionContext.SaveChanges();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("UserStorageContext.VersionDatabase failed", ex);
+
+                // mark the version as corrupted
+                version.Updating = DatabaseVersion.OK;
+                versionContext.SaveChanges();
+                return false;
+            }            
+        }
 
         public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody)
         {

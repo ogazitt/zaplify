@@ -1,0 +1,6 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "GetCategory", "Activity": "GetGroceryCategory", "NextState": null }
+	] 
+}

@@ -5,6 +5,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="UserDatabaseVersion" value="2012-04-21" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-21" />
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <!-- SQL Express databases for Local deployment -->
@@ -29,6 +31,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="UserDatabaseVersion" value="2012-04-21" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-21" />
       <!-- SQL Express databases for Local deployment -->
       <Setting name="SQLUsers" value="data source=.\SQLEXPRESS;Initial Catalog=ZapUsers;Integrated Security=SSPI" />
       <Setting name="SQLSuggestions" value="data source=.\SQLEXPRESS;Initial Catalog=ZapSuggestions;Integrated Security=SSPI" />

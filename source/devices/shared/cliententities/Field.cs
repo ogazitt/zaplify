@@ -30,6 +30,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         private Guid id;
         [DataMember]
         public override Guid ID

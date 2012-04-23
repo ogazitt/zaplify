@@ -10,11 +10,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
     // some well-known workflow names
     public class WorkflowNames
     {
-        public const string NewContact = "New Contact";
-        public const string NewFolder = "New Folder";
-        public const string NewShoppingItem = "New ShoppingItem";
-        public const string NewTask = "New Task";
-        public const string NewUser = "New User";
+        public const string NewContact = "NewContact";
+        public const string NewFolder = "NewFolder";
+        public const string NewShoppingItem = "NewShoppingItem";
+        public const string NewTask = "NewTask";
+        public const string NewUser = "NewUser";
     }
 
     public class Workflow

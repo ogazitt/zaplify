@@ -9,11 +9,13 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
-      <Setting name="MailWorkerCount" />
-      <Setting name="WorkflowWorkerCount" />
+      <Setting name="UserDatabaseVersion" />
+      <Setting name="SuggestionsDatabaseVersion" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />
+      <Setting name="MailWorkerCount" />
+      <Setting name="WorkflowWorkerCount" />
     </ConfigurationSettings>
   </WorkerRole>
   <WebRole name="Website" vmsize="ExtraSmall">
@@ -34,6 +36,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
+      <Setting name="UserDatabaseVersion" />
+      <Setting name="SuggestionsDatabaseVersion" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />

@@ -22,7 +22,7 @@
     <DeployToScript>True</DeployToScript>
     <CatalogPropertiesFile>Properties\Database.sqlsettings</CatalogPropertiesFile>
     <DacApplicationName>ZapSuggestions</DacApplicationName>
-    <DacVersionString>1.0.0.0</DacVersionString>
+    <DacVersionString>1.0.2012.0422</DacVersionString>
     <DacDescription>
     </DacDescription>
     <RootNamespace>Database</RootNamespace>
@@ -93,6 +93,12 @@
       <SubType>Code</SubType>
     </NotInBuild>
     <Build Include="dbo.Suggestions.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <NotInBuild Include="Scripts\Post-Deployment\dbo.DatabaseVersions.Table.sql">
+      <SubType>Code</SubType>
+    </NotInBuild>
+    <Build Include="dbo.DatabaseVersions.Table.sql">
       <SubType>Code</SubType>
     </Build>
   </ItemGroup>

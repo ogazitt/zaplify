@@ -14,12 +14,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
         const string UserAccountConnectionConfigKey = "UsersConnection";
         const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
+        const string UserDatabaseVersionConfigKey = "UserDatabaseVersion";
+        const string SuggestionsDatabaseVersionConfigKey = "SuggestionsDatabaseVersion";
 
         static bool? isAzure;               // true for either Azure or DevFabric
         static bool? isAzureDevFabric;      // only true in DevFabric
         static string userDataConnection;
         static string userAccountConnection;
         static string suggestionsConnection;
+        static string userDatabaseVersion;
+        static string suggestionsDatabaseVersion;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -89,6 +93,30 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     suggestionsConnection = ConfigurationSettings.GetConnection(SuggestionsConnectionConfigKey);
                 }
                 return suggestionsConnection;
+            }
+        }
+
+        public static string UserDatabaseVersion
+        {
+            get
+            {
+                if (userDatabaseVersion == null)
+                {
+                    userDatabaseVersion = ConfigurationSettings.Get(UserDatabaseVersionConfigKey);
+                }
+                return userDatabaseVersion;
+            }
+        }
+
+        public static string SuggestionsDatabaseVersion
+        {
+            get
+            {
+                if (suggestionsDatabaseVersion == null)
+                {
+                    suggestionsDatabaseVersion = ConfigurationSettings.Get(SuggestionsDatabaseVersionConfigKey);
+                }
+                return suggestionsDatabaseVersion;
             }
         }
 

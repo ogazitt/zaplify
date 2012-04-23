@@ -1,0 +1,7 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "GetFacebookInfo", "Activity": "GetContactInfoFromFacebook", "NextState": "AddContact" },
+		{ "Name": "AddContact", "Activity": "AddContactToPossibleSubjects", "NextState": null }
+	] 
+}

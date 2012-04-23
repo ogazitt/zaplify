@@ -25,4 +25,6 @@ GO
 GO
 :r .\dbo.Priorities.Table.sql
 GO
+:r .\dbo.DatabaseVersions.Table.sql
+GO
 

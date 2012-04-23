@@ -11,6 +11,11 @@ namespace BuiltSteady.Zaplify.WorkerRole
     {
         const int timeout = 30000;  // 30 seconds
 
+        public static string Me
+        {
+            get { return String.Concat(Environment.MachineName.ToLower(), "-", Thread.CurrentThread.ManagedThreadId.ToString()); }
+        }
+
         public override bool OnStart()
         {
             // Set the maximum number of concurrent connections 
@@ -36,6 +41,14 @@ namespace BuiltSteady.Zaplify.WorkerRole
         public override void Run()
         {
             TraceLog.TraceInfo("BuiltSteady.Zaplify.WorkerRole started");
+
+            // (re)create the databases if this is a newer version
+            if (!Storage.NewUserContext.VersionDatabase(Me) ||
+                !Storage.NewSuggestionsContext.VersionDatabase(Me))
+            {
+                TraceLog.TraceFatal("Cannot check and/or update the database versions: unrecoverable error");
+                return;
+            }
 
             // get the number of workers
             int mailWorkerCount = ConfigurationSettings.GetAsInt("MailWorkerCount");

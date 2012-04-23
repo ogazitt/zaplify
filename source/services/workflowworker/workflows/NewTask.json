@@ -1,0 +1,15 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "DetermineIntent", "Activity": "GetPossibleIntents", "NextState": "InvokeWorkflow" },
+		{ 
+			"Name": "InvokeWorkflow", 
+			"ActivityDefinition": 
+			{
+				"Name": "StartWorkflow",
+				"WorkflowType": "$(Intent)"
+			}, 
+			"NextState": null 
+		}
+	] 
+}

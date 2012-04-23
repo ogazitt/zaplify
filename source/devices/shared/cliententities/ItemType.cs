@@ -148,6 +148,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        private Guid userID;
+        [DataMember]
+        public Guid UserID
+        {
+            get
+            {
+                return userID;
+            }
+            set
+            {
+                if (value != userID)
+                {
+                    userID = value;
+                    NotifyPropertyChanged("UserID");
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String propertyName)
         {

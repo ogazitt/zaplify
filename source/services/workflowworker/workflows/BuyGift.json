@@ -1,0 +1,16 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "GetPossibleSubjects", "Activity": "GetPossibleSubjects", "NextState": "GetSubjectLikes" },
+		{ "Name": "GetSubjectLikes", "Activity": "GetSubjectLikes", "NextState": "GetBingSuggestions" },
+		{ 
+			"Name": "GetBingSuggestions", 
+			"ActivityDefinition": 
+			{
+				"Name": "GetBingSuggestions",
+				"SearchTemplate": ["buy gift","$(Like)","for $(Relationship)"]
+			}, 
+			"NextState": null 
+		} 
+	] 
+}

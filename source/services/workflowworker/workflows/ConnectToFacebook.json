@@ -1,0 +1,7 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "ConnectToFacebook", "Activity": "ConnectToFacebook", "NextState": "ImportContactsFromFacebook" },
+		{ "Name": "ImportContactsFromFacebook", "Activity": "ImportFromFacebook", "NextState": null }
+	] 
+}

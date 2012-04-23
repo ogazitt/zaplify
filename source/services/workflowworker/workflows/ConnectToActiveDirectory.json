@@ -1,0 +1,6 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "ConnectToActiveDirectory", "Activity": "ConnectToActiveDirectory", "NextState": null }
+	] 
+}
