@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -22,5 +18,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Value { get; set; }
         public DateTime? TimeSelected { get; set; }
         public string ReasonSelected { get; set; }
+
+        public override string ToString()
+        {
+            return this.DisplayName;
+        }
     }
 }

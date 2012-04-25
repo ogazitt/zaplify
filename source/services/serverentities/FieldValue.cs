@@ -30,5 +30,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
                 pi.SetValue(this, val, null);
             }
         }
+
+        public override string ToString()
+        {
+            return this.FieldName;
+        }
     }
 }

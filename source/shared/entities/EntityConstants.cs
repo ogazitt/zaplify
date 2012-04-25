@@ -260,7 +260,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             ItemType itemType;
 
             // create System
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.System, Name = "System", UserID = SystemUsers.System });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.System, Name = "System", UserID = SystemUsers.System, Fields = new List<Field>() });
 
             // create Task
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Task, Name = "Task", Fields = new List<Field>() });

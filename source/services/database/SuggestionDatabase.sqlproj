@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <PostConversionRemoveFromScc>;C:\Users\Omri\zaplify\source\services\database\Properties\Database.sqlsettings;Properties\Database.sqlsettings;Properties\ServerSelection.sqlpolicy;C:\Users\Omri\zaplify\source\services\database\SuggestionDatabase.dbproj</PostConversionRemoveFromScc>
+    <PostConversionAddToScc>
+    </PostConversionAddToScc>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Name>SuggestionDatabase</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.0</ProjectVersion>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureDatabaseSchemaProvider</DSP>
+    <GenerateDac>true</GenerateDac>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <ShowWizard>False</ShowWizard>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <IncludeSchemaNameInFileName>False</IncludeSchemaNameInFileName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DacApplicationName>ZapSuggestions</DacApplicationName>
+    <DacVersion>1.0.2012.0423</DacVersion>
+    <DacDescription>
+    </DacDescription>
+    <RootNamespace>Database</RootNamespace>
+    <DefaultSchema>dbo</DefaultSchema>
+    <PreviousProjectVersion>4.0</PreviousProjectVersion>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <ValidateCasingOnIdentifiers>False</ValidateCasingOnIdentifiers>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{ab279288-8b3e-469c-a237-8660d0d34594}</ProjectGuid>
+    <GenerateDatabaseFile>False</GenerateDatabaseFile>
+    <GenerateCreateScript>False</GenerateCreateScript>
+    <SqlServerVerification>True</SqlServerVerification>
+    <TargetLanguage>CS</TargetLanguage>
+    <DefaultCollation>SQL_Latin1_General_CP1_CS_AS</DefaultCollation>
+    <AnsiNullDefault>True</AnsiNullDefault>
+    <AnsiNulls>True</AnsiNulls>
+    <AnsiPadding>True</AnsiPadding>
+    <AnsiWarnings>True</AnsiWarnings>
+    <ArithAbort>True</ArithAbort>
+    <ConcatNullYieldsNull>True</ConcatNullYieldsNull>
+    <QuotedIdentifier>True</QuotedIdentifier>
+    <NumericRoundAbort>False</NumericRoundAbort>
+    <RecursiveTriggersEnabled>False</RecursiveTriggersEnabled>
+    <DatabaseState>ONLINE</DatabaseState>
+    <UpdateOptions>READ_WRITE</UpdateOptions>
+    <CloseCursorOnCommitEnabled>False</CloseCursorOnCommitEnabled>
+    <DefaultCursor>LOCAL</DefaultCursor>
+    <AutoClose>False</AutoClose>
+    <AutoCreateStatistics>True</AutoCreateStatistics>
+    <AutoShrink>False</AutoShrink>
+    <AutoUpdateStatistics>True</AutoUpdateStatistics>
+    <TornPageDetection>False</TornPageDetection>
+    <DatabaseAccess>MULTI_USER</DatabaseAccess>
+    <Recovery>FULL</Recovery>
+    <EnableFullTextSearch>True</EnableFullTextSearch>
+    <DatabaseChaining>False</DatabaseChaining>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <Trustworthy>False</Trustworthy>
+    <AutoUpdateStatisticsAsynchronously>False</AutoUpdateStatisticsAsynchronously>
+    <PageVerify>NONE</PageVerify>
+    <ServiceBrokerOption>DisableBroker</ServiceBrokerOption>
+    <DateCorrelationOptimizationOn>False</DateCorrelationOptimizationOn>
+    <Parameterization>SIMPLE</Parameterization>
+    <AllowSnapshotIsolation>False</AllowSnapshotIsolation>
+    <ReadCommittedSnapshot>False</ReadCommittedSnapshot>
+    <VardecimalStorageFormatOn>True</VardecimalStorageFormatOn>
+    <DefaultFileStreamFilegroup />
+    <IsChangeTrackingOn>False</IsChangeTrackingOn>
+    <IsChangeTrackingAutoCleanupOn>True</IsChangeTrackingAutoCleanupOn>
+    <ChangeTrackingRetentionPeriod>2</ChangeTrackingRetentionPeriod>
+    <ChangeTrackingRetentionUnit>Days</ChangeTrackingRetentionUnit>
+    <IsEncryptionOn>False</IsEncryptionOn>
+    <IsBrokerPriorityHonored>False</IsBrokerPriorityHonored>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\bin\database\release\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TargetDatabase>master</TargetDatabase>
+    <TreatTSqlWarningsAsErrors>False</TreatTSqlWarningsAsErrors>
+    <SuppressTSqlWarnings />
+    <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
+    <ValidatePolicy>True</ValidatePolicy>
+    <DBSchemaFileName>ZapSuggestions</DBSchemaFileName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\bin\database\debug\</OutputPath>
+    <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TargetDatabase>master</TargetDatabase>
+    <TreatTSqlWarningsAsErrors>False</TreatTSqlWarningsAsErrors>
+    <SuppressTSqlWarnings />
+    <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
+    <ValidatePolicy>False</ValidatePolicy>
+    <DBSchemaFileName>ZapSuggestions</DBSchemaFileName>
+  </PropertyGroup>
+  <!--Import the settings-->
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Scripts" />
+    <Folder Include="Scripts\Pre-Deployment" />
+    <Folder Include="Scripts\Post-Deployment" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BuildContributorArgument Include="OutDir=$(OutDir)" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo.WorkflowInstances.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="dbo.Intents.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <Build Include="dbo.WorkflowTypes.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <None Include="Scripts\Post-Deployment\dbo.Intents.Table.sql">
+      <SubType>Code</SubType>
+    </None>
+    <None Include="Scripts\Post-Deployment\dbo.WorkflowTypes.Table.sql">
+      <SubType>Code</SubType>
+    </None>
+    <Build Include="dbo.Suggestions.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+    <None Include="Scripts\Post-Deployment\dbo.DatabaseVersions.Table.sql">
+      <SubType>Code</SubType>
+    </None>
+    <Build Include="dbo.DatabaseVersions.Table.sql">
+      <SubType>Code</SubType>
+    </Build>
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="scripts\post-deployment\Suggestion.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="scripts\pre-deployment\Suggestion.PreDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SuggestionDatabase.Dev1.publish.xml" />
+    <None Include="SuggestionDatabase.Production.publish.xml" />
+    <None Include="SuggestionDatabase.Dev2.publish.xml" />
+  </ItemGroup>
+</Project>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -13,5 +11,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public int ColorID { get; set; }
 
         public List<ItemTag> ItemTags { get; set; }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }

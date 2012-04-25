@@ -52,7 +52,6 @@
     <Compile Include="Color.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DatabaseVersion.cs" />
-    <Compile Include="WorkflowConstants.cs" />
     <Compile Include="WorkflowType.cs" />
     <Compile Include="Intent.cs" />
     <Compile Include="ServerEntity.cs" />

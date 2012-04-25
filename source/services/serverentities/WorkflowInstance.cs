@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -17,5 +13,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public DateTime Created { get; set; }
         public DateTime LastModified { get; set; }
         public string LockedBy { get; set; }
+
+        public override string ToString()
+        {
+            return this.WorkflowType;
+        }
     }
 }

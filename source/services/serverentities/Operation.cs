@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -20,5 +15,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string OldBody { get; set; }
         public int? StatusCode { get; set; }
         public DateTime Timestamp { get; set; }
+        
+        public override string ToString()
+        {
+            return this.EntityName;
+        }
     }
 }

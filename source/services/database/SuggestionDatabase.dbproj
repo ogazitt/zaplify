@@ -22,7 +22,7 @@
     <DeployToScript>True</DeployToScript>
     <CatalogPropertiesFile>Properties\Database.sqlsettings</CatalogPropertiesFile>
     <DacApplicationName>ZapSuggestions</DacApplicationName>
-    <DacVersionString>1.0.2012.0422</DacVersionString>
+    <DacVersionString>1.0.2012.0423</DacVersionString>
     <DacDescription>
     </DacDescription>
     <RootNamespace>Database</RootNamespace>

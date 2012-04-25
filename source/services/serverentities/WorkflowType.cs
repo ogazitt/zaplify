@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
@@ -11,5 +7,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
         [Key]
         public string Type { get; set; }
         public string Definition { get; set; }
+
+        public override string ToString()
+        {
+            return this.Type;
+        }
     }
 }

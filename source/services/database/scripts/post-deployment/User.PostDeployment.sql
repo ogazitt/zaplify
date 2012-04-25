@@ -11,6 +11,7 @@ Post-Deployment Script Template
 */
 
 /* User database */
+/*
 :r .\dbo.Users.Table.sql
 GO
 :r .\dbo.ActionTypes.Table.sql
@@ -27,4 +28,4 @@ GO
 GO
 :r .\dbo.DatabaseVersions.Table.sql
 GO
-
+*/

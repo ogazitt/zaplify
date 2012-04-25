@@ -6,7 +6,6 @@ using System.Web;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-
     public class User : ServerEntity
     {
         // ServerEntity properties

@@ -11,6 +11,7 @@ Post-Deployment Script Template
 */
 
 /* Suggestions database */
+/*
 :r .\dbo.Intents.Table.sql
 GO
 :Setvar Intent "$(Intent)"
@@ -22,3 +23,4 @@ GO
 GO
 :r .\dbo.DatabaseVersions.Table.sql
 GO
+*/

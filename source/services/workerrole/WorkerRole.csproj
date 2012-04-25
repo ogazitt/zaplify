@@ -80,6 +80,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="startup\Install.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\mailworker\MailWorker.csproj">
