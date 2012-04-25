@@ -118,7 +118,7 @@ ManagerSettings.prototype.show = function () {
 }
 
 ManagerSettings.prototype.renderThemePicker = function (container) {
-    var dataModel = this.parentControl.dataModel;
+    var dataModel = Control.findParent(this, 'dataModel').dataModel;
     var themes = dataModel.Constants.Themes;
     var currentTheme = dataModel.UserSettings.Preferences.Theme;
     var $wrapper = $('<div class="ui-widget setting"><label>Theme </label></div>').appendTo(container);
@@ -129,9 +129,10 @@ ManagerSettings.prototype.renderThemePicker = function (container) {
     }
     $themePicker.val(currentTheme);
     $themePicker.combobox({ selected: function () {
-        var theme = $(this).val();
-        dataModel.UserSettings.UpdateTheme(theme);
-    } });
+            var theme = $(this).val();
+            dataModel.UserSettings.UpdateTheme(theme);
+        } 
+    });
 }
 
 // ---------------------------------------------------------
@@ -328,7 +329,6 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
         this.renderFields(this.$element, this.mode);
     }
 
-
     $fldActive = this.$element.find('.fn-name');
     $fldActive.focus();
     //$fldActive.select();
@@ -346,24 +346,22 @@ ItemEditor.prototype.renderFields = function (container, mode) {
 }
 
 ItemEditor.prototype.renderNameField = function (container, mode) {
-    var $field, $wrapper;
     var fields = this.item.GetItemType().Fields;
     var field = fields[FieldNames.Complete];
+    var $wrapper = $('<div class="item-field wide"></div>').appendTo(container);
     if (field != null && mode != ItemEditor.Modes.New) {
-        // optionally render complete field
-        $wrapper = $('<div class="item-field-complete"></div>').appendTo(container);
+        // render complete field if exists and not new item
+        $wrapper.addClass('checked');
         this.renderCheckbox($wrapper, field);
-    } else {
-        $wrapper = $('<div class="item-field-name"></div>').appendTo(container);
     }
-
     // render name field
     field = fields[FieldNames.Name];
-    $field = this.renderText($wrapper, field);
+    var $field = this.renderText($wrapper, field);
     return $field;
 }
 
 ItemEditor.prototype.renderField = function (container, field) {
+    // ignore, handled by renderNameField
     if (field.Name == FieldNames.Name || field.Name == FieldNames.Complete)
         return;
 
@@ -376,28 +374,43 @@ ItemEditor.prototype.renderField = function (container, field) {
         case DisplayTypes.Reference:
         case DisplayTypes.TagList:
             break;
-        case DisplayTypes.Checkbox:
-            $wrapper = $(wrapper).appendTo(container);
-            $wrapper.find('.item-field-label').addClass('inline');
-            $field = this.renderCheckbox($wrapper, field);
-            break;
         case DisplayTypes.ContactList:
             $wrapper = $(wrapper).appendTo(container);
+            $wrapper.addClass('wide label');
             $field = this.renderContactList($wrapper, field);
             break;
-        case DisplayTypes.DatePicker:
+        case DisplayTypes.LocationList:
             $wrapper = $(wrapper).appendTo(container);
-            $field = this.renderDatePicker($wrapper, field);
+            $wrapper.addClass('wide label');
+            $field = this.renderLocationList($wrapper, field);
+            break;
+        case DisplayTypes.Address:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.addClass('wide label');
+            $field = this.renderAddress($wrapper, field);
+            break;
+        case DisplayTypes.UrlList:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.addClass('wide area');
+            $field = this.renderUrlList($wrapper, field);
             break;
         case DisplayTypes.DateTimePicker:
             $wrapper = $(wrapper).appendTo(container);
             $field = this.renderDateTimePicker($wrapper, field);
             break;
+        case DisplayTypes.DatePicker:
+            $wrapper = $(wrapper).appendTo(container);
+            $field = this.renderDatePicker($wrapper, field);
+            break;
         case DisplayTypes.TextArea:
             $wrapper = $(wrapper).appendTo(container);
-            $wrapper.addClass('item-field-area');
-            $wrapper.removeClass('item-field');
+            $wrapper.addClass('wide area');
             $field = this.renderTextArea($wrapper, field);
+            break;
+        case DisplayTypes.Checkbox:
+            $wrapper = $(wrapper).appendTo(container);
+            $wrapper.find('.item-field-label').addClass('inline');
+            $field = this.renderCheckbox($wrapper, field);
             break;
         case DisplayTypes.Text:
         default:
@@ -418,15 +431,6 @@ ItemEditor.prototype.renderText = function (container, field) {
     return $field;
 }
 
-ItemEditor.prototype.renderTextArea = function (container, field) {
-    $field = $('<textarea></textarea>').appendTo(container);
-    $field.addClass(field.Class);
-    $field.data('control', this);
-    $field.val(this.item.GetFieldValue(field));
-    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
-    return $field;
-}
-
 ItemEditor.prototype.renderCheckbox = function (container, field) {
     $field = $('<input type="checkbox" />').appendTo(container);
     $field.addClass(field.Class);
@@ -439,21 +443,27 @@ ItemEditor.prototype.renderCheckbox = function (container, field) {
     return $field;
 }
 
+ItemEditor.prototype.renderTextArea = function (container, field) {
+    $field = $('<textarea></textarea>').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.item.GetFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
+    return $field;
+}
+
 ItemEditor.prototype.renderDatePicker = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.datepicker({ numberOfMonths: 2,
+    $field.val(this.item.GetFieldValue(field));
+    $field.datepicker({   
+        numberOfMonths: 2,
         onClose: function (value, picker) {
             itemEditor = Control.get(this);
-            if (itemEditor != null) {
-                itemEditor.handleChange(picker.input);
-            }
+            if (itemEditor != null) { itemEditor.handleChange(picker.input); }
         }
     });
-
-    var value = this.item.GetFieldValue(field);
-    $field.val(value);
     return $field;
 }
 
@@ -461,17 +471,123 @@ ItemEditor.prototype.renderDateTimePicker = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.datetimepicker({ ampm: true, timeFormat: 'h:mm TT', hourGrid: 4, minuteGrid: 10, stepMinute: 5, numberOfMonths: 2,
+    $field.val(this.item.GetFieldValue(field));
+    $field.datetimepicker({
+        ampm: true,
+        timeFormat: 'h:mm TT',
+        hourGrid: 4,
+        minuteGrid: 10,
+        stepMinute: 5, 
+        numberOfMonths: 2,
         onClose: function (value, picker) {
             itemEditor = Control.get(this);
-            if (itemEditor != null) {
-                itemEditor.handleChange(picker.input);
-            }
+            if (itemEditor != null) {  itemEditor.handleChange(picker.input); }
         }
     });
+    return $field;
+}
 
+ItemEditor.prototype.renderUrlList = function (container, field) {
+    $field = $('<textarea></textarea>').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    // TODO: process links into text for display
+    $field.val(this.item.GetFieldValue(field));
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
+    return $field;
+}
+
+ItemEditor.prototype.renderAddress = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.val(this.item.GetFieldValue(field));
+    $field.autocomplete({
+        source: function (request, response) {
+            Service.Geocoder().geocode({ 'address': request.term },
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var addresses = $.map(results, function (item) {
+                            return {
+                                label: item.formatted_address,
+                                value: item.geometry.location.toUrlValue()
+                            }
+                        });
+                        response(addresses);
+                    }
+                });
+        },
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.LatLong, ui.item.value);
+            itemEditor = Control.get(this);
+            if (itemEditor != null) { itemEditor.handleChange($(this)); }
+            return false;
+        },
+        minLength: 3
+    });
+    return $field;
+}
+
+ItemEditor.prototype.renderLocationList = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    var text = '';
     var value = this.item.GetFieldValue(field);
-    $field.val(value);
+    if (value != null && value.IsList) {
+        var dataModel = Control.findParent(this, 'dataModel').dataModel;
+        var locations = value.GetItems();
+        for (var id in locations) {
+            var locationRef = locations[id].GetFieldValue(FieldNames.ItemRef);
+            var address = locationRef.GetFieldValue(FieldNames.Address);
+            text += address;
+            if (locationRef.Name != address) {
+                text += ' ( ' + locationRef.Name + ' )';
+            }
+            // TODO: support multiple locations
+            //text += '; ';
+            break;
+        }
+    }
+    $field.val(text);
+
+    var split = function (val) { return val.split(/;\s*/); }
+    var lastTerm = function (term) { return split(term).pop(); }
+    $field.autocomplete({
+        source: function (request, response) {
+            Service.Geocoder().geocode({ 'address': lastTerm(request.term) },
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var addresses = $.map(results, function (item) {
+                            return {
+                                label: item.formatted_address,
+                                value: item.geometry.location.toUrlValue()
+                            }
+                        });
+                        //response($.ui.autocomplete.filter(matches, lastTerm(request.term)));
+                        response(addresses);
+                    }
+                });
+        },
+        select: function (event, ui) {
+            // multi-selection support
+            var terms = split(this.value);
+            terms.pop();                        // remove the current input
+            terms.push(ui.item.label);          // add the selected item
+            terms.push("");                     // placeholder for separator
+            this.value = terms.join("; ");      // add separator
+
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.LatLong, ui.item.value);
+            itemEditor = Control.get(this);
+            if (itemEditor != null) { itemEditor.handleChange($(this)); }
+            return false;
+        },
+        minLength: 3
+    });
     return $field;
 }
 
@@ -493,20 +609,77 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     return $field;
 }
 
-ItemEditor.prototype.updateField = function ($srcElement) {
+ItemEditor.prototype.updateField = function ($element) {
     var fields = this.item.GetItemType().Fields;
     for (var name in fields) {
         var field = fields[name];
-        if ($srcElement.hasClass(field.ClassName)) {
-            var value = $srcElement.val();
-            if (field.DisplayType == DisplayTypes.Checkbox) {
-                value = false;
-                if ($srcElement.attr('checked') == 'checked') {
-                    value = true;
-                }
-            }
+        if ($element.hasClass(field.ClassName)) {
+            var changed = false;
             var currentValue = this.item.GetFieldValue(field);
-            if (value != currentValue) {
+            var value;
+
+            switch (field.DisplayType) {
+                case DisplayTypes.Hidden:
+                case DisplayTypes.Priority:
+                case DisplayTypes.Reference:
+                case DisplayTypes.TagList:
+                case DisplayTypes.ContactList:
+                    break;
+                case DisplayTypes.LocationList:
+                    var address = $element.val();
+                    var latlong = $element.data(FieldNames.LatLong);
+                    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+                    var existingLocation = dataModel.FindLocation(address, latlong);
+                    if (existingLocation != null) {
+                        // add reference to existing location
+                        this.item.AddReference(field, existingLocation, true);
+                    } else {
+                        // create new location and add reference
+                        var locationFolder = dataModel.FindDefault(ItemTypes.Location);
+                        var newLocation = $.extend(new Item(), { Name: address, ItemTypeID: ItemTypes.Location });
+                        newLocation.SetFieldValue(FieldNames.Address, address);
+                        if (latlong != null) {
+                            newLocation.SetFieldValue(FieldNames.LatLong, latlong);
+                        }
+                        var thisItem = this.item;
+                        dataModel.InsertItem(newLocation, locationFolder, null, null, null,
+                            function (insertedLocation) {
+                                thisItem.AddReference(field, insertedLocation, true);
+                            });
+                    }
+                    break;
+                case DisplayTypes.UrlList:
+                    break;
+                case DisplayTypes.Checkbox:
+                    value = ($element.attr('checked') == 'checked');
+                    changed = (value != currentValue);
+                    break;
+                case DisplayTypes.Address:
+                    var latlong = $element.data(FieldNames.LatLong);
+                    if (latlong != null) {
+                        var currentLatLong = this.item.GetFieldValue(FieldNames.LatLong);
+                        if (currentLatLong == null || currentLatLong != latlong) {
+                            this.item.SetFieldValue(FieldNames.LatLong, latlong);
+                            value = $element.val();
+                            changed = true;
+                        }
+                    } else {
+                        value = $element.val();
+                        changed = (value != currentValue);
+                    }
+                    break;
+
+                case DisplayTypes.DatePicker:
+                case DisplayTypes.DateTimePicker:
+                case DisplayTypes.TextArea:
+                case DisplayTypes.Text:
+                default:
+                    value = $element.val();
+                    changed = (value != currentValue);
+                    break;
+            }
+
+            if (changed) {
                 this.item.SetFieldValue(field, value);
                 return true;
             }

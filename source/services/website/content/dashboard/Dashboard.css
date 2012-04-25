@@ -169,40 +169,37 @@ Item Fields
 ----------------------------------------------------------*/
 
 .item-field {
-    position: relative; 
-    display: inline-block;
-    padding: 10px 0px 2px 0px;   
-    margin: 0px 6px 0px 6px;
+    position: relative; display: inline-block;
+    padding: 10px 0px 2px 0px; margin: 0px 6px 0px 6px;
     Xborder: 1px solid red;
 }
 
 .item-field-label {
-    position: absolute;    
-    top: 0; left: 10px;
+    position: absolute; top: 0; left: 10px;
     font-size: 8pt;
-    Xcolor: #50738A;
     opacity:0.7; filter:alpha(opacity=70);
 }
+
 .item-field-label.inline {
-    position: relative; 
-    top: -2px; left: 0;
+    position: relative; top: -2px; left: 0;
     margin-right: 6px;
     Xborder: 1px solid green; 
 }
 
-.item-field-name { width: 100%; display: block; position: relative; height: 32px; }
-.item-field-name .dt-text { width: 95%; margin: 4px 4px 0 6px; }
-
-.item-field-complete { width: 100%; display: block; position: relative; height: 32px; }
-.item-field-complete .dt-checkbox { position: absolute; margin: 9px 4px 0 6px; }
-.item-field-complete .dt-text { width: 90%; position: absolute; margin: 4px 4px 0px 24px; }
-
-.item-field-area { width: 100%; display: block; position: relative; height: 84px; }
-.item-field-area .dt-textarea { width: 95%; margin: 13px 0px 0px 6px; }
-.item-field-area .item-field-label { left: 16px; }
+.item-field.wide { width: 100%; height: 32px; padding: 0; margin: 0 0 6px 0; }
+.item-field.wide input.dt-text { width: 95%; margin: 4px 4px 0 6px; }
+.item-field.wide.checked .dt-checkbox { position: absolute; margin: 9px 4px 0 6px; }
+.item-field.wide.checked input.dt-text { width: 90%; position: absolute; margin: 4px 4px 0px 24px; }
+.item-field.wide.area { height: 84px; }
+.item-field.wide.area .dt-textarea, .item-field.wide.area .dt-urllist { width: 95%; margin: 14px 4px 0 6px; overflow-y: auto; overflow-x: hidden; }
+.item-field.wide input.dt-address, .item-field.wide input.dt-locationlist, 
+.item-field.wide input.dt-contactlist { width: 95%; margin: 14px 4px 0px 6px; }
 
 .dt-checkbox { margin-right: 6px; }
 .dt-datepicker { min-width: 200px; }
+.dt-address { min-width: 320px; }
+
+.ui-autocomplete { max-height: 200px; overflow-y: auto; overflow-x: hidden; padding-right: 20px; }
 
 /*----------------------------------------------------------
 Source icons

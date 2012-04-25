@@ -46,6 +46,7 @@ Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
     this.resourceUrl = resourceUrl;
     this.domainUrl = domainUrl;
     this.fbAppID = fbAppID;
+
     Service.invokeAsync = true;
     $('.header-content .logo').click(Service.NavigateToDashboard);
 }
@@ -81,8 +82,6 @@ Service.ChangeTheme = function Service$ChangeTheme(theme) {
 
 Service.SignOut = function Service$SignOut() {
     Service.signingOut = true;
-    //window.navigate(Service.siteUrl + Service.signOutUri);
-    //return false;
 }
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
@@ -93,6 +92,13 @@ Service.GetFacebookConsent = function Service$GetFacebookConsent() {
 Service.GetCloudADConsent = function Service$GetCloudADConsent() {
     var uri = Service.cloudADConsentUri;
     window.navigate(uri);
+}
+
+Service.Geocoder = function Service$Geocoder() {
+    if (Service.geocoder == null) {
+        Service.geocoder = new google.maps.Geocoder();
+    }
+    return Service.geocoder;
 }
 
 // ---------------------------------------------------------

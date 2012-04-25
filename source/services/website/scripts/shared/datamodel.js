@@ -79,6 +79,29 @@ DataModel.FindDefault = function DataModel$FindDefault(itemType) {
     return null;
 }
 
+// generic helper for finding a Location item that matches given address or latlong
+// only looks in folders that have Location ItemType
+DataModel.FindLocation = function DataModel$FindLocation(address, latlong) {
+    for (id in DataModel.Folders) {
+        var folder = DataModel.Folders[id];
+        if (folder.ItemTypeID == ItemTypes.Location) {
+            for (id in folder.Items) {
+                var item = folder.Items[id];
+                if (item.ItemTypeID == ItemTypes.Location) {
+                    var itemLatLong = item.GetFieldValue(FieldNames.LatLong);
+                    if (latlong != null && itemLatLong != null) {       // compare latlong fields
+                        if (latlong == itemLatLong) { return item; }
+                    } else {                                            // compare address fields
+                        var itemAddress = item.GetFieldValue(FieldNames.Address);
+                        if (address == itemAddress) { return item; }
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
 // generic helper for getting local items associated with folder or list item
 DataModel.GetItems = function DataModel$GetItems(folderID, parentID) {
     var items = {};
@@ -109,7 +132,7 @@ DataModel.GetItems = function DataModel$GetItems(folderID, parentID) {
 //  activeItem will be used when firing data changed event (indicating which item to select)
 //      undefined will result in default behavior
 //      null will result in the data changed event NOT being fired
-DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adjacentItem, insertBefore, activeItem) {
+DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adjacentItem, insertBefore, activeItem, callback) {
     if (newItem != null && newItem.Name != null) {
         var resource = Service.ItemsResource;
         if (containerItem == null) {                                        // inserting a new folder
@@ -145,6 +168,9 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
                 } else {                                                    // add new Item to container
                     containerItem.addItem(insertedItem, activeItem);
                 }
+                if (callback != null) {
+                    callback(insertedItem);
+                }
             });
         return true;
     }
@@ -156,15 +182,15 @@ DataModel.InsertFolder = function DataModel$InsertFolder(newFolder, adjacentFold
 };
 
 // generic helper for updating a folder or item, invokes server and updates local data model
-DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem) {
+DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem, activeItem) {
     if (originalItem != null && updatedItem != null) {
-        updatedItem.LastModified = DataModel.timeStamp;                     // timestamp on server
+        updatedItem.LastModified = DataModel.timeStamp;                         // timestamp on server
         var resource = (originalItem.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;        
         var data = [originalItem, updatedItem];
         Service.UpdateResource(resource, originalItem.ID, data,
-            function (responseState) {                                      // successHandler
+            function (responseState) {                                          // successHandler
                 var returnedItem = responseState.result;
-                var success = originalItem.update(returnedItem);            // update Folder or Item
+                var success = originalItem.update(returnedItem, activeItem);    // update Folder or Item
                 // TODO: report failure to update
             });
         return true;
@@ -491,7 +517,7 @@ Item.prototype.GetParent = function () { return (this.ParentID == null) ? null :
 Item.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Item.prototype.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
 Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
-Item.prototype.Update = function (updatedItem) { return DataModel.UpdateItem(this, updatedItem); };
+Item.prototype.Update = function (updatedItem, activeItem) { return DataModel.UpdateItem(this, updatedItem, activeItem); };
 Item.prototype.Delete = function () { return DataModel.DeleteItem(this); };
 Item.prototype.HasField = function (name) { return this.GetItemType().HasField(name); };
 Item.prototype.GetField = function (name) { return this.GetItemType().Fields[name]; };
@@ -502,10 +528,8 @@ Item.prototype.Refresh = function () {
         function (responseState) {
             var refreshItem = responseState.result;
             if (refreshItem != null) {
-                // REVIEW: not calling update to avoid firing data change
-                //thisItem.update(refreshItem);
-                refreshItem = $.extend(new Item(thisItem.ViewState), refreshItem);
-                thisItem.GetFolder().ItemsMap.update(refreshItem);
+                // do not fire data change
+                thisItem.update(refreshItem, null);
             }
         });
 }
@@ -577,9 +601,78 @@ Item.prototype.SetFieldValue = function (field, value) {
     return false;                           // item does not have the field
 };
 
+Item.prototype.AddReference = function (field, item, replace) {
+    // field parameter can be either field name or field object
+    if (typeof (field) == 'string') {
+        field = this.GetField(field);
+    }
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.ItemID) {
+
+        var refList = this.GetFieldValue(field);
+        if (refList != null) {
+            if (replace == true) {
+                return this.replaceReference(refList, item);
+            } else {
+                return this.addReference(refList, item);
+            }
+        } else {
+            // create refList and addReference in success handler
+            var thisItem = this;
+            var newRefList = {
+                Name: field.Name, IsList: true, ItemTypeID: ItemTypes.Reference,
+                FolderID: thisItem.FolderID, ParentID: thisItem.ID, UserID: thisItem.UserID
+            };
+            Service.InsertResource(Service.ItemsResource, newRefList,
+                function (responseState) {
+                    var insertedRefList = responseState.result;
+                    thisItem.addItem(insertedRefList, null);
+                    insertedRefList = DataModel.FindItem(insertedRefList.ID);
+                    thisItem.addReference(insertedRefList, item);
+                    var thisUpdatedItem = $.extend({}, thisItem);
+                    thisUpdatedItem.SetFieldValue(FieldNames.Locations, insertedRefList.ID);
+                    thisItem.Update(thisUpdatedItem);
+                });
+        }
+        return true;
+    }
+    return false;       // failed to add reference
+};
+
+Item.prototype.addReference = function (refList, itemToRef) {
+    if (refList != null && refList.IsList) {
+        // create and insert the item reference
+        var itemRef = $.extend(new Item(), {
+            Name: itemToRef.Name,
+            ItemTypeID: ItemTypes.Reference,
+            FolderID: refList.FolderID,
+            ParentID: refList.ID,
+            UserID: refList.UserID
+        });
+        itemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+        refList.InsertItem(itemRef, null, null, null);
+        return true;
+    }
+    return false;
+}
+
+Item.prototype.replaceReference = function (refList, itemToRef) {
+    if (refList != null && refList.IsList) {
+        // replace reference
+        var itemRefs = refList.GetItems();
+        for (var id in itemRefs) {
+            var itemRef = itemRefs[id];
+            var updatedItemRef = $.extend(new Item(), itemRef);
+            updatedItemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+            itemRef.Update(updatedItemRef, refList.GetParent());
+            return true;
+        }
+    }
+    return false;
+}
+
 // Item private functions
 Item.prototype.addItem = function (newItem, activeItem) { this.GetFolder().addItem(newItem, activeItem); };
-Item.prototype.update = function (updatedItem) {
+Item.prototype.update = function (updatedItem, activeItem) {
     if (this.ID == updatedItem.ID) {
         updatedItem = $.extend(new Item(this.ViewState), updatedItem);      // extend with Item functions
         if (this.FolderID == updatedItem.FolderID) {
@@ -588,7 +681,11 @@ Item.prototype.update = function (updatedItem) {
             this.GetFolder().ItemsMap.remove(this);
             updatedItem.GetFolder().ItemsMap.append(updatedItem);
         }
-        DataModel.fireDataChanged(this.FolderID, this.ID);
+        if (activeItem === undefined) {
+            DataModel.fireDataChanged(this.FolderID, this.ID);
+        } else if (activeItem != null) {
+            DataModel.fireDataChanged(this.FolderID, activeItem.ID);
+        }
         return true;
     }
     return false;
@@ -818,7 +915,8 @@ var FieldNames = {
 
     FacebookID: "FacebookID",               // String
     Intent: "Intent",                       // String
-    Sources: "Sources"                      // String
+    Sources: "Sources",                     // String
+    LatLong: "LatLong"                      // String
 }
 
 // ---------------------------------------------------------
