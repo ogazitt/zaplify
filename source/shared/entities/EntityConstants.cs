@@ -84,10 +84,13 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Locations = "Locations";        // ItemID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
 
-        // non user-visible FieldNames
+        // Hidden FieldName extensions for Contact
         public const string FacebookID = "FacebookID";      // String
-        public const string Intent = "Intent";              // String
         public const string Sources = "Sources";            // String (comma-delimited) 
+        // Hidden FieldName extensions for Location
+        public const string LatLong = "LatLong";            // String (comma-delimited)
+        // TODO: do we still need this?
+        public const string Intent = "Intent";              // String
         
         // TODO: this should be a WorkflowParameter, not a FieldName
         public const string SubjectHint = "SubjectHint";    // String

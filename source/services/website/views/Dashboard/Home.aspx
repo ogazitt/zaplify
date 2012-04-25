@@ -12,6 +12,7 @@
     <script src="<%: Url.Content("~/scripts/dashboard/foldermanager.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/suggestionlist.js") %>" type="text/javascript"></script>
     <script src="<%: Url.Content("~/scripts/dashboard/suggestionmanager.js") %>" type="text/javascript"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 <%
     string jsonConstants = Ajax.JavaScriptStringEncode(ConstantsModel.JsonConstants);
     string jsonUserData = Ajax.JavaScriptStringEncode(Model.JsonUserData);
