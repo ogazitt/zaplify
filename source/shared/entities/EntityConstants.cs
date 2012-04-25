@@ -85,9 +85,12 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
         public const string Category = "Category";          // String (grocery category)
 
-        // non user-visible FieldNames
+        // Hidden FieldName extensions for Contact
         public const string FacebookID = "FacebookID";      // String
         public const string Sources = "Sources";            // String (comma-delimited) 
+
+        // Hidden FieldName extensions for Location
+        public const string LatLong = "LatLong";            // String (comma-delimited)
     }
 
     public class SuggestionTypes
