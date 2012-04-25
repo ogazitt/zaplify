@@ -3,7 +3,8 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <PostConversionRemoveFromScc>;C:\Users\Omri\zaplify\source\services\database\Properties\Database.sqlsettings;Properties\Database.sqlsettings;Properties\ServerSelection.sqlpolicy;C:\Users\Omri\zaplify\source\services\database\SuggestionDatabase.dbproj</PostConversionRemoveFromScc>
+    <PostConversionRemoveFromScc>
+    </PostConversionRemoveFromScc>
     <PostConversionAddToScc>
     </PostConversionAddToScc>
   </PropertyGroup>
