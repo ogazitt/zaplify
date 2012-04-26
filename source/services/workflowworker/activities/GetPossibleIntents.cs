@@ -111,6 +111,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return Status.Error;
             }
 
+            // if there are no suggestions, we can terminate this workflow
+            if (suggestionList.Count == 0)
+            {
+                TraceLog.TraceError("GenerateSuggestions: no possible intents were found; terminating workflow");
+                return Status.Error;
+            }
+
             return Status.Pending;
         }
     }

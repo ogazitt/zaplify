@@ -391,7 +391,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             if (wis.Count > 0)
                 return;
 
-            if (item != null)
+            if (item != null && item.IsList == false)
             {
                 if (item.ItemTypeID == SystemItemTypes.Task)
                     Workflow.StartWorkflow(WorkflowNames.NewTask, item, null, UserContext, SuggestionsContext);
