@@ -428,22 +428,64 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 
         // local-only properties used for databinding
 
+        public string Address
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Address, false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Address, true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged(FieldNames.Address);
+                }
+            }
+        }
+
+        public string Category
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Category, false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Category, true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged(FieldNames.Category);
+                }
+            }
+        }
+
         public bool? Complete
         {
             get
             {
                 FieldValue fv = GetFieldValue(FieldNames.Complete, false);
                 if (fv != null)
-                    return (bool?)Convert.ToBoolean(fv.Value);
+                    return fv.Value == null ? false : (bool?)Convert.ToBoolean(fv.Value);
                 else
-                    return null;
+                    return false;
             }
             set
             {
                 FieldValue fv = GetFieldValue(FieldNames.Complete, true);
                 if (fv != null)
                 {
-                    fv.Value = (value == null) ? null : ((bool)value).ToString();
+                    fv.Value = (value == null) ? false.ToString() : ((bool)value).ToString();
                     NotifyPropertyChanged(FieldNames.Complete);
                 }
             }
@@ -633,7 +675,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             {
                 FieldValue fv = GetFieldValue(FieldNames.Priority, false);
                 if (fv != null)
-                    return (int?)Convert.ToInt32(fv.Value);
+                    return fv.Value == null ? 1 : (int?)Convert.ToInt32(fv.Value);
                 else
                     return null;
             }

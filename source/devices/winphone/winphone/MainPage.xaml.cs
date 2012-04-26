@@ -385,7 +385,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             list = new Item() { Items = FilterItems(App.ViewModel.Items) };
 
             // create the ListHelper
-            ScheduleHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ScheduleHelper(list);
+            ScheduleHelper = new ScheduleHelper(list);
 
             // store the current listbox and ordering
             ScheduleHelper.ListBox = ItemsListBox;
@@ -450,29 +450,33 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // get a reference to the add button (always first) and remove any eventhandlers
-            var AddButton = (ApplicationBarIconButton)ApplicationBar.Buttons[0];
+            // remove all existing buttons from the application bar
+            ApplicationBar.Buttons.Clear();
 
-            try
-            {
-                AddButton.Click -= new EventHandler(Items_AddButton_Click);
-                AddButton.Click -= new EventHandler(Folders_AddButton_Click);
-                AddButton.Click -= new EventHandler(Tags_AddButton_Click);
-
-                // remove the last button (in case it was added)
-                ApplicationBar.Buttons.RemoveAt(3);
-            }
-            catch (Exception)
-            {
-            }
+            // create the sync and settings buttons, which are shared by all pivot tabs
+            var syncButton = new ApplicationBarIconButton() 
+            { 
+                Text = "sync now", 
+                IconUri = new Uri("/Images/appbar.refresh.rest.png", UriKind.Relative)                
+            };
+            syncButton.Click += new EventHandler(RefreshButton_Click);
+            var settingsButton = new ApplicationBarIconButton() 
+            { 
+                Text = "settings", 
+                IconUri = new Uri("/Images/appbar.feature.settings.rest.png", UriKind.Relative)                
+            };
+            settingsButton.Click += new EventHandler(SettingsButton_Click);
 
             // do tab-specific processing (e.g. adding the right Add button handler)
             switch (MainPivot.SelectedIndex)
             {
                 case 0: // add
+                    ApplicationBar.Buttons.Add(syncButton);
+                    ApplicationBar.Buttons.Add(settingsButton);
                     break;
                 case 1: // schedule
-                    AddButton.Click += new EventHandler(Items_AddButton_Click);
+                    ApplicationBar.Buttons.Add(syncButton);
+                    ApplicationBar.Buttons.Add(settingsButton);
                     var searchButton = new ApplicationBarIconButton() 
                     { 
                         Text = "filter", 
@@ -482,10 +486,26 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ApplicationBar.Buttons.Add(searchButton);
                     break;
                 case 2: // folders
-                    AddButton.Click += new EventHandler(Folders_AddButton_Click);
+                    var addFolderButton = new ApplicationBarIconButton() 
+                    { 
+                        Text = "add folder", 
+                        IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
+                    };
+                    addFolderButton.Click += new EventHandler(Folders_AddButton_Click);
+                    ApplicationBar.Buttons.Add(addFolderButton);
+                    ApplicationBar.Buttons.Add(syncButton);
+                    ApplicationBar.Buttons.Add(settingsButton);
                     break;
                 case 3: // tags
-                    AddButton.Click += new EventHandler(Tags_AddButton_Click);
+                    var addTagButton = new ApplicationBarIconButton() 
+                    { 
+                        Text = "add folder", 
+                        IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
+                    };
+                    addTagButton.Click += new EventHandler(Tags_AddButton_Click);
+                    ApplicationBar.Buttons.Add(addTagButton);
+                    ApplicationBar.Buttons.Add(syncButton);
+                    ApplicationBar.Buttons.Add(settingsButton);
                     break;
             }
         }
@@ -1024,8 +1044,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ObservableCollection<Item> filteredItems = new ObservableCollection<Item>();
             foreach (Item item in items)
             {
+                // if the item doesn't have a complete field, don't list it
+                ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == item.ItemTypeID);
+                if (itemType.HasField(FieldNames.Complete) == false)
+                    continue;
+                
                 // if the item is completed, don't list it
-                if (item.Complete == null || item.Complete == true)
+                if (item.Complete == true)
                     continue;
 
                 // if the item is a list, don't list it

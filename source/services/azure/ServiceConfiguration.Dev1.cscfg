@@ -5,8 +5,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="UserDatabaseVersion" value="2012-04-23" />
-      <Setting name="SuggestionsDatabaseVersion" value="2012-04-23" />
+      <Setting name="UserDatabaseVersion" value="2012-04-25" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-25" />
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <!-- SQL Azure databases for Dev1 deployment -->
@@ -29,8 +29,8 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="UserDatabaseVersion" value="2012-04-23" />
-      <Setting name="SuggestionsDatabaseVersion" value="2012-04-23" />
+      <Setting name="UserDatabaseVersion" value="2012-04-25" />
+      <Setting name="SuggestionsDatabaseVersion" value="2012-04-25" />
       <!-- SQL Azure databases for Dev1 deployment -->
       <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />

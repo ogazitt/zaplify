@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Shared.Entities;
+using System.Reflection;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -28,9 +29,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private RoutedEventHandler checkBoxClickEvent;
         private RoutedEventHandler tagClickEvent;
 
-        public ListHelper(Item list, RoutedEventHandler checkBoxClickEvent, RoutedEventHandler tagClickEvent)
+        public ListHelper(RoutedEventHandler checkBoxClickEvent, RoutedEventHandler tagClickEvent)
         {
-            this.list = list;
             this.checkBoxClickEvent = checkBoxClickEvent;
             this.tagClickEvent = tagClickEvent;
         }
@@ -42,17 +42,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <summary>
         /// Add a new item to the Items collection and the ListBox
         /// </summary>
-        /// <param name="itemlist">List to add to</param>
         /// <param name="item">Item to add</param>
         public void AddItem(Item itemlist, Item item)
         {
-            // add the item to the list
-            itemlist.Items.Add(item);
+            // if this is a categorized sort, we need to rebuild the list completely
+            if (Categorize())
+            {
+                RenderList(itemlist);
+                return;
+            }
 
-            itemlist.Items = OrderItems(itemlist.Items);
+            // add the item to the list
+            list.Items.Add(item);
+
+            list.Items = OrderItems();
 
             // get the correct index based on the current sort
-            int newIndex = itemlist.Items.IndexOf(item);
+            int newIndex = list.Items.IndexOf(item);
 
             // reinsert it at the correct place
             ListBox.Items.Insert(newIndex, RenderItem(item));
@@ -64,15 +70,20 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <param name="itemlist">Item list to render</param>
         public void RenderList(Item itemlist)
         {
+            // trace the event
+            TraceHelper.AddMessage("List: RenderList");
+
             // if the list is null, nothing to do
             if (itemlist == null)
                 return;
 
-            // trace the event
-            TraceHelper.AddMessage("List: RenderList");
+            // store a copy of the list, with a new Items collection that imposes the order on the items
+            this.list = new Item(itemlist, false);
+            foreach (var i in itemlist.Items)
+                list.Items.Add(i);
 
             // order by correct fields
-            itemlist.Items = OrderItems(itemlist.Items);
+            list.Items = OrderItems();
 
             /*
             // create the top-level grid
@@ -99,23 +110,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ListBox.Items.Clear();
 
             // if the number of items is smaller than 10, render them all immediately
-            if (itemlist.Items.Count <= rendersize)
+            if (list.Items.Count <= rendersize)
             {
                 // render the items
-                foreach (Item t in itemlist.Items)
-                    ListBox.Items.Add(RenderItem(t));
+                foreach (Item i in list.Items)
+                    ListBox.Items.Add(RenderItem(i));
             }
             else
             {
                 // render the first 10 items immediately
-                foreach (Item t in itemlist.Items.Take(rendersize))
-                    ListBox.Items.Add(RenderItem(t));
+                foreach (Item i in list.Items.Take(rendersize))
+                    ListBox.Items.Add(RenderItem(i));
 
                 // schedule the rendering of the rest of the items on the UI thread
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
-                    foreach (Item t in itemlist.Items.Skip(rendersize))
-                        ListBox.Items.Add(RenderItem(t));
+                    foreach (Item i in list.Items.Skip(rendersize))
+                        ListBox.Items.Add(RenderItem(i));
                 });
             }
 
@@ -129,15 +140,21 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <summary>
         /// Remove a item in the list and the ListBox
         /// </summary>
-        /// <param name="itemlist">List that the item belongs to</param>
         /// <param name="item">Item to remove</param>
         public void RemoveItem(Item itemlist, Item item)
         {
+            // if this is a categorized sort, we need to rebuild the list completely
+            if (Categorize())
+            {
+                RenderList(itemlist);
+                return;
+            }
+
             // get the current index based on the current sort
-            int currentIndex = itemlist.Items.IndexOf(item);
+            int currentIndex = list.Items.IndexOf(item);
 
             // remove the item from the list
-            itemlist.Items.Remove(item);
+            list.Items.Remove(item);
 
             // remove the item's ListBoxItem from the current place
             ListBox.Items.RemoveAt(currentIndex);
@@ -146,18 +163,30 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <summary>
         /// ReOrder a item in the list and the ListBox
         /// </summary>
-        /// <param name="itemlist">List that the item belongs to</param>
         /// <param name="item">Item to reorder</param>
         public void ReOrderItem(Item itemlist, Item item)
         {
+            // if this is a categorized sort, we need to rebuild the list completely
+            if (Categorize())
+            {
+                RenderList(itemlist);
+                return;
+            }
+
             // get the current index based on the current sort
-            int currentIndex = itemlist.Items.IndexOf(item);
+            int currentIndex = list.Items.IndexOf(item);
+
+            if (currentIndex == -1)
+            {
+                TraceHelper.AddMessage("ReOrderItem: Could not find item " + item.Name);
+                return;
+            }
 
             // order the list by the correct fields
-            itemlist.Items = OrderItems(itemlist.Items);
+            list.Items = OrderItems();
 
             // get the correct index based on the current sort
-            int newIndex = itemlist.Items.IndexOf(item);
+            int newIndex = list.Items.IndexOf(item);
 
             // remove the item's ListBoxItem from the current place
             ListBox.Items.RemoveAt(currentIndex);
@@ -167,6 +196,52 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         }
 
         #region Helpers
+
+        private bool Categorize()
+        {
+            switch (OrderBy)
+            {
+                case "due":
+                case "priority":
+                case FieldNames.DueDate:
+                case FieldNames.Priority:
+                case FieldNames.Category:
+                    return true;
+                case "name":
+                case FieldNames.Name:
+                case FieldNames.Address:
+                case FieldNames.Phone:
+                case FieldNames.Email:
+                case FieldNames.Complete:
+                case null:
+                default:
+                    return false;
+            }
+        }
+
+        private string FormatSectionHeading(string displayType, string value)
+        {
+            switch (displayType)
+            {
+                case DisplayTypes.Priority:
+                    int pri = value == null ? 1 : Convert.ToInt32(value);
+                    return App.ViewModel.Constants.Priorities[pri].Name;
+                case DisplayTypes.DatePicker:
+                case DisplayTypes.DateTimePicker:
+                    if (value == null)
+                        return "none";
+                    DateTime dt = Convert.ToDateTime(value);
+                    return dt.ToShortDateString();
+                case DisplayTypes.Text:
+                case DisplayTypes.TextArea:
+                case DisplayTypes.Phone:
+                case DisplayTypes.Link:
+                case DisplayTypes.Email:
+                case DisplayTypes.Address:
+                default:
+                    return value ?? "none";
+            }
+        }
 
         /// <summary>
         /// Get System.Windows.Media.Colors from a string color name
@@ -204,19 +279,71 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// </summary>
         /// <param name="items">Collection of items</param>
         /// <returns>Ordered collection</returns>
-        private ObservableCollection<Item> OrderItems(ObservableCollection<Item> items)
+        private ObservableCollection<Item> OrderItems()
         {
+            // create a new collection without any system itemtypes (which are used for section headings)
+            var sorted = new ObservableCollection<Item>();
+            foreach (var i in list.Items)
+                if (i.ItemTypeID != SystemItemTypes.System)
+                    sorted.Add(i);
+            
             // order the folder by the correct fields
             switch (OrderBy)
             {
-                case "due":
-                    return items.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
-                case "priority": // by pri
-                    return items.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
-                case "name": // by name
-                    return items.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                case FieldNames.DueDate:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Priority:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Name:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Address:
+                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Phone:
+                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Email:
+                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Complete:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Category:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case null:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.SortOrder).ToObservableCollection();
+                    break;
+                default:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
             }
-            return null;
+
+            // if we aren't categorizing then there is no need to create section headings
+            if (!Categorize())
+                return sorted;
+
+            // insert separators for section headings
+            string separator = null;
+            var finalList = new ObservableCollection<Item>();
+            foreach (var item in sorted)
+            {
+                ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == item.ItemTypeID);
+                Field field = itemType.Fields.Single(f => f.Name == OrderBy);
+                FieldValue fv = item.GetFieldValue(field, false);
+                string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(field.DisplayType, fv != null ? fv.Value : null);
+                if (currentSectionHeading != separator)
+                {
+                    finalList.Add(new Item() { Name = currentSectionHeading, ItemTypeID = SystemItemTypes.System }); // System itemtype designates separator
+                    separator = currentSectionHeading;
+                }
+                finalList.Add(item);
+            }
+
+            return finalList;
         }
 
         /// <summary>
@@ -226,6 +353,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <returns>ListBoxItem corresponding to the Item</returns>
         private ListBoxItem RenderItem(Item i)
         {
+            if (i.ItemTypeID == SystemItemTypes.System)
+                return RenderItemAsSeparator(i);
             if (i.IsList)
                 return RenderItemAsList(i);
             else
@@ -291,6 +420,25 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             sp.Children.Add(element);
 
             // return the new ListBoxItem
+            return listBoxItem;
+        }
+
+        /// <summary>
+        /// Render a separator into a ListBoxItem
+        /// </summary>
+        /// <param name="item">Item to render</param>
+        /// <returns>ListBoxItem corresponding to the Item</returns>
+        private ListBoxItem RenderItemAsSeparator(Item item)
+        {
+            ListBoxItem listBoxItem = new ListBoxItem() { Tag = item };
+            listBoxItem.Content = new TextBlock()
+            {
+                Text = item.Name,
+                Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
+                FontSize = (double)App.Current.Resources["PhoneFontSizeLarge"],
+                FontFamily = (FontFamily)App.Current.Resources["PhoneFontFamilyLight"],
+                Margin = new Thickness(10, 10, 0, 0)
+            };
             return listBoxItem;
         }
 

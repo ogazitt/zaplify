@@ -131,7 +131,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             {
                 Text = datestring,
                 Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
-                FontSize = (double)App.Current.Resources["PhoneFontSizeExtraLarge"],
+                FontSize = (double)App.Current.Resources["PhoneFontSizeLarge"],
                 FontFamily = (FontFamily)App.Current.Resources["PhoneFontFamilyLight"],
                 Margin = new Thickness(0, 10, 0, 0)
             });

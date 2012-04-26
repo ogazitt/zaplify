@@ -73,6 +73,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ListEditor.xaml.cs">
+      <DependentUpon>ListEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ScheduleHelper.cs" />
     <Compile Include="ListPage.xaml.cs">
       <DependentUpon>ListPage.xaml</DependentUpon>
@@ -115,6 +118,10 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ListEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ListPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -170,6 +177,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\appbar.folder.rest.png" />
+    <Content Include="Images\appbar.sort.rest.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\button.mic.pressed.png" />
     <Content Include="Images\button.search.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

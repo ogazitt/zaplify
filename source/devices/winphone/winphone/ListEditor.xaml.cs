@@ -12,25 +12,26 @@ using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
-    public partial class FolderEditor : PhoneApplicationPage
+    public partial class ListEditor : PhoneApplicationPage
     {
         private Folder folder;
-        private Folder folderCopy;
-
-        public FolderEditor()
+        private Item list;
+        private Item listCopy;
+        
+        public ListEditor()
         {
             InitializeComponent();
 
             // trace event
-            TraceHelper.AddMessage("FolderEditor: constructor");
+            TraceHelper.AddMessage("ListEditor: constructor");
 
             ConnectedIconImage.DataContext = App.ViewModel;
 
             // enable tabbing
             this.IsTabStop = true;
 
-            this.Loaded += new RoutedEventHandler(FolderEditor_Loaded);
-            this.BackKeyPress += new EventHandler<CancelEventArgs>(FolderEditor_BackKeyPress);
+            this.Loaded += new RoutedEventHandler(ListEditor_Loaded);
+            this.BackKeyPress += new EventHandler<CancelEventArgs>(ListEditor_BackKeyPress);
         }
 
         #region Event Handlers
@@ -38,22 +39,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void CancelButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("FolderEditor: Navigate back");
+            TraceHelper.StartMessage("ListEditor: Navigate back");
 
             // navigate back
             NavigationService.GoBack();
         }
-
+        
         private void DeleteButton_Click(object sender, EventArgs e)
         {
-            // if this is a new folder, delete just does the same thing as cancel
-            if (folder == null)
+            // if this is a new list, delete just does the same thing as cancel
+            if (list == null)
             {
                 CancelButton_Click(sender, e);
                 return;
             }
 
-            MessageBoxResult result = MessageBox.Show("delete this folder?", "confirm delete", MessageBoxButton.OKCancel);
+            MessageBoxResult result = MessageBox.Show("delete this list?", "confirm delete", MessageBoxButton.OKCancel);
             if (result != MessageBoxResult.OK)
                 return;
 
@@ -62,22 +63,20 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Delete,
-                    Body = folder
+                    Body = list
                 });
 
             // remove the item from the viewmodel
-            App.ViewModel.Folders.Remove(folder);
-            App.ViewModel.FolderDictionary.Remove(folder.ID);
+            folder.Items.Remove(list);
 
             // save the changes to local storage
-            StorageHelper.WriteFolders(App.ViewModel.Folders);
-            StorageHelper.DeleteFolder(folder);
+            StorageHelper.WriteFolder(folder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
 
             // trace page navigation
-            TraceHelper.StartMessage("FolderEditor: Navigate back");
+            TraceHelper.StartMessage("ListEditor: Navigate back");
 
             // Navigate back to the main page
             NavigationService.GoBack();
@@ -86,40 +85,39 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void SaveButton_Click(object sender, EventArgs e)
         {
             // get the name of the tag
-            folderCopy.Name = ListName.Text;
+            listCopy.Name = ListName.Text;
             var itemType = ItemTypePicker.SelectedItem as ItemType;
-            folderCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
+            listCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
 
             // check for appropriate values
-            if (folderCopy.Name == "")
+            if (listCopy.Name == "")
             {
-                MessageBox.Show("folder name cannot be empty");
+                MessageBox.Show("list name cannot be empty");
                 return;
             }
 
-            // if this is a new folder, create it
-            if (folder == null)
+            // if this is a new list, create it
+            if (list == null)
             {
-                folder = folderCopy;
-
                 // figure out the sort value 
                 float sortOrder = 1000f;
-                if (App.ViewModel.Folders.Count > 0)
-                    sortOrder += App.ViewModel.Folders.Max(f => f.SortOrder);
-                folder.SortOrder = sortOrder;
+                var listItems = folder.Items.Where(it => it.ParentID == listCopy.ParentID).ToList();
+                if (listItems.Count > 0)
+                    sortOrder += listItems.Max(it => it.SortOrder);
+                listCopy.SortOrder = sortOrder;
 
-                // enqueue the Web Request Record (with a new copy of the folder)
+                // enqueue the Web Request Record (with a new copy of the list)
                 // need to create a copy because otherwise other items may be added to it
-                // and we want the record to have exactly one operation in it (create the folder)
+                // and we want the record to have exactly one operation in it (create the list)
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                        Body = new Folder(folder)
+                        Body = new Item(listCopy)
                     });
 
                 // add the item to the local itemType
-                App.ViewModel.Folders.Add(folder);
+                folder.Items.Add(listCopy);
             }
             else // this is an update
             {
@@ -128,61 +126,88 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                        Body = new List<Folder>() { folder, folderCopy },
-                        BodyTypeName = "Folder",
-                        ID = folder.ID
+                        Body = new List<Item>() { list, listCopy },
+                        BodyTypeName = "Item",
+                        ID = list.ID
                     });
 
-                // save the changes to the existing folder (make a deep copy)
-                folder.Copy(folderCopy, true);
+                // save the changes to the existing list (make a deep copy)
+                list.Copy(listCopy, true);
             }
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
-            StorageHelper.WriteFolders(App.ViewModel.Folders);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
 
             // trace page navigation
-            TraceHelper.StartMessage("FolderEditor: Navigate back");
+            TraceHelper.StartMessage("ListEditor: Navigate back");
 
             // Navigate back to the main page
             NavigationService.GoBack();
         }
 
-        void FolderEditor_BackKeyPress(object sender, CancelEventArgs e)
+        void ListEditor_BackKeyPress(object sender, CancelEventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("FolderEditor: Navigate back");
+            TraceHelper.StartMessage("ListEditor: Navigate back");
 
             // navigate back
             NavigationService.GoBack();
         }
 
-        void FolderEditor_Loaded(object sender, RoutedEventArgs e)
+        void ListEditor_Loaded(object sender, RoutedEventArgs e)
         {
             // trace event
-            TraceHelper.AddMessage("FolderEditor: Loaded");
+            TraceHelper.AddMessage("ListEditor: Loaded");
 
             string folderIDString = "";
+            string listIDString = "";
 
-            if (NavigationContext.QueryString.TryGetValue("ID", out folderIDString))
+            if (NavigationContext.QueryString.TryGetValue("FolderID", out folderIDString) == false)
             {
-                if (folderIDString == "new")
+                TraceHelper.AddMessage("ListEditor: no folder ID passed in");
+                NavigationService.GoBack();
+                return;
+            }
+
+            Guid folderID = new Guid(folderIDString);
+            folder = App.ViewModel.Folders.Single<Folder>(f => f.ID == folderID);
+
+            if (NavigationContext.QueryString.TryGetValue("ID", out listIDString))
+            {
+                if (listIDString == "new")
                 {
-                    // new folder
-                    folderCopy = new Folder();
-                    DataContext = folderCopy;
+                    string parentIDString = "";
+                    if (NavigationContext.QueryString.TryGetValue("ParentID", out parentIDString) == false)
+                    {
+                        TraceHelper.AddMessage("ListEditor: no parent ID passed in");
+                        NavigationService.GoBack();
+                        return;
+                    }
+
+                    // new list
+                    DateTime now = DateTime.UtcNow;
+                    listCopy = new Item()
+                    {
+                        FolderID = folderID,
+                        ParentID = String.IsNullOrEmpty(parentIDString) ? (Guid?) null : new Guid(parentIDString),
+                        IsList = true,
+                        ItemTypeID = folder.ItemTypeID,
+                        Created = now,
+                        LastModified = now
+                    };
+                    DataContext = listCopy;
                 }
                 else
                 {
-                    Guid folderID = new Guid(folderIDString);
-                    folder = App.ViewModel.Folders.Single<Folder>(tl => tl.ID == folderID);
+                    Guid listID = new Guid(listIDString);
+                    list = folder.Items.Single<Item>(l => l.ID == listID);
 
                     // make a deep copy of the item for local binding
-                    folderCopy = new Folder(folder);
-                    DataContext = folderCopy;
+                    listCopy = new Item(list);
+                    DataContext = listCopy;
 
                     // add the delete button to the ApplicationBar
                     var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
@@ -196,7 +221,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
                 ItemTypePicker.ItemsSource = itemTypes;
                 ItemTypePicker.DisplayMemberPath = "Name";
-                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == folderCopy.ItemTypeID);
+                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == listCopy.ItemTypeID);
                 ItemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
             }
         }

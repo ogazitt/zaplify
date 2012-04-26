@@ -18,52 +18,34 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait"  Orientation="Portrait"
     shell:SystemTray.IsVisible="True">
+
+    <phone:PhoneApplicationPage.Resources>
+        <DataTemplate x:Key="FullListPickerTemplate">
+            <TextBlock
+                    Text="{Binding Name}"
+                    FontSize="40"
+                    FontWeight="Normal"
+                    VerticalAlignment="Center"
+                    Height="60"
+                    Margin="10,0,0,0"/>
+        </DataTemplate>
+    </phone:PhoneApplicationPage.Resources>
     
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent" d:DataContext="{Binding Folders[0]}">
         <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
-        <!--Pivot Control-->
-        <controls:Pivot x:Name="PivotControl" Title="SORT BY:" SelectionChanged="PivotControl_SelectionChanged">
-            <!--Pivot item one-->
-            <controls:PivotItem Header="due">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="10,-28,0,10" Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}"/>
-                    <ListBox Grid.Row="1" x:Name="ByDueListBox" Margin="0,0,0,0" SelectionChanged="ListBox_SelectionChanged">
-                    </ListBox>
-                </Grid>
-            </controls:PivotItem>
-
-            <!--Pivot item two-->
-            <controls:PivotItem Header="priority">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="10,-28,0,10" Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}"/>
-                    <ListBox Grid.Row="1" x:Name="ByPriListBox" Margin="0,0,0,0" SelectionChanged="ListBox_SelectionChanged">
-                    </ListBox>
-                </Grid>
-            </controls:PivotItem>
-
-            <!--Pivot item three-->
-            <controls:PivotItem Header="name">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40" />
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Margin="10,-28,0,10" Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}"/>
-                    <ListBox Grid.Row="1" x:Name="ByNameListBox" Margin="0,0,0,0" SelectionChanged="ListBox_SelectionChanged">
-                    </ListBox>
-                </Grid>
-            </controls:PivotItem>
-        </controls:Pivot>
-
+        
+        <!--main listbox-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="70" />
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Margin="10,10,0,0" Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeExtraLarge}" FontFamily="{StaticResource PhoneFontFamilySemiLight}"/>
+            <ListBox Grid.Row="1" x:Name="ItemsListBox" Margin="0,0,0,0" SelectionChanged="ListBox_SelectionChanged">
+            </ListBox>
+        </Grid>
+        
         <!--listening popup panel-->
         <Popup x:Name="SpeechPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
             <Grid>
@@ -105,10 +87,24 @@
             <Grid>
                 <Border Background="#FF1F1F1F" Height="200"/>
                 <StackPanel Width="480">
-                    <toolkit:ListPicker x:Name="ImportListPopupListPicker" Margin="0,15,0,0" ItemsSource="{Binding ImportListViewSource.View}" DisplayMemberPath="Name" />
+                    <toolkit:ListPicker x:Name="ImportListPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding ImportListViewSource.View}" DisplayMemberPath="Name" />
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
                         <Button x:Name="ImportListPopup_ImportButton" Content="import" Click="ImportListPopup_ImportButton_Click" Width="230"/>
                         <Button x:Name="ImportListPopup_CancelButton" Content="cancel" Click="ImportListPopup_CancelButton_Click" Width="230"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Popup>
+
+        <!--sort popup panel-->
+        <Popup x:Name="SortPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
+            <Grid>
+                <Border Background="#FF1F1F1F" Height="200"/>
+                <StackPanel Width="480">
+                    <toolkit:ListPicker x:Name="SortPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding SortViewSource.View}" DisplayMemberPath="Name" />
+                    <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
+                        <Button x:Name="SortPopup_SortButton" Content="sort" Click="SortPopup_SortButton_Click" Width="230"/>
+                        <Button x:Name="SortPopup_RemoveButton" Content="remove" Click="SortPopup_RemoveButton_Click" Width="230"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -119,8 +115,10 @@
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <!--<shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add item" Click="AddButton_Click"/>-->
-            <shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="quick add" Click="QuickAddButton_Click"/>
+            <!--<shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add" Click="QuickAddButton_Click"/>-->
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.add.rest.png" Text="add list" Click="AddButton_Click"/>
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.edit.rest.png" Text="edit folder" Click="EditButton_Click" />
+            <shell:ApplicationBarIconButton IconUri="/Images/appbar.sort.rest.png" Text="sort list" Click="SortButton_Click" />
             <shell:ApplicationBarIconButton IconUri="/Images/appbar.folder.rest.png" Text="view folders" Click="FoldersButton_Click" />
 
             <shell:ApplicationBar.MenuItems>

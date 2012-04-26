@@ -5,18 +5,18 @@
     xmlns:entities="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
 
     <viewmodel:MainViewModel.Folders>
-        <entities:Folder Name="list one">
+        <entities:Folder Name="folder one">
             <entities:Folder.Items>
-                <entities:Item Name="item one" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="true" Due="2011-07-17" Priority="1" Description="do item one" />
-                <entities:Item Name="item two" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Complete="false" Priority="2" />
-                <entities:Item Name="item three" ItemTypeID="14CDA248-4116-4E51-AC13-00096B43418C" Priority="0" Due="2011-07-31" Description="do item three" />
+                <entities:Item Name="list one" ItemTypeID="00000000-0000-0000-0000-000000000001" Complete="true" Due="2011-07-17" Priority="1" Description="do item one" />
+                <entities:Item Name="item two" ItemTypeID="00000000-0000-0000-0000-000000000001" Complete="false" Priority="2" />
+                <entities:Item Name="item three" ItemTypeID="00000000-0000-0000-0000-000000000001" Priority="0" Due="2011-07-31" Description="do item three" />
             </entities:Folder.Items>
         </entities:Folder>
-        <entities:Folder Name="list two">
+        <entities:Folder Name="folder two">
             <entities:Folder.Items>
-                <entities:Item Name="l2 item one" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" Priority="0" Description="do l2 item one" />
-                <entities:Item Name="l2 item two" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" Priority="1" Description="do l2 item two" />
-                <entities:Item Name="l2 item three" ItemTypeID="1788A0C4-96E8-4B95-911A-75E1519D7259" Priority="2" Description="do l2 item three" />
+                <entities:Item Name="l2 list one" ItemTypeID="00000000-0000-0000-0000-000000000002" Priority="0" Description="do l2 item one" />
+                <entities:Item Name="l2 item two" ItemTypeID="00000000-0000-0000-0000-000000000002" Priority="1" Description="do l2 item two" />
+                <entities:Item Name="l2 item three" ItemTypeID="00000000-0000-0000-0000-000000000002" Priority="2" Description="do l2 item three" />
             </entities:Folder.Items>
         </entities:Folder>        
      </viewmodel:MainViewModel.Folders>

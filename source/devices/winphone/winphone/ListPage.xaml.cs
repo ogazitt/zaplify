@@ -35,13 +35,17 @@
         private Item list;
         private ListHelper ListHelper;
         private Tag tag;
+        private string typeString;
 
         private NuanceHelper.SpeechState speechState;
         private string speechDebugString = null;
         private DateTime speechStart;
 
-        // ViewSource for the Folder collection for Import List (used for filtering out non-template folders)
+        // ViewSource for the List collection for Import List (used for filtering out non-template folders)
         public CollectionViewSource ImportListViewSource { get; set; }
+
+        // ViewSource for the Sort field collection for Sort 
+        public CollectionViewSource SortViewSource { get; set; }
 
         private Visibility networkOperationInProgress = Visibility.Collapsed;
         /// <summary>
@@ -181,6 +185,9 @@
             ImportListViewSource = new CollectionViewSource();
             ImportListViewSource.Filter += new FilterEventHandler(ImportList_Filter);
 
+            SortViewSource = new CollectionViewSource();
+            SortViewSource.Filter += new FilterEventHandler(Sort_Filter);
+
             // add some event handlers
             Loaded += new RoutedEventHandler(ListPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(ListPage_BackKeyPress);
@@ -199,7 +206,6 @@
             TraceHelper.AddMessage("ListPage: OnNavigatedTo");
 
             string IDString = "";
-            string typeString = "";
             Guid id;
 
             // get the type of list to display
@@ -279,6 +285,17 @@
                             listName = item.Name;
                             listID = (Guid?)id;
                             itemTypeID = item.ItemTypeID;
+
+                            // change the "edit folder" appbar button title to "edit list"                            
+                            ApplicationBarIconButton button = null;
+                            for (int i = 0; i < ApplicationBar.Buttons.Count; i++)
+                            {
+                                button = (ApplicationBarIconButton)ApplicationBar.Buttons[i];
+                                if (button.Text.StartsWith("edit", StringComparison.InvariantCultureIgnoreCase))
+                                    break;
+                            }
+                            if (button.Text.StartsWith("edit", StringComparison.InvariantCultureIgnoreCase))
+                                button.Text = "edit list";
                         }
 
                         // construct a synthetic item that represents the list of items for which the 
@@ -350,80 +367,125 @@
             DataContext = list;
 
             // create the ListHelper
-            ListHelper = new BuiltSteady.Zaplify.Devices.WinPhone.ListHelper(
-                list, 
+            ListHelper = new ListHelper(
                 new RoutedEventHandler(CompleteCheckbox_Click), 
                 new RoutedEventHandler(Tag_HyperlinkButton_Click));
 
             // store the current listbox and ordering
-            PivotItem pi = (PivotItem) PivotControl.Items[PivotControl.SelectedIndex];
-            ListHelper.ListBox = (ListBox)((Grid)pi.Content).Children[1];
-            ListHelper.OrderBy = (string)pi.Header;
+            ListHelper.ListBox = ItemsListBox;
+            ListHelper.OrderBy = null;
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");
         }
 
-        #region Event Handlers
+        #region Button Event Handlers
 
         private void AddButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
-            TraceHelper.StartMessage("ListPage: Navigate to Item");
+            TraceHelper.StartMessage("ListPage: Navigate to List Editor");
 
             // Navigate to the new page
             NavigationService.Navigate(
-                new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", "new", folder.ID),
+                new Uri(String.Format("/ListEditor.xaml?ID={0}&FolderID={1}&ParentID={2}", "new", folder.ID, list.ID),
                 UriKind.Relative));
         }
 
-        /// <summary>
-        /// Handle click event on Complete checkbox
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CompleteCheckbox_Click(object sender, RoutedEventArgs e)
+        private void EditButton_Click(object sender, EventArgs e)
         {
-            // trace data
-            TraceHelper.StartMessage("CompleteCheckbox Click");
-
-            CheckBox cb = (CheckBox)e.OriginalSource;
-            Guid itemID = (Guid)cb.Tag;
-
-            // get the item that was just updated, and ensure the Complete flag is in the correct state
-            Item item = folder.Items.Single<Item>(t => t.ID == itemID);
-
-            // create a copy of that item
-            Item itemCopy = new Item(item);
-
-            // toggle the complete flag to reflect the checkbox click
-            item.Complete = (item.Complete == null) ? true : !item.Complete;
-
-            // bump the last modified timestamp
-            item.LastModified = DateTime.UtcNow;
-
-            // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord()
+            if (typeString == "Folder")
+            {
+                if (list.ID == Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Item>() { itemCopy, item },
-                    BodyTypeName = "Item",
-                    ID = item.ID
-                });
-            
-            // reorder the item in the folder and the ListBox
-            ListHelper.ReOrderItem(list, item);
+                    // trace page navigation
+                    TraceHelper.StartMessage("ListPage: Navigate to FolderEditor");
 
-            // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+                    // Navigate to the FolderEditor page
+                    NavigationService.Navigate(
+                        new Uri(String.Format("/FolderEditor.xaml?ID={0}", folder.ID),
+                        UriKind.Relative));
+                }
+                else
+                {
+                    // trace page navigation
+                    TraceHelper.StartMessage("ListPage: Navigate to ListEditor");
 
-            // trigger a sync with the Service 
-            App.ViewModel.SyncWithService();
+                    // Navigate to the FolderEditor page
+                    NavigationService.Navigate(
+                        new Uri(String.Format("/ListEditor.xaml?ID={0}&FolderID={1}", list.ID, folder.ID),
+                        UriKind.Relative));
+                }
+            }
+            else
+            {
+                // trace page navigation
+                TraceHelper.StartMessage("ListPage: Navigate to TagEditor");
 
-            // trace data
-            TraceHelper.AddMessage("Finished CompleteCheckbox Click");
+                // Navigate to the TagEditor page
+                NavigationService.Navigate(
+                    new Uri(String.Format("/TagEditor.xaml?ID={0}", tag.ID),
+                    UriKind.Relative));
+            }
         }
+
+        // handle events associated with the Folders button
+        private void FoldersButton_Click(object sender, EventArgs e)
+        {
+            // trace page navigation
+            TraceHelper.StartMessage("ListPage: Navigate to Main");
+
+            // Navigate to the main page
+            NavigationService.Navigate(
+                new Uri("/MainPage.xaml?Tab=Folders", UriKind.Relative));
+        }
+
+        // handle events associated with the Sort button
+        private void SortButton_Click(object sender, EventArgs e)
+        {
+            var itemType = App.ViewModel.ItemTypes.Single(it => it.ID == list.ItemTypeID);
+            // set the collection source for the import template folder picker
+            SortViewSource.Source = itemType.Fields;
+            SortPopupListPicker.DataContext = this;
+
+            // open the popup, disable folder selection bug
+            SortPopup.IsOpen = true;
+        }
+
+        // handle events associated with Import List
+        private void Sort_Filter(object sender, FilterEventArgs e)
+        {
+            Field f = e.Item as Field;
+            e.Accepted = f.IsPrimary;
+        }
+
+        private void SortPopup_SortButton_Click(object sender, RoutedEventArgs e)
+        {
+            Field target = SortPopupListPicker.SelectedItem as Field;
+            if (target == null)
+                return;
+
+            // store the current listbox and orderby field, and re-render the list
+            ListHelper.OrderBy = target.Name;
+            ListHelper.RenderList(list);
+
+            // close the popup 
+            SortPopup.IsOpen = false;
+        }
+
+        private void SortPopup_RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            // store the current listbox and remove the orderby field, and re-render the list
+            ListHelper.OrderBy = null;
+            ListHelper.RenderList(list);
+
+            // close the popup 
+            SortPopup.IsOpen = false;
+        }
+
+        #endregion Button Event Handlers
+
+        #region Menu Item Event Handlers
 
         private void DeleteCompletedMenuItem_Click(object sender, EventArgs e)
         {
@@ -438,7 +500,8 @@
             Item itemlist = new Item(list, false);
             itemlist.Items = new ObservableCollection<Item>();
             foreach (Item t in list.Items)
-                itemlist.Items.Add(t);
+                if (t.ItemTypeID != SystemItemTypes.System)
+                    itemlist.Items.Add(t);
 
             // remove any completed items from the original list
             foreach (var item in itemlist.Items)
@@ -453,13 +516,13 @@
                             Body = item
                         });
 
-                    // remove the item from the original collection and from ListBox
-                    ListHelper.RemoveItem(list, item);
-
                     // remove the item (and all subitems) from the local folder (and local storage)
                     App.ViewModel.RemoveItem(item);
                 }
             }
+
+            // recreate the List
+            ListHelper.RenderList(itemlist);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);
@@ -468,32 +531,7 @@
             App.ViewModel.SyncWithService();
         }
 
-        private void EditButton_Click(object sender, EventArgs e)
-        {
-            if (folder.ID != Guid.Empty)
-            {
-                // trace page navigation
-                TraceHelper.StartMessage("ListPage: Navigate to FolderEditor");
-
-                // Navigate to the FolderEditor page
-                NavigationService.Navigate(
-                    new Uri(String.Format("/FolderEditor.xaml?ID={0}", folder.ID),
-                    UriKind.Relative));
-            }
-            else
-            {
-                // trace page navigation
-                TraceHelper.StartMessage("ListPage: Navigate to TagEditor");
-
-                // Navigate to the TagEditor page
-                NavigationService.Navigate(
-                    new Uri(String.Format("/TagEditor.xaml?ID={0}", tag.ID),
-                    UriKind.Relative));
-            }
-        }
-
         // handle events associated with Import List
-
         private void ImportList_Filter(object sender, FilterEventArgs e)
         {
             Item i = e.Item as Item;
@@ -544,11 +582,9 @@
                         Body = item
                     });
 
-                // add the item to the local collection
-                ListHelper.AddItem(list, item);
-
-                // add the item to the folder
+                // add the item to the folder and list
                 folder.Items.Add(item);
+                list.Items.Add(item);
             }
 
             // render the list
@@ -570,6 +606,58 @@
             ImportListPopup.IsOpen = false;
         }
 
+        #endregion Menu Item Event Handlers
+
+        #region List Event Handlers
+
+        /// <summary>
+        /// Handle click event on Complete checkbox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CompleteCheckbox_Click(object sender, RoutedEventArgs e)
+        {
+            // trace data
+            TraceHelper.StartMessage("CompleteCheckbox Click");
+
+            CheckBox cb = (CheckBox)e.OriginalSource;
+            Guid itemID = (Guid)cb.Tag;
+
+            // get the item that was just updated, and ensure the Complete flag is in the correct state
+            Item item = folder.Items.Single<Item>(t => t.ID == itemID);
+
+            // create a copy of that item
+            Item itemCopy = new Item(item);
+
+            // toggle the complete flag to reflect the checkbox click
+            item.Complete = (item.Complete == null) ? true : !item.Complete;
+
+            // bump the last modified timestamp
+            item.LastModified = DateTime.UtcNow;
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                    Body = new List<Item>() { itemCopy, item },
+                    BodyTypeName = "Item",
+                    ID = item.ID
+                });
+            
+            // reorder the item in the folder and the ListBox
+            ListHelper.ReOrderItem(list, item);
+
+            // save the changes to local storage
+            StorageHelper.WriteFolder(folder);
+
+            // trigger a sync with the Service 
+            App.ViewModel.SyncWithService();
+
+            // trace data
+            TraceHelper.AddMessage("Finished CompleteCheckbox Click");
+        }
+
         // Handle selection changed on ListBox
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -588,6 +676,10 @@
 
             // if there is no item, return without processing the event
             if (item == null)
+                return;
+
+            // if this is a system itemtype (which designates a separator), do nothing
+            if (item.ItemTypeID == SystemItemTypes.System)
                 return;
 
             // trace page navigation
@@ -640,31 +732,22 @@
             TraceHelper.AddMessage("Finished ListPage Loaded");
         }
 
-        // handle events associated with the Folders button
-        private void FoldersButton_Click(object sender, EventArgs e)
+        // event handlers related to tags
+        private void Tag_HyperlinkButton_Click(object sender, RoutedEventArgs e)
         {
+            HyperlinkButton button = (HyperlinkButton)e.OriginalSource;
+            Guid tagID = (Guid)button.Tag;
+
             // trace page navigation
-            TraceHelper.StartMessage("ListPage: Navigate to Main");
+            TraceHelper.StartMessage("ListPage: Navigate to Tag");
 
-            // Navigate to the main page
-            NavigationService.Navigate(
-                new Uri("/MainPage.xaml?Tab=Folders", UriKind.Relative));
+            // Navigate to the new page
+            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
         }
 
-        private void PivotControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // store the current listbox
-            ListHelper.ListBox = (ListBox)((Grid)((PivotItem)PivotControl.SelectedItem).Content).Children[1];
-            ListHelper.OrderBy = (string)((PivotItem)PivotControl.SelectedItem).Header;
+        #endregion List Event Handlers
 
-            // the pivot control's selection changed event gets called during the initialization of a new
-            // page.  since we do rendering in the Loaded event handler, we need to skip rendering here
-            // so that we don't do it twice and slow down the loading of the page.
-            if (constructorCalled == false)
-            {
-                ListHelper.RenderList(list);
-            }
-        }
+        #region QuickAdd Popup Event Handlers
 
         // handle events associated with the Quick Add Popup
         private void QuickAddButton_Click(object sender, EventArgs e)
@@ -695,8 +778,9 @@
             bool isChecked = (QuickAddPopupIsListCheckbox.IsChecked == null) ? false : (bool) QuickAddPopupIsListCheckbox.IsChecked;
 
             // figure out the sort value 
+            Guid? parentID = (list.ID == Guid.Empty) ? null : (Guid?) list.ID;
             float sortOrder = 1000f;
-            var listItems = folder.Items.Where(it => it.ParentID == list.ID).ToList();
+            var listItems = folder.Items.Where(it => it.ParentID == parentID).ToList();
             if (listItems.Count > 0)
                 sortOrder += listItems.Max(it => it.SortOrder);
 
@@ -725,9 +809,10 @@
                 });
 
             // add the new item to the list
+            list.Items.Add(item);
             ListHelper.AddItem(list, item);
 
-            // add the item to the folder
+            // add the item to the folder and list and re-render list
             folder.Items.Add(item);
 
             // save the changes to local storage
@@ -746,6 +831,10 @@
             // close the popup 
             QuickAddPopup.IsOpen = false;
         }
+
+        #endregion QuickAdd Popup Event Handlers
+
+        #region Speech Popup Event Handlers
 
         // handle events associated with the Speech Popup
         private void SpeechButton_Click(object sender, RoutedEventArgs e)
@@ -973,21 +1062,7 @@
             });
         }
 
-        // event handlers related to tags
-
-        private void Tag_HyperlinkButton_Click(object sender, RoutedEventArgs e)
-        {
-            HyperlinkButton button = (HyperlinkButton)e.OriginalSource;
-            Guid tagID = (Guid)button.Tag;
-
-            // trace page navigation
-            TraceHelper.StartMessage("ListPage: Navigate to Tag");
-
-            // Navigate to the new page
-            NavigationService.Navigate(new Uri("/ListPage.xaml?type=Tag&ID=" + tagID.ToString(), UriKind.Relative));
-        }
-
-        #endregion
+        #endregion QuickAdd Popup Event Handlers
 
         #region Helpers
 
