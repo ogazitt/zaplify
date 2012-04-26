@@ -185,8 +185,21 @@
                 body = list[1];
             }
 
-            // create an operation corresponding to the new contact creation
-            operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, body, oldBody);
+            // if the body is a BasicAuthCredentials, this likely means that we are in the process
+            // of creating the user, and the CurrentUser property is null
+            User user = null;
+            if (body is BasicAuthCredentials)
+            {
+                // create a user from the body so that the CreateOperation call can succeed
+                var userCred = body as BasicAuthCredentials;
+                user = userCred.AsUser();
+                // make sure the password doesn't get traced
+                userCred.Password = "";
+            }
+            else
+                user = CurrentUser;
+            if (user != null)
+                operation = this.StorageContext.CreateOperation(user, req.Method.Method, null, body, oldBody);
 
             return value;
         }

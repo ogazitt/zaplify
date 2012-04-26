@@ -875,8 +875,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 SpeechLabelText = textString == null ? "recognition failed" : String.Format("'{0}'", textString);
                 NameTextBox.Text = textString;
 
-#if DEBUG && KILL
-                MessageBox.Show(speechDebugString);
+                // dismiss the speech box
+                SpeechPopup.IsOpen = false;
+
+#if DEBUG
+                //MessageBox.Show(speechDebugString);
 #endif
             });
         }

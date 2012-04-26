@@ -48,7 +48,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             get
             {
-                return enableCreateButton;
+                //return enableCreateButton;
+                return true;
             }
             set
             {
@@ -69,7 +70,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             get
             {
-                return enableSyncButton;
+                //return enableSyncButton;
+                return true;
             }
             set
             {

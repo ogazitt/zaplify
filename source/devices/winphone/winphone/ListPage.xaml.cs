@@ -499,9 +499,9 @@
             // an new Items collection that won't interfere with the existing one.
             Item itemlist = new Item(list, false);
             itemlist.Items = new ObservableCollection<Item>();
-            foreach (Item t in list.Items)
-                if (t.ItemTypeID != SystemItemTypes.System)
-                    itemlist.Items.Add(t);
+            foreach (Item i in list.Items)
+                if (i.ItemTypeID != SystemItemTypes.System)
+                    itemlist.Items.Add(i);
 
             // remove any completed items from the original list
             foreach (var item in itemlist.Items)
@@ -518,11 +518,12 @@
 
                     // remove the item (and all subitems) from the local folder (and local storage)
                     App.ViewModel.RemoveItem(item);
+                    list.Items.Remove(item);
                 }
             }
 
             // recreate the List
-            ListHelper.RenderList(itemlist);
+            ListHelper.RenderList(list);
 
             // save the changes to local storage
             StorageHelper.WriteFolder(folder);

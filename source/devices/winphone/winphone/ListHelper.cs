@@ -332,9 +332,16 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             foreach (var item in sorted)
             {
                 ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == item.ItemTypeID);
-                Field field = itemType.Fields.Single(f => f.Name == OrderBy);
-                FieldValue fv = item.GetFieldValue(field, false);
-                string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(field.DisplayType, fv != null ? fv.Value : null);
+                string displayType = DisplayTypes.Text;
+                string value = null;
+                if (itemType.Fields.Any(f => f.Name == OrderBy))
+                {
+                    Field field = itemType.Fields.Single(f => f.Name == OrderBy);
+                    FieldValue fv = item.GetFieldValue(field, false);
+                    displayType = field.DisplayType;
+                    value = fv != null ? fv.Value : null;
+                }
+                string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(displayType, value);
                 if (currentSectionHeading != separator)
                 {
                     finalList.Add(new Item() { Name = currentSectionHeading, ItemTypeID = SystemItemTypes.System }); // System itemtype designates separator
