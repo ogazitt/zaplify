@@ -925,16 +925,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             return new Constants()
             {
-                ActionTypes = new ObservableCollection<ActionType>(UserDatabase.DefaultActionTypes()),
-                Colors = new ObservableCollection<BuiltSteady.Zaplify.Devices.ClientEntities.Color>(UserDatabase.DefaultColors()),
-                Permissions = new ObservableCollection<Permission>(UserDatabase.DefaultPermissions()),
-                Priorities = new ObservableCollection<Priority>(UserDatabase.DefaultPriorities())
+                ActionTypes = new ObservableCollection<ActionType>(UserConstants.DefaultActionTypes()),
+                Colors = new ObservableCollection<BuiltSteady.Zaplify.Devices.ClientEntities.Color>(UserConstants.DefaultColors()),
+                Permissions = new ObservableCollection<Permission>(UserConstants.DefaultPermissions()),
+                Priorities = new ObservableCollection<Priority>(UserConstants.DefaultPriorities())
             };
         }
 
         private ObservableCollection<ItemType> InitializeItemTypes()
         {
-            return new ObservableCollection<ItemType>(UserDatabase.DefaultItemTypes());
+            return new ObservableCollection<ItemType>(UserConstants.DefaultItemTypes());
         }
 
         private ObservableCollection<Tag> InitializeTags()

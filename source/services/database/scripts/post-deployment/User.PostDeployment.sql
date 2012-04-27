@@ -10,7 +10,13 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-/* User database */
+/* User database - set the version string */
+DECLARE @VersionString NVARCHAR(16);
+SET @VersionString = N'1.0.2012.0426';
+UPDATE [dbo].[DatabaseVersions]  SET [VersionType] = N'Schema', [VersionString] = @VersionString, [Status] = 'OK' WHERE VersionType = N'Schema'
+IF @@ROWCOUNT=0
+    INSERT INTO [dbo].[DatabaseVersions] ([VersionType], [VersionString], [Status]) VALUES (N'Schema', @VersionString, N'OK')
+
 /*
 :r .\dbo.Users.Table.sql
 GO

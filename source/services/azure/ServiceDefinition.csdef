@@ -9,8 +9,6 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
-      <Setting name="UserDatabaseVersion" />
-      <Setting name="SuggestionsDatabaseVersion" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />
@@ -45,8 +43,6 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
-      <Setting name="UserDatabaseVersion" />
-      <Setting name="SuggestionsDatabaseVersion" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="DataConnectionString" />

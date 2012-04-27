@@ -131,12 +131,7 @@
     <Build Include="dbo.Suggestions.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <None Include="Scripts\Post-Deployment\dbo.DatabaseVersions.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <Build Include="dbo.DatabaseVersions.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
+    <Build Include="dbo.DatabaseVersions.Table.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="scripts\post-deployment\Suggestion.PostDeployment.sql" />

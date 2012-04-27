@@ -182,9 +182,6 @@
     <Build Include="dbo.DatabaseVersions.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <None Include="Scripts\Post-Deployment\dbo.DatabaseVersions.Table.sql">
-      <SubType>Code</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="scripts\post-deployment\User.PostDeployment.sql" />
