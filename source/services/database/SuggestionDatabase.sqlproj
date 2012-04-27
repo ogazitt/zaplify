@@ -143,5 +143,6 @@
     <None Include="SuggestionDatabase.Dev1.publish.xml" />
     <None Include="SuggestionDatabase.Production.publish.xml" />
     <None Include="SuggestionDatabase.Dev2.publish.xml" />
+    <None Include="SuggestionDatabase.Local.publish.xml" />
   </ItemGroup>
 </Project>

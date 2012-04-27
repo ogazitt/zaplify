@@ -193,5 +193,6 @@
     <None Include="UserDatabase.Dev1.publish.xml" />
     <None Include="UserDatabase.Dev2.publish.xml" />
     <None Include="UserDatabase.Production.publish.xml" />
+    <None Include="UserDatabase.Local.publish.xml" />
   </ItemGroup>
 </Project>
