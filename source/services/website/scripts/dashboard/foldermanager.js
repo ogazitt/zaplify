@@ -567,7 +567,6 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
                                 value: item.geometry.location.toUrlValue()
                             }
                         });
-                        //response($.ui.autocomplete.filter(matches, lastTerm(request.term)));
                         response(addresses);
                     }
                 });
@@ -595,17 +594,55 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.attr('disabled', 'disabled');
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
     var text = '';
     var value = this.item.GetFieldValue(field);
     if (value != null && value.IsList) {
+        var dataModel = Control.findParent(this, 'dataModel').dataModel;
         var contacts = value.GetItems();
         for (var id in contacts) {
-            text += contacts[id].Name + ', ';
+            var contactRef = contacts[id].GetFieldValue(FieldNames.ItemRef);
+            text += contactRef.Name;
+            // TODO: support multiple contacts
+            //text += '; ';
+            break;
         }
-        if (text.length > 0) { text = text.slice(0, text.length - 2); }
     }
     $field.val(text);
+
+    var split = function (val) { return val.split(/;\s*/); }
+    var lastTerm = function (term) { return split(term).pop(); }
+    $field.autocomplete({
+        source: function (request, response) {
+            Service.InvokeController('UserInfo', 'PossibleSubjects',
+                { 'startsWith': lastTerm(request.term) },
+                function (responseState) {
+                    var result = responseState.result;
+                    var contacts = [];
+                    if (result.Count > 0) {
+                        for (var name in result.Subjects) {
+                            contacts.push({ label: name, value: result.Subjects[name] });
+                        }
+                    }
+                    response(contacts);
+                });
+        },
+        select: function (event, ui) {
+            // multi-selection support
+            var terms = split(this.value);
+            terms.pop();                        // remove the current input
+            terms.push(ui.item.label);          // add the selected item
+            terms.push("");                     // placeholder for separator
+            this.value = terms.join("; ");      // add separator
+
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.Contacts, ui.item.value);
+            itemEditor = Control.get(this);
+            if (itemEditor != null) { itemEditor.handleChange($(this)); }
+            return false;
+        },
+        minLength: 1
+    });
     return $field;
 }
 
@@ -624,6 +661,31 @@ ItemEditor.prototype.updateField = function ($element) {
                 case DisplayTypes.Reference:
                 case DisplayTypes.TagList:
                 case DisplayTypes.ContactList:
+                    var contact;
+                    var contactName = $element.val();
+                    var jsonContact = $element.data(FieldNames.Contacts);
+                    if (jsonContact != null) {
+                        contact = $.parseJSON(jsonContact);
+                    }
+                    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+                    if (contact != null && contact.ItemTypeID == ItemTypes.Reference) {
+                        // add reference to existing contact
+                        contact = { Name: contact.Name, ID: contact.FieldValues[0].Value };
+                        this.item.AddReference(field, contact, true);
+                    } else {
+                        // create new contact and add reference
+                        var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
+                        if (contact != null) {
+                            contact = $.extend(new Item(), contact);
+                        } else {
+                           contact = $.extend(new Item(), { Name: contactName, ItemTypeID: ItemTypes.Contact });
+                        }
+                        var thisItem = this.item;
+                        dataModel.InsertItem(contact, contactFolder, null, null, null,
+                            function (insertedContact) {
+                                thisItem.AddReference(field, insertedContact, true);
+                            });
+                    }
                     break;
                 case DisplayTypes.LocationList:
                     var address = $element.val();

@@ -9,6 +9,7 @@ var Service = function Service$() { }
 // ---------------------------------------------------------
 // public members
 
+Service.ControllerResource = 'Controller';
 Service.UsersResource = 'users';
 Service.ConstantsResource = 'contants';
 Service.FoldersResource = 'folders';
@@ -53,6 +54,10 @@ Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
 
 Service.Close = function Service$Close() {
     Service.invokeAsync = false;
+}
+
+Service.InvokeController = function Service$InvokeController(controller, action, data, successHandler, errorHandler) {
+    Service.invokeResource(Service.ControllerResource, controller, action, data, successHandler, errorHandler);
 }
 
 Service.GetResource = function Service$GetResource(resource, id, successHandler, errorHandler) {
@@ -104,7 +109,7 @@ Service.Geocoder = function Service$Geocoder() {
 // ---------------------------------------------------------
 // private methods
 
-// helper to invoke a rest-based resource
+// helper to invoke a rest-based resource OR a Controller method (using POST)
 // address resource type and optional id using httpMethod
 // converts data to json in request, expects json response
 // errorHandler is optional
@@ -119,7 +124,11 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
             return;
         }
         var responseState = new ResponseState(response.StatusCode);
-        responseState.result = response.Value;
+        if (resource == Service.ControllerResource) {
+            responseState.result = response;
+        } else {
+            responseState.result = response.Value;
+        }
         if (successHandler != null) {
             successHandler(responseState);
         }
@@ -142,12 +151,19 @@ Service.invokeResource = function Service$invokeResource(resource, id, httpMetho
         }
     };
 
-    id = (id == null) ? "" : ("/" + id);
-    var resourceUrl = Service.resourceUrl + resource + id;
-    var jsonData = (data == null) ? "" : JSON.stringify(data);
+    var invokeUrl;
+    var jsonData = (data == null) ? '' : JSON.stringify(data);
+    if (resource == Service.ControllerResource) {
+        var controllerAction = id + '/' + httpMethod;
+        httpMethod = 'POST';
+        invokeUrl = Service.siteUrl + controllerAction;
+    } else {
+        id = (id == null) ? '' : ('/' + id);
+        invokeUrl = Service.resourceUrl + resource + id;
+    }
 
     request = {
-        url: resourceUrl,
+        url: invokeUrl,
         type: httpMethod,
         contentType: "application/json",
         dataType: "json",

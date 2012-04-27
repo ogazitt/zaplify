@@ -629,7 +629,7 @@ Item.prototype.AddReference = function (field, item, replace) {
                     insertedRefList = DataModel.FindItem(insertedRefList.ID);
                     thisItem.addReference(insertedRefList, item);
                     var thisUpdatedItem = $.extend({}, thisItem);
-                    thisUpdatedItem.SetFieldValue(FieldNames.Locations, insertedRefList.ID);
+                    thisUpdatedItem.SetFieldValue(field.Name, insertedRefList.ID);
                     thisItem.Update(thisUpdatedItem);
                 });
         }
