@@ -36,7 +36,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     // and this state can terminate
                     try
                     {
-                        FieldValue contactsField = GetFieldValue(item, TargetFieldName, false);
+                        FieldValue contactsField = item.GetFieldValue(TargetFieldName);
                         if (contactsField != null && contactsField.Value != null)
                         {
                             Guid contactsListID = new Guid(contactsField.Value);
@@ -159,7 +159,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         private Status CreateContact(WorkflowInstance workflowInstance, Item item)
         {
             DateTime now = DateTime.UtcNow;
-            FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
+            FieldValue contactsField = item.GetFieldValue(TargetFieldName, true);
             Guid listID = contactsField.Value != null ? new Guid(contactsField.Value) : Guid.NewGuid();
 
             // if the contacts sublist under the item doesn't exist, create it now
@@ -213,7 +213,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     foreach (var fv in contact.FieldValues)
                     {
                         // add or update each of the fieldvalues
-                        var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
+                        var dbfv = dbContact.GetFieldValue(fv.FieldName, true);
                         dbfv.Copy(fv);
                     }
                     dbContact.LastModified = now;
@@ -319,7 +319,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     Single(i => i.UserID == userid && i.ItemTypeID == SystemItemTypes.Contact && i.Name == subject.Name);
 
                 // ensure that if a facebook ID exists, it matches the FBID of the subject just retrieved
-                var fbid = GetFieldValue(contact, FieldNames.FacebookID, false);
+                var fbid = contact.GetFieldValue(FieldNames.FacebookID);
                 var ids = subject.IDs.Where(id => id.Source == Sources.Facebook).ToList();
                 if (ids.Count > 0 && fbid != null && fbid.Value != ids[0].Value)
                     return null;
@@ -365,12 +365,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             }
             */
             // try to find an existing contact using matching heuristic
-            bool found = false;
             var contact = GetContact(item.UserID, subject);
 
             // if the contact wasn't found, create the new contact (detached) - it will be JSON-serialized and placed into 
             // the suggestion value field
             if (contact == null)
+            {
                 contact = new Item()
                 {
                     ID = Guid.NewGuid(),
@@ -383,26 +383,21 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     Created = now,
                     LastModified = now,
                 };
-            else
-                found = true;
+            }
 
             // add various FieldValues to the contact if available
             try
             {
                 // add sources
                 string sources = String.Join(",", subject.IDs.Select(id => id.Source));
-                /*
-                if (found)
-                    sources = String.Format("{0}{1}{2}", sources, String.IsNullOrEmpty(sources) ? "" : ",", Sources.Local);
-                 */
-                GetFieldValue(contact, FieldNames.Sources, true).Value = sources;
+                contact.GetFieldValue(FieldNames.Sources, true).Value = sources;
                 // add birthday
                 if (subject.Birthday != null)
-                    GetFieldValue(contact, FieldNames.Birthday, true).Value = ((DateTime)subject.Birthday).ToString("d");
+                    contact.GetFieldValue(FieldNames.Birthday, true).Value = ((DateTime)subject.Birthday).ToString("d");
                 // add facebook ID
                 string fbID = subject.IDs.Single(id => id.Source == ADQueryResultValue.FacebookSource).Value;
                 if (fbID != null)
-                    GetFieldValue(contact, FieldNames.FacebookID, true).Value = fbID;
+                    contact.GetFieldValue(FieldNames.FacebookID, true).Value = fbID;
             }
             catch (Exception) { }
 

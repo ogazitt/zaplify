@@ -128,7 +128,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // if the target field has been set, this state can terminate
             try
             {
-                FieldValue targetField = GetFieldValue(item, TargetFieldName, false);
+                FieldValue targetField = item.GetFieldValue(TargetFieldName);
                 if (targetField != null && targetField.Value != null)
                 {
                     StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
@@ -349,38 +349,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             {
                 // if the string template is not a JSON-serialized array, then just return the string as-is
                 return stringTemplate;
-            }
-        }
-
-        /// <summary>
-        /// Get a FieldValue for the FieldName, optionally creating it if necessary
-        /// </summary>
-        /// <param name="item">Item to look in</param>
-        /// <param name="fieldName">FieldName to look for</param>
-        /// <param name="create">Whether to create a FieldValue if one doesn't exist</param>
-        /// <returns>FieldValue found/created or null</returns>
-        protected FieldValue GetFieldValue(Item item, string fieldName, bool create)
-        {
-            try
-            {
-                FieldValue fieldValue = item.FieldValues.Single(fv => fv.FieldName == fieldName);
-                return fieldValue;
-            }
-            catch (Exception)
-            {
-                if (create == true)
-                {
-                    FieldValue fv = new FieldValue()
-                    {
-                        FieldName = fieldName,
-                        ItemID = item.ID,
-                    };
-                    if (item.FieldValues == null)
-                        item.FieldValues = new List<FieldValue>();
-                    item.FieldValues.Add(fv);
-                    return fv;
-                }
-                return null;
             }
         }
 

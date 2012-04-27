@@ -60,17 +60,21 @@ namespace BuiltSteady.Zaplify.ServerEntities
             }
         }
 
-        public FieldValue GetFieldValue(string fieldName)
+        public FieldValue GetFieldValue(string fieldName, bool create = false)
         {
             if (this.FieldValues != null)
-            {
+            {   
                 foreach (var fv in this.FieldValues)
                 {
-                    if (fv.FieldName.Equals(fieldName))
-                    {
-                        return fv;
-                    }
+                    if (fv.FieldName.Equals(fieldName)) { return fv; }
                 }
+            }
+            if (create == true)
+            {
+                FieldValue fv = new FieldValue() { FieldName = fieldName, ItemID = this.ID };
+                if (this.FieldValues == null) { this.FieldValues = new List<FieldValue>(); }
+                this.FieldValues.Add(fv);
+                return fv;
             }
             return null;
         }

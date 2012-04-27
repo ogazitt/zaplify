@@ -121,11 +121,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             var existingContacts = currentContacts.Where(c => c.Name == friend[FBQueryResult.Name]).ToList();
                             foreach (var existingContact in existingContacts)
                             {
-                                var fbFV = GetFieldValue(existingContact, FieldNames.FacebookID, true);
+                                var fbFV = existingContact.GetFieldValue(FieldNames.FacebookID, true);
                                 if (fbFV.Value == null)
                                 {
                                     // contact by this name exists but facebook ID isn't set; assume this is a duplicate and set the FBID
                                     fbFV.Value = friend[FBQueryResult.ID];
+                                    var sourcesFV = existingContact.GetFieldValue(FieldNames.Sources, true);
+                                    sourcesFV.Value = string.IsNullOrEmpty(sourcesFV.Value) ? Sources.Facebook : string.Concat(sourcesFV.Value, ",", Sources.Facebook);
                                     process = false;
                                     break;
                                 }
@@ -155,6 +157,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                     FieldValues = new List<FieldValue>(),
                                 };
                                 contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = friend[FBQueryResult.ID] });
+                                contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.Sources, Value = Sources.Facebook });
                                 string jsonContact = JsonSerializer.Serialize(contact);
 
                                 // store the serialized contact in the value of a new NameValue item on the PossibleSubjects list

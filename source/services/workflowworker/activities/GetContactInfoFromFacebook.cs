@@ -26,7 +26,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
 
                     // if the contact has no facebook ID, there's nothing else to do
-                    FieldValue fbfv = GetFieldValue(item, FieldNames.FacebookID, false);
+                    FieldValue fbfv = item.GetFieldValue(FieldNames.FacebookID);
                     if (fbfv == null)
                         return Status.Complete;
 
@@ -56,7 +56,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             var birthday = contact[FBQueryResult.Birthday];
                             if (birthday != null)
                             {
-                                FieldValue birthdayFV = GetFieldValue(item, FieldNames.Birthday, true);
+                                FieldValue birthdayFV = item.GetFieldValue(FieldNames.Birthday, true);
                                 if (birthdayFV != null) birthdayFV.Value = birthday;
                             }
                         }

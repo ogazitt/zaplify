@@ -33,7 +33,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     // and this state can terminate
                     try
                     {
-                        FieldValue contactsField = GetFieldValue(item, TargetFieldName, false);
+                        FieldValue contactsField = item.GetFieldValue(TargetFieldName);
                         if (contactsField != null && contactsField.Value != null)
                         {
                             Guid contactsListID = new Guid(contactsField.Value);
@@ -92,7 +92,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
         private Status CreateContact(WorkflowInstance workflowInstance, Item item)
         {
             DateTime now = DateTime.UtcNow;
-            FieldValue contactsField = GetFieldValue(item, TargetFieldName, true);
+            FieldValue contactsField = item.GetFieldValue(TargetFieldName, true);
             Guid listID = contactsField.Value != null ? new Guid(contactsField.Value) : Guid.NewGuid();
 
             // if the contacts sublist under the item doesn't exist, create it now
@@ -143,7 +143,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 foreach (var fv in contact.FieldValues)
                 {
                     // add or update each of the fieldvalues
-                    var dbfv = GetFieldValue(dbContact, fv.FieldName, true);
+                    var dbfv = dbContact.GetFieldValue(fv.FieldName, true);
                     dbfv.Copy(fv);
                 }
                 dbContact.LastModified = now;

@@ -150,7 +150,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 // if the subjectItem is a reference, chase it down
                 while (subject.ItemTypeID == SystemItemTypes.Reference)
                 {
-                    FieldValue refID = GetFieldValue(subject, FieldNames.ItemRef, false);
+                    FieldValue refID = subject.GetFieldValue(FieldNames.ItemRef);
                     Guid refid = new Guid(refID.Value);
                     subject = UserContext.Items.Include("FieldValues").Single(i => i.ID == refid);
                 }
@@ -161,7 +161,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return Status.Error;
             }
 
-            FieldValue fbID = GetFieldValue(subject, FieldNames.FacebookID, false);
+            FieldValue fbID = subject.GetFieldValue(FieldNames.FacebookID);
             if (fbID == null || fbID.Value == null)
             {
                 TraceLog.TraceError(String.Format("GenerateSuggestions: could not find Facebook ID for contact {0}", subject.Name));

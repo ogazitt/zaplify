@@ -20,8 +20,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
         static string userDataConnection;
         static string userAccountConnection;
         static string suggestionsConnection;
-        static string userDatabaseVersion;
-        static string suggestionsDatabaseVersion;
 
         public static bool IsAzure
         {   // running in an Azure environment
