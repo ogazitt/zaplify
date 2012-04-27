@@ -3,4 +3,4 @@ buy			present		BuyGift
 get			gift		NewBuyGift
 get			present		FakeBuyGift
 clean		gutters		CleanGutters
-change		oils		ChangeOil
+change		oil			ChangeOil

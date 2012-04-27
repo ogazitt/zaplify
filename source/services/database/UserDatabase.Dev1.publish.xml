@@ -6,5 +6,7 @@
     <DeployScriptFileName>UserDatabase.sql</DeployScriptFileName>
     <TargetConnectionString>Data Source=x7djs35g72.database.windows.net;Persist Security Info=True;User ID=builtsteady;Pooling=False</TargetConnectionString>
     <ProfileVersionNumber>1</ProfileVersionNumber>
+    <BlockWhenDriftDetected>True</BlockWhenDriftDetected>
+    <RegisterDataTierApplication>True</RegisterDataTierApplication>
   </PropertyGroup>
 </Project>

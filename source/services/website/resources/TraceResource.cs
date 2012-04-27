@@ -125,5 +125,20 @@
                 return ex.Message;
             }
         }
+
+        string WriteToAzureTable(string username, Stream traceStream)
+        {
+            // Log function entrance
+            TraceLog.TraceFunction();
+
+            // if not in azure, write to the filesystem
+            if (!HostEnvironment.IsAzure)
+                return WriteFile(username, traceStream);
+
+            if (username == null)
+                username = "anonymous";
+
+            return null;
+        }
     }
 }

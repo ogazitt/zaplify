@@ -10,6 +10,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
     {
         private const string IntentsFileName = @"workflows\Intents.txt";
 
+        public static string SchemaVersion { get { return "1.0.2012.0426"; } }
+        public static string ConstantsVersion { get { return "2012-04-26"; } }
+
         public static List<Intent> DefaultIntents()
         {
             try
