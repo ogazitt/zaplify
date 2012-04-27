@@ -115,8 +115,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
             }
             else
             {
-                var obj = jObject["data"] as JObject;
-                yield return new FBQueryResult(obj); 
+                yield return new FBQueryResult(jObject); 
             }
         }
 
