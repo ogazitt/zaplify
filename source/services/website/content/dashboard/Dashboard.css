@@ -149,18 +149,17 @@ Dashboard Manager
 .manager-header .icon:hover { opacity:1.0; filter:alpha(opacity=100); }
 
 .manager-panel {
+    position: relative;    
     width: 100%;
-    padding: 4px 0px 8px 0px;
+    padding: 4px 0px 12px 0px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
 }
-.manager-panel .setting { margin: 15px 8px 8px 10px; position: relative; }
+.manager-panel .setting { position: relative; margin: 15px 8px 8px 10px; }
 .manager-panel .setting label { position: absolute; top: -13px; left: 8px; font-size: 8pt; opacity:0.7; filter:alpha(opacity=70); }
 
-.list-editor {
-    width: 100%;
-    Xborder: 1px dashed green;
-}
+.list-editor { width: 100%; Xborder: 1px dashed green; }
+.item-editor-expander { position:absolute; bottom: 0px; right: 0px; width: 16px; height: 16px; Xborder: 1px solid red; }
 
 /*----------------------------------------------------------
 Item Fields
