@@ -323,6 +323,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             StorageHelper.WriteFolders(null);
             StorageHelper.WriteUserCredentials(null);
             RequestQueue.DeleteQueue();
+
+            App.ViewModel.IsDataLoaded = false;
+            initialSync = false;
+            App.ViewModel.LastNetworkOperationStatus = false;
+            if (App.ViewModel.FolderDictionary != null)
+                App.ViewModel.FolderDictionary.Clear();
+
+            App.ViewModel.LoadData();
         }
 
         // Handle selection changed on ListBox
