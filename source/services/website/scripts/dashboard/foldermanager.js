@@ -153,7 +153,7 @@ ListEditor.prototype.render = function (container) {
     }
 
     this.itemPath.render(this.$element, folder, item);
-    this.itemEditor.render(this.$element, folder, item);
+    this.itemEditor.render((item == null) ? folder : item, this.$element);
 }
 
 ListEditor.prototype.hide = function () {
@@ -283,7 +283,8 @@ ItemPath.prototype.show = function () {
 function ItemEditor(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
-    this.mode = ItemEditor.Modes.NotSet;
+    this.newItem = false;
+    this.expanded = false;
     this.item;
 }
 
@@ -299,34 +300,28 @@ ItemEditor.prototype.activeItem = function () {
     return this.item;
 }
 
-// New:     single text input for Name field
-// Edit:    display all primary fields of existing item for edit
-// Expand:  display ALL fields of existing item for edit
-// View:    display primary fields in read-only format
-ItemEditor.Modes = { NotSet: 0, New: 1, Edit: 2, Expand: 3, View: 4 };
-
-ItemEditor.prototype.render = function (container, folder, item, mode) {
+ItemEditor.prototype.render = function (item, container) {
+    if (item == null) { return; }
     if (this.$element == null) {
         this.$element = $('<div class="manager-panel ui-widget-content"></div>').appendTo(container);
     }
 
-    if (folder == null && item == null)
-        return;
-    if (mode == null) {
-        mode = (item != null && !item.IsList) ? ItemEditor.Modes.Edit : ItemEditor.Modes.New;
-    }
+    this.newItem = item.IsFolder() || item.IsList;
+    this.item = (this.newItem) ? $.extend(new Item(), { Name: '', ItemTypeID: item.ItemTypeID }) : $.extend(new Item(), item);
 
-    var itemTypeID = (item != null) ? item.ItemTypeID : folder.ItemTypeID;
-    this.item = (mode != ItemEditor.Modes.New) ? $.extend(new Item(), item)
-        : $.extend(new Item(), { Name: '', ItemTypeID: itemTypeID });
-    this.mode = mode;
     this.$element.empty();
-
-    if (this.mode == ItemEditor.Modes.New) {
-        $field = this.renderNameField(this.$element, mode);
-        $field.val('');
+    if (this.newItem) {
+        $field = this.renderNameField(this.$element);
+        $field.val('');    
     } else {
-        this.renderFields(this.$element, this.mode);
+        // display item editor expander
+        var $expander = $('<div class="item-editor-expander ui-icon"></div>').appendTo(this.$element);
+        var iconClass = (this.expanded) ? 'expanded ui-icon-arrowreturnthick-1-n' : 'ui-icon-arrowreturnthick-1-s';
+        $expander.addClass(iconClass);
+        $expander.data('control', this);
+        $expander.click(this.expandHandler);
+        // render all fields
+        this.renderFields(this.$element);
     }
 
     $fldActive = this.$element.find('.fn-name');
@@ -334,29 +329,45 @@ ItemEditor.prototype.render = function (container, folder, item, mode) {
     //$fldActive.select();
 }
 
-ItemEditor.prototype.renderFields = function (container, mode) {
-    this.renderNameField(container, mode);
+ItemEditor.prototype.expandHandler = function () {
+    var itemEditor = Control.get(this);
+    itemEditor.expanded = !$(this).hasClass('expanded');
+    itemEditor.render(itemEditor.item);
+}
+
+ItemEditor.prototype.renderFields = function (container) {
+    this.renderNameField(container);
     var fields = this.item.GetItemType().Fields;
     for (var name in fields) {
         var field = fields[name];
-        if ((field.IsPrimary || mode == ItemEditor.Modes.Edit)) {
+        if (field.IsPrimary || this.expanded) {
             this.renderField(container, field);
         }
     }
 }
 
-ItemEditor.prototype.renderNameField = function (container, mode) {
+ItemEditor.prototype.renderNameField = function (container) {
     var fields = this.item.GetItemType().Fields;
     var field = fields[FieldNames.Complete];
     var $wrapper = $('<div class="item-field wide"></div>').appendTo(container);
-    if (field != null && mode != ItemEditor.Modes.New) {
+    if (field != null && !this.newItem) {
         // render complete field if exists and not new item
         $wrapper.addClass('checked');
         this.renderCheckbox($wrapper, field);
     }
     // render name field
+    var $field;
     field = fields[FieldNames.Name];
-    var $field = this.renderText($wrapper, field);
+    if (this.newItem) {
+        if (this.item.ItemTypeID == ItemTypes.Location) {
+            $field = this.renderAddress($wrapper, field);
+        } else if (this.item.ItemTypeID == ItemTypes.Contact) {
+            $field = this.renderContactList($wrapper, field);
+        }
+    }
+    if ($field == null) {
+        $field = this.renderText($wrapper, field);
+    }
     return $field;
 }
 
@@ -511,7 +522,8 @@ ItemEditor.prototype.renderAddress = function (container, field) {
                         var addresses = $.map(results, function (item) {
                             return {
                                 label: item.formatted_address,
-                                value: item.geometry.location.toUrlValue()
+                                value: item.formatted_address,
+                                latlong: item.geometry.location.toUrlValue()
                             }
                         });
                         response(addresses);
@@ -520,7 +532,7 @@ ItemEditor.prototype.renderAddress = function (container, field) {
         },
         select: function (event, ui) {
             $(this).val(ui.item.label);
-            $(this).data(FieldNames.LatLong, ui.item.value);
+            $(this).data(FieldNames.LatLong, ui.item.latlong);
             itemEditor = Control.get(this);
             if (itemEditor != null) { itemEditor.handleChange($(this)); }
             return false;
@@ -564,7 +576,8 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
                         var addresses = $.map(results, function (item) {
                             return {
                                 label: item.formatted_address,
-                                value: item.geometry.location.toUrlValue()
+                                value: item.formatted_address,
+                                latlong: item.geometry.location.toUrlValue()
                             }
                         });
                         response(addresses);
@@ -580,7 +593,7 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
             this.value = terms.join("; ");      // add separator
 
             $(this).val(ui.item.label);
-            $(this).data(FieldNames.LatLong, ui.item.value);
+            $(this).data(FieldNames.LatLong, ui.item.latlong);
             itemEditor = Control.get(this);
             if (itemEditor != null) { itemEditor.handleChange($(this)); }
             return false;
@@ -621,7 +634,7 @@ ItemEditor.prototype.renderContactList = function (container, field) {
                     var contacts = [];
                     if (result.Count > 0) {
                         for (var name in result.Subjects) {
-                            contacts.push({ label: name, value: result.Subjects[name] });
+                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
                         }
                     }
                     response(contacts);
@@ -636,7 +649,7 @@ ItemEditor.prototype.renderContactList = function (container, field) {
             this.value = terms.join("; ");      // add separator
 
             $(this).val(ui.item.label);
-            $(this).data(FieldNames.Contacts, ui.item.value);
+            $(this).data(FieldNames.Contacts, ui.item.json);
             itemEditor = Control.get(this);
             if (itemEditor != null) { itemEditor.handleChange($(this)); }
             return false;
@@ -654,61 +667,23 @@ ItemEditor.prototype.updateField = function ($element) {
             var changed = false;
             var currentValue = this.item.GetFieldValue(field);
             var value;
+            var displayType = field.DisplayType;
 
-            switch (field.DisplayType) {
+            if (this.newItem) {
+                if (this.item.ItemTypeID == ItemTypes.Location) { displayType = DisplayTypes.Address; }
+                if (this.item.ItemTypeID == ItemTypes.Contact) { displayType = DisplayTypes.Contact; }
+            }
+
+            switch (displayType) {
                 case DisplayTypes.Hidden:
                 case DisplayTypes.Priority:
                 case DisplayTypes.Reference:
                 case DisplayTypes.TagList:
                 case DisplayTypes.ContactList:
-                    var contact;
-                    var contactName = $element.val();
-                    var jsonContact = $element.data(FieldNames.Contacts);
-                    if (jsonContact != null) {
-                        contact = $.parseJSON(jsonContact);
-                    }
-                    var dataModel = Control.findParent(this, 'dataModel').dataModel;
-                    if (contact != null && contact.ItemTypeID == ItemTypes.Reference) {
-                        // add reference to existing contact
-                        contact = { Name: contact.Name, ID: contact.FieldValues[0].Value };
-                        this.item.AddReference(field, contact, true);
-                    } else {
-                        // create new contact and add reference
-                        var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
-                        if (contact != null) {
-                            contact = $.extend(new Item(), contact);
-                        } else {
-                           contact = $.extend(new Item(), { Name: contactName, ItemTypeID: ItemTypes.Contact });
-                        }
-                        var thisItem = this.item;
-                        dataModel.InsertItem(contact, contactFolder, null, null, null,
-                            function (insertedContact) {
-                                thisItem.AddReference(field, insertedContact, true);
-                            });
-                    }
+                    this.updateContactList($element, field);
                     break;
                 case DisplayTypes.LocationList:
-                    var address = $element.val();
-                    var latlong = $element.data(FieldNames.LatLong);
-                    var dataModel = Control.findParent(this, 'dataModel').dataModel;
-                    var existingLocation = dataModel.FindLocation(address, latlong);
-                    if (existingLocation != null) {
-                        // add reference to existing location
-                        this.item.AddReference(field, existingLocation, true);
-                    } else {
-                        // create new location and add reference
-                        var locationFolder = dataModel.FindDefault(ItemTypes.Location);
-                        var newLocation = $.extend(new Item(), { Name: address, ItemTypeID: ItemTypes.Location });
-                        newLocation.SetFieldValue(FieldNames.Address, address);
-                        if (latlong != null) {
-                            newLocation.SetFieldValue(FieldNames.LatLong, latlong);
-                        }
-                        var thisItem = this.item;
-                        dataModel.InsertItem(newLocation, locationFolder, null, null, null,
-                            function (insertedLocation) {
-                                thisItem.AddReference(field, insertedLocation, true);
-                            });
-                    }
+                    this.updateLocationList($element, field);
                     break;
                 case DisplayTypes.UrlList:
                     break;
@@ -716,7 +691,23 @@ ItemEditor.prototype.updateField = function ($element) {
                     value = ($element.attr('checked') == 'checked');
                     changed = (value != currentValue);
                     break;
+                case DisplayTypes.Contact:
+                    if (this.newItem) {
+                        value = $element.val();
+                        var jsonContact = $element.data(FieldNames.Contacts);
+                        if (jsonContact != null) {
+                            contact = $.parseJSON(jsonContact);
+                            if (contact.ItemTypeID == ItemTypes.Contact) {
+                                this.item = $.extend(new Item(), contact);
+                            }
+                        }
+                        changed = true;
+                    }
+                    break;
                 case DisplayTypes.Address:
+                    if (this.newItem) {
+                        this.item.SetFieldValue(FieldNames.Address, $element.val());
+                    }
                     var latlong = $element.data(FieldNames.LatLong);
                     if (latlong != null) {
                         var currentLatLong = this.item.GetFieldValue(FieldNames.LatLong);
@@ -751,16 +742,100 @@ ItemEditor.prototype.updateField = function ($element) {
     return false;
 }
 
+ItemEditor.prototype.updateContactList = function ($element, field) {
+    var contact;
+    var contactName = $element.val();
+    if (contactName == null || contactName.length == 0) {
+        this.item.RemoveReferences(field);
+        return;
+    }
+
+    var jsonContact = $element.data(FieldNames.Contacts);
+    if (jsonContact != null) {
+        contact = $.parseJSON(jsonContact);
+    }
+
+    if (this.newItem) {
+        if (contact != null && contact.ItemTypeID == ItemTypes.Contact) {
+            this.item = $.extend(new Item(), contact);
+        } else {
+            this.item.Name = contactName;
+        }
+        return true;
+    }
+
+
+    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+    if (contact != null && contact.ItemTypeID == ItemTypes.Reference) {
+        // add reference to existing contact
+        contact = { Name: contact.Name, ID: contact.FieldValues[0].Value };
+        this.item.AddReference(field, contact, true);
+    } else {
+        if (contact != null) {
+            contact = $.extend(new Item(), contact);
+            var fbID = contact.GetFieldValue(FieldNames.FacebookID);
+            var existingContact = dataModel.FindContact(contact.Name, fbID);
+            if (existingContact != null) {
+                // add reference to existing contact
+                this.item.AddReference(field, contact, true);
+                return;
+            }
+        } else {
+            contact = $.extend(new Item(), { Name: contactName, ItemTypeID: ItemTypes.Contact });
+        }
+        // create new contact and add reference
+        var thisItem = this.item;
+        var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
+        dataModel.InsertItem(contact, contactFolder, null, null, null,
+            function (insertedContact) {
+                thisItem.AddReference(field, insertedContact, true);
+            });
+    }
+}
+
+ItemEditor.prototype.updateLocationList = function ($element, field) {
+    var address = $element.val();
+    if (address == null || address.length == 0) {
+        this.item.RemoveReferences(field);
+        return;
+    }
+
+    var latlong = $element.data(FieldNames.LatLong);
+    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+    var existingLocation = dataModel.FindLocation(address, latlong);
+    if (existingLocation != null) {
+        // add reference to existing location
+        this.item.AddReference(field, existingLocation, true);
+    } else {
+        // create new location and add reference
+        var locationFolder = dataModel.FindDefault(ItemTypes.Location);
+        var newLocation = $.extend(new Item(), { Name: address, ItemTypeID: ItemTypes.Location });
+        newLocation.SetFieldValue(FieldNames.Address, address);
+        if (latlong != null) {
+            newLocation.SetFieldValue(FieldNames.LatLong, latlong);
+        }
+        var thisItem = this.item;
+        dataModel.InsertItem(newLocation, locationFolder, null, null, null,
+            function (insertedLocation) {
+                thisItem.AddReference(field, insertedLocation, true);
+            });
+    } 
+}
+
 ItemEditor.prototype.handleChange = function ($element) {
     if (this.updateField($element)) {
-        this.parentControl.updateItem();
+        if (this.newItem) {
+            this.parentControl.addItem(false);
+        } else {
+            this.parentControl.updateItem();
+        } 
     }
 }
 
 ItemEditor.prototype.handleEnterPress = function (event) {
     if (event.which == 13) {
         if (this.updateField($(event.srcElement))) {
-            if (this.mode == ItemEditor.Modes.New) {
+            if (this.newItem) {
                 this.parentControl.addItem(false);
             } else {
                 this.parentControl.updateItem();

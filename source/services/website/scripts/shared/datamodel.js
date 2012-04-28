@@ -102,6 +102,28 @@ DataModel.FindLocation = function DataModel$FindLocation(address, latlong) {
     return null;
 }
 
+// generic helper for finding a Contact item that matches given name or facebookID
+// only looks in folders that have Contact ItemType
+DataModel.FindContact = function DataModel$FindContact(name, facebookID) {
+    for (id in DataModel.Folders) {
+        var folder = DataModel.Folders[id];
+        if (folder.ItemTypeID == ItemTypes.Contact) {
+            for (id in folder.Items) {
+                var item = folder.Items[id];
+                if (item.ItemTypeID == ItemTypes.Contact) {
+                    var itemFacebookID = item.GetFieldValue(FieldNames.FacebookID);
+                    if (facebookID != null && itemFacebookID != null) {     // compare facebook id 
+                        if (facebookID == itemFacebookID) { return item; }
+                    } else {                                                // compare name 
+                        if (name == item.Name) { return item; }
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
 // generic helper for getting local items associated with folder or list item
 DataModel.GetItems = function DataModel$GetItems(folderID, parentID) {
     var items = {};
@@ -210,10 +232,16 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
                     DataModel.FoldersMap.remove(item);
                     DataModel.fireDataChanged();
                 } else {                                                    // remove Item
-                    var nextItem = item.selectNextItem();
-                    var nextItemID = (nextItem == null) ? null : nextItem.ID;
-                    item.GetFolder().ItemsMap.remove(item);
-                    DataModel.fireDataChanged(item.FolderID, nextItemID);
+                    var parent = item.GetParent();
+                    if (parent != null && parent.ItemTypeID == ItemTypes.Reference) {
+                        // deleting a reference, don't change selection or fire data changed
+                        item.GetFolder().ItemsMap.remove(item);
+                    } else {
+                        var nextItem = item.selectNextItem();
+                        var nextItemID = (nextItem == null) ? null : nextItem.ID;
+                        item.GetFolder().ItemsMap.remove(item);
+                        DataModel.fireDataChanged(item.FolderID, nextItemID);
+                    }
                 }
             });
         return true;
@@ -600,7 +628,6 @@ Item.prototype.SetFieldValue = function (field, value) {
     }
     return false;                           // item does not have the field
 };
-
 Item.prototype.AddReference = function (field, item, replace) {
     // field parameter can be either field name or field object
     if (typeof (field) == 'string') {
@@ -637,38 +664,25 @@ Item.prototype.AddReference = function (field, item, replace) {
     }
     return false;       // failed to add reference
 };
-
-Item.prototype.addReference = function (refList, itemToRef) {
-    if (refList != null && refList.IsList) {
-        // create and insert the item reference
-        var itemRef = $.extend(new Item(), {
-            Name: itemToRef.Name,
-            ItemTypeID: ItemTypes.Reference,
-            FolderID: refList.FolderID,
-            ParentID: refList.ID,
-            UserID: refList.UserID
-        });
-        itemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
-        refList.InsertItem(itemRef, null, null, null);
+Item.prototype.RemoveReferences = function (field) {
+    // field parameter can be either field name or field object
+    if (typeof (field) == 'string') {
+        field = this.GetField(field);
+    }
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.ItemID) {
+        var refList = this.GetFieldValue(field);
+        if (refList != null && refList.IsList) {
+            // remove all references
+            var itemRefs = refList.GetItems();
+            for (var id in itemRefs) {
+                var itemRef = itemRefs[id];
+                itemRef.Delete();
+            }
+        }
         return true;
     }
-    return false;
-}
-
-Item.prototype.replaceReference = function (refList, itemToRef) {
-    if (refList != null && refList.IsList) {
-        // replace reference
-        var itemRefs = refList.GetItems();
-        for (var id in itemRefs) {
-            var itemRef = itemRefs[id];
-            var updatedItemRef = $.extend(new Item(), itemRef);
-            updatedItemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
-            itemRef.Update(updatedItemRef, refList.GetParent());
-            return true;
-        }
-    }
-    return false;
-}
+    return false;       // failed to remove references
+};
 
 // Item private functions
 Item.prototype.addItem = function (newItem, activeItem) { this.GetFolder().addItem(newItem, activeItem); };
@@ -704,6 +718,37 @@ Item.prototype.selectNextItem = function () {
         if (prevItem != null) { prevItem.ViewState.Select = true; return prevItem; }
     }
     return null;
+}
+Item.prototype.addReference = function (refList, itemToRef) {
+    if (refList.IsList) {
+        // create and insert the item reference
+        var itemRef = $.extend(new Item(), {
+            Name: itemToRef.Name,
+            ItemTypeID: ItemTypes.Reference,
+            FolderID: refList.FolderID,
+            ParentID: refList.ID,
+            UserID: refList.UserID
+        });
+        itemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+        refList.InsertItem(itemRef, null, null, null);
+        return true;
+    }
+    return false;
+}
+Item.prototype.replaceReference = function (refList, itemToRef) {
+    if (refList.IsList) {
+        // replace reference
+        var itemRefs = refList.GetItems();
+        for (var id in itemRefs) {
+            var itemRef = itemRefs[id];
+            var updatedItemRef = $.extend(new Item(), itemRef);
+            updatedItemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+            itemRef.Update(updatedItemRef, refList.GetParent());
+            return true;
+        }
+        return this.addReference(refList, itemToRef);
+    }
+    return false;
 }
 
 // ---------------------------------------------------------
@@ -963,8 +1008,9 @@ var DisplayTypes = {
     Priority : "Priority",
     TagList : "TagList",
     Reference : "Reference",
-    ContactList : "ContactList",
-    LocationList : "LocationList",
+    Contact: "Contact",
+    ContactList: "ContactList",
+    LocationList: "LocationList",
     UrlList : "UrlList"
 }
 
