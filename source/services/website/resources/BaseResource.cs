@@ -195,6 +195,8 @@
                 user = userCred.AsUser();
                 // make sure the password doesn't get traced
                 userCred.Password = "";
+                // create an operation with the User as the body, not the BasicAuthCredentials entity 
+                body = user;
             }
             else
                 user = CurrentUser;

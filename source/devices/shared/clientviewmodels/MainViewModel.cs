@@ -31,11 +31,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         public bool retrievedConstants = false;
 
-        public bool IsDataLoaded
-        {
-            get;
-            private set;
-        }
+        public bool IsDataLoaded { get; set; }
 
 #region // Databound Properties
 
@@ -501,14 +497,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
             // read the folder types - and create them if they don't exist
             this.constants = StorageHelper.ReadConstants();
-            if (this.constants == null)
+            if (this.constants == null || 
+                this.constants.ActionTypes == null || this.constants.ActionTypes.Count == 0 ||
+                this.constants.Colors == null || this.constants.Colors.Count == 0 ||
+                this.constants.Permissions == null || this.constants.Permissions.Count == 0 ||
+                this.constants.Priorities == null || this.constants.Priorities.Count == 0)
             {
                 this.Constants = InitializeConstants();
             }
 
             // read the item types - and create them if they don't exist
             this.itemTypes = StorageHelper.ReadItemTypes();
-            if (this.itemTypes == null)
+            if (this.itemTypes == null || this.itemTypes.Count == 0)
             {
                 this.ItemTypes = InitializeItemTypes();
             }
@@ -530,11 +530,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 this.FolderDictionary = new Dictionary<Guid, Folder>();
 
             // read the folders - and create it if it doesn't exist AND if the user credentials have never been set
-            // note that this is the only instance where the property is assigned to 
-            // we do this to initialize Items and DefaultFolder
-            // we don't do it for other properties because assigning to the property also triggers a StorageHelper.Write call
-            this.Folders = StorageHelper.ReadFolders();
-            if (this.folders == null)
+            this.folders = StorageHelper.ReadFolders();
+            if (this.folders == null || this.folders.Count == 0)
 			{
 				if (this.User == null || this.User.Synced == false)
 	            {
@@ -542,7 +539,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 	                this.Folders = InitializeFolders();
 	            }
 				else
-					this.folders = new ObservableCollection<Folder>();
+					this.Folders = new ObservableCollection<Folder>();
 			}
 
             // load the contents of each folder 
@@ -756,7 +753,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             {
                 retrievedConstants = true;
 				
-#if !IOS
+#if FALSE && !IOS
                 Deployment.Current.Dispatcher.BeginInvoke(() =>
                 {
 #endif
@@ -777,7 +774,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
                     // Chain the PlayQueue call to drain the queue and retrieve the user data
                     PlayQueue();
-#if !IOS
+#if FALSE && !IOS
                 });
 #endif
             }
@@ -928,7 +925,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 ActionTypes = new ObservableCollection<ActionType>(UserConstants.DefaultActionTypes()),
                 Colors = new ObservableCollection<BuiltSteady.Zaplify.Devices.ClientEntities.Color>(UserConstants.DefaultColors()),
                 Permissions = new ObservableCollection<Permission>(UserConstants.DefaultPermissions()),
-                Priorities = new ObservableCollection<Priority>(UserConstants.DefaultPriorities())
+                Priorities = new ObservableCollection<Priority>(UserConstants.DefaultPriorities()),
+                ItemTypes = new ObservableCollection<ItemType>(UserConstants.DefaultItemTypes())
             };
         }
 
