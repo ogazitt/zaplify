@@ -67,6 +67,7 @@
     <Compile Include="JsonSerializer.cs" />
     <Compile Include="MessageQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BlobStore.cs" />
     <Compile Include="TraceLog.cs" />
     <Compile Include="WorkflowConstants.cs" />
   </ItemGroup>
