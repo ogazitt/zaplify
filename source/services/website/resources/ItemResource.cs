@@ -366,13 +366,16 @@
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
                     if (changed == true)
                     {
-                        if (this.StorageContext.SaveChanges() < 1)
+                        int rows = this.StorageContext.SaveChanges();
+                        if (rows < 0)
                         {
                             TraceLog.TraceError("ItemResource.Update: Internal Server Error (database operation did not succeed)");
                             return ReturnResult<Item>(req, operation, HttpStatusCode.InternalServerError);
                         }
                         else
                         {
+                            if (rows == 0)
+                                TraceLog.TraceInfo("ItemResource.Update: inconsistency between the results of Update and zero rows affected");
                             if (newFolder.Name.StartsWith("$") == false)
                                 if (HostEnvironment.IsAzure)
                                     MessageQueue.EnqueueMessage(operation.ID);

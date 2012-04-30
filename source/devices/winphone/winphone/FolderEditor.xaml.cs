@@ -85,7 +85,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            // get the name of the tag
+            // get the name of the folder
             folderCopy.Name = ListName.Text;
             var itemType = ItemTypePicker.SelectedItem as ItemType;
             folderCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
