@@ -193,16 +193,11 @@ ListEditor.prototype.addItem = function (isList) {
 }
 
 ListEditor.prototype.updateItem = function () {
-    var item = this.parentControl.currentItem;
     var updatedItem = this.activeItem();
-    if (item != null) {
-        // TEMPORARY: until List editor is added
-        if (item.IsList) {
-            var updatedItem = $.extend({}, item);
-            updatedItem.Name = this.$element.find('.fn-name').val();
-        }
-
-        item.Update(updatedItem);
+    if (updatedItem.IsFolder() && this.parentControl.currentFolder != null) {
+        this.parentControl.currentFolder.Update(updatedItem);
+    } else if (this.parentControl.currentItem != null) {
+        this.parentControl.currentItem.Update(updatedItem);
     }
 }
 
@@ -266,7 +261,9 @@ ItemPath.prototype.render = function (container, folder, item) {
         var $addBtn = $('<div class="icon add-icon"></div>').appendTo(this.$element);
         $addBtn.attr('title', addBtnTitle);
         $addBtn.unbind('click');
-        $addBtn.bind('click', function () { handler.addItem(true); });
+        $addBtn.bind('click', function () {
+            handler.addItem(true); 
+            });
     }
 }
 
@@ -283,10 +280,13 @@ ItemPath.prototype.show = function () {
 function ItemEditor(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
-    this.newItem = false;
+    this.mode = ItemEditorMode.New;
     this.expanded = false;
+    this.listItem;
     this.item;
 }
+
+ItemEditorMode = { New: 0, Item: 1, List: 2 };
 
 ItemEditor.prototype.hide = function () {
     this.$element.hide();
@@ -297,7 +297,7 @@ ItemEditor.prototype.show = function () {
 }
 
 ItemEditor.prototype.activeItem = function () {
-    return this.item;
+    return (this.mode == ItemEditorMode.List) ? this.listItem : this.item;
 }
 
 ItemEditor.prototype.render = function (item, container) {
@@ -305,31 +305,63 @@ ItemEditor.prototype.render = function (item, container) {
     if (this.$element == null) {
         this.$element = $('<div class="manager-panel ui-widget-content"></div>').appendTo(container);
     }
-
-    this.newItem = item.IsFolder() || item.IsList;
-    this.item = (this.newItem) ? $.extend(new Item(), { Name: '', ItemTypeID: item.ItemTypeID }) : $.extend(new Item(), item);
-
     this.$element.empty();
-    if (this.newItem) {
+
+    if (item.IsFolder() || item.IsList) {
+        if (this.mode == ItemEditorMode.List && item.ID == this.listItem.ID) {
+            // render list info editor
+            this.renderListInfo(this.$element);
+            return;
+        } else {
+            this.mode = ItemEditorMode.New;
+            this.listItem = item;
+            this.item = $.extend(new Item(), { Name: '', ItemTypeID: item.ItemTypeID });
+        }
+    } else {
+        this.mode = ItemEditorMode.Item;
+        this.listItem = null;
+        this.item = $.extend(new Item(), item);
+    }
+
+    if (this.mode == ItemEditorMode.New) {
+        // display list info button
+        var listType = (this.listItem.IsFolder()) ? 'Folder' : 'List';
+        var $listInfo = $('<div class="item-editor-expander ui-icon ui-icon-info"></div>').appendTo(this.$element);
+        $listInfo.data('control', this);
+        $listInfo.attr('title', listType + ' Properties');
+        $listInfo.click(this.setEditModeList);
+        // render name field for new item 
         $field = this.renderNameField(this.$element);
-        $field.val('');    
+        $field.val('');
     } else {
         // display item editor expander
         var $expander = $('<div class="item-editor-expander ui-icon"></div>').appendTo(this.$element);
         var iconClass = (this.expanded) ? 'expanded ui-icon-arrowreturnthick-1-n' : 'ui-icon-arrowreturnthick-1-s';
         $expander.addClass(iconClass);
         $expander.data('control', this);
-        $expander.click(this.expandHandler);
-        // render all fields
+        $expander.click(this.expandEditor);
+        // render all fields of item
         this.renderFields(this.$element);
     }
-
+    // TODO: handle focus properly
     $fldActive = this.$element.find('.fn-name');
     $fldActive.focus();
     //$fldActive.select();
 }
 
-ItemEditor.prototype.expandHandler = function () {
+ItemEditor.prototype.setEditModeList = function () {
+    var itemEditor = Control.get(this);
+    itemEditor.mode = ItemEditorMode.List;
+    itemEditor.render(itemEditor.listItem);
+}
+
+ItemEditor.prototype.setEditModeNew = function () {
+    var itemEditor = Control.get(this);
+    itemEditor.mode = ItemEditorMode.New;
+    itemEditor.render(itemEditor.listItem);
+}
+
+ItemEditor.prototype.expandEditor = function () {
     var itemEditor = Control.get(this);
     itemEditor.expanded = !$(this).hasClass('expanded');
     itemEditor.render(itemEditor.item);
@@ -350,15 +382,16 @@ ItemEditor.prototype.renderNameField = function (container) {
     var fields = this.item.GetItemType().Fields;
     var field = fields[FieldNames.Complete];
     var $wrapper = $('<div class="item-field wide"></div>').appendTo(container);
-    if (field != null && !this.newItem) {
-        // render complete field if exists and not new item
+    if (field != null && this.mode == ItemEditorMode.Item) {
+        // render complete field if exists 
         $wrapper.addClass('checked');
         this.renderCheckbox($wrapper, field);
     }
     // render name field
     var $field;
     field = fields[FieldNames.Name];
-    if (this.newItem) {
+    if (this.mode == ItemEditorMode.New) {
+        // support autocomplete for new Locations and Contacts
         if (this.item.ItemTypeID == ItemTypes.Location) {
             $field = this.renderAddress($wrapper, field);
         } else if (this.item.ItemTypeID == ItemTypes.Contact) {
@@ -512,6 +545,7 @@ ItemEditor.prototype.renderAddress = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
+    $field.change(function () { Control.get(this).handleChange($(this)); });
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
     $field.val(this.item.GetFieldValue(field));
     $field.autocomplete({
@@ -554,13 +588,14 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
         var locations = value.GetItems();
         for (var id in locations) {
             var locationRef = locations[id].GetFieldValue(FieldNames.ItemRef);
-            var address = locationRef.GetFieldValue(FieldNames.Address);
-            text += address;
-            if (locationRef.Name != address) {
-                text += ' ( ' + locationRef.Name + ' )';
+            if (locationRef != null) {
+                var address = locationRef.GetFieldValue(FieldNames.Address);
+                text += address;
+                if (locationRef.Name != address) {
+                    text += ' ( ' + locationRef.Name + ' )';
+                }
+                //text += '; ';             // TODO: support multiple locations
             }
-            // TODO: support multiple locations
-            //text += '; ';
             break;
         }
     }
@@ -608,6 +643,7 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field.addClass(field.Class);
     $field.data('control', this);
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.change(function () { Control.get(this).handleChange($(this)); });
     var text = '';
     var value = this.item.GetFieldValue(field);
     if (value != null && value.IsList) {
@@ -615,9 +651,10 @@ ItemEditor.prototype.renderContactList = function (container, field) {
         var contacts = value.GetItems();
         for (var id in contacts) {
             var contactRef = contacts[id].GetFieldValue(FieldNames.ItemRef);
-            text += contactRef.Name;
-            // TODO: support multiple contacts
-            //text += '; ';
+            if (contactRef != null) {
+                text += contactRef.Name;
+                //text += '; ';                 // TODO: support multiple contacts
+            }
             break;
         }
     }
@@ -669,7 +706,8 @@ ItemEditor.prototype.updateField = function ($element) {
             var value;
             var displayType = field.DisplayType;
 
-            if (this.newItem) {
+            if (this.mode == ItemEditorMode.New) {
+                // support autocomplete for new Locations and Contacts
                 if (this.item.ItemTypeID == ItemTypes.Location) { displayType = DisplayTypes.Address; }
                 if (this.item.ItemTypeID == ItemTypes.Contact) { displayType = DisplayTypes.Contact; }
             }
@@ -692,22 +730,22 @@ ItemEditor.prototype.updateField = function ($element) {
                     changed = (value != currentValue);
                     break;
                 case DisplayTypes.Contact:
-                    if (this.newItem) {
+                    if (this.mode == ItemEditorMode.New) {
+                        // autocomplete for new Contacts
                         value = $element.val();
                         var jsonContact = $element.data(FieldNames.Contacts);
                         if (jsonContact != null) {
                             contact = $.parseJSON(jsonContact);
                             if (contact.ItemTypeID == ItemTypes.Contact) {
                                 this.item = $.extend(new Item(), contact);
+                                this.parentControl.addItem(false);
+                                return false;
                             }
                         }
                         changed = true;
                     }
                     break;
                 case DisplayTypes.Address:
-                    if (this.newItem) {
-                        this.item.SetFieldValue(FieldNames.Address, $element.val());
-                    }
                     var latlong = $element.data(FieldNames.LatLong);
                     if (latlong != null) {
                         var currentLatLong = this.item.GetFieldValue(FieldNames.LatLong);
@@ -715,6 +753,12 @@ ItemEditor.prototype.updateField = function ($element) {
                             this.item.SetFieldValue(FieldNames.LatLong, latlong);
                             value = $element.val();
                             changed = true;
+                            if (this.mode == ItemEditorMode.New) {
+                                // autocomplete for new Locations
+                                this.item.SetFieldValue(FieldNames.Address, $element.val());
+                                this.parentControl.addItem(false);
+                                return false;
+                            }
                         }
                     } else {
                         value = $element.val();
@@ -754,16 +798,6 @@ ItemEditor.prototype.updateContactList = function ($element, field) {
     if (jsonContact != null) {
         contact = $.parseJSON(jsonContact);
     }
-
-    if (this.newItem) {
-        if (contact != null && contact.ItemTypeID == ItemTypes.Contact) {
-            this.item = $.extend(new Item(), contact);
-        } else {
-            this.item.Name = contactName;
-        }
-        return true;
-    }
-
 
     var dataModel = Control.findParent(this, 'dataModel').dataModel;
     if (contact != null && contact.ItemTypeID == ItemTypes.Reference) {
@@ -819,27 +853,81 @@ ItemEditor.prototype.updateLocationList = function ($element, field) {
             function (insertedLocation) {
                 thisItem.AddReference(field, insertedLocation, true);
             });
-    } 
+    }
 }
 
 ItemEditor.prototype.handleChange = function ($element) {
-    if (this.updateField($element)) {
-        if (this.newItem) {
-            this.parentControl.addItem(false);
-        } else {
-            this.parentControl.updateItem();
-        } 
+    if (this.mode == ItemEditorMode.List && this.updateListInfo($element)) {
+        this.parentControl.updateItem();
+    }
+    if (this.updateField($element) && this.mode == ItemEditorMode.Item) {
+        this.parentControl.updateItem();
     }
 }
 
 ItemEditor.prototype.handleEnterPress = function (event) {
     if (event.which == 13) {
+        if (this.mode == ItemEditorMode.List && this.updateListInfo($(event.srcElement))) {
+            this.parentControl.updateItem();
+        }
+
         if (this.updateField($(event.srcElement))) {
-            if (this.newItem) {
+            if (this.mode == ItemEditorMode.New) {
                 this.parentControl.addItem(false);
             } else {
                 this.parentControl.updateItem();
             }
         }
     }
+}
+
+ItemEditor.prototype.renderListInfo = function (container) {
+    var listType = (this.listItem.IsFolder()) ? 'Folder' : 'List';
+    // Name field
+    var label = 'Name of ' + listType;
+    var $wrapper = $('<div class="item-field"><span class="item-field-label">' + label + '</span></div>').appendTo(container);
+    var $field = $('<input type="text" />').appendTo($wrapper);
+    $field.addClass('li-name');
+    $field.data('control', this);
+    $field.val(this.listItem.Name);
+    $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
+    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+
+    // ItemTypeID property
+    label = 'Kind of ' + listType;
+    $wrapper = $('<div class="setting"><label>' + label + '</label></div>').appendTo(container);
+    var $itemTypePicker = $('<select></select>').appendTo($wrapper);
+    $itemTypePicker.addClass('li-type');
+    $itemTypePicker.data('control', this);
+
+    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+    var itemTypes = dataModel.Constants.ItemTypes;
+    for (var id in itemTypes) {
+        var itemType = itemTypes[id];
+        if (itemType.UserID == null || itemType.UserID == dataModel.User.ID) {
+            $('<option value="' + id + '">' + itemType.Name + '</option>').appendTo($itemTypePicker);
+        }
+    }
+    $itemTypePicker.val(this.listItem.ItemTypeID);
+    $itemTypePicker.combobox({ selected: function () { Control.get(this).updateListInfo($(this)); } });
+
+    // close button
+    var $closeInfo = $('<div class="item-editor-expander ui-icon ui-icon-circle-close"></div>').appendTo(container);
+    $closeInfo.data('control', this);
+    $closeInfo.attr('title', 'Close');
+    $closeInfo.click(this.setEditModeNew);
+}
+
+ItemEditor.prototype.updateListInfo = function ($element) {
+    this.listItem = (this.listItem.IsFolder()) ? $.extend(new Folder(), this.listItem) : $.extend(new Item(), this.listItem);
+    var value = $element.val();
+    if ($element.hasClass('li-name') && this.listItem.Name != value) {
+        this.listItem.Name = value;
+        return true;
+    }
+    if ($element.hasClass('li-type')) {
+        this.listItem.ItemTypeID = value;
+        this.parentControl.updateItem();
+    }
+    return false;
 }
