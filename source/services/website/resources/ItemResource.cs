@@ -12,6 +12,7 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
 
     [ServiceContract]
@@ -92,8 +93,10 @@
                             this.StorageContext.FieldValues.Remove(fv);
                     }
 
-                    // remove all the items whose ParentID is this item (and do this recursively, from the bottom up)
+                    // delete all the items with ParentID of this item.ID (recursively, from the bottom up)
                     DeleteItemChildrenRecursively(requestedItem);
+                    // delete all ItemRef FieldValues with Value of this item.ID
+                    DeleteItemRefFieldValues(requestedItem);
 
                     this.StorageContext.Items.Remove(requestedItem);
                     if (this.StorageContext.SaveChanges() < 1)
@@ -405,17 +408,31 @@
         void DeleteItemChildrenRecursively(Item item)
         {
             var children = this.StorageContext.Items.Where(i => i.ParentID == item.ID).ToList();
-            bool removed = false;
+            bool commit = false;
             foreach (var c in children)
             {
                 DeleteItemChildrenRecursively(c);
                 this.StorageContext.Items.Remove(c);
-                removed = true;
+                commit = true;
             }
 
-            // remove all of the children at the same layer together
-            if (removed)
-                this.StorageContext.SaveChanges();
+            // commit deletion of all children at the same layer together
+            if (commit) { this.StorageContext.SaveChanges(); }
+        }
+
+        void DeleteItemRefFieldValues(Item item)
+        {
+            string itemID = item.ID.ToString();
+            var itemRefs = this.StorageContext.FieldValues.Where(fv => fv.FieldName == FieldNames.ItemRef && fv.Value == itemID).ToList();
+            bool commit = false;
+            foreach (var fv in itemRefs)
+            {
+                this.StorageContext.FieldValues.Remove(fv);
+                commit = true;
+            }
+
+            // commit deletion of ItemRef FieldValues
+            if (commit) { this.StorageContext.SaveChanges(); }
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)

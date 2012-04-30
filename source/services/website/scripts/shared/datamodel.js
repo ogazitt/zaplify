@@ -527,6 +527,8 @@ Folder.prototype.addItem = function (newItem, activeItem) {
 Folder.prototype.update = function (updatedFolder) {
     if (this.ID == updatedFolder.ID) {
         updatedFolder = $.extend(new Folder(this.ViewState), updatedFolder);    // extend with Folder functions
+        updatedFolder.Items = this.Items;
+        updatedFolder.FolderUsers = this.FolderUsers;
         DataModel.FoldersMap.update(updatedFolder);
         DataModel.fireDataChanged(this.ID);
         return true;
@@ -577,6 +579,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
                 if (fv.Value != null && field.FieldType == FieldTypes.ItemID) {
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
+                    /*
                     // try to fetch referenced item from server
                     Service.GetResource('items', fv.Value,
                         function (responseState) {
@@ -587,6 +590,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
                                 if (handler != null) { handler(newItem); }
                             }
                         });
+                    */
                 } else {
                     return fv.Value;
                 }
