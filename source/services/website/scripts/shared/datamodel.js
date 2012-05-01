@@ -240,6 +240,7 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
                         var nextItem = item.selectNextItem();
                         var nextItemID = (nextItem == null) ? null : nextItem.ID;
                         item.GetFolder().ItemsMap.remove(item);
+                        DataModel.deleteReferences(item.ID);
                         DataModel.fireDataChanged(item.FolderID, nextItemID);
                     }
                 }
@@ -329,6 +330,24 @@ DataModel.addFolder = function (newFolder, activeItem) {
         DataModel.fireDataChanged(activeItem.FolderID, activeItem.ID);
     }                                                           // null, do not fire event
 };
+
+DataModel.deleteReferences = function (itemID) {
+    // delete all items which Reference given itemID
+    for (var fid in DataModel.Folders) {
+        var folder = DataModel.Folders[fid];
+        for (var iid in folder.Items) {
+            var item = folder.Items[iid];
+            if (item.ItemTypeID == ItemTypes.Reference) {
+                for (var i in item.FieldValues) {
+                    var fv = item.FieldValues[i];
+                    if (fv.FieldName == FieldNames.EntityRef && fv.Value == itemID) {
+                        item.GetFolder().ItemsMap.remove(item);
+                    }
+                }
+            }
+        }
+    }
+}
 
 DataModel.processConstants = function DataModel$processConstants(jsonParsed) {
     var constants = {};
@@ -576,7 +595,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
         for (var i in this.FieldValues) {
             var fv = this.FieldValues[i];
             if (fv.FieldName == field.Name) {
-                if (fv.Value != null && field.FieldType == FieldTypes.ItemID) {
+                if (fv.Value != null && field.FieldType == FieldTypes.GUID) {
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
                     /*
@@ -637,7 +656,7 @@ Item.prototype.AddReference = function (field, item, replace) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.ItemID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
 
         var refList = this.GetFieldValue(field);
         if (refList != null) {
@@ -673,7 +692,7 @@ Item.prototype.RemoveReferences = function (field) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.ItemID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
         var refList = this.GetFieldValue(field);
         if (refList != null && refList.IsList) {
             // remove all references
@@ -733,7 +752,8 @@ Item.prototype.addReference = function (refList, itemToRef) {
             ParentID: refList.ID,
             UserID: refList.UserID
         });
-        itemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+        itemRef.SetFieldValue(FieldNames.EntityRef, itemToRef.ID);
+        itemRef.SetFieldValue(FieldNames.EntityType, EntityTypes.Item);
         refList.InsertItem(itemRef, null, null, null);
         return true;
     }
@@ -746,7 +766,7 @@ Item.prototype.replaceReference = function (refList, itemToRef) {
         for (var id in itemRefs) {
             var itemRef = itemRefs[id];
             var updatedItemRef = $.extend(new Item(), itemRef);
-            updatedItemRef.SetFieldValue(FieldNames.ItemRef, itemToRef.ID);
+            updatedItemRef.SetFieldValue(FieldNames.EntityRef, itemToRef.ID);
             itemRef.Update(updatedItemRef, refList.GetParent());
             return true;
         }
@@ -864,6 +884,36 @@ ItemMap.itemAt = function (map, index) {
 ItemMap.errorMustHaveID = 'ItemMap requires all items in array to have an ID property.';
 
 // ---------------------------------------------------------
+// LinkArray object - array of Link objects 
+// [{Name:"name", Url:"link"}]
+function LinkArray(json) {
+    this.links = [];
+    if (json != null && json.length > 0) {
+        this.links = $.parseJSON(json); 
+    }
+}
+
+LinkArray.prototype.Links = function () { return this.links; }
+LinkArray.prototype.ToJson = function () { return JSON.stringify(this.links); }
+LinkArray.prototype.ToText = function () {
+    var text = '';
+    for (var i in this.links) {
+        var link = this.links[i];
+        if (link.hasOwnProperty('Name')) { text += link.Name + ', '; }
+        text += link.Url + '\n';
+    }
+    return text;
+}
+LinkArray.prototype.Parse = function (text) {
+    var lines = text.split(/\r\n|\r|\n/g);
+    for (var i in lines) {
+        var parts = lines[i].split(',');
+        if (parts.length == 1) { this.links.push({ Url: parts[0] }); }
+        if (parts.length == 2) { this.links.push({ Name: parts[0], Url: parts[1] }); }
+    }
+}
+
+// ---------------------------------------------------------
 // UserSettings object - provides prototype functions
 
 function UserSettings(settingsFolder) {
@@ -949,7 +999,7 @@ var FieldNames = {
     Birthday : "Birthday",                  // DateTime
     Address : "Address",                    // Address
     WebLink : "WebLink",                    // Url
-    WebLinks : "WebLinks",                  // ItemID
+    WebLinks : "WebLinks",                  // JSON
     Email : "Email",                        // Email
     Phone : "Phone",                        // Phone
     HomePhone : "HomePhone",                // Phone
@@ -957,9 +1007,10 @@ var FieldNames = {
     Amount : "Amount",                      // String
     Cost : "Cost",                          // Currency
     ItemTags : "ItemTags",                  // TagIDs
-    ItemRef : "ItemRef",                    // ItemID
-    Locations : "Locations",                // ItemID
-    Contacts: "Contacts",                   // ItemID
+    EntityRef: "EntityRef",                 // GUID
+    EntityType: "EntityType",               // String
+    Locations: "Locations",                 // GUID
+    Contacts: "Contacts",                   // GUID
     Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
     FacebookID: "FacebookID",               // String
@@ -991,7 +1042,8 @@ var FieldTypes = {
     Address : "Address",
     Currency : "Currency",
     TagIDs : "TagIDs",
-    ItemID : "ItemID"
+    GUID : "GUID",
+    JSON : "JSON"
 }
 
 // ---------------------------------------------------------
@@ -1015,7 +1067,7 @@ var DisplayTypes = {
     Contact: "Contact",
     ContactList: "ContactList",
     LocationList: "LocationList",
-    UrlList : "UrlList"
+    LinkArray : "LinkArray"
 }
 
 // ---------------------------------------------------------

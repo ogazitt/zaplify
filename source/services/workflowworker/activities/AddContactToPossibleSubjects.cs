@@ -80,7 +80,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             LastModified = now,
                             FieldValues = new List<FieldValue>()
                         };
-                        contactRef.FieldValues.Add(new FieldValue() { FieldName = FieldNames.ItemRef, ItemID = contactRef.ID, Value = item.ID.ToString() });
+                        contactRef.FieldValues.Add(new FieldValue() { FieldName = FieldNames.EntityRef, ItemID = contactRef.ID, Value = item.ID.ToString() });
+                        contactRef.FieldValues.Add(new FieldValue() { FieldName = FieldNames.EntityType, ItemID = contactRef.ID, Value = EntityTypes.Item });
                         string jsonContact = JsonSerializer.Serialize(contactRef);
 
                         // store the serialized contact in the value of a new NameValue item on the PossibleSubjects list
