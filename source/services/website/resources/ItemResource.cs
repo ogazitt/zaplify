@@ -93,10 +93,13 @@
                             this.StorageContext.FieldValues.Remove(fv);
                     }
 
+                    bool multipleItemsDeleted = false;
                     // delete all the items with ParentID of this item.ID (recursively, from the bottom up)
-                    DeleteItemChildrenRecursively(requestedItem);
+                    multipleItemsDeleted = DeleteItemChildrenRecursively(requestedItem);
                     // delete all ItemRef FieldValues with Value of this item.ID
-                    DeleteItemRefFieldValues(requestedItem);
+                    multipleItemsDeleted |= DeleteItemReferences(requestedItem);
+
+                    // TODO: indicate using TimeStamp that multiple items were deleted
 
                     this.StorageContext.Items.Remove(requestedItem);
                     if (this.StorageContext.SaveChanges() < 1)
@@ -405,7 +408,7 @@
             }
         }
 
-        void DeleteItemChildrenRecursively(Item item)
+        bool DeleteItemChildrenRecursively(Item item)
         {
             var children = this.StorageContext.Items.Where(i => i.ParentID == item.ID).ToList();
             bool commit = false;
@@ -418,21 +421,25 @@
 
             // commit deletion of all children at the same layer together
             if (commit) { this.StorageContext.SaveChanges(); }
+            return commit;
         }
 
-        void DeleteItemRefFieldValues(Item item)
+        bool DeleteItemReferences(Item item)
         {
             string itemID = item.ID.ToString();
-            var itemRefs = this.StorageContext.FieldValues.Where(fv => fv.FieldName == FieldNames.ItemRef && fv.Value == itemID).ToList();
+            var itemRefs = this.StorageContext.Items.Include("FieldValues").
+                Where(i => i.UserID == CurrentUser.ID && i.ItemTypeID == SystemItemTypes.Reference &&
+                      i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == itemID)).ToList();
             bool commit = false;
-            foreach (var fv in itemRefs)
+            foreach (var itemRef in itemRefs)
             {
-                this.StorageContext.FieldValues.Remove(fv);
+                this.StorageContext.Items.Remove(itemRef);
                 commit = true;
             }
 
-            // commit deletion of ItemRef FieldValues
+            // commit deletion of References
             if (commit) { this.StorageContext.SaveChanges(); }
+            return commit;
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)

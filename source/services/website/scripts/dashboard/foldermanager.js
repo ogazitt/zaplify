@@ -102,6 +102,14 @@ ManagerSettings.prototype.render = function (container) {
     this.$element.append('<div class="manager-header ui-state-active"><span>User Preferences</span></div>');
     var $settings = $('<div class="manager-panel ui-widget-content"></div>').appendTo(this.$element);
     this.renderThemePicker($settings);
+
+    // close button
+    var $closeInfo = $('<div class="item-editor-expander ui-icon ui-icon-circle-close"></div>').appendTo($settings);
+    $closeInfo.data('control', this);
+    $closeInfo.attr('title', 'Close');
+    $closeInfo.click(function () {
+        var control = Control.get(this); 
+        control.parentControl.selectItem(control.parentControl.currentItem); });
 }
 
 ManagerSettings.prototype.hide = function () {
@@ -433,10 +441,10 @@ ItemEditor.prototype.renderField = function (container, field) {
             $wrapper.addClass('wide label');
             $field = this.renderAddress($wrapper, field);
             break;
-        case DisplayTypes.UrlList:
+        case DisplayTypes.LinkArray:
             $wrapper = $(wrapper).appendTo(container);
             $wrapper.addClass('wide area');
-            $field = this.renderUrlList($wrapper, field);
+            $field = this.renderLinkArray($wrapper, field);
             break;
         case DisplayTypes.DateTimePicker:
             $wrapper = $(wrapper).appendTo(container);
@@ -531,12 +539,12 @@ ItemEditor.prototype.renderDateTimePicker = function (container, field) {
     return $field;
 }
 
-ItemEditor.prototype.renderUrlList = function (container, field) {
+ItemEditor.prototype.renderLinkArray = function (container, field) {
     $field = $('<textarea></textarea>').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    // TODO: process links into text for display
-    $field.val(this.item.GetFieldValue(field));
+    var linkArray = new LinkArray(this.item.GetFieldValue(field));
+    $field.val(linkArray.ToText());
     $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     return $field;
 }
@@ -545,7 +553,6 @@ ItemEditor.prototype.renderAddress = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.change(function () { Control.get(this).handleChange($(this)); });
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
     $field.val(this.item.GetFieldValue(field));
     $field.autocomplete({
@@ -587,7 +594,7 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
         var dataModel = Control.findParent(this, 'dataModel').dataModel;
         var locations = value.GetItems();
         for (var id in locations) {
-            var locationRef = locations[id].GetFieldValue(FieldNames.ItemRef);
+            var locationRef = locations[id].GetFieldValue(FieldNames.EntityRef);
             if (locationRef != null) {
                 var address = locationRef.GetFieldValue(FieldNames.Address);
                 text += address;
@@ -643,14 +650,14 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field.addClass(field.Class);
     $field.data('control', this);
     $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
-    $field.change(function () { Control.get(this).handleChange($(this)); });
+    //$field.change(function () { Control.get(this).handleChange($(this)); });
     var text = '';
     var value = this.item.GetFieldValue(field);
     if (value != null && value.IsList) {
         var dataModel = Control.findParent(this, 'dataModel').dataModel;
         var contacts = value.GetItems();
         for (var id in contacts) {
-            var contactRef = contacts[id].GetFieldValue(FieldNames.ItemRef);
+            var contactRef = contacts[id].GetFieldValue(FieldNames.EntityRef);
             if (contactRef != null) {
                 text += contactRef.Name;
                 //text += '; ';                 // TODO: support multiple contacts
@@ -723,7 +730,11 @@ ItemEditor.prototype.updateField = function ($element) {
                 case DisplayTypes.LocationList:
                     this.updateLocationList($element, field);
                     break;
-                case DisplayTypes.UrlList:
+                case DisplayTypes.LinkArray:
+                    var linkArray = new LinkArray();
+                    linkArray.Parse($element.val());
+                    value = linkArray.ToJson();
+                    changed = (value != currentValue);
                     break;
                 case DisplayTypes.Checkbox:
                     value = ($element.attr('checked') == 'checked');
@@ -755,7 +766,8 @@ ItemEditor.prototype.updateField = function ($element) {
                             changed = true;
                             if (this.mode == ItemEditorMode.New) {
                                 // autocomplete for new Locations
-                                this.item.SetFieldValue(FieldNames.Address, $element.val());
+                                this.item.SetFieldValue(FieldNames.Name, value);
+                                this.item.SetFieldValue(FieldNames.Address, value);
                                 this.parentControl.addItem(false);
                                 return false;
                             }

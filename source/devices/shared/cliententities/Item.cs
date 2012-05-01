@@ -607,7 +607,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         {
             get
             {
-                FieldValue fv = GetFieldValue(FieldNames.ItemRef, false);
+                FieldValue fv = GetFieldValue(FieldNames.EntityRef, false);
                 if (fv != null)
                     return new Guid(fv.Value);
                 else
@@ -615,11 +615,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
             set
             {
-                FieldValue fv = GetFieldValue(FieldNames.ItemRef, true);
+                FieldValue fv = GetFieldValue(FieldNames.EntityRef, true);
                 if (fv != null)
                 {
                     fv.Value = value.ToString();
-                    NotifyPropertyChanged(FieldNames.ItemRef);
+                    NotifyPropertyChanged(FieldNames.EntityRef);
                 }
             }
         }        
