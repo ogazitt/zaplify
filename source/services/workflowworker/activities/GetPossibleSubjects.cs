@@ -275,7 +275,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 LastModified = now,
                 FieldValues = new List<FieldValue>()
                 {
-                    new FieldValue() { FieldName = FieldNames.ItemRef, ItemID = refID, Value = contact.ID.ToString() }
+                    new FieldValue() { FieldName = FieldNames.EntityRef, ItemID = refID, Value = contact.ID.ToString() },
+                    new FieldValue() { FieldName = FieldNames.EntityType, ItemID = refID, Value = EntityTypes.Item }
                 }
             };
             try

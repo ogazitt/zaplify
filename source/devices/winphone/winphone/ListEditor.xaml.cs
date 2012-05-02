@@ -84,7 +84,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            // get the name of the tag
+            // get the name of the list
             listCopy.Name = ListName.Text;
             var itemType = ItemTypePicker.SelectedItem as ItemType;
             listCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
@@ -133,6 +133,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                 // save the changes to the existing list (make a deep copy)
                 list.Copy(listCopy, true);
+
+                // save the new list properties back to the item in the folder
+                var item = folder.Items.Single(i => i.ID == list.ID);
+                item.Name = list.Name;
+                item.ItemTypeID = list.ItemTypeID;
             }
 
             // save the changes to local storage

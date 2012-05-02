@@ -69,58 +69,6 @@ SuggestionManager.prototype.dislikeSuggestion = function (suggestion, callback) 
     return false;
 }
 
-/*
-SuggestionManager.prototype.addContact = function (suggestion) {
-
-    var dataModel = this.dataModel;
-    var item = dataModel.FindItem(suggestion.EntityID);
-    if (item != null) {
-        if (item.HasField(FieldNames.Contacts)) {
-            var contact = $.parseJSON(suggestion.Value);
-        }
-        // local function for adding Contact 
-        var addContactFunc = function (list) {
-            if (list != null && list.IsList) {
-                // create and insert the contact reference
-                var contactRef = $.extend(new Item(), {
-                    Name: contact.Name,
-                    ItemTypeID: ItemTypes.Reference,
-                    FolderID: contact.FolderID,
-                    ParentID: list.ID,
-                    UserID: contact.UserID
-                });
-                contactRef.SetFieldValue(FieldNames.ItemRef, contact.ID);
-                list.InsertItem(contactRef, null, null, null);
-
-                // determine whether contact is new or existing
-                var contactItem = $.extend(new Item(), contact);
-                var sourcesFieldValue = contactItem.GetFieldValue(FieldNames.Sources);
-                if (sourcesFieldValue != null && sourcesFieldValue.indexOf(Sources.Local) != -1) {
-                    var existingContact = dataModel.FindItem(contact.ID);
-                    if (existingContact != null) {
-                        contact = $.extend(true, existingContact, contact);
-                        existingContact.Update(contact);
-                        return;
-                    }
-                }
-
-                // create and insert the contact itself into default 'Contacts' folder
-                var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
-                contact.FolderID = contactFolder.ID;
-                contactFolder.InsertItem(contact, null, null, item);
-            }
-        }
-
-        // will return null if addContactFunc is called, otherwise need to call it
-        var contactsList = item.GetFieldValue(FieldNames.Contacts, addContactFunc);
-        if (contactsList != null && contactsList.IsList) {
-            addContactFunc(contactsList);
-        }
-    }
-    return this.chooseSuggestion(suggestion);
-}
-*/
-
 SuggestionManager.prototype.navigateLink = function (suggestion) {
     return this.likeSuggestion(suggestion,
         function () {

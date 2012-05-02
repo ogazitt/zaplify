@@ -86,6 +86,25 @@
             if (username == null)
                 username = "anonymous";
 
+            DateTime tod = DateTime.Now;
+            string filename = String.Format("{0}-{1}.txt",
+                username,
+                tod.Ticks);
+
+            // if not in azure, write to the filesystem
+            if (HostEnvironment.IsAzure)
+                BlobStore.WriteTraceFile(filename, traceStream);
+            else
+                return WriteFileToFileSystem(filename, traceStream);
+
+            return null;
+        }
+
+        string WriteFileToFileSystem(string filename, Stream traceStream)
+        {
+            // Log function entrance
+            TraceLog.TraceFunction();
+
             try
             {
                 string dir = HttpContext.Current.Server.MapPath(@"~/files");
@@ -96,10 +115,6 @@
                     TraceLog.TraceInfo("Created directory " + dir);
                 }
 
-                DateTime tod = DateTime.Now;
-                string filename = String.Format("{0}-{1}.txt",
-                    username,
-                    tod.Ticks);
                 string path = Path.Combine(dir, filename);
                 FileStream fs = File.Create(path);
                 if (fs == null)
@@ -124,21 +139,6 @@
                 TraceLog.TraceException("Writing trace file failed", ex);
                 return ex.Message;
             }
-        }
-
-        string WriteToAzureTable(string username, Stream traceStream)
-        {
-            // Log function entrance
-            TraceLog.TraceFunction();
-
-            // if not in azure, write to the filesystem
-            if (!HostEnvironment.IsAzure)
-                return WriteFile(username, traceStream);
-
-            if (username == null)
-                username = "anonymous";
-
-            return null;
         }
     }
 }

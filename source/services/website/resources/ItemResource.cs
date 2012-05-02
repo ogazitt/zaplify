@@ -12,6 +12,7 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
 
     [ServiceContract]
@@ -92,8 +93,13 @@
                             this.StorageContext.FieldValues.Remove(fv);
                     }
 
-                    // remove all the items whose ParentID is this item (and do this recursively, from the bottom up)
-                    DeleteItemChildrenRecursively(requestedItem);
+                    bool multipleItemsDeleted = false;
+                    // delete all the items with ParentID of this item.ID (recursively, from the bottom up)
+                    multipleItemsDeleted = DeleteItemChildrenRecursively(requestedItem);
+                    // delete all ItemRef FieldValues with Value of this item.ID
+                    multipleItemsDeleted |= DeleteItemReferences(requestedItem);
+
+                    // TODO: indicate using TimeStamp that multiple items were deleted
 
                     this.StorageContext.Items.Remove(requestedItem);
                     if (this.StorageContext.SaveChanges() < 1)
@@ -366,13 +372,16 @@
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
                     if (changed == true)
                     {
-                        if (this.StorageContext.SaveChanges() < 1)
+                        int rows = this.StorageContext.SaveChanges();
+                        if (rows < 0)
                         {
                             TraceLog.TraceError("ItemResource.Update: Internal Server Error (database operation did not succeed)");
                             return ReturnResult<Item>(req, operation, HttpStatusCode.InternalServerError);
                         }
                         else
                         {
+                            if (rows == 0)
+                                TraceLog.TraceInfo("ItemResource.Update: inconsistency between the results of Update and zero rows affected");
                             if (newFolder.Name.StartsWith("$") == false)
                                 if (HostEnvironment.IsAzure)
                                     MessageQueue.EnqueueMessage(operation.ID);
@@ -399,20 +408,38 @@
             }
         }
 
-        void DeleteItemChildrenRecursively(Item item)
+        bool DeleteItemChildrenRecursively(Item item)
         {
             var children = this.StorageContext.Items.Where(i => i.ParentID == item.ID).ToList();
-            bool removed = false;
+            bool commit = false;
             foreach (var c in children)
             {
                 DeleteItemChildrenRecursively(c);
                 this.StorageContext.Items.Remove(c);
-                removed = true;
+                commit = true;
             }
 
-            // remove all of the children at the same layer together
-            if (removed)
-                this.StorageContext.SaveChanges();
+            // commit deletion of all children at the same layer together
+            if (commit) { this.StorageContext.SaveChanges(); }
+            return commit;
+        }
+
+        bool DeleteItemReferences(Item item)
+        {
+            string itemID = item.ID.ToString();
+            var itemRefs = this.StorageContext.Items.Include("FieldValues").
+                Where(i => i.UserID == CurrentUser.ID && i.ItemTypeID == SystemItemTypes.Reference &&
+                      i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == itemID)).ToList();
+            bool commit = false;
+            foreach (var itemRef in itemRefs)
+            {
+                this.StorageContext.Items.Remove(itemRef);
+                commit = true;
+            }
+
+            // commit deletion of References
+            if (commit) { this.StorageContext.SaveChanges(); }
+            return commit;
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)

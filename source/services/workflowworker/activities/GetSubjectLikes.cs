@@ -74,7 +74,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 // if the subjectItem is a reference, chase it down
                 while (subject.ItemTypeID == SystemItemTypes.Reference)
                 {
-                    FieldValue refID = subject.GetFieldValue(FieldNames.ItemRef);
+                    FieldValue refID = subject.GetFieldValue(FieldNames.EntityRef);
                     Guid refid = new Guid(refID.Value);
                     subject = UserContext.Items.Include("FieldValues").Single(i => i.ID == refid);
                 }
