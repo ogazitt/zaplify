@@ -704,12 +704,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             try
             {
+                // recursively remove subitems
                 var subitems = Items.Where(i => i.ParentID == item.ID).ToList();
                 foreach (var it in subitems)
                     RemoveItem(it);
+                
+                // retrieve the folder and item by ID and remove the item
                 Folder folder = Folders.Single(f => f.ID == item.FolderID);
-                folder.Items.Remove(item);
-                StorageHelper.WriteFolder(folder);                
+                if (folder.Items.Any(i => i.ID == item.ID))
+                {
+                    Item itemToRemove = folder.Items.Single(i => i.ID == item.ID);
+                    folder.Items.Remove(itemToRemove);
+                    StorageHelper.WriteFolder(folder);                
+                }
             }
             catch (Exception ex)
             {

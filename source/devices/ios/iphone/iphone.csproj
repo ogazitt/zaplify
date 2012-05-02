@@ -114,11 +114,13 @@
     <Compile Include="controls\MessageBox.cs" />
     <Compile Include="controls\UICheckbox.cs" />
     <Compile Include="AddPage.cs" />
-    <Compile Include="CalendarPage.cs" />
     <Compile Include="controls\MultilineEntryElement.cs" />
     <Compile Include="NuanceHelper-ios.cs" />
     <Compile Include="ListPickerPage.cs" />
     <Compile Include="controls\CheckboxImageElement.cs" />
+    <Compile Include="FolderEditor.cs" />
+    <Compile Include="ListEditor.cs" />
+    <Compile Include="SchedulePage.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />

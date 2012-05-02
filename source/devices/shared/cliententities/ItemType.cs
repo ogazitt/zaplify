@@ -148,9 +148,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        private Guid userID;
+        private Guid? userID;
         [DataMember]
-        public Guid UserID
+        public Guid? UserID
         {
             get
             {

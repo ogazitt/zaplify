@@ -11,33 +11,39 @@ using MonoTouch.UIKit;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	public partial class ListViewController : UITableViewController
+	public partial class ListViewController : UIViewController
 	{
-		private Folder folder;
-		private Item list;
+		public Folder Folder { get; set; }
+		public Item List { get; set; }
+        
 		private Guid? listID;
 		private UIViewController parentController;
-		
+        
+        private UITableView TableView;
+        private UIToolbar Toolbar;
+        private UIBarButtonItem EditButton;
+
 		static bool UserInterfaceIdiomIsPhone {
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
 		}
 		 		
-		public ListViewController(UIViewController parent, Folder f, Guid? currentID) : base(UITableViewStyle.Plain)
+		public ListViewController(UIViewController parent, Folder f, Guid? currentID) : base()
 		{
-			folder = f;
+			Folder = f;
             listID = (currentID == Guid.Empty) ? (Guid?) null : (Guid?) currentID;
 			parentController = parent;
-		}
-		
+            InitializeComponent();
+        }
+            
 		public override void ViewDidAppear(bool animated)
 		{
 			// load the folder and construct the list of Items that will be rendered
 			try
             {
-                folder = App.ViewModel.LoadFolder(folder.ID);
+                Folder = App.ViewModel.LoadFolder(Folder.ID);
 
                 // if the load failed, this folder has been deleted
-                if (folder == null)
+                if (Folder == null)
                 {
                     // the folder isn't found - this can happen when the folder we were just 
                     // editing was removed in FolderEditor, which then goes back to ListPage.
@@ -51,25 +57,53 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     return;
                 }
 
-                // get the current list name
+                // initialize all the controls 
                 string listName = null;
                 if (listID == null || listID == Guid.Empty)
-                    listName = folder.Name;
+                    listName = Folder.Name;
                 else
-                    listName = folder.Items.Single(i => i.ID == listID).Name;
-				this.Title = listName;
-
+                    listName = Folder.Items.Single(i => i.ID == listID).Name;
+                this.Title = listName;
+                EditButton.Title = "Edit " + listName;
+   
                 // construct a synthetic item that represents the list of items for which the 
                 // ParentID is the parent.  this also works for the root list in a folder, which
                 // is represented with a ParentID of Guid.Empty.
-                list = new Item()
+                Guid? itemTypeID = null;
+                if (listID != null)
+                {
+                    Item list = App.ViewModel.Items.Single(i => i.ID == (Guid) listID);
+                    itemTypeID = list.ItemTypeID;
+                }
+                List = new Item()
                 {
                     ID = (listID == null) ? Guid.Empty : (Guid) listID,
-                    Name = listName,
-                    FolderID = folder.ID,
+                    Name = this.Title,
+                    FolderID = Folder.ID,
+                    ItemTypeID = (itemTypeID == null) ? Folder.ItemTypeID : (Guid) itemTypeID,
                     IsList = true,
-                    Items = folder.Items.Where(i => i.ParentID == listID).ToObservableCollection()
                 };
+                SortList();
+                
+                this.NavigationItem.RightBarButtonItem = new UIBarButtonItem("Edit", UIBarButtonItemStyle.Bordered, delegate {
+                    if (TableView.Editing == false)
+                    {
+                        TableView.SetEditing(true, true);
+                        this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Done;
+                        this.NavigationItem.RightBarButtonItem.Title = "Done";
+                    }
+                    else
+                    {
+                        TableView.SetEditing(false, true);
+                        this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Bordered;
+                        this.NavigationItem.RightBarButtonItem.Title = "Edit";
+    
+                        // trigger a sync with the Service 
+                        App.ViewModel.SyncWithService();   
+                        
+                        Folder = App.ViewModel.LoadFolder(Folder.ID);
+                    }
+                });               
             }
             catch (Exception ex)
             {
@@ -120,6 +154,60 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			}
 		}		
 		
+        public void SortList()
+        {
+            List.Items = Folder.Items.Where(i => i.ParentID == listID).OrderBy(i => i.SortOrder).ToObservableCollection();
+        }  
+  
+        void InitializeComponent()
+        {            
+            // get the current list name
+            string listName = null;
+            if (listID == null || listID == Guid.Empty)
+                listName = Folder.Name;
+            else
+                listName = Folder.Items.Single(i => i.ID == listID).Name;
+            this.Title = listName;
+
+            // calculate the frame sizes
+            float navBarHeight = 
+                parentController.NavigationController != null ? 
+                parentController.NavigationController.NavigationBar.Bounds.Height : 
+                new UINavigationController().NavigationBar.Bounds.Height;
+            float tabBarHeight = 
+                parentController.TabBarController.TabBar != null ? 
+                parentController.TabBarController.TabBar.Bounds.Height : 
+                new UINavigationController().NavigationBar.Bounds.Height;
+            float availableHeight = View.Bounds.Height - navBarHeight - tabBarHeight;
+            float toolbarHeight = navBarHeight;
+            float tableHeight = availableHeight - toolbarHeight;
+
+            // create the toolbar and the tableview
+            TableView = new UITableView() { Frame = new RectangleF(0, 0, View.Bounds.Width, tableHeight) };
+            this.View.AddSubview(TableView);
+            Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };
+            EditButton = new UIBarButtonItem("Edit " + listName, UIBarButtonItemStyle.Bordered, delegate { 
+                if (listID == null || listID == Guid.Empty)
+                {
+                    FolderEditor folderEditor = new FolderEditor(this.NavigationController, Folder);
+                    folderEditor.PushViewController();
+                }
+                else
+                {
+                    ListEditor listEditor = new ListEditor(this.NavigationController, Folder, List, null);
+                    listEditor.PushViewController();
+                }
+            });
+            var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "List", UIBarButtonItemStyle.Plain, delegate { 
+                ListEditor listEditor = new ListEditor(this.NavigationController, Folder, null, List.ID);
+                listEditor.PushViewController();
+            });
+            var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
+            var fixedSpace = new UIBarButtonItem(UIBarButtonSystemItem.FixedSpace) { Width = 10f };                        
+            Toolbar.SetItems(new UIBarButtonItem[] { fixedSpace, addButton, flexSpace, EditButton, fixedSpace }, false);
+            this.View.AddSubview(Toolbar);
+        }
+             
 		#region Event Handlers
 		
 		/// <summary>
@@ -160,7 +248,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             //ListHelper.ReOrderItem(list, item);
 
             // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+            StorageHelper.WriteFolder(Folder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -193,13 +281,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				
 				// get the item at the row and depending on whether it's a list 
 				// or a singleton, navigate to the right page
-				Item item = controller.list.Items[indexPath.Row];
+				Item item = controller.List.Items[indexPath.Row];
 				if (item != null)
 				{
 					if (item.IsList == true)
 		            {
 		                // Navigate to the list page
-						UITableViewController nextController = new ListViewController(controller, controller.folder, item.ID);	
+						UIViewController nextController = new ListViewController(controller, controller.Folder, item.ID);	
 		            	TraceHelper.StartMessage("ListPage: Navigate to List");
 						controller.NavigationController.PushViewController(nextController, true);
 		            }
@@ -244,12 +332,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	 
 			public override int RowsInSection (UITableView tableview, int section)
 			{
-				return controller.list.Items.Count;
+				return controller.List.Items.Count;
 			}
 	 
 			public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
 			{
-				Item item = controller.list.Items[indexPath.Row];
+				Item item = controller.List.Items[indexPath.Row];
                 
                 // if the item is a reference, traverse to the target
                 while (item.ItemTypeID == SystemItemTypes.Reference && item.ItemRef != null)
@@ -340,8 +428,87 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 
 				return cell;
 			}
-		}
 		
+            public override bool CanMoveRow(UITableView tableView, NSIndexPath indexPath)
+            {
+                return true;
+            }
+            
+            public override void MoveRow(UITableView tableView, NSIndexPath sourceIndexPath, NSIndexPath destinationIndexPath)
+            {
+                int sourceRow = sourceIndexPath.Row;
+                int destRow = destinationIndexPath.Row;
+                float before, after;
+                Item item = controller.List.Items[sourceRow];
+                
+                // compute the new sort order for the folder based on the directiom of motion (up or down)
+                if (sourceRow < destRow) 
+                {
+                    // moving down - new position is the average of target position plus next position
+                    before = controller.List.Items[destRow].SortOrder;
+                    if (destRow >= controller.List.Items.Count - 1)
+                        after = before + 1000f;
+                    else
+                        after = controller.List.Items[destRow + 1].SortOrder;
+                }                
+                else
+                {
+                    // moving up - new position is the average of target position plus previous position
+                    after = controller.List.Items[destRow].SortOrder;
+                    if (destRow == 0)
+                        before = 0;
+                    else
+                        before = controller.List.Items[destRow - 1].SortOrder;
+                }
+                float newSortOrder = (before + after) / 2;
+                
+                // make a copy of the item for the Update operation
+                Item itemCopy = new Item(item);
+                item.SortOrder = newSortOrder;
+
+                // enqueue the Web Request Record
+                RequestQueue.EnqueueRequestRecord(
+                    new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                        Body = new List<Item>() { itemCopy, item },
+                        BodyTypeName = typeof(Item).Name,
+                        ID = item.ID
+                    });
+    
+                // save the changes to local storage
+                StorageHelper.WriteFolder(controller.Folder);
+
+                // re-sort the current list, and have the table view update its UI
+                controller.SortList(); 
+                tableView.MoveRow(sourceIndexPath,destinationIndexPath);
+            }
+            
+            public override void CommitEditingStyle(UITableView tableView, UITableViewCellEditingStyle editingStyle, NSIndexPath indexPath)
+            {
+                if (editingStyle == UITableViewCellEditingStyle.Delete)
+                {
+                    Item item = controller.List.Items[indexPath.Row];
+
+                    // enqueue the Web Request Record
+                    RequestQueue.EnqueueRequestRecord(
+                        new RequestQueue.RequestRecord()
+                        {
+                            ReqType = RequestQueue.RequestRecord.RequestType.Delete,
+                            Body = item
+                        });
+        
+                    // save the changes to local storage and refresh the folder
+                    App.ViewModel.RemoveItem(item);
+                    controller.Folder = App.ViewModel.LoadFolder(controller.Folder.ID);
+     
+                    // re-sort the current list, and have the table view update its UI
+                    controller.SortList(); 
+                    tableView.DeleteRows(new [] { indexPath }, UITableViewRowAnimation.Fade);
+                }
+            }
+        }
+
 		#endregion
 	}
 }

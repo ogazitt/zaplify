@@ -44,7 +44,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// trace event
             TraceHelper.AddMessage("Add: constructor");
 
-			this.Title = NSBundle.MainBundle.LocalizedString ("Add", "Add");
+			this.Title = NSBundle.MainBundle.LocalizedString ("Add Item", "Add Item");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/180-stickynote.png");
 		}
 		
@@ -173,7 +173,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // don't add empty items - instead, navigate to the list
             if (name == null || name == "")
             {
-                UITableViewController nextController = new ListViewController(this, folder, list != null ? list.ID : Guid.Empty);  
+                UIViewController nextController = new ListViewController(this, folder, list != null ? list.ID : Guid.Empty);  
                 TraceHelper.StartMessage("AddPage: Navigate to List");
                 this.PushViewController(nextController, true);
                 return;
@@ -292,7 +292,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // create and push the dialog view onto the nav stack
             dialogViewController = new DialogViewController(root);
             dialogViewController.NavigationItem.HidesBackButton = true;  
-            dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add", "Add");
+            dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add Item", "Add Item");
 
             // set up the "pull to refresh" feature
             dialogViewController.RefreshRequested += delegate 

@@ -21,7 +21,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
             catch (Exception ex)
             {
-                TraceHelper.AddMessage("Unhandled Exception in iOS client; ex: " + ex.Message);
+                TraceHelper.AddMessage(String.Format("Unhandled Exception in iOS client; ex: {0}\nStackTrace: {1}", ex.Message, ex.StackTrace));
                 TraceHelper.StoreCrashReport();
             }
 		}

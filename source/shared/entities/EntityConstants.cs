@@ -55,7 +55,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     {                                                       // FieldNames:
         public const string Navigate = "Navigate";          // Contacts, Locations
         public const string Postpone = "Postpone";          // DueDate
-        public const string AddToCalendar = "AddToCalendar";// ReminderDate
+        public const string AddToCalendar = "AddToCalendar";// DueDate
         public const string Map = "Map";                    // Address
         public const string Call = "Call";                  // Phone, HomePhone, WorkPhone
         public const string TextMessage = "TextMessage";    // Phone
@@ -213,7 +213,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             // initialize actions
             var actionTypes = new List<ActionType>();
             actionTypes.Add(new ActionType() { ActionTypeID = 1, FieldName = FieldNames.DueDate, DisplayName = "postpone", ActionName = ActionNames.Postpone, SortOrder = 1 });
-            actionTypes.Add(new ActionType() { ActionTypeID = 2, FieldName = FieldNames.ReminderDate, DisplayName = "add reminder", ActionName = ActionNames.AddToCalendar, SortOrder = 2 });
+            actionTypes.Add(new ActionType() { ActionTypeID = 2, FieldName = FieldNames.DueDate, DisplayName = "add to calendar", ActionName = ActionNames.AddToCalendar, SortOrder = 2 });
             actionTypes.Add(new ActionType() { ActionTypeID = 3, FieldName = FieldNames.Address, DisplayName = "map", ActionName = ActionNames.Map, SortOrder = 3 });
             actionTypes.Add(new ActionType() { ActionTypeID = 4, FieldName = FieldNames.Phone, DisplayName = "call cell", ActionName = ActionNames.Call, SortOrder = 4 });
             actionTypes.Add(new ActionType() { ActionTypeID = 5, FieldName = FieldNames.HomePhone, DisplayName = "call home", ActionName = ActionNames.Call, SortOrder = 5 });

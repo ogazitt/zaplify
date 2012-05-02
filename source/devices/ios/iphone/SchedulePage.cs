@@ -14,27 +14,27 @@ using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	public class CalendarPage : UINavigationController
+	public class SchedulePage : UINavigationController
 	{
         private DialogViewController dvc;
         
-		public CalendarPage()
+		public SchedulePage()
 		{
 			// trace event
-            TraceHelper.AddMessage("Calendar: constructor");
+            TraceHelper.AddMessage("Schedule: constructor");
 
-			this.Title = NSBundle.MainBundle.LocalizedString ("Calendar", "Calendar");
+			this.Title = NSBundle.MainBundle.LocalizedString ("Schedule", "Schedule");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/83-calendar.png");
 		}
 		
 		public override void ViewDidAppear (bool animated)
 		{
 			// trace event
-            TraceHelper.AddMessage("Calendar: ViewDidAppear");
+            TraceHelper.AddMessage("Schedule: ViewDidAppear");
             
 			// initialize controls
 			var now = DateTime.Today;
-			var root = new RootElement("Calendar")
+			var root = new RootElement("Schedule")
 			{
 		        from it in App.ViewModel.Items
 			        where it.Due != null && it.Due >= now
@@ -60,7 +60,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // create and push the dialog view onto the nav stack
                 dvc = new DialogViewController(UITableViewStyle.Plain, root);
     			dvc.NavigationItem.HidesBackButton = true;	
-    			dvc.Title = NSBundle.MainBundle.LocalizedString ("Calendar", "Calendar");
+    			dvc.Title = NSBundle.MainBundle.LocalizedString ("Schedule", "Schedule");
     			this.PushViewController(dvc, false);
 			}
             else

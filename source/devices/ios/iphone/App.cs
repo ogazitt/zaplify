@@ -58,8 +58,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
          
             // create pages
 			var add = new AddPage();
-			var calendar = new CalendarPage();
-			var folders = new UINavigationController(new FoldersViewController (UITableViewStyle.Plain));
+			var calendar = new SchedulePage();
+			var folders = new UINavigationController(new FoldersViewController(UITableViewStyle.Plain));
 			var settings = new SettingsPage();
 			var more = new UINavigationController(new MoreViewController());
 			

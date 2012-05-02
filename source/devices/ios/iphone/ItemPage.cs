@@ -58,15 +58,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
 				editViewController = new DialogViewController(editRoot, true);
                 editViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
-                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
-                    NSTimer.CreateScheduledTimer(0.5, delegate
-                    {
-                        // save the item and trigger a sync with the service  
-                        SaveButton_Click(null, null);
-                        // navigate back to the list page
-                        TraceHelper.StartMessage("Item: Navigate back");
-                        NavigateBack();
-                    });
+                    // save the item and trigger a sync with the service  
+                    SaveButton_Click(null, null);
+                    // navigate back to the list page
+                    TraceHelper.StartMessage("Item: Navigate back");
+                    NavigateBack();
                 });
 
                 UIImage actionsBackButtonImage = new UIImage("Images/actions-back-button.png");
@@ -77,56 +73,33 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 actionsBackButton.SetImage(actionsBackButtonImageSelected, UIControlState.Highlighted);
                 actionsBackButton.Frame = new System.Drawing.RectangleF(0, 0, actionsBackButtonImage.Size.Width, actionsBackButtonImage.Size.Height);
                 actionsBackButton.TouchUpInside += delegate {
-                //actionsViewController.NavigationItem.BackBarButtonItem = new UIBarButtonItem("Actions", UIBarButtonItemStyle.Bordered, delegate {
-                //editViewController.NavigationItem.LeftBarButtonItem = new UIBarButtonItem(new UIImage("Images/actions-back-button.png"), UIBarButtonItemStyle.Plain, delegate {
-                //editViewController.NavigationItem.LeftBarButtonItem = new UIBarButtonItem("Actions", UIBarButtonItemStyle.Bordered, delegate {
-                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
-                    NSTimer.CreateScheduledTimer(0.5, delegate
-                    {
-                        // save the item and trigger a sync with the service  
-                        SaveButton_Click(null, null);
-                        // reload the Actions page 
-                        var oldroot = root;
-                        root = RenderViewItem(ThisItem);
-                        actionsViewController.Root = root;
-                        actionsViewController.ReloadData();
-                        oldroot.Dispose();
-                        // pop back to actions page
-                        controller.PopViewControllerAnimated(true);
-                    });
-                //});
+                    // save the item and trigger a sync with the service  
+                    SaveButton_Click(null, null);
+                    // reload the Actions page 
+                    var oldroot = root;
+                    root = RenderViewItem(ThisItem);
+                    actionsViewController.Root = root;
+                    actionsViewController.ReloadData();
+                    oldroot.Dispose();
+                    // pop back to actions page
+                    controller.PopViewControllerAnimated(true);
                 };
                 UIBarButtonItem actionsBackBarItem = new UIBarButtonItem(actionsBackButton);
                 editViewController.NavigationItem.LeftBarButtonItem = actionsBackBarItem;
-
-/*                
-                editViewController.ViewDissapearing += (sender, e) => 
-                { 
-                    // schedule this out 0.5 seconds to give any Changed event handlers time to fire
-                    NSTimer.CreateScheduledTimer(0.5, delegate
-                    {
-                        // save the item and trigger a sync with the service  
-                        SaveButton_Click(null, null);
-                        // reload the Actions page 
-                        var oldroot = root;
-                        root = RenderViewItem(ThisItem);
-                        dvc.Root = root;
-                        dvc.ReloadData();
-                        oldroot.Dispose();
-                    });
-                };
-*/
                 controller.PushViewController(editViewController, true);
 			});
 			
-            actionsViewController.ViewDissapearing += (sender, e) => 
+            // if moving from the item page to its parent (e.g. the schedule tab), call ViewDidAppear on that controller 
+            actionsViewController.ViewDisappearing += (sender, e) => 
             {
+                // this property should be called "IsMovingToParentViewController" - it is a bug in the property naming, 
+                // not a bug in the code
                 if (actionsViewController.IsMovingFromParentViewController)
                     controller.ViewDidAppear(false);
             };
 
 			// push the "view item" view onto the nav stack
-			controller.PushViewController (actionsViewController, true);
+			controller.PushViewController(actionsViewController, true);
 		}
 				
         private void CancelButton_Click(object sender, EventArgs e)
@@ -203,16 +176,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             ItemCopy = new Item(ThisItem);
             
             // save the changes to local storage
+            if (folder.Items.Any(i => i.ID == ThisItem.ID))
+            {
+                var existingItem = folder.Items.Single(i => i.ID == ThisItem.ID);
+                existingItem.Copy(ThisItem, true);
+            }
+            else
+            {
+                TraceHelper.AddMessage("ItemPage: cannot find existing item to update");
+                folder.Items.Add(ThisItem);
+            }
             StorageHelper.WriteFolder(folder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
-
-            // trace page navigation
-            //TraceHelper.StartMessage("Item: Navigate back");
-
-            // Navigate back to the list page
-			//NavigateBack();
         }
 
 		#region Helpers
@@ -453,7 +430,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					entryElement.KeyboardType = UIKeyboardType.Default;
                     entryElement.Value = (string) currentValue;
 					entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+                    entryElement.Changed += delegate { 
+                        pi.SetValue(container, entryElement.Value, null); };
 					//element = stringElement;
                     break;
                 case DisplayTypes.TextArea:
@@ -548,7 +526,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.DatePicker:
-					DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
+                    DateTime? dateTime = String.IsNullOrEmpty((string) currentValue) ? (DateTime?) null : Convert.ToDateTime((string) currentValue);
 					DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
 					dateElement.ValueSelected += delegate 
                     {
@@ -560,7 +538,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					element = dateElement;
                     break;
                 case DisplayTypes.DateTimePicker:
-                    DateTime? dt = (currentValue == null) ? (DateTime?) null : Convert.ToDateTime((string) currentValue);
+                    DateTime? dt = String.IsNullOrEmpty((string) currentValue) ? (DateTime?) null : Convert.ToDateTime((string) currentValue);
                     DateTimeEventElement dateTimeElement = new DateTimeEventElement(field.DisplayName, dt);
                     dateTimeElement.ValueSelected += (s, e) => 
                     {
@@ -857,7 +835,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                         if (newItem.IsList == true)
                                         {
                                             // Navigate to the list page
-                                            UITableViewController nextController = new ListViewController(this.controller, folder, newItem.ID);  
+                                            UIViewController nextController = new ListViewController(this.controller, folder, newItem.ID);  
                                             TraceHelper.StartMessage("Item: Navigate to ListPage");
                                             this.controller.PushViewController(nextController, true);
                                         }
