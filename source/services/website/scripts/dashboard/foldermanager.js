@@ -99,17 +99,18 @@ function ManagerSettings(parentControl) {
 
 ManagerSettings.prototype.render = function (container) {
     this.$element = $('<div class="manager-settings"></div>').appendTo($(container));
-    this.$element.append('<div class="manager-header ui-state-active"><span>User Preferences</span></div>');
+    var $header = $('<div class="manager-header ui-state-active"><span>User Preferences</span></div>').appendTo(this.$element);
     var $settings = $('<div class="manager-panel ui-widget-content"></div>').appendTo(this.$element);
     this.renderThemePicker($settings);
 
     // close button
-    var $closeInfo = $('<div class="item-editor-expander ui-icon ui-icon-circle-close"></div>').appendTo($settings);
-    $closeInfo.data('control', this);
-    $closeInfo.attr('title', 'Close');
-    $closeInfo.click(function () {
-        var control = Control.get(this); 
-        control.parentControl.selectItem(control.parentControl.currentItem); });
+    var $closeBtn = $('<div class="ui-icon ui-icon-circle-close"></div>').appendTo($header);
+    $closeBtn.data('control', this);
+    $closeBtn.attr('title', 'Close');
+    $closeBtn.click(function () {
+        var control = Control.get(this);
+        control.parentControl.selectItem(control.parentControl.currentItem); 
+    });
 }
 
 ManagerSettings.prototype.hide = function () {
@@ -227,10 +228,25 @@ ListEditor.prototype.deleteItem = function () {
     }
 }
 
+ListEditor.prototype.showListInfo = function (show) {
+    if (show == null) { show = false; }
+    if (show) {
+        this.itemPath.closeDelegate = Control.delegate(this, 'showListInfo');
+        this.itemPath.render(this.$element, this.parentControl.currentFolder, this.parentControl.currentItem);
+        this.itemEditor.mode = ItemEditorMode.List;
+        this.itemEditor.render(this.itemEditor.listItem);
+    } else {
+        this.itemPath.closeDelegate = null;
+        this.itemEditor.mode = ItemEditorMode.New;
+        this.render();
+    }
+}
+
 // ---------------------------------------------------------
 // ItemPath control
 function ItemPath(parentControl) {
     this.parentControl = parentControl;
+    this.closeDelegate = null;
     this.$element = null;
 }
 
@@ -241,38 +257,56 @@ ItemPath.prototype.render = function (container, folder, item) {
 
     var addBtnTitle;
     var deleteBtnTitle;
+    var infoBtnTitle;
     this.$element.empty();
     if (folder != null) {
         this.$element.append('<span>' + folder.Name + '</span>');
         if (!folder.IsDefault()) { deleteBtnTitle = 'Delete Folder'; }
-        if (item == null) { addBtnTitle = 'Add List'; }
+        if (item == null) {
+            addBtnTitle = 'Add List';
+            infoBtnTitle = 'Folder Properties';
+        }
+
     }
     if (item != null) {
         deleteBtnTitle = 'Delete Item';
         if (item.IsList) {
             this.$element.append('<span> : ' + item.Name + '</span>');
             deleteBtnTitle = 'Delete List';
+            infoBtnTitle = 'List Properties';
         } else if (item.ParentID != null) {
             this.$element.append('<span> : ' + item.GetParent().Name + '</span>');
         }
     }
 
+    if (this.closeDelegate != null) {
+        // only display close icon and invoke delegate if close is clicked
+        var $closeBtn = $('<div class="ui-icon ui-icon-circle-close"></div>').appendTo(this.$element);
+        $closeBtn.data('control', this);
+        $closeBtn.attr('title', 'Close');
+        $closeBtn.bind('click', function () { Control.get(this).closeDelegate.invoke(); });
+        return;
+    }
+
     if (deleteBtnTitle != null) {
-        var handler = this.parentControl;
-        var $deleteBtn = $('<div class="icon delete-icon"></div>').appendTo(this.$element);
+        var $deleteBtn = $('<div class="ui-icon delete-icon"></div>').appendTo(this.$element);
+        $deleteBtn.data('control', this);
         $deleteBtn.attr('title', deleteBtnTitle);
-        $deleteBtn.unbind('click');
-        $deleteBtn.bind('click', function () { handler.deleteItem(); });
+        $deleteBtn.bind('click', function () { Control.get(this).parentControl.deleteItem(); });
     }
     if (addBtnTitle != null) {
-        var handler = this.parentControl;
-        var $addBtn = $('<div class="icon add-icon"></div>').appendTo(this.$element);
+        var $addBtn = $('<div class="ui-icon add-icon"></div>').appendTo(this.$element);
+        $addBtn.data('control', this);
         $addBtn.attr('title', addBtnTitle);
-        $addBtn.unbind('click');
-        $addBtn.bind('click', function () {
-            handler.addItem(true); 
-            });
+        $addBtn.bind('click', function () { Control.get(this).parentControl.addItem(true); });
     }
+    if (infoBtnTitle != null) {
+        var $infoBtn = $('<div class="ui-icon info-icon"></div>').appendTo(this.$element);
+        $infoBtn.data('control', this);
+        $infoBtn.attr('title', infoBtnTitle);
+        $infoBtn.bind('click', function () { Control.get(this).parentControl.showListInfo(true); });
+    }
+
 }
 
 ItemPath.prototype.hide = function () {
@@ -332,20 +366,20 @@ ItemEditor.prototype.render = function (item, container) {
     }
 
     if (this.mode == ItemEditorMode.New) {
-        // display list info button
-        var listType = (this.listItem.IsFolder()) ? 'Folder' : 'List';
-        var $listInfo = $('<div class="item-editor-expander ui-icon ui-icon-info"></div>').appendTo(this.$element);
-        $listInfo.data('control', this);
-        $listInfo.attr('title', listType + ' Properties');
-        $listInfo.click(this.setEditModeList);
         // render name field for new item 
         $field = this.renderNameField(this.$element);
         $field.val('');
     } else {
         // display item editor expander
-        var $expander = $('<div class="item-editor-expander ui-icon"></div>').appendTo(this.$element);
-        var iconClass = (this.expanded) ? 'expanded ui-icon-arrowreturnthick-1-n' : 'ui-icon-arrowreturnthick-1-s';
-        $expander.addClass(iconClass);
+        var $expander = $('<div class="item-editor-expander"><span class="ui-icon" /><span class="ui-icon" /><span class="ui-icon" /></div>').appendTo(this.$element);
+        if (this.expanded) {
+            $expander.addClass('expanded');
+            //$expander.attr('title', 'Less');
+            $expander.find('.ui-icon').addClass('ui-icon-carat-1-n');
+        } else {
+            //$expander.attr('title', 'More');
+            $expander.find('.ui-icon').addClass('ui-icon-carat-1-s');
+        }
         $expander.data('control', this);
         $expander.click(this.expandEditor);
         // render all fields of item
@@ -355,18 +389,6 @@ ItemEditor.prototype.render = function (item, container) {
     $fldActive = this.$element.find('.fn-name');
     $fldActive.focus();
     //$fldActive.select();
-}
-
-ItemEditor.prototype.setEditModeList = function () {
-    var itemEditor = Control.get(this);
-    itemEditor.mode = ItemEditorMode.List;
-    itemEditor.render(itemEditor.listItem);
-}
-
-ItemEditor.prototype.setEditModeNew = function () {
-    var itemEditor = Control.get(this);
-    itemEditor.mode = ItemEditorMode.New;
-    itemEditor.render(itemEditor.listItem);
 }
 
 ItemEditor.prototype.expandEditor = function () {
@@ -922,12 +944,6 @@ ItemEditor.prototype.renderListInfo = function (container) {
     }
     $itemTypePicker.val(this.listItem.ItemTypeID);
     $itemTypePicker.combobox({ selected: function () { Control.get(this).updateListInfo($(this)); } });
-
-    // close button
-    var $closeInfo = $('<div class="item-editor-expander ui-icon ui-icon-circle-close"></div>').appendTo(container);
-    $closeInfo.data('control', this);
-    $closeInfo.attr('title', 'Close');
-    $closeInfo.click(this.setEditModeNew);
 }
 
 ItemEditor.prototype.updateListInfo = function ($element) {

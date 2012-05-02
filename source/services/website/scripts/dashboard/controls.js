@@ -13,6 +13,13 @@ Control.get = function Control$get(element) {
     return $(element).data('control');
 }
 
+// helpers for creating and invoking a delegate
+Control.delegate = function Control$delegate(object, funcName) {
+    var delegate = { object: object, handler: funcName };
+    delegate.invoke = function () { return this.object[this.handler](); };
+    return delegate;
+}
+
 // get first parent control that contains member
 Control.findParent = function Control$findParent(control, member) {
     while (control.parentControl != null) {
