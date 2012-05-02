@@ -193,6 +193,7 @@ Item Fields
 .item-field.wide.checked input.dt-text { width: 90%; position: absolute; margin: 4px 4px 0px 24px; }
 .item-field.wide.area { height: 84px; }
 .item-field.wide.area .dt-textarea, .item-field.wide.area .dt-linkarray { width: 95%; margin: 14px 4px 0 6px; overflow-y: auto; overflow-x: hidden; }
+.item-field.wide.area .dt-linkarray { white-space: nowrap; }
 .item-field.wide input.dt-address, .item-field.wide input.dt-locationlist, 
 .item-field.wide input.dt-contactlist { width: 95%; margin: 14px 4px 0px 6px; }
 

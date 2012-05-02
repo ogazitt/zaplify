@@ -67,18 +67,6 @@ DataModel.FindItem = function DataModel$FindItem(itemID) {
     return null;
 }
 
-// generic helper for finding default folder or list for given ItemType
-// TODO: support user defaults stored in hidden System folder
-DataModel.FindDefault = function DataModel$FindDefault(itemType) {
-    for (id in DataModel.Folders) {
-        var folder = DataModel.Folders[id];
-        if (folder.ItemTypeID == itemType) {
-            return folder;
-        }
-    }
-    return null;
-}
-
 // generic helper for finding a Location item that matches given address or latlong
 // only looks in folders that have Location ItemType
 DataModel.FindLocation = function DataModel$FindLocation(address, latlong) {
@@ -462,8 +450,6 @@ DataModel.processFolders = function DataModel$processFolders(folders) {
         }
         folders[i].ItemsMap = new ItemMap(items);
         folders[i].Items = folders[i].ItemsMap.Items;
-        // TODO: track 'default' folders in UserSettings
-        folders[i].IsDefault = (i < 5);
 
         // extract folder for UserSettings
         if (folders[i].Name == SystemFolders.ClientSettings) { settingsIndex = i; }
@@ -506,6 +492,13 @@ DataModel.restoreSelection = function DataModel$restoreSelection(itemID) {
 function Folder(viewstate) { this.ViewState = (viewstate == null) ? {} : viewstate; }
 // Folder public functions
 Folder.prototype.IsFolder = function () { return true; };
+Folder.prototype.IsDefault = function () {
+    var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
+    if (defaultList != null) {
+        return (defaultList.IsFolder()) ? (this.ID == defaultList.ID) : (this.ID == defaultList.FolderID);
+    }
+    return false;
+};
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function () { return DataModel.GetItems(this, null); };
 Folder.prototype.GetItemByName = function (name, parentID) {
@@ -923,11 +916,29 @@ function UserSettings(settingsFolder) {
     this.init(UserSettings.preferencesName, UserSettings.preferencesKey);
 }
 
+UserSettings.defaultListsKey = 'DefaultLists';
 UserSettings.viewStateName = 'ViewState';
-UserSettings.preferencesName = 'Preferences';
-
 UserSettings.viewStateKey = 'WebViewState';
+UserSettings.preferencesName = 'Preferences';
 UserSettings.preferencesKey = 'WebPreferences';
+
+UserSettings.prototype.GetDefaultList = function (itemType) {
+    var defaultLists = this.Folder.GetItemByName(UserSettings.defaultListsKey);
+    if (defaultLists != null) {
+        var defaultList = this.Folder.GetItemByName(itemType, defaultLists.ID);
+        if (defaultList != null) {
+            return defaultList.GetFieldValue(FieldNames.EntityRef);
+        }
+    }
+    // return first folder with itemType
+    for (id in DataModel.Folders) {
+        var folder = DataModel.Folders[id];
+        if (folder.ItemTypeID == itemType) {
+            return folder;
+        }
+    }
+    return null;
+}
 
 UserSettings.prototype.Selection = function (folderID, itemID) {
     this.ViewState.SelectedFolder = folderID;

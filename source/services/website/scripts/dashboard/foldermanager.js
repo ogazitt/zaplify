@@ -218,7 +218,7 @@ ListEditor.prototype.deleteItem = function () {
         }
         item.Delete();
     } else {
-        if (this.parentControl.currentFolder.IsDefault) {
+        if (this.parentControl.currentFolder.IsDefault()) {
             alert('This is a default folder and cannot be deleted.');
         } else if (confirm('Are you sure?\n\nThis will delete the folder and all items contained within!')) {
             // WARN USER when deleting a Folder
@@ -244,7 +244,7 @@ ItemPath.prototype.render = function (container, folder, item) {
     this.$element.empty();
     if (folder != null) {
         this.$element.append('<span>' + folder.Name + '</span>');
-        if (!folder.IsDefault) { deleteBtnTitle = 'Delete Folder'; }
+        if (!folder.IsDefault()) { deleteBtnTitle = 'Delete Folder'; }
         if (item == null) { addBtnTitle = 'Add List'; }
     }
     if (item != null) {
@@ -831,8 +831,8 @@ ItemEditor.prototype.updateContactList = function ($element, field) {
         }
         // create new contact and add reference
         var thisItem = this.item;
-        var contactFolder = dataModel.FindDefault(ItemTypes.Contact);
-        dataModel.InsertItem(contact, contactFolder, null, null, null,
+        var contactList = dataModel.UserSettings.GetDefaultList(ItemTypes.Contact);
+        dataModel.InsertItem(contact, contactList, null, null, null,
             function (insertedContact) {
                 thisItem.AddReference(field, insertedContact, true);
             });
@@ -854,14 +854,14 @@ ItemEditor.prototype.updateLocationList = function ($element, field) {
         this.item.AddReference(field, existingLocation, true);
     } else {
         // create new location and add reference
-        var locationFolder = dataModel.FindDefault(ItemTypes.Location);
+        var locationList = dataModel.UserSettings.GetDefaultList(ItemTypes.Location);
         var newLocation = $.extend(new Item(), { Name: address, ItemTypeID: ItemTypes.Location });
         newLocation.SetFieldValue(FieldNames.Address, address);
         if (latlong != null) {
             newLocation.SetFieldValue(FieldNames.LatLong, latlong);
         }
         var thisItem = this.item;
-        dataModel.InsertItem(newLocation, locationFolder, null, null, null,
+        dataModel.InsertItem(newLocation, locationList, null, null, null,
             function (insertedLocation) {
                 thisItem.AddReference(field, insertedLocation, true);
             });
