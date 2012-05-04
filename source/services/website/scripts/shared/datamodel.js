@@ -209,7 +209,7 @@ DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem, 
 }
 
 // generic helper for deleting a folder or item, invokes server and updates local data model
-DataModel.DeleteItem = function DataModel$DeleteItem(item) {
+DataModel.DeleteItem = function DataModel$DeleteItem(item, activeItem) {
     if (item != null) {
         var resource = (item.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;
         Service.DeleteResource(resource, item.ID, item,
@@ -224,6 +224,13 @@ DataModel.DeleteItem = function DataModel$DeleteItem(item) {
                     if (parent != null && parent.ItemTypeID == ItemTypes.Reference) {
                         // deleting a reference, don't change selection or fire data changed
                         item.GetFolder().ItemsMap.remove(item);
+                    } else if (activeItem != null) {
+                        // select activeItem
+                        var activeFolderID = activeItem.IsFolder() ? activeItem.ID : activeItem.FolderID;
+                        var activeItemID = activeItem.IsFolder() ? null : activeItem.ID;
+                        item.GetFolder().ItemsMap.remove(item);
+                        DataModel.deleteReferences(item.ID);
+                        DataModel.fireDataChanged(activeFolderID, activeItemID);
                     } else {
                         var nextItem = item.selectNextItem();
                         var nextItemID = (nextItem == null) ? null : nextItem.ID;
@@ -483,6 +490,12 @@ DataModel.restoreSelection = function DataModel$restoreSelection(itemID) {
             return;
         }
     }
+    var folderID = DataModel.UserSettings.ViewState.SelectedFolder;
+    if (folderID != null) {
+        DataModel.Folders[folderID].ViewState.Select = true;
+        DataModel.fireDataChanged(folderID);
+        return;
+    }
     DataModel.fireDataChanged();
 }
 
@@ -553,6 +566,7 @@ Folder.prototype.update = function (updatedFolder) {
 
 function Item(viewstate) { this.ViewState = (viewstate == null) ? {} : viewstate; }
 // Item public functions
+Item.prototype.Copy = function () { return $.extend(new Item(), this); };
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.FolderID)); };
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
@@ -560,9 +574,10 @@ Item.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[
 Item.prototype.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
 Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
 Item.prototype.Update = function (updatedItem, activeItem) { return DataModel.UpdateItem(this, updatedItem, activeItem); };
-Item.prototype.Delete = function () { return DataModel.DeleteItem(this); };
+Item.prototype.Delete = function (activeItem) { return DataModel.DeleteItem(this, activeItem); };
 Item.prototype.HasField = function (name) { return this.GetItemType().HasField(name); };
 Item.prototype.GetField = function (name) { return this.GetItemType().Fields[name]; };
+Item.prototype.GetFields = function () { return this.GetItemType().Fields; };
 
 Item.prototype.Refresh = function () {
     var thisItem = this;
@@ -1014,7 +1029,8 @@ var FieldNames = {
     Email : "Email",                        // Email
     Phone : "Phone",                        // Phone
     HomePhone : "HomePhone",                // Phone
-    WorkPhone : "WorkPhone",                // Phone
+    WorkPhone: "WorkPhone",                 // Phone
+    Category: "Category",                   // String
     Amount : "Amount",                      // String
     Cost : "Cost",                          // Currency
     ItemTags : "ItemTags",                  // TagIDs

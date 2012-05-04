@@ -91,7 +91,7 @@
 /* use ui-state-highlight as active item */
 .folder-items .ui-state-active { border: 1px solid #83af59; background: #cbe0b8 url(images/ui-bg_glass_80_cbe0b8_1x400.png) 50% 50% repeat-x; color: #444444; }
 /* use border of ui-widget-content */
-.item-button { border-bottom: 1px solid #cdd5da; }                           
+.item-button, .item-view { border-bottom: 1px solid #cdd5da; }                           
 /* use border color of ui-widget-content */
 .item-field-label { color: #cdd5da; }
 /* use color of ui-widget-content */

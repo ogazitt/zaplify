@@ -74,7 +74,7 @@ function FolderButton(parentControl, folder) {
 }
 
 FolderButton.prototype.render = function (container) {
-    this.$element = $('<div class="folder-button ui-widget ui-state-default"></div>').attr('id', this.folder.ID).appendTo(container);
+    this.$element = $('<div class="folder-button ui-widget ui-state-default" />').attr('id', this.folder.ID).appendTo(container);
     this.$element.hover(function () { $(this).addClass('ui-state-hover'); }, function () { $(this).removeClass('ui-state-hover'); });
     this.$element.data('control', this);
     this.$element.click(function () { Control.get(this).select(); });
@@ -141,7 +141,7 @@ FolderButton.prototype.expand = function () {
 FolderButton.prototype.expandItems = function () {
     var parentHeight = this.parentControl.$element.height();
     var itemsHeight = parentHeight - (this.parentControl.folderButtons.length * 34);
-    var $container = $('<div class="folder-items"></div>').insertAfter(this.$element);
+    var $container = $('<div class="folder-items" />').insertAfter(this.$element);
     $container.css('max-height', itemsHeight);
     var itemList = new ItemList(this, this.folder.GetItems());
     itemList.render($container);
@@ -191,7 +191,7 @@ function ItemButton(parentControl, item) {
 }
 
 ItemButton.prototype.render = function (container) {
-    this.$element = $('<div></div>').attr('id', this.item.ID).appendTo(container);
+    this.$element = $('<div />').attr('id', this.item.ID).appendTo(container);
     this.$element.hover(function () { $(this).addClass('ui-state-highlight'); }, function () { $(this).removeClass('ui-state-highlight'); });
     this.$element.data('control', this);
     if (this.item.IsList) {
@@ -234,7 +234,7 @@ ItemButton.prototype.select = function (fireSelectionChanged) {
 
 ItemButton.prototype.expandItems = function () {
     this.$element.addClass('expanded');
-    var $container = $('<div class="list-items"></div>').insertAfter(this.$element);
+    var $container = $('<div class="list-items" />').insertAfter(this.$element);
     var itemList = new ItemList(this, this.item.GetItems());
     itemList.render('#' + this.item.ID + " + .list-items");
 }

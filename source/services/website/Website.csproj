@@ -180,7 +180,9 @@
     <Content Include="content\dashboard\images\azure.png" />
     <Content Include="content\dashboard\images\busy.gif" />
     <Content Include="content\dashboard\images\delete-icon.png" />
+    <Content Include="content\dashboard\images\edit-icon.png" />
     <Content Include="content\dashboard\images\facebook.png" />
+    <Content Include="content\dashboard\images\info-icon.png" />
     <Content Include="content\images\busy.png" />
     <Content Include="content\images\refresh.png" />
     <Content Include="content\images\settings.png" />
@@ -244,6 +246,7 @@
     <Content Include="content\themes\redmond\jquery-ui-1.8.18.css" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
+    <Content Include="scripts\dashboard\itemviewer.js" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\suggestionlist.js" />
     <Content Include="scripts\dashboard\foldermanager.js" />
