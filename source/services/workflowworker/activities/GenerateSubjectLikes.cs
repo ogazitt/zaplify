@@ -54,6 +54,11 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         // build the JSON-formated output list: [ { "Like": "val", "ParentID": "guid" }, { ... } ]
                         var likeList = new List<Dictionary<string, string>>();
                         int num = 0;
+                        
+                        // handle the case where no likes come back - create one "like" which has an empty value
+                        if (suggestions.Keys.Count == 0)
+                            suggestions["General"] = "";
+
                         foreach (var s in suggestions.Keys)
                         {
                             // limit to four suggestions

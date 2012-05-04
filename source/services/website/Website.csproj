@@ -38,6 +38,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Supermarket">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Supermarket.dll</HintPath>
+    </Reference>
     <Reference Include="EntityDataModel">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\EntityDataModel.dll</HintPath>
     </Reference>

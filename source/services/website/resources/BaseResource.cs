@@ -138,14 +138,17 @@
         }
 
         // base code to process message and deserialize body to expected type
-        protected object ProcessRequestBody(HttpRequestMessage req, Type t, out Operation operation, bool skipOperation = false)
+        protected HttpStatusCode ProcessRequestBody<T>(HttpRequestMessage req, out T entity, out Operation operation, bool skipOperation = false)
         {
             TraceLog.TraceFunction();
             operation = null;
+            entity = default(T);
+            Type t = typeof(T);
             if (req == null)
-                return null;
-
-            object value = null;
+            {
+                TraceLog.TraceError("ProcessRequestBody: null HttpRequestMessage");
+                return HttpStatusCode.BadRequest;
+            }
 
             try
             {
@@ -154,12 +157,12 @@
                 {
                     case "application/json":
                         DataContractJsonSerializer dcjs = new DataContractJsonSerializer(t);
-                        value = dcjs.ReadObject(req.Content.ReadAsStreamAsync().Result);
+                        entity = (T) dcjs.ReadObject(req.Content.ReadAsStreamAsync().Result);
                         break;
                     case "text/xml":
                     case "application/xml":
                         DataContractSerializer dc = new DataContractSerializer(t);
-                        value = dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
+                        entity = (T)dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
                         break;
                     default:
                         TraceLog.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
@@ -171,39 +174,96 @@
                 TraceLog.TraceException("ProcessRequestBody: deserialization failed", ex);
             }
 
-            if (skipOperation) return value;
+            if (skipOperation) return HttpStatusCode.OK;
 
-            // initialize the body / oldbody
-            object body = value;
-            object oldBody = null;
-
-            // if this is an update, get the payload as a list
-            if (req.Method == HttpMethod.Put)
+            try
             {
-                IList list = (IList)value;
-                oldBody = list[0];
-                body = list[1];
-            }
 
-            // if the body is a BasicAuthCredentials, this likely means that we are in the process
-            // of creating the user, and the CurrentUser property is null
-            User user = null;
-            if (body is BasicAuthCredentials)
+                // initialize the body / oldbody
+                object body = entity;
+                object oldBody = null;
+
+                // if this is an update, get the payload as a list
+                switch (req.Method.Method)
+                {
+                    case "DELETE":
+                    case "POST":
+                        if (entity is UserOwnedEntity)
+                        {
+                            UserOwnedEntity currentEntity = entity as UserOwnedEntity;
+                            // if the entity doesn't have a userid, assign it now to the current user
+                            if (currentEntity.UserID == null || currentEntity.UserID == Guid.Empty)
+                                currentEntity.UserID = CurrentUser.ID;
+                            // if the entity does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
+                            if (currentEntity.UserID != CurrentUser.ID)
+                            {
+                                TraceLog.TraceError("ProcessRequestBody: Forbidden (entity does not belong to current user)");
+                                return HttpStatusCode.Forbidden;
+                            }
+
+                            // fill out the ID if it's not set (e.g. from a javascript client)
+                            if (currentEntity.ID == null || currentEntity.ID == Guid.Empty)
+                                currentEntity.ID = Guid.NewGuid();
+                        }
+                        break;
+                    case "PUT":
+                        // body should contain two entities, the original and new values
+                        IList list = (IList)entity;
+                        if (list.Count != 2)
+                        {
+                            TraceLog.TraceError("ProcessRequestBody: Bad Request (malformed body)");
+                            return HttpStatusCode.BadRequest;
+                        }
+
+                        oldBody = list[0];
+                        body = list[1];
+                        if (body is UserOwnedEntity && oldBody is UserOwnedEntity)
+                        {
+                            UserOwnedEntity oldEntity = oldBody as UserOwnedEntity;
+                            UserOwnedEntity newEntity = body as UserOwnedEntity;
+
+                            // make sure the entity ID's match
+                            if (oldEntity.ID != newEntity.ID)
+                            {
+                                TraceLog.TraceError("ProcessRequestBody: Bad Request (original and new entity ID's do not match)");
+                                return HttpStatusCode.BadRequest;
+                            }
+
+                            // make sure the entity belongs to the authenticated user
+                            if (oldEntity.UserID != CurrentUser.ID || newEntity.UserID != CurrentUser.ID)
+                            {
+                                TraceLog.TraceError("ProcessRequestBody: Forbidden (entity does not belong to current user)");
+                                return HttpStatusCode.Forbidden;
+                            }
+                        }
+                        break;
+                }
+
+                // if the body is a BasicAuthCredentials, this likely means that we are in the process
+                // of creating the user, and the CurrentUser property is null
+                User user = null;
+                if (body is BasicAuthCredentials)
+                {
+                    // create a user from the body so that the CreateOperation call can succeed
+                    var userCred = body as BasicAuthCredentials;
+                    user = userCred.AsUser();
+                    // make sure the password doesn't get traced
+                    userCred.Password = "";
+                    // create an operation with the User as the body, not the BasicAuthCredentials entity 
+                    body = user;
+                }
+                else
+                    user = CurrentUser;
+                if (user != null)
+                    operation = this.StorageContext.CreateOperation(user, req.Method.Method, null, body, oldBody);
+
+                return HttpStatusCode.OK;
+            }
+            catch (Exception ex)
             {
-                // create a user from the body so that the CreateOperation call can succeed
-                var userCred = body as BasicAuthCredentials;
-                user = userCred.AsUser();
-                // make sure the password doesn't get traced
-                userCred.Password = "";
-                // create an operation with the User as the body, not the BasicAuthCredentials entity 
-                body = user;
+                TraceLog.TraceException("ProcessRequestBody: request body processing failed", ex);
+                return HttpStatusCode.BadRequest;
             }
-            else
-                user = CurrentUser;
-            if (user != null)
-                operation = this.StorageContext.CreateOperation(user, req.Method.Method, null, body, oldBody);
-
-            return value;
         }
 
         protected HttpResponseMessageWrapper<T> ReturnResult<T>(HttpRequestMessage req, Operation operation, HttpStatusCode code)

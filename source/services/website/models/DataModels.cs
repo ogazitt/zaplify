@@ -27,7 +27,7 @@
                     var actionTypes = storageContext.ActionTypes.OrderBy(a => a.SortOrder).ToList<ActionType>();
                     var colors = storageContext.Colors.OrderBy(c => c.ColorID).ToList<Color>();
                     var itemTypes = storageContext.ItemTypes.
-                        Where(l => l.UserID == null || l.UserID == SystemUsers.System || l.UserID == SystemUsers.User).
+                        Where(l => l.UserID == SystemUsers.System || l.UserID == SystemUsers.User).
                         Include("Fields").ToList<ItemType>();  // get the built-in itemtypes
                     var permissions = storageContext.Permissions.OrderBy(p => p.PermissionID).ToList<Permission>();
                     var priorities = storageContext.Priorities.OrderBy(p => p.PriorityID).ToList<Priority>();

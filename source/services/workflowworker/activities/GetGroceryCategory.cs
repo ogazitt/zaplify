@@ -31,8 +31,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
                     try
                     {
-                        FieldValue categoryFV = item.GetFieldValue(FieldNames.Category, true);
                         var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
+                        FieldValue categoryFV = item.GetFieldValue(FieldNames.Category, true);
                         foreach (var entry in results)
                         {
                             categoryFV.Value = entry[SupermarketQueryResult.Category];

@@ -33,7 +33,10 @@
             Tag clientTag;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientTag = clientTag = ProcessRequestBody(req, typeof(Tag), out operation) as Tag;
+                code = ProcessRequestBody<Tag>(req, out clientTag, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<Tag>(req, operation, code);
+
                 if (clientTag.ID != id)
                 {   // IDs must match
                     TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
@@ -166,16 +169,10 @@
             }
 
             // get the new tag from the message body
-            Tag clientTag = ProcessRequestBody(req, typeof(Tag), out operation) as Tag;
-
-            // if the requested tag does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
-            if (clientTag.UserID == null || clientTag.UserID == Guid.Empty)
-                clientTag.UserID = CurrentUser.ID;
-            if (clientTag.UserID != CurrentUser.ID)
-            {
-                TraceLog.TraceError("TagResource.Insert: Forbidden (entity does not belong to current user)");
-                return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
-            }
+            Tag clientTag = null;
+            code = ProcessRequestBody(req, out clientTag, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Tag>(req, operation, code);
 
             // add the new tag to the database
             try
@@ -231,33 +228,20 @@
             }
 
             // the body will be two Tags - the original and the new values.  Verify this
-            List<Tag> clientTags = ProcessRequestBody(req, typeof(List<Tag>), out operation) as List<Tag>;
-            if (clientTags.Count != 2)
-            {
-                TraceLog.TraceError("TagResource.Update: Bad Request (malformed body)");
-                return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<Tag> clientTags = null;
+            code = ProcessRequestBody<List<Tag>>(req, out clientTags, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Tag>(req, operation, code);
 
             // get the original and new Tags out of the message body
             Tag originalTag = clientTags[0];
             Tag newTag = clientTags[1];
 
             // make sure the tag ID's match
-            if (originalTag.ID != newTag.ID)
-            {
-                TraceLog.TraceError("TagResource.Update: Bad Request (original and new entity ID's do not match)");
-                return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
-            }
-            if (originalTag.ID != id)
+            if (originalTag.ID != id || newTag.ID != id)
             {
                 TraceLog.TraceError("TagResource.Update: Bad Request (ID in URL does not match entity body)");
                 return ReturnResult<Tag>(req, operation, HttpStatusCode.BadRequest);
-            }
-
-            if (originalTag.UserID != CurrentUser.ID || newTag.UserID != CurrentUser.ID)
-            {   // tag does not belong to the authenticated user, return 403 Forbidden
-                TraceLog.TraceError("TagResource.Update: Forbidden (entity does not belong to current user)");
-                return ReturnResult<Tag>(req, operation, HttpStatusCode.Forbidden);
             }
 
             // update the tag

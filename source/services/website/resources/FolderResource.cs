@@ -27,13 +27,19 @@
             Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
             if (code != HttpStatusCode.OK)
-                return ReturnResult<Folder>(req, operation, code);  // user not authenticated
+            {   // user not authenticated
+                return ReturnResult<Folder>(req, operation, code);
+            }
 
             // get the folder from the message body if one was passed
             Folder clientFolder;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientFolder = ProcessRequestBody(req, typeof(Folder), out operation) as Folder;
+                clientFolder = null;
+                code = ProcessRequestBody<Folder>(req, out clientFolder, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<Folder>(req, operation, code);
+
                 if (clientFolder.ID != id)
                 {   // IDs must match
                     TraceLog.TraceError("FolderResource.Delete: Bad Request (ID in URL does not match entity body)");
@@ -183,27 +189,19 @@
         {
             Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
-            if (code != HttpStatusCode.OK)  // user not authenticated
+            if (code != HttpStatusCode.OK)
+            {   // user not authenticated
                 return ReturnResult<Folder>(req, operation, code);
-
-            Folder clientFolder = ProcessRequestBody(req, typeof(Folder), out operation) as Folder;
-
-            // check to make sure the userid in the new folder is the same userid for the current user
-            if (clientFolder.UserID == null || clientFolder.UserID == Guid.Empty)
-                clientFolder.UserID = CurrentUser.ID;
-            if (clientFolder.UserID != CurrentUser.ID)
-            {
-                TraceLog.TraceError("FolderResource.Insert: Forbidden (entity does not belong to current user)");
-                return ReturnResult<Folder>(req, operation, HttpStatusCode.Forbidden);
             }
 
-            // fill out the ID if it's not set (e.g. from a javascript client)
-            if (clientFolder.ItemTypeID == null || clientFolder.ItemTypeID == Guid.Empty)
-                clientFolder.ItemTypeID = SystemItemTypes.Task;
+            Folder clientFolder = null;
+            code = ProcessRequestBody<Folder>(req, out clientFolder, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Folder>(req, operation, code);
 
             // default ItemTypeID to Task if not set
-            if (clientFolder.ID == null || clientFolder.ID == Guid.Empty)
-                clientFolder.ID = Guid.NewGuid();
+            if (clientFolder.ItemTypeID == null || clientFolder.ItemTypeID == Guid.Empty)
+                clientFolder.ItemTypeID = SystemItemTypes.Task;
 
             // this operation isn't meant to do more than just insert the new folder
             // therefore make sure items collection is empty
@@ -282,28 +280,21 @@
         {
             Operation operation = null;
             HttpStatusCode code = AuthenticateUser(req);
-            if (code != HttpStatusCode.OK)
-                return ReturnResult<Folder>(req, operation, code);  // user not authenticated
+            if (code != HttpStatusCode.OK)  // user not authenticated
+                return ReturnResult<Folder>(req, operation, code);
 
             // the body will be two Folders - the original and the new values.  Verify this
-            List<Folder> clientFolders = ProcessRequestBody(req, typeof(List<Folder>), out operation) as List<Folder>;
-            if (clientFolders.Count != 2)
-            {
-                TraceLog.TraceError("FolderResource.Update: Bad Request (malformed body)");
-                return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<Folder> clientFolders = null;
+            code = ProcessRequestBody<List<Folder>>(req, out clientFolders, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Folder>(req, operation, code);
 
             // get the original and new Folders out of the message body
             Folder originalFolder = clientFolders[0];
             Folder newFolder = clientFolders[1];
 
             // make sure the Folder ID's match
-            if (originalFolder.ID != newFolder.ID)
-            {
-                TraceLog.TraceError("FolderResource.Update: Bad Request (original and new entity ID's do not match)");
-                return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);
-            }
-            if (originalFolder.ID != id)
+            if (originalFolder.ID != id || newFolder.ID != id)
             {
                 TraceLog.TraceError("FolderResource.Update: Bad Request (ID in URL does not match entity body)");
                 return ReturnResult<Folder>(req, operation, HttpStatusCode.BadRequest);

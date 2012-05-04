@@ -14,6 +14,8 @@
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     [ServiceContract]
     [LogMessages]
@@ -35,7 +37,11 @@
             Item clientItem;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientItem = ProcessRequestBody(req, typeof(Item), out operation) as Item;
+                clientItem = null;
+                code = ProcessRequestBody(req, out clientItem, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<Item>(req, operation, code);
+
                 if (clientItem.ID != id)
                 {   // IDs must match
                     TraceLog.TraceError("ItemResource.Delete: Bad Request (ID in URL does not match entity body)");
@@ -54,16 +60,6 @@
                     TraceLog.TraceInfo("ItemResource.Delete: entity not found; returned OK anyway");
                     return ReturnResult<Item>(req, operation, new Item() { Name = "Item Not Found" }, HttpStatusCode.OK);
                 }
-            }
-
-            if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
-            {   // changing a system Item to a user Item
-                clientItem.UserID = CurrentUser.ID;
-            }
-            if (clientItem.UserID != CurrentUser.ID)
-            {   // requested Item does not belong to authenticated user, return 403 Forbidden
-                TraceLog.TraceError("ItemResource.Delete: Forbidden (entity does not belong to current user)");
-                return ReturnResult<Item>(req, operation, HttpStatusCode.Forbidden);
             }
 
             try
@@ -185,17 +181,10 @@
             }
 
             // get the new item from the message body
-            Item clientItem = ProcessRequestBody(req, typeof(Item), out operation) as Item;
-
-            if (clientItem.UserID == null || clientItem.UserID == Guid.Empty)
-            {   // changing a system Item to a user Item
-                clientItem.UserID = CurrentUser.ID;
-            }
-            if (clientItem.UserID != CurrentUser.ID)
-            {   // requested Item does not belong to authenticated user, return 403 Forbidden
-                TraceLog.TraceError("ItemResource.Insert: Forbidden (entity does not belong to current user)");
-                return ReturnResult<Item>(req, operation, HttpStatusCode.Forbidden);
-            }
+            Item clientItem = null;
+            code = ProcessRequestBody<Item>(req, out clientItem, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Item>(req, operation, code);
 
             if (clientItem.ParentID == Guid.Empty)
             {   // parent ID is an empty guid, make it null instead so as to not violate ref integrity rules
@@ -211,12 +200,7 @@
                     return ReturnResult<Item>(req, operation, HttpStatusCode.Forbidden);
                 }
 
-                // fill out the ID if it's not set (e.g. from a javascript client)
-                if (clientItem.ID == null || clientItem.ID == Guid.Empty)
-                {
-                    clientItem.ID = Guid.NewGuid();
-                }
-                // same with any FieldValues that traveleld with the item
+                // fill out the ID's for any FieldValues that travelled with the item
                 if (clientItem.FieldValues != null)
                 {
                     foreach (var fv in clientItem.FieldValues)
@@ -230,6 +214,9 @@
                     clientItem.Created = now;
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
+
+                // do itemtype-specific processing
+                ProcessItem(clientItem);
 
                 try
                 {   // add the new item to the database
@@ -292,23 +279,16 @@
                 return ReturnResult<Item>(req, operation, code);
             }
 
-            List<Item> clientItems = ProcessRequestBody(req, typeof(List<Item>), out operation) as List<Item>;
-            if (clientItems.Count != 2)
-            {   // body should contain two items, the orginal and new values
-                TraceLog.TraceError("ItemResource.Update: Bad Request (malformed body)");
-                return ReturnResult<Item>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<Item> clientItems = null;
+            code = ProcessRequestBody<List<Item>>(req, out clientItems, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Item>(req, operation, code);
 
             Item originalItem = clientItems[0];
             Item newItem = clientItems[1];
 
             // make sure the item ID's match
-            if (originalItem.ID != newItem.ID)
-            {
-                TraceLog.TraceError("ItemResource.Update: Bad Request (original and new entity ID's do not match)");
-                return ReturnResult<Item>(req, operation, HttpStatusCode.BadRequest);
-            }
-            if (originalItem.ID != id)
+            if (originalItem.ID != id || newItem.ID != id)
             {
                 TraceLog.TraceError("ItemResource.Update: Bad Request (ID in URL does not match entity body)");
                 return ReturnResult<Item>(req, operation, HttpStatusCode.BadRequest);
@@ -440,6 +420,69 @@
             // commit deletion of References
             if (commit) { this.StorageContext.SaveChanges(); }
             return commit;
+        }
+
+        private void ProcessItem(Item item)
+        {
+            // do itemtype-specific processing on the item
+            if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
+                ProcessShoppingItem(item);
+        }
+
+        private void ProcessShoppingItem(Item item)
+        {
+            // use the Supermarket API to get grocery category
+            SupermarketAPI smApi = new SupermarketAPI();
+
+#if FALSE   // use the synchronous codepath for now
+            // execute the call asynchronously so as to not block the response
+            smApi.BeginQuery(SupermarketQueries.SearchByProductName, item.Name, new AsyncCallback((iar) =>
+            {
+                try
+                {
+                    var results = smApi.EndQuery(iar);
+
+                    // find the item using a new context 
+                    var context = Storage.NewUserContext;
+                    var shoppingItem = context.Items.Single(i => i.ID == item.ID);
+                    FieldValue categoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
+
+                    // get the category
+                    foreach (var entry in results)
+                    {
+                        categoryFV.Value = entry[SupermarketQueryResult.Category];
+                        // only grab the first category
+                        break;
+                    }
+                    context.SaveChanges();
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
+                }
+            }), null);
+#else
+            try
+            {
+                var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
+                FieldValue categoryFV = item.GetFieldValue(FieldNames.Category, true);
+
+                // get the category
+                foreach (var entry in results)
+                {
+                    categoryFV.Value = entry[SupermarketQueryResult.Category];
+                    // only grab the first category
+                    break;
+                }
+                this.StorageContext.SaveChanges();
+                TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
+            }
+#endif
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)

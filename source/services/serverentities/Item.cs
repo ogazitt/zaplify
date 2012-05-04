@@ -4,17 +4,17 @@ using System.Reflection;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Item : ServerEntity
+    public class Item : UserOwnedEntity
     {
-        // ServerEntity properties
+        // UserOwnedEntity properties
         public override Guid ID { get; set; }
         public override string Name { get; set; }
+        public override Guid UserID { get; set; }
 
         public bool IsList { get; set; }
         public Guid FolderID { get; set; }
         public Guid? ParentID { get; set; }
         public Guid ItemTypeID { get; set; }
-        public Guid UserID { get; set; }
         public float SortOrder { get; set; }
 
         public List<ItemTag> ItemTags { get; set; }
