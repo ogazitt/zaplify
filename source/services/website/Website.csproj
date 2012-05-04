@@ -180,7 +180,9 @@
     <Content Include="content\dashboard\images\azure.png" />
     <Content Include="content\dashboard\images\busy.gif" />
     <Content Include="content\dashboard\images\delete-icon.png" />
+    <Content Include="content\dashboard\images\edit-icon.png" />
     <Content Include="content\dashboard\images\facebook.png" />
+    <Content Include="content\dashboard\images\info-icon.png" />
     <Content Include="content\images\busy.png" />
     <Content Include="content\images\refresh.png" />
     <Content Include="content\images\settings.png" />
@@ -214,6 +216,18 @@
     <Content Include="content\themes\overcast\images\ui-icons_999999_256x240.png" />
     <Content Include="content\themes\overcast\images\ui-icons_fbc856_256x240.png" />
     <Content Include="content\themes\overcast\jquery-ui-1.8.18.css" />
+    <Content Include="content\themes\pink\images\ui-bg_diagonals-thick_75_f3d8d8_40x40.png" />
+    <Content Include="content\themes\pink\images\ui-bg_dots-small_65_a6a6a6_2x2.png" />
+    <Content Include="content\themes\pink\images\ui-bg_flat_0_333333_40x100.png" />
+    <Content Include="content\themes\pink\images\ui-bg_flat_75_ffffff_40x100.png" />
+    <Content Include="content\themes\pink\images\ui-bg_glass_60_fee1ed_1x400.png" />
+    <Content Include="content\themes\pink\images\ui-bg_glass_80_cbe0b8_1x400.png" />
+    <Content Include="content\themes\pink\images\ui-bg_gloss-wave_80_c5577c_500x100.png" />
+    <Content Include="content\themes\pink\images\ui-bg_highlight-hard_100_eeeeee_1x100.png" />
+    <Content Include="content\themes\pink\images\ui-icons_83af59_256x240.png" />
+    <Content Include="content\themes\pink\images\ui-icons_c5577c_256x240.png" />
+    <Content Include="content\themes\pink\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="content\themes\pink\jquery-ui-1.8.18.css" />
     <Content Include="content\themes\redmond\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\redmond\images\ui-bg_flat_55_fbec88_40x100.png" />
     <Content Include="content\themes\redmond\images\ui-bg_glass_75_d0e5f5_1x400.png" />
@@ -232,6 +246,7 @@
     <Content Include="content\themes\redmond\jquery-ui-1.8.18.css" />
     <Content Include="Global.asax" />
     <Content Include="README.jQuery.vsdoc.txt" />
+    <Content Include="scripts\dashboard\itemviewer.js" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\suggestionlist.js" />
     <Content Include="scripts\dashboard\foldermanager.js" />

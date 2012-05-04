@@ -39,7 +39,7 @@
                         Permissions = permissions,
                         Priorities = priorities,
                         // TODO: inspect themes folder to fetch installed themes
-                        Themes = new List<string>() { "Default", "Redmond", "Overcast" }
+                        Themes = new List<string>() { "Default", "Redmond", "Pink", "Overcast" }
                     };
                 }
                 return constants;

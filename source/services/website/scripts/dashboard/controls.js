@@ -13,12 +13,19 @@ Control.get = function Control$get(element) {
     return $(element).data('control');
 }
 
+// helpers for creating and invoking a delegate
+Control.delegate = function Control$delegate(object, funcName) {
+    var delegate = { object: object, handler: funcName };
+    delegate.invoke = function () { return this.object[this.handler](); };
+    return delegate;
+}
+
 // get first parent control that contains member
 Control.findParent = function Control$findParent(control, member) {
     while (control.parentControl != null) {
         control = control.parentControl;
         if (control[member] != null) {
-            return control; 
+            return control;
         }
     }
     return null;
@@ -51,10 +58,14 @@ Control.renderSourceIcons = function Control$renderSourceIcons($element, item) {
             for (var i in sources) {
                 switch (sources[i]) {
                     case "Facebook":
-                        $element.append('<div class="fb-icon" />');
+                        var fbID = item.GetFieldValue(FieldNames.FacebookID);
+                        var $link = $('<div class="source-icon fb-icon" />').appendTo($element);
+                        if (fbID != null) {
+                            $link.click(function () { window.open('http://www.facebook.com/' + fbID); });
+                        }
                         break;
                     case "Directory":
-                        $element.append('<div class="azure-icon" />');
+                        $element.append('<div class="source-icon azure-icon" />');
                         break;
                 }
             }
@@ -178,13 +189,13 @@ Dashboard.render = function Dashboard$render(folderID, itemID) {
 
 // displays icons in header (refresh, settings, etc.)
 Dashboard.renderHeaderIcons = function Dashboard$renderHeaderIcons() {
-    $icons = $('<div class="header-icons"></div>').appendTo('.header-content');
+    $icons = $('<div class="header-icons" />').appendTo('.header-content');
 
-    $refresh = $('<div class="icon refresh"></div>').appendTo($icons);
+    $refresh = $('<div class="icon refresh" />').appendTo($icons);
     $refresh.click(function () { Dashboard.dataModel.Refresh(); });
     $refresh.attr('title', 'Refresh');
 
-    $settings = $('<div class="icon settings"></div>').appendTo($icons);
+    $settings = $('<div class="icon settings" />').appendTo($icons);
     $settings.click(function () { Dashboard.folderManager.selectSettings(); });
     $settings.attr('title', 'User Preferences');
 
@@ -213,10 +224,13 @@ Dashboard.resize = function Dashboard$resize() {
     var dbmMargins = 24;
 
     $dbm.width(dbWidth - (dbfWidth + dbsWidth + dbmMargins));
+    $dbm.height(dbHeight);
     $dbf.height(dbHeight);
     $dbs.height(dbHeight);
 
-    Dashboard.render();
+    //Dashboard.render();
+    Dashboard.folderList.render(".dashboard-folders");
+    Dashboard.folderManager.render('.dashboard-manager');
 
     $(window).bind('resize', Dashboard.resize);
     Dashboard.resizing = false;
