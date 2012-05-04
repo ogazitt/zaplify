@@ -407,21 +407,55 @@
             // use the Supermarket API to get grocery category
             SupermarketAPI smApi = new SupermarketAPI();
 
+#if FALSE   // use the synchronous codepath for now
+            // execute the call asynchronously so as to not block the response
+            smApi.BeginQuery(SupermarketQueries.SearchByProductName, item.Name, new AsyncCallback((iar) =>
+            {
+                try
+                {
+                    var results = smApi.EndQuery(iar);
+
+                    // find the item using a new context 
+                    var context = Storage.NewUserContext;
+                    var shoppingItem = context.Items.Single(i => i.ID == item.ID);
+                    FieldValue categoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
+
+                    // get the category
+                    foreach (var entry in results)
+                    {
+                        categoryFV.Value = entry[SupermarketQueryResult.Category];
+                        // only grab the first category
+                        break;
+                    }
+                    context.SaveChanges();
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
+                }
+            }), null);
+#else
             try
             {
                 var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
                 FieldValue categoryFV = item.GetFieldValue(FieldNames.Category, true);
+
+                // get the category
                 foreach (var entry in results)
                 {
                     categoryFV.Value = entry[SupermarketQueryResult.Category];
+                    // only grab the first category
                     break;
                 }
+                this.StorageContext.SaveChanges();
                 TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ProcessShoppingItem: Supermarket API call failed", ex);
+                TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
             }
+#endif
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)
