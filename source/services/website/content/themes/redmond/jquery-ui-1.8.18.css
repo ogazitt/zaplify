@@ -87,11 +87,11 @@
 /* define appropriate background color */
 .ui-background { background-color: #ecf2f6; }   
 /* use border of ui-widget-content with white background */
-.folder-items, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget fieldset { background-color: #ffffff; border: 1px solid #a6c9e2; }
+.folder-items, .item-view, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget fieldset { background-color: #ffffff; border: 1px solid #a6c9e2; }
 /* use ui-state-highlight as active item */
 .folder-items .ui-state-active { border: 1px solid #fad42e; background: #fbec88 url(images/ui-bg_flat_55_fbec88_40x100.png) 50% 50% repeat-x; color: #363636; }
 /* use border of ui-widget-content */
-.item-button, .item-view { border-bottom: 1px solid #a6c9e2; }                           
+.item-button { border-bottom: 1px solid #a6c9e2; }                           
 /* use border color of ui-widget-content */
 .item-field-label { color: #a6c9e2; }
 /* use color of ui-widget-content */

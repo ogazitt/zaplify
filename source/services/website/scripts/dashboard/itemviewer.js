@@ -44,11 +44,21 @@ ItemViewer.prototype.renderListItems = function (listItems) {
         var item = listItems[id];
         if (!item.IsList) {
             var $item = $('<div class="item-view" />').appendTo(this.$element);
+            $item.hover(function () { $(this).addClass('ui-state-highlight'); }, function () { $(this).removeClass('ui-state-highlight'); });
             $item.data('item', item);
             var $wrapper = $('<div />').appendTo($item);
             this.renderNameField($wrapper, item);
             this.renderDeleteBtn($wrapper);
-            this.renderEditBtn($wrapper);
+
+            // click item to edit (instead of edit icon)
+            //this.renderEditBtn($wrapper);
+            $item.bind('click', function (event) {
+                if (!$(event.srcElement).hasClass('dt-checkbox')) {
+                    var item = $(this).data('item'); ;
+                    $('#' + item.ID).click();   // select item
+                }
+            });
+
             this.renderFields($item, item);
             itemCount++;
         }
@@ -77,6 +87,7 @@ ItemViewer.prototype.renderDeleteBtn = function ($element) {
         var item = ItemViewer.getItem($(this));
         var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
         item.Delete(activeItem);
+        return false;   // do not propogate event
     });
 }
 

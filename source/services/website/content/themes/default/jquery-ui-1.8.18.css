@@ -87,11 +87,11 @@
 /* define appropriate background color */
 .ui-background { background-color: #e4e4f4; }   
 /* use border of ui-widget-content with white background */
-.folder-items, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget fieldset { background-color: #ffffff; border: 1px solid #c8ccd5; }
+.folder-items, .item-view, .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget fieldset { background-color: #ffffff; border: 1px solid #c8ccd5; }
 /* use ui-state-highlight as active item */
 .folder-items .ui-state-active { border: 1px solid #dfdfbf; background: #ece6c8 url(images/ui-bg_glass_55_ece6c8_1x400.png) 50% 50% repeat-x; color: #101829; }
 /* use border of ui-widget-content */
-.item-button, .item-view { border-bottom: 1px solid #c8ccd5; }                           
+.item-button, { border-bottom: 1px solid #c8ccd5; }                           
 /* use border color of ui-widget-content */
 .item-field-label { color: #c8ccd5; }
 /* use color of ui-widget-content */

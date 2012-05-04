@@ -202,14 +202,15 @@ Item View
 ----------------------------------------------------------*/
 
 .item-view {
-    position: relative; 
-    padding: 6px 6px 0px 6px; margin: 0px 0px 0px 0px;
+    position: relative; cursor: pointer;
+    padding: 6px 6px 4px 6px; margin: 0px 0px 0px 0px;
 }
 
 .item-view .ui-icon { cursor: pointer; float: right; opacity:0.8; filter:alpha(opacity=80); margin-left: 4px; }
 .item-view .ui-icon:hover { opacity:1.0; filter:alpha(opacity=100); }
 
-.item-view-field { padding-left: 18px; }
+.item-view .dt-checkbox { vertical-align:middle; margin-right: 8px; }
+.item-view-field { padding-left: 21px; margin-top: 2px; }
 
 /*----------------------------------------------------------
 Source icons
@@ -217,7 +218,7 @@ Source icons
 
 .source-icon { display: inline-block; height: 16px; width: 16px; cursor: pointer; }
 .item-button .source-icon { float: right; margin: 2px 2px 0 0; }
-.item-view .source-icon { margin: 0px 2px -2px 0px; }
+.item-view .source-icon { margin: 0px 6px -2px -2px; }
 .fb-icon { background: transparent url(images/facebook.png) no-repeat; }
 .azure-icon { background: transparent url(images/azure.png) no-repeat; }
 
