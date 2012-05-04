@@ -3,11 +3,13 @@ using System.Collections.Generic;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Tag
+    public class Tag : UserOwnedEntity
     {
-        public Guid ID { get; set; }
-        public Guid UserID { get; set; }
-        public string Name { get; set; }
+        // UserOwnedEntity properties
+        public override Guid ID { get; set; }
+        public override string Name { get; set; }
+        public override Guid UserID { get; set; }
+
         public int ColorID { get; set; }
 
         public List<ItemTag> ItemTags { get; set; }

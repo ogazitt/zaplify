@@ -28,6 +28,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
                     }
 
+                    // check for an empty foreach list
+                    if (String.IsNullOrEmpty(foreachList))
+                    {
+                        TraceLog.TraceInfo("Foreach: no elements in list");
+                        return Status.Complete;
+                    }
+
                     try
                     {
                         // parse the body definition string into a JSON object containing the activity definition

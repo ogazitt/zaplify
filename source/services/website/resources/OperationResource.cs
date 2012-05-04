@@ -33,7 +33,10 @@
             Operation clientOperation;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientOperation = clientOperation = ProcessRequestBody(req, typeof(Operation), out operation) as Operation;
+                code = ProcessRequestBody<Operation>(req, out clientOperation, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<Operation>(req, operation, code);
+
                 if (clientOperation.ID != id)
                 {   // IDs must match
                     TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
@@ -132,7 +135,10 @@
             }
 
             // get the new operation from the message body
-            Operation clientOperation = ProcessRequestBody(req, typeof(Operation), out operation) as Operation;
+            Operation clientOperation = null;
+            code = ProcessRequestBody<Operation>(req, out clientOperation, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Operation>(req, operation, code);
 
             // if the requested operation does not belong to the authenticated user, return 403 Forbidden
             if (clientOperation.UserID == null || clientOperation.UserID == Guid.Empty)
@@ -206,12 +212,10 @@
             }
 
             // the body will be two Operations - the original and the new values.  Verify this
-            List<Operation> clientOperations = ProcessRequestBody(req, typeof(List<Operation>), out operation) as List<Operation>;
-            if (clientOperations.Count != 2)
-            {
-                TraceLog.TraceError("TagResource.Update: Bad Request (malformed body)");
-                return ReturnResult<Operation>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<Operation> clientOperations = null;
+            code = ProcessRequestBody<List<Operation>>(req, out clientOperations, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Operation>(req, operation, code);
 
             // get the original and new operations out of the message body
             Operation originalOperation = clientOperations[0];

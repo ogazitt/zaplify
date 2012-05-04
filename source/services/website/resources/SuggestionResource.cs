@@ -95,7 +95,10 @@
             } 
 
             // get the filter from message body
-            SuggestionFilter filter = ProcessRequestBody(req, typeof(SuggestionFilter), out operation, true) as SuggestionFilter;
+            SuggestionFilter filter = null;
+            code = ProcessRequestBody<SuggestionFilter>(req, out filter, out operation, true);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<List<Suggestion>>(req, operation, code);
 
             if (!ValidateEntityOwnership(filter.EntityID, filter.EntityType))
             {   // entity being queried does not belong to authenticated user, return 403 Forbidden
@@ -143,12 +146,10 @@
             } 
 
             // the body will contain two Suggestions - the original and the new values
-            List<Suggestion> suggestions = ProcessRequestBody(req, typeof(List<Suggestion>), out operation) as List<Suggestion>;
-            if (suggestions.Count != 2)
-            {   // body should contain two Suggestions, the original and new values
-                TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Bad Request (malformed body)");
-                return ReturnResult<Suggestion>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<Suggestion> suggestions = null;
+            code = ProcessRequestBody<List<Suggestion>>(req, out suggestions, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<Suggestion>(req, operation, code);
 
             Suggestion original = suggestions[0];
             Suggestion modified = suggestions[1];

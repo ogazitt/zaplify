@@ -88,11 +88,12 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 
             ADGraphAPI adApi = new ADGraphAPI();
             string adRefreshToken = null;
+            UserCredential creds = null;
 
             // try to retrieve FB and/or AD credentials
             try
             {
-                UserCredential creds = user.UserCredentials.Single(uc => uc.ADConsentToken != null || uc.FBConsentToken != null);
+                creds = user.UserCredentials.Single(uc => uc.ADConsentToken != null || uc.FBConsentToken != null);
                 adApi.FacebookAccessToken = creds.FBConsentToken;
                 adRefreshToken = creds.ADConsentToken;
             }
@@ -118,7 +119,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     OAuthMessage message = OAuthClient.GetAccessToken(request);
                     AccessTokenResponse authzResponse = message as AccessTokenResponse;
                     adApi.ADAccessToken = authzResponse.AccessToken;
-
+                    
+                    // workaround for ACS trashing the refresh token
+                    if (!String.IsNullOrEmpty(authzResponse.RefreshToken))
+                    {
+                        TraceLog.TraceInfo("GetPossibleSubjects.GenerateSuggestions: storing new refresh token");
+                        creds.ADConsentToken = authzResponse.RefreshToken;
+                        creds.LastModified = DateTime.UtcNow;
+                        UserContext.SaveChanges();
+                    }
                 }
                 catch (Exception ex)
                 {

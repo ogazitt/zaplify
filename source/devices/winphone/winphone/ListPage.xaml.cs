@@ -30,7 +30,7 @@
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         private const int rendersize = 10;  // limit of elements to render immediately
-        private bool constructorCalled = false;
+        private bool invalidState = false;
         private Folder folder;
         private Item list;
         private ListHelper ListHelper;
@@ -192,9 +192,6 @@
             Loaded += new RoutedEventHandler(ListPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(ListPage_BackKeyPress);
 
-            // set the constructor called flag
-            constructorCalled = true;
-
             // trace data
             TraceHelper.AddMessage("Exiting ListPage constructor");
         }
@@ -215,7 +212,7 @@
                 TraceHelper.StartMessage("ListPage: Navigate back");
 
                 // navigate back
-                NavigationService.GoBack();
+                NavigateBack();
                 return;
             }
 
@@ -226,7 +223,7 @@
                 TraceHelper.StartMessage("ListPage: Navigate back");
 
                 // navigate back
-                NavigationService.GoBack();
+                NavigateBack();
                 return;
             }
 
@@ -252,7 +249,7 @@
                             TraceHelper.StartMessage("ListPage: Navigate back");
 
                             // navigate back
-                            NavigationService.GoBack();
+                            NavigateBack();
                             return;
                         }
 
@@ -263,7 +260,7 @@
                             TraceHelper.StartMessage("ListPage: Navigate back");
 
                             // navigate back
-                            NavigationService.GoBack();
+                            NavigateBack();
                             return;
                         }
 
@@ -321,7 +318,7 @@
                         TraceHelper.StartMessage(String.Format("ListPage: Navigate back (exception: {0})", ex.Message));
 
                         // navigate back
-                        NavigationService.GoBack();
+                        NavigateBack();
                         return;
                     }
                     break;
@@ -350,7 +347,7 @@
                         TraceHelper.StartMessage("ListPage: Navigate back");
 
                         // navigate back
-                        NavigationService.GoBack();
+                        NavigateBack();
                         return;
                     }
                     break;
@@ -359,7 +356,7 @@
                     TraceHelper.StartMessage("ListPage: Navigate back");
 
                     // navigate back
-                    NavigationService.GoBack();
+                    NavigateBack();
                     return;
             }
 
@@ -715,7 +712,7 @@
             TraceHelper.StartMessage("ListPage: Navigate back");
 
             // navigate back
-            NavigationService.GoBack();
+            NavigateBack();
         }
 
         void ListPage_Loaded(object sender, RoutedEventArgs e)
@@ -723,11 +720,9 @@
             // trace page navigation
             TraceHelper.AddMessage("ListPage: Loaded");
 
-            // reset the constructor flag
-            constructorCalled = false;
-
             // create the control tree and render the folder
-            ListHelper.RenderList(list);
+            if (!invalidState)
+                ListHelper.RenderList(list);
 
             // trace page navigation
             TraceHelper.AddMessage("Finished ListPage Loaded");
@@ -1066,6 +1061,12 @@
         #endregion QuickAdd Popup Event Handlers
 
         #region Helpers
+
+        private void NavigateBack()
+        {
+            invalidState = true;
+            NavigationService.GoBack();
+        }
 
         private void RenderItemTypes()
         {

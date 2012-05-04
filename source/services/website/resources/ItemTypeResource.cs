@@ -33,7 +33,11 @@
             ItemType clientItemType;
             if (req.Content.Headers.ContentLength > 0)
             {
-                clientItemType = ProcessRequestBody(req, typeof(ItemType), out operation) as ItemType;
+                clientItemType = null;
+                code = ProcessRequestBody<ItemType>(req, out clientItemType, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<ItemType>(req, operation, code);
+
                 if (clientItemType.ID != id)
                 {   // IDs must match
                     TraceLog.TraceError("ItemTypeResource.Delete: Bad Request (ID in URL does not match entity body)");
@@ -153,17 +157,10 @@
             } 
 
             // get the new itemType from the message body
-            ItemType clientItemType = ProcessRequestBody(req, typeof(ItemType), out operation) as ItemType;
-
-            if (clientItemType.UserID == null || clientItemType.UserID == Guid.Empty)
-            {   // changing a system itemType to a user itemType
-                clientItemType.UserID = CurrentUser.ID;
-            }
-            if (clientItemType.UserID != CurrentUser.ID)
-            {   // requested itemType does not belong to authenticated user, return 403 Forbidden
-                TraceLog.TraceError("ItemTypeResource.Insert: Forbidden (entity does not belong to current user)");
-                return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
-            }
+            ItemType clientItemType = null;
+            code = ProcessRequestBody(req, out clientItemType, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<ItemType>(req, operation, code);
 
             try
             {
@@ -216,32 +213,19 @@
             } 
 
             // the body will contain two ItemTypes - the original and the new values
-            List<ItemType> itemTypes = ProcessRequestBody(req, typeof(List<ItemType>), out operation) as List<ItemType>;
-            if (itemTypes.Count != 2)
-            {   // body should contain two ItemTypes, the original and new values
-                TraceLog.TraceError("ItemTypeResource.Update: Bad Request (malformed body)");
-                return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<ItemType> itemTypes = null;
+            code = ProcessRequestBody<List<ItemType>>(req, out itemTypes, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<ItemType>(req, operation, code);
 
             ItemType originalItemType = itemTypes[0];
             ItemType newItemType = itemTypes[1];
 
             // make sure the itemtype ID's match
-            if (originalItemType.ID != newItemType.ID)
-            {
-                TraceLog.TraceError("ItemTypeResource.Update: Bad Request (original and new entity ID's do not match)");
-                return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
-            }
-            if (originalItemType.ID != id)
+            if (originalItemType.ID != id || newItemType.ID != id)
             {
                 TraceLog.TraceError("ItemTypeResource.Update: Bad Request (ID in URL does not match entity body)");
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
-            }
-
-            if (originalItemType.UserID != CurrentUser.ID || newItemType.UserID != CurrentUser.ID)
-            {   // itemtype does not belong to the authenticated user, return 403 Forbidden
-                TraceLog.TraceError("ItemTypeResource.Update: Forbidden (entity does not belong to current user)");
-                return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
             }
 
             try

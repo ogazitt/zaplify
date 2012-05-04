@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Folder : ServerEntity
+    public class Folder : UserOwnedEntity
     {
-        // ServerEntity properties
+        // UserOwnedEntity properties
         public override Guid ID { get; set; }
         public override string Name { get; set; }
+        public override Guid UserID { get; set; }
 
-        public Guid UserID { get; set; }
         public Guid ItemTypeID { get; set; }
         public float SortOrder { get; set; }
 
