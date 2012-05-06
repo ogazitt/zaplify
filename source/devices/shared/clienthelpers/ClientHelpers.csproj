@@ -72,7 +72,7 @@
     <Compile Include="NetworkHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TraceHelper.cs" />
-    <Compile Include="SettingsHelper.cs" />
+    <Compile Include="ClientSettingsHelper.cs" />
     <Compile Include="SpeechHelper.cs" />
     <Compile Include="StorageHelper.cs" />
     <Compile Include="SyncHelper.cs" />

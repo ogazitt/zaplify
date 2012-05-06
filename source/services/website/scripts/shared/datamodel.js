@@ -603,7 +603,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
         for (var i in this.FieldValues) {
             var fv = this.FieldValues[i];
             if (fv.FieldName == field.Name) {
-                if (fv.Value != null && field.FieldType == FieldTypes.GUID) {
+                if (fv.Value != null && field.FieldType == FieldTypes.Guid) {
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
                     /*
@@ -664,7 +664,7 @@ Item.prototype.AddReference = function (field, item, replace) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.Guid) {
 
         var refList = this.GetFieldValue(field);
         if (refList != null) {
@@ -700,7 +700,7 @@ Item.prototype.RemoveReferences = function (field) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.Guid) {
         var refList = this.GetFieldValue(field);
         if (refList != null && refList.IsList) {
             // remove all references
@@ -1025,7 +1025,7 @@ var FieldNames = {
     Birthday : "Birthday",                  // DateTime
     Address : "Address",                    // Address
     WebLink : "WebLink",                    // Url
-    WebLinks : "WebLinks",                  // JSON
+    WebLinks : "WebLinks",                  // Json
     Email : "Email",                        // Email
     Phone : "Phone",                        // Phone
     HomePhone : "HomePhone",                // Phone
@@ -1034,16 +1034,18 @@ var FieldNames = {
     Amount : "Amount",                      // String
     Cost : "Cost",                          // Currency
     ItemTags : "ItemTags",                  // TagIDs
-    EntityRef: "EntityRef",                 // GUID
+    EntityRef: "EntityRef",                 // Guid
     EntityType: "EntityType",               // String
-    Locations: "Locations",                 // GUID
-    Contacts: "Contacts",                   // GUID
+    Locations: "Locations",                 // Guid
+    Contacts: "Contacts",                   // Guid
     Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
+    Category: "Category",                   // String (grocery category)
+    Picture: "Picture",                     // ImageUrl
 
     FacebookID: "FacebookID",               // String
-    Intent: "Intent",                       // String
     Sources: "Sources",                     // String
-    LatLong: "LatLong"                      // String
+    LatLong: "LatLong",                     // String
+    SortBy: "SortBy"                        // String (ClientSettings: field name to sort a folder/list by)
 }
 
 // ---------------------------------------------------------
@@ -1069,8 +1071,8 @@ var FieldTypes = {
     Address : "Address",
     Currency : "Currency",
     TagIDs : "TagIDs",
-    GUID : "GUID",
-    JSON : "JSON"
+    Guid : "Guid",
+    Json : "Json"
 }
 
 // ---------------------------------------------------------
@@ -1094,7 +1096,8 @@ var DisplayTypes = {
     Contact: "Contact",
     ContactList: "ContactList",
     LocationList: "LocationList",
-    LinkArray : "LinkArray"
+    LinkArray : "LinkArray",
+    ImageUrl: "ImageUrl"
 }
 
 // ---------------------------------------------------------

@@ -295,26 +295,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         #region Helpers
 
-        private string GetTypeName(PropertyInfo pi)
-        {
-            string typename = pi.PropertyType.Name;
-            // if it's a generic type, get the underlying type (this is for Nullables)
-            if (pi.PropertyType.IsGenericType)
-            {
-                typename = pi.PropertyType.FullName;
-                string del = "[[System.";  // delimiter
-                int index = typename.IndexOf(del);
-                index = index < 0 ? index : index + del.Length;  // add length of delimiter
-                int index2 = index < 0 ? index : typename.IndexOf(",", index);
-                // if anything went wrong, default to String
-                if (index < 0 || index2 < 0)
-                    typename = "String";
-                else
-                    typename = typename.Substring(index, index2 - index);
-            }
-            return typename;
-        }
-
         /// <summary>
         /// Find a item by ID and then return its index 
         /// </summary>
@@ -382,6 +362,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void RenderEditItemField(Item item, Field field)
         {
+            // skip rendering a hidden field
+            if (field.DisplayType == DisplayTypes.Hidden)
+                return;
+
             PropertyInfo pi = null;
             object currentValue = null;
             object container = null;
@@ -564,7 +548,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     lp.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(lp);
                     break;
-                case "Folder":
+                case DisplayTypes.Folders:
                     ListPicker folderPicker = new ListPicker() { MinWidth = minWidth, IsTabStop = true };
                     folderPicker.ItemsSource = App.ViewModel.Folders;
                     folderPicker.DisplayMemberPath = "Name";
@@ -574,18 +558,21 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     folderPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(folderPicker);
                     break;
-                case "List":
+                case DisplayTypes.Lists:
                     ListPicker listPicker = new ListPicker()
                     {
                         MinWidth = minWidth,
                         FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
                         IsTabStop = true
                     };
-                    var lists = App.ViewModel.Items.Where(i => i.FolderID == item.FolderID && i.IsList == true).OrderBy(i => i.Name).ToObservableCollection();
+                    var lists = App.ViewModel.Items.
+                        Where(i => i.FolderID == item.FolderID && i.IsList == true && i.ItemTypeID != SystemItemTypes.Reference).
+                        OrderBy(i => i.Name).
+                        ToObservableCollection();
                     lists.Insert(0, new Item()
                     {
                         ID = Guid.Empty,
-                        Name = folder.Name + "(folder)"
+                        Name = folder.Name + " (folder)"
                     });
                     listPicker.ItemsSource = lists;
                     listPicker.DisplayMemberPath = "Name";
@@ -595,13 +582,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lists[listPicker.SelectedIndex].ID, null); });
                     listPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(listPicker);
-                    break;
-                case "Integer":
-                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
-                    tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, Convert.ToInt32(tb.Text), null); });
-                    tb.TabIndex = tabIndex++;
-                    tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                    EditStackPanel.Children.Add(tb);
                     break;
                 case DisplayTypes.DatePicker:
                     DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
@@ -653,6 +633,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     RenderEditItemTagList(taglist, (Item) container, pi);
                     EditStackPanel.Children.Add(taglist);
                     break;
+                case DisplayTypes.ImageUrl:
+                    // TODO: wire up to picture picker, and upload to an image service
+                    break;
+                case DisplayTypes.Hidden:
+                    // skip rendering
+                    break;
                     /*
                 case "ListPointer":
                     innerPanel = RenderEditFolderPointer(pi, minWidth);
@@ -664,27 +650,26 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     break;
             }
 
-            // if wasn't able to match field type by display type, try matching by CLR type
+            // if wasn't able to match field type by display type, try matching by FieldType
             if (notMatched == true)
             {
-                string typename = GetTypeName(pi);
-                switch (typename)
+                switch (field.FieldType)
                 {
-                    case "String":
+                    case FieldTypes.String:
                         tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
                         tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                         tb.TabIndex = tabIndex++;
                         tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                         EditStackPanel.Children.Add(tb);
                         break;
-                    case "Int32":
+                    case FieldTypes.Integer:
                         tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Digits } } };
                         tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, Convert.ToInt32(tb.Text), null); });
                         tb.TabIndex = tabIndex++;
                         tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
                         EditStackPanel.Children.Add(tb);
                         break;
-                    case "DateTime":
+                    case FieldTypes.DateTime:
                         DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
                         dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
                         dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
@@ -696,7 +681,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         dp.TabIndex = tabIndex++;
                         EditStackPanel.Children.Add(dp);
                         break;
-                    case "Boolean":
+                    case FieldTypes.Boolean:
                         CheckBox cb = new CheckBox() { DataContext = container, IsTabStop = true };
                         cb.SetBinding(CheckBox.IsEnabledProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
                         cb.TabIndex = tabIndex++;
@@ -715,8 +700,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             if (renderListField == true)
             {
-                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = "Folder" };
-                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = "List" };
+                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = DisplayTypes.Folders };
+                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = DisplayTypes.Lists };
                 RenderEditItemField(item, field);
             }
 

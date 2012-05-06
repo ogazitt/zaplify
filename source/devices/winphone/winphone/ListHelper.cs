@@ -201,13 +201,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             switch (OrderBy)
             {
-                case "due":
-                case "priority":
                 case FieldNames.DueDate:
                 case FieldNames.Priority:
                 case FieldNames.Category:
                     return true;
-                case "name":
                 case FieldNames.Name:
                 case FieldNames.Address:
                 case FieldNames.Phone:
@@ -481,15 +478,27 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 element.SetValue(Grid.ColumnProperty, 1);
                 ((CheckBox)element).Click += new RoutedEventHandler(checkBoxClickEvent);
             }
-            if (icon != null)
+            else
             {
-                if (icon.StartsWith("/Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
-                    icon = "/Images/" + icon;
-                //var margin = new Thickness(5, 11, 16, 8);
-                //var sz = 48;
-                itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = 48, Height = 48, Margin = new Thickness(5, 11, 16, 8) });
-                //itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = sz, Height = sz, Margin = margin });
-                element.SetValue(Grid.ColumnProperty, 1);
+                // render an icon if one exists
+                if (icon != null)
+                {
+                    if (icon.StartsWith("/Images/") == false && icon.StartsWith("http") == false && icon.StartsWith("www.") == false)
+                        icon = "/Images/" + icon;
+                    itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = 48, Height = 48, Margin = new Thickness(5, 11, 16, 8) });
+                    element.SetValue(Grid.ColumnProperty, 1);
+                }
+                // render a picture if one exists 
+                // this picture will layer on top of the existing icon - in case the picture is unavailable (e.g. disconnected)
+                var picFV = item.GetFieldValue(FieldNames.Picture, false);
+                if (picFV != null && !String.IsNullOrEmpty(picFV.Value))
+                {
+                    icon = picFV.Value;
+                    if (icon.StartsWith("/Images/") == false && icon.StartsWith("http") == false && icon.StartsWith("www.") == false)
+                        icon = "/Images/" + icon;
+                    itemLineOne.Children.Add(element = new Image() { Source = new BitmapImage(new Uri(icon, UriKind.RelativeOrAbsolute)), Width = 48, Height = 48, Margin = new Thickness(5, 11, 16, 8) });
+                    element.SetValue(Grid.ColumnProperty, 1);
+                }
             }
             itemLineOne.Children.Add(element = new TextBlock()
             {

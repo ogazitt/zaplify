@@ -370,7 +370,9 @@
 
             // store the current listbox and ordering
             ListHelper.ListBox = ItemsListBox;
-            ListHelper.OrderBy = null;
+            ListHelper.OrderBy = ClientSettingsHelper.GetListSortOrder(
+                App.ViewModel.ClientSettings, 
+                id == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list);
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");
@@ -466,6 +468,15 @@
             ListHelper.OrderBy = target.Name;
             ListHelper.RenderList(list);
 
+            // store the sort order
+            ClientSettingsHelper.StoreListSortOrder(
+                App.ViewModel.ClientSettings,
+                list.ID == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list,
+                target.Name);
+
+            // sync with the service
+            App.ViewModel.SyncWithService();
+
             // close the popup 
             SortPopup.IsOpen = false;
         }
@@ -475,6 +486,15 @@
             // store the current listbox and remove the orderby field, and re-render the list
             ListHelper.OrderBy = null;
             ListHelper.RenderList(list);
+
+            // store the sort order
+            ClientSettingsHelper.StoreListSortOrder(
+                App.ViewModel.ClientSettings,
+                list.ID == Guid.Empty ? (ClientEntity)folder : (ClientEntity)list,
+                null);
+
+            // sync with the service
+            App.ViewModel.SyncWithService();
 
             // close the popup 
             SortPopup.IsOpen = false;

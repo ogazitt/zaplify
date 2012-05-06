@@ -12,10 +12,9 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
-    using BuiltSteady.Zaplify.Shared.Entities;
-    using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
     using BuiltSteady.Zaplify.Shared.Entities;
+    using BuiltSteady.Zaplify.Website.Helpers;
 
     [ServiceContract]
     [LogMessages]

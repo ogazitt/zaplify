@@ -462,6 +462,150 @@
             return operation;
         }
 
+        public Item GetOrCreatePossibleSubjectsList(User user)
+        {
+            Folder userFolder = GetOrCreateUserFolder(user);
+            if (userFolder == null)
+                return null;
+
+            // retrieve the PossibleSubjects list inside the $User folder
+            try
+            {
+                // get the PossibleSubjects list
+                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects))
+                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects);
+                else
+                {
+                    // create PossibleSubjects list
+                    DateTime now = DateTime.UtcNow;
+                    var possibleSubjectList = new Item()
+                    {
+                        ID = Guid.NewGuid(),
+                        Name = SystemEntities.PossibleSubjects,
+                        FolderID = userFolder.ID,
+                        UserID = user.ID,
+                        IsList = true,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        ParentID = null,
+                        Created = now,
+                        LastModified = now
+                    };
+                    Items.Add(possibleSubjectList);
+                    SaveChanges();
+                    TraceLog.TraceInfo("GetOrCreatePossibleSubjectsList: created PossibleSubjects list for user " + user.Name);
+                    return possibleSubjectList;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("GetOrCreatePossibleSubjectsList: could not find or create PossibleSubjects list", ex);
+                return null;
+            }
+        }
+
+        public Item GetOrCreateShadowItem(User user, ServerEntity entity)
+        {
+            Item shadowItemList = GetOrCreateShadowItemList(user);
+            if (shadowItemList == null)
+                return null;
+
+            var entityID = entity.ID.ToString();
+
+            // retrieve the shadow item inside the $User folder
+            try
+            {
+                // get the shadow item
+                if (Items.Include("FieldValues").Any(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                    i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID)))
+                {
+                    return Items.Include("FieldValues").Single(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                        i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID));
+                }
+                else
+                {
+                    // create shadow item 
+                    DateTime now = DateTime.UtcNow;
+                    var shadowItemID = Guid.NewGuid();
+                    var shadowItem = new Item()
+                    {
+                        ID = shadowItemID,
+                        Name = entity.Name,
+                        FolderID = shadowItemList.FolderID,
+                        UserID = user.ID,
+                        ItemTypeID = SystemItemTypes.Reference,
+                        ParentID = shadowItemList.ID,
+                        Created = now,
+                        LastModified = now,
+                        FieldValues = new List<FieldValue>()
+                        {
+                            new FieldValue()
+                            {
+                                ItemID = shadowItemID,
+                                FieldName = FieldNames.EntityRef,
+                                Value = entityID,
+                            },
+                            new FieldValue()
+                            {
+                                ItemID = shadowItemID,
+                                FieldName = FieldNames.EntityType,
+                                Value = entity.GetType().Name,
+                            },
+                        }
+                    };
+                    Items.Add(shadowItem);
+                    SaveChanges();
+                    TraceLog.TraceInfo(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", item.Name, user.Name));
+                    return shadowItem;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", item.Name, user.Name), ex);
+                return null;
+            }
+        }
+
+        public Item GetOrCreateShadowItemList(User user)
+        {
+            Folder userFolder = GetOrCreateUserFolder(user);
+            if (userFolder == null)
+                return null;
+
+            // retrieve the shadow item list inside the $User folder
+            try
+            {
+                // get the shadow item list
+                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.ShadowItems))
+                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.ShadowItems);
+                else
+                {
+                    // create shadow item list
+                    DateTime now = DateTime.UtcNow;
+                    var shadowItemList = new Item()
+                    {
+                        ID = Guid.NewGuid(),
+                        Name = SystemEntities.ShadowItems,
+                        FolderID = userFolder.ID,
+                        UserID = user.ID,
+                        IsList = true,
+                        ItemTypeID = SystemItemTypes.Reference,
+                        ParentID = null,
+                        Created = now,
+                        LastModified = now
+                    };
+                    Items.Add(shadowItemList);
+                    SaveChanges();
+                    TraceLog.TraceInfo("GetOrCreateShadowItemList: created shadow item list for user " + user.Name);
+                    return shadowItemList;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("GetOrCreateShadowItemList: could not find or create shadow item list", ex);
+                return null;
+            }
+        }
+
         public Folder GetOrCreateUserFolder(User user)
         {
             try
