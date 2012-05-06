@@ -554,13 +554,13 @@
                     };
                     Items.Add(shadowItem);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", item.Name, user.Name));
+                    TraceLog.TraceInfo(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name));
                     return shadowItem;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", item.Name, user.Name), ex);
+                TraceLog.TraceException(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name), ex);
                 return null;
             }
         }
