@@ -52,6 +52,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        public string BackgroundColor
+        {
+            get
+            {
+                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
+                if (phoneSetting.Values.Any(t => t.Name == theme))
+                    return phoneSetting.Values.Single(t => t.Name == theme).Value;
+                else
+                    return "Transparent";
+            }
+        }
 
         // Databinding property for displaying whether we are connected or not
         public string ConnectedText 
@@ -92,6 +104,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     clientSettings = value;
                     StorageHelper.WriteClientSettings(clientSettings);
                     NotifyPropertyChanged("ClientSettingsFolder");
+
+                    // update some databound properties that are bound to client settings
+                    NotifyPropertyChanged("BackgroundColor");
                 }
             }
         }

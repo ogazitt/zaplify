@@ -5,8 +5,8 @@
     xmlns:zaplify="clr-namespace:BuiltSteady.Zaplify.Devices.ClientEntities;assembly=BuiltSteady.Zaplify.Devices.ClientEntities">
 
     <local:MainViewModel.Tags>
-        <zaplify:Tag Name="tag one" Color="Red" />
-        <zaplify:Tag Name="tag two" Color="Yellow" />
+        <zaplify:Tag Name="tag one" ColorID="1" />
+        <zaplify:Tag Name="tag two" ColorID="2" />
         <zaplify:Tag Name="tag three" />
-     </local:MainViewModel.Tags>
+    </local:MainViewModel.Tags>
 </local:MainViewModel>

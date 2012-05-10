@@ -194,7 +194,7 @@
                             // if the entity doesn't have a userid, assign it now to the current user
                             if (currentEntity.UserID == null || currentEntity.UserID == Guid.Empty)
                                 currentEntity.UserID = CurrentUser.ID;
-                            // if the entity does not belong to the authenticated user, return 403 Forbidden, otherwise return the tag
+                            // if the entity does not belong to the authenticated user, return 403 Forbidden
                             if (currentEntity.UserID != CurrentUser.ID)
                             {
                                 TraceLog.TraceError("ProcessRequestBody: Forbidden (entity does not belong to current user)");
@@ -229,6 +229,11 @@
                                 return HttpStatusCode.BadRequest;
                             }
 
+                            // if the entity doesn't have a userid, assign it now to the current user
+                            if (oldEntity.UserID == null || oldEntity.UserID == Guid.Empty)
+                                oldEntity.UserID = CurrentUser.ID;
+                            if (newEntity.UserID == null || newEntity.UserID == Guid.Empty)
+                                newEntity.UserID = CurrentUser.ID;
                             // make sure the entity belongs to the authenticated user
                             if (oldEntity.UserID != CurrentUser.ID || newEntity.UserID != CurrentUser.ID)
                             {

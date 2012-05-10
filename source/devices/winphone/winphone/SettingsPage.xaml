@@ -20,18 +20,8 @@
     mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True">
 
-    <phone:PhoneApplicationPage.Resources>
-        <DataTemplate x:Key="FullListPickerTemplate">
-            <TextBlock
-                    Text="{Binding Name}"
-                    FontSize="36"
-                    FontWeight="Normal"
-                    VerticalAlignment="Center"/>
-        </DataTemplate>
-    </phone:PhoneApplicationPage.Resources>
-
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <Grid x:Name="LayoutRoot" Background="{Binding BackgroundColor}">
         <i:Interaction.Behaviors>
             <keyboard:KeyboardTabHelperBehavior />
         </i:Interaction.Behaviors>
@@ -70,9 +60,11 @@
             <!--account pivot item-->
             <controls:PivotItem Header="settings">
                 <ScrollViewer BorderThickness="0">
-                    <StackPanel>
+                    <StackPanel x:Name="SettingsPanel">
+                        <!--
                         <TextBlock Text="default list" Style="{StaticResource PhoneTextNormalStyle}" />
                         <toolkit:ListPicker x:Name="DefaultListPicker" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemsSource="{Binding Folders}" DisplayMemberPath="Name"/>
+                        -->
                     </StackPanel>
                 </ScrollViewer>
             </controls:PivotItem>

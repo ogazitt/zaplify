@@ -43,6 +43,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("Item: constructor");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             this.IsTabStop = true;
 

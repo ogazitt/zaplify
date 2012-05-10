@@ -20,6 +20,11 @@ using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
+    public class Foo
+    {
+        public string Name { get; set; }
+    }
+
     public partial class SettingsPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         public SettingsPage()
@@ -150,7 +155,40 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // trace page navigation
             TraceHelper.AddMessage("Settings: Loaded");
 
+            foreach (var setting in PhoneSettings.Settings.Keys)
+            {
+                // get the source list for the setting, along with any current value
+                var phoneSetting = PhoneSettings.Settings[setting];
+                //var bindingList = (from l in list select new { Name = l }).ToList();
+                var bindingList = phoneSetting.Values;
+                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
+                int selectedIndex = 0;
+                if (value != null && bindingList.Any(ps => ps.Name == value))
+                {
+                    var selectedValue = bindingList.Single(ps => ps.Name == value);
+                    selectedIndex = bindingList.IndexOf(selectedValue);
+                }
+
+                var template = !String.IsNullOrEmpty(phoneSetting.DisplayTemplate) ?
+                    (DataTemplate)App.Current.Resources[phoneSetting.DisplayTemplate] :
+                    null;
+
+                // create a new list picker for the setting
+                var listPicker = new ListPicker()
+                {
+                    Header = setting,
+                    Tag = setting,
+                    SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0
+                };
+                listPicker.ItemsSource = bindingList;
+                listPicker.DisplayMemberPath = "Name";
+                if (template != null)
+                    listPicker.FullModeItemTemplate = template;
+                SettingsPanel.Children.Add(listPicker);
+            }
+
             // initialize some fields
+            /*
             DefaultListPicker.ItemsSource = App.ViewModel.Folders;
             DefaultListPicker.DisplayMemberPath = "Name";
 
@@ -158,6 +196,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             if (index >= 0)
                 DefaultListPicker.SelectedIndex = index;
+            */
 
             CreateUserButton.DataContext = this;
             SyncUserButton.DataContext = this;
@@ -187,10 +226,46 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // save the default folder in any case
-            App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
+            //App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
+
+            // get current version of phone settings
+            var phoneSettingsItemCopy = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+            // loop through the settings and store the new value
+            foreach (var element in SettingsPanel.Children)
+            {
+                // get the listpicker key and value
+                ListPicker listPicker = element as ListPicker;
+                if (listPicker == null)
+                    continue;
+                string key = (string)listPicker.Tag;
+                var phoneSetting = PhoneSettings.Settings[key];
+                string value = phoneSetting.Values[listPicker.SelectedIndex].Name;
+
+                // store the key/value pair in phone settings (without syncing)
+                ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+            }
+
+            // get the new version of phone settings
+            var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+            // queue up a server request
+            RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+            {
+                ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
+                BodyTypeName = "Item",
+                ID = phoneSettingsItem.ID
+            });
+
+            // sync with the server
+            App.ViewModel.SyncWithService();
 
             // trace page navigation
             TraceHelper.StartMessage("Settings: Navigate back");
+
+            // notify the view model that some data-bound properties bound to client settings may have changed
+            App.ViewModel.NotifyPropertyChanged("BackgroundColor");
 
             // go back to main page
             NavigationService.GoBack();

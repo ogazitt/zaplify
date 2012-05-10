@@ -955,6 +955,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void CreateAddButtons()
         {
+            //const string moreListsString = "\u0332m\u0332o\u0332r\u0332e\u0332 \u0332l\u0332i\u0332s\u0332t\u0332s\u0332.\u0332.\u0332.\u0332";
+            const string moreListsString = "more lists...";
             double width = (AddButtonsStackPanel.ActualWidth) / 2;
             // get all the lists
             lists = (from it in App.ViewModel.Items
@@ -1004,7 +1006,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // create the hierarchy of folders/lists for the list picker
-            moreLists = new List<Item>();
+            moreLists = new List<Item>() { new Item() { Name = moreListsString } };
             foreach (Folder f in App.ViewModel.Folders)
             {
                 moreLists.Add(new Item() { ID = Guid.Empty, Name = f.Name, FolderID = f.ID, ItemTypeID = f.ItemTypeID });
@@ -1018,20 +1020,31 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // create the "more lists" listpicker
             ListPicker listPicker = new ListPicker()
             {
-                MinWidth = AddButtonsStackPanel.ActualWidth,
+                MinWidth = AddButtonsStackPanel.ActualWidth - 20,
+                MaxWidth = AddButtonsStackPanel.ActualWidth - 20,
                 FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                Header = "more lists..."
+                Margin = new Thickness(0, 4, 0, 0), 
+                FullModeHeader = "Pick a list to add or navigate to"
             };
             listPicker.ItemsSource = moreLists;
             listPicker.DisplayMemberPath = "Name";
             listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate 
-            { 
-                Item listToAddTo = moreLists[listPicker.SelectedIndex];
-                Folder folderToAddTo = App.ViewModel.Folders.Single(f => f.ID == listToAddTo.FolderID);
-                if (listToAddTo.ID == Guid.Empty)
-                    AddItem(folderToAddTo, null);
-                else
-                    AddItem(folderToAddTo, listToAddTo);
+            {
+                if (listPicker.SelectedIndex > 0)
+                {
+                    Item listToAddTo = moreLists[listPicker.SelectedIndex];
+                    Folder folderToAddTo = App.ViewModel.Folders.Single(f => f.ID == listToAddTo.FolderID);
+                    if (listToAddTo.ID == Guid.Empty)
+                        AddItem(folderToAddTo, null);
+                    else
+                        AddItem(folderToAddTo, listToAddTo);
+                    listPicker.SelectedIndex = 0;
+                    moreLists[0].Name = moreListsString;
+                }
+            });
+            listPicker.Tap += new EventHandler<System.Windows.Input.GestureEventArgs>(delegate
+            {
+                moreLists[0].Name = "";
             });
             AddButtonsStackPanel.Children.Add(listPicker);
         }

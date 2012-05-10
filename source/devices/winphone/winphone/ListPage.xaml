@@ -32,7 +32,7 @@
     </phone:PhoneApplicationPage.Resources>
     
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent" d:DataContext="{Binding Folders[0]}">
+    <Grid x:Name="LayoutRoot" Background="{Binding BackgroundColor}" d:DataContext="{Binding Folders[0]}">
         <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
         
         <!--main listbox-->

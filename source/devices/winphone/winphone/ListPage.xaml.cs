@@ -174,6 +174,7 @@
 
             // set some data context information
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
             SpeechProgressBar.DataContext = App.ViewModel;
             QuickAddPopup.DataContext = App.ViewModel;
 

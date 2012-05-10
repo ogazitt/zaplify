@@ -217,6 +217,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         // system items
         public const string ListSortOrders = "ListSortOrders";
+        public const string PhoneSettings = "PhoneSettings";
         public const string PossibleSubjects = "PossibleSubjects";
         public const string ShadowItems = "ShadowItems";
     }
@@ -224,7 +225,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class UserConstants
     {
         public static string SchemaVersion { get { return "1.0.2012.0503"; } }
-        public static string ConstantsVersion { get { return "2012-05-05C"; } }
+        public static string ConstantsVersion { get { return "2012-05-07"; } }
 
         public static List<ActionType> DefaultActionTypes()
         {
@@ -302,7 +303,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000001A"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 10 });
 
             // create Location
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Location, Name = "Location", UserID = SystemUsers.User, Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Location, Name = "Location", UserID = SystemUsers.User, Icon = "location.png", Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000021"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000022"), FieldType = FieldTypes.Address, Name = FieldNames.Address, DisplayName = "Address", DisplayType = DisplayTypes.Address, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000023"), FieldType = FieldTypes.Phone, Name = FieldNames.Phone, DisplayName = "Phone", DisplayType = DisplayTypes.Phone, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 3 });

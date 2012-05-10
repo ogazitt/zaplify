@@ -53,6 +53,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("TagEditor: Loaded");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             string tagIDString = "";
 

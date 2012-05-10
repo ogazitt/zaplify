@@ -26,6 +26,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("ListEditor: constructor");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             // enable tabbing
             this.IsTabStop = true;
