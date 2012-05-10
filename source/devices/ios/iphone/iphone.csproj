@@ -121,6 +121,7 @@
     <Compile Include="FolderEditor.cs" />
     <Compile Include="ListEditor.cs" />
     <Compile Include="SchedulePage.cs" />
+    <Compile Include="controls\ThemedRootElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />

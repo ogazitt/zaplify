@@ -96,7 +96,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			};
 
 			var dvc = new DialogViewController (root, true);
-			this.NavigationController.PushViewController (dvc, true);
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
+			this.PushViewController (dvc, true);
 		}
 	}
 }

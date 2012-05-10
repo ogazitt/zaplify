@@ -52,16 +52,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        public string BackgroundColor
+        public PhoneTheme Theme
         {
             get
             {
                 var theme = ClientSettingsHelper.GetTheme(ClientSettings);
                 var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
                 if (phoneSetting.Values.Any(t => t.Name == theme))
-                    return phoneSetting.Values.Single(t => t.Name == theme).Value;
+                    return (PhoneTheme) phoneSetting.Values.Single(t => t.Name == theme).Value;
                 else
+#if IOS
+                    return null;
+#else
                     return "Transparent";
+#endif
             }
         }
 

@@ -1,6 +1,7 @@
 using System;
-using MonoTouch.UIKit;
+using System.Globalization;
 using MonoTouch.CoreGraphics;
+using MonoTouch.UIKit;
 
 namespace MonoTouch.UIKit
 {
@@ -9,7 +10,10 @@ namespace MonoTouch.UIKit
 		public static UIColor FromString(string color)
 		{
 			if (color == null)
-				return UIColor.Black;
+				return UIColor.Clear;
+            if (color.StartsWith("Images/", true, CultureInfo.InvariantCulture))
+                return UIColor.FromPatternImage(new UIImage(color));
+                
 			if (color.StartsWith("#"))
 			{	// hex template
 				// strip hash
@@ -50,10 +54,10 @@ namespace MonoTouch.UIKit
         {
             switch (color)
             {
+                case "Black":
+                    return UIColor.Black;
                 case "White":
-                    //return UIColor.White;
-					// white doesn't show up on white
-					return UIColor.Black;
+                    return UIColor.White;
                 case "Blue":
                     return UIColor.Blue;
                 case "Brown":

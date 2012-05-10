@@ -13,11 +13,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public class NameValuePair
         {
             public string Name { get; set; }
-            public string Value { get; set; }
+            public object Value { get; set; }
         }
         public string Name { get; set; }
         public string DisplayTemplate { get; set; }
         public List<NameValuePair> Values { get; set; }
+    }
+    
+    public class PhoneTheme
+    {
+        public string PageBackground { get; set; }
+        public string TableBackground { get; set; }
+        public string TableSeparatorBackground { get; set; }
     }
 
     public class PhoneSettings
@@ -33,6 +40,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     DisplayTemplate = "LargeRainbowTemplate",
                     Values = new List<PhoneSetting.NameValuePair>()
                     {
+#if IOS
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Default, Value = new PhoneTheme { PageBackground = "Images/background.png", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0" } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Pink, Value = new PhoneTheme { PageBackground = "#ffddff", TableBackground = "#ffddff", TableSeparatorBackground = "#ffb0b0b0" } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Blue, Value = new PhoneTheme { PageBackground = "#ddddff", TableBackground = "#ddddff", TableSeparatorBackground = "#ffb0b0b0" } },
+#else
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Black, Value = "Black" },
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Cyan, Value = "DarkCyan" },
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Magenta, Value = "DarkMagenta" },
@@ -40,6 +52,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Olive, Value = "DarkOliveGreen" },
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Red, Value = "DarkRed" },
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Slate, Value = "DarkSlateBlue" },
+#endif
                     }
                 }
             },
@@ -48,6 +61,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
     public class PhoneThemes
     {
+#if IOS
+        public const string Default = "Default";
+        public const string Pink = "Pink";
+        public const string Blue = "Blue";
+#else
         public const string Black = "Black";
         public const string Cyan = "Cyan";
         public const string Magenta = "Magenta";
@@ -55,6 +73,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public const string Olive = "Olive";
         public const string Red = "Red";
         public const string Slate = "Slate";
+#endif
     }
 
     public class ClientSettingsHelper

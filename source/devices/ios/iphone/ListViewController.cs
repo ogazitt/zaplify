@@ -44,7 +44,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             
 		public override void ViewDidAppear(bool animated)
 		{
-			// load the folder and construct the list of Items that will be rendered
+            // trace event
+            TraceHelper.AddMessage("ListView: ViewDidAppear");
+
+            // set the background
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
+
+            // load the folder and construct the list of Items that will be rendered
 			try
             {
                 Folder = App.ViewModel.LoadFolder(Folder.ID);
@@ -274,7 +281,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 var removeButton = new Button() 
                 { 
                     Caption = "Remove Sort", 
-                    Background = "Images/redbutton.png", 
+                    Background = "Images/darkgreybutton.png", 
                 };
                 var removeButtonList = new ButtonListElement() { removeButton };
                 removeButtonList.Margin = 0f;
@@ -292,10 +299,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // create the sort picker                
                 var sortPickerSection = new Section();
                 sortPickerSection.AddAll(from f in fields select (Element) new RadioElement(f.DisplayName));
-                var sortPicker = new RootElement("Sort by", new RadioGroup(null, selectedSortIndex)) { sortPickerSection };
+                var sortPicker = new ThemedRootElement("Sort by", new RadioGroup(null, selectedSortIndex)) { sortPickerSection };
                 
                 // create the "Choose Sort" form
-                var root = new RootElement("Choose Sort")
+                var root = new ThemedRootElement("Choose Sort")
                 {
                     new Section() { sortPicker },
                     new Section() { removeButtonList },
@@ -321,6 +328,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     // return to parent
                     dvc.NavigationController.PopViewControllerAnimated(true);
                 });
+                dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
                 
                 // add the click handler for the remove button
                 removeButton.Clicked += delegate 
@@ -397,6 +405,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
             // create the tableview
             TableView = new UITableView() { Frame = new RectangleF(0, 0, View.Bounds.Width, tableHeight) };
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
             this.View.AddSubview(TableView);
             
             // create the toolbar - edit button, add button, sort button

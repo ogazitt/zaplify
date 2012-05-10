@@ -39,7 +39,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
             if (dvc == null)
                 InitializeComponent();
-            
+   
+            // set the background
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
+
             // initialize controls
             user = App.ViewModel.User;  
             Username.Value = user != null ? user.Name : "";
@@ -133,14 +136,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         public delegate void VerifyUserCallbackDelegate(User user, HttpStatusCode? code);
         private void VerifyUserCallback(User user, HttpStatusCode? code)
         {
-#if WINDOWS_PHONE
-            // run this on the UI thread
-			Deployment.Current.Dispatcher.BeginInvoke(() =>
-            {
-#elif IOS
 			this.BeginInvokeOnMainThread(() =>
 			{
-#endif
 				switch (code)
 	            {
 	                case HttpStatusCode.OK:
@@ -170,56 +167,46 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	            }
-#if WINDOWS_PHONE || IOS
             });
-#endif
         }
 
         public delegate void CreateUserCallbackDelegate(User user, HttpStatusCode? code);
         private void CreateUserCallback(User user, HttpStatusCode? code)
         {
-#if WINDOWS_PHONE
-            // run this on the UI thread
-			Deployment.Current.Dispatcher.BeginInvoke(() =>
+            switch (code)
             {
-#endif
-                switch (code)
-                {
-                    case HttpStatusCode.OK:
-                    case HttpStatusCode.Created:
-                        MessageBox.Show(String.Format("user account {0} successfully created", Username.Value));
-                        accountOperationSuccessful = true;
-                        user.Synced = true;
-						// the server no longer echos the password in the payload so keep the local value when successful
-						if (user.Password == null)
-							user.Password = Password.Value;
-                        App.ViewModel.User = user;
-                        App.ViewModel.SyncWithService();
-                        break;
-                    case HttpStatusCode.NotFound:
-                        MessageBox.Show(String.Format("user {0} not found", Username.Value));
-                        accountOperationSuccessful = false;
-                        break;
-                    case HttpStatusCode.Conflict:
-                        MessageBox.Show(String.Format("user {0} already exists", Username.Value));
-                        accountOperationSuccessful = false;
-                        break;
-                    case HttpStatusCode.InternalServerError:
-                        MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", Username.Value));
-                        accountOperationSuccessful = false;
-                        break;
-                    case null:
-                        MessageBox.Show(String.Format("couldn't reach the server"));
-                        accountOperationSuccessful = false;
-                        break;
-                    default:
-                        MessageBox.Show(String.Format("user {0} was not created", Username.Value));
-                        accountOperationSuccessful = false;
-                        break;
-                }
-#if WINDOWS_PHONE
-            });
-#endif
+                case HttpStatusCode.OK:
+                case HttpStatusCode.Created:
+                    MessageBox.Show(String.Format("user account {0} successfully created", Username.Value));
+                    accountOperationSuccessful = true;
+                    user.Synced = true;
+					// the server no longer echos the password in the payload so keep the local value when successful
+					if (user.Password == null)
+						user.Password = Password.Value;
+                    App.ViewModel.User = user;
+                    App.ViewModel.SyncWithService();
+                    break;
+                case HttpStatusCode.NotFound:
+                    MessageBox.Show(String.Format("user {0} not found", Username.Value));
+                    accountOperationSuccessful = false;
+                    break;
+                case HttpStatusCode.Conflict:
+                    MessageBox.Show(String.Format("user {0} already exists", Username.Value));
+                    accountOperationSuccessful = false;
+                    break;
+                case HttpStatusCode.InternalServerError:
+                    MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", Username.Value));
+                    accountOperationSuccessful = false;
+                    break;
+                case null:
+                    MessageBox.Show(String.Format("couldn't reach the server"));
+                    accountOperationSuccessful = false;
+                    break;
+                default:
+                    MessageBox.Show(String.Format("user {0} was not created", Username.Value));
+                    accountOperationSuccessful = false;
+                    break;
+            }
         }
 		
 		#endregion
@@ -228,34 +215,110 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
         private void InitializeComponent()
         {
-            // initialize controls
+            // initialize account controls
             user = App.ViewModel.User;  
             Username = new EntryElement("Email", "Enter email", "");
             Password = new EntryElement("Password", "Enter password", "", true);
             MergeCheckbox = new CheckboxElement("Merge local data?", true);
             
+            // initialize other phone settings by creating a radio element list for each phone setting
+            var elements = (from ps in PhoneSettings.Settings.Keys select (Element) new ThemedRootElement(ps, new RadioGroup(null, 0))).ToList();
+
+            // loop through the root elements we just created and create their substructure
+            foreach (ThemedRootElement rootElement in elements)
+            {
+                // set the ViewDisappearing event on child DialogViewControllers to refresh the theme
+                rootElement.OnPrepare += (sender, e) => 
+                {
+                    DialogViewController viewController = e.ViewController as DialogViewController;
+                    viewController.ViewDisappearing += delegate 
+                    { 
+                        var parent = viewController.Root.GetImmediateRootElement() as RootElement;
+                        parent.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground); 
+                    };
+                };
+                
+                // add a radio element for each of the setting values for this setting type
+                var section = new Section();
+                section.AddAll(from val in PhoneSettings.Settings[rootElement.Caption].Values select (Element) new RadioEventElement(val.Name));
+                rootElement.Add(section);
+
+                // initialize the value of the radio button
+                var currentValue = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, rootElement.Caption);
+                var bindingList = PhoneSettings.Settings[rootElement.Caption].Values;
+                int selectedIndex = 0;
+                if (currentValue != null && bindingList.Any(ps => ps.Name == currentValue))
+                {
+                    var selectedValue = bindingList.Single(ps => ps.Name == currentValue);
+                    selectedIndex = bindingList.IndexOf(selectedValue);
+                }
+                rootElement.RadioSelected = selectedIndex;
+                
+                // attach an event handler that saves the selected setting
+                foreach (var ree in rootElement[0].Elements)
+                {
+                    var radioEventElement = (RadioEventElement) ree;
+                    radioEventElement.OnSelected += delegate {
+                        // make a copy of the existing version of phone settings
+                        var phoneSettingsItemCopy = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+                        // find the key and the valuy for the current setting
+                        var radioRoot = radioEventElement.GetImmediateRootElement();
+                        var key = radioRoot.Caption;
+                        var phoneSetting = PhoneSettings.Settings[key];
+                        string value = phoneSetting.Values[radioRoot.RadioSelected].Name;
+      
+                        // store the new phone setting
+                        ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+            
+                        // get the new version of phone settings
+                        var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+                        // queue up a server request
+                        RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                        {
+                            ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                            Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
+                            BodyTypeName = "Item",
+                            ID = phoneSettingsItem.ID
+                        });
+            
+                        // sync with the server
+                        App.ViewModel.SyncWithService();
+                    };     
+                }
+            };
+
             var root = new RootElement("Settings")
             {
-             new Section("Account")
-             {
-                 Username,
-                 Password,
-                 MergeCheckbox,
-             },
-             new Section()
-             {
-                 new ButtonListElement() 
-                 {
-                     new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
-                     new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
-                 },
-             },
+                new Section()
+                {
+                    new ThemedRootElement("Account")
+                    {
+                        new Section()
+                        {
+                            Username,
+                            Password,
+                            MergeCheckbox,
+                        },
+                        new Section()
+                        {
+                            new ButtonListElement() 
+                            {
+                                new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
+                                new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
+                            },
+                        },
+                    },                    
+                },
             };
-            
+            root[0].AddAll(elements);
+
             // push the view onto the nav stack
             dvc = new DialogViewController(root);
             dvc.NavigationItem.HidesBackButton = true;  
             dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
             this.PushViewController(dvc, false);
         }
         

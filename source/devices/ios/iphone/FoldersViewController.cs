@@ -34,6 +34,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 		public override void ViewDidAppear (bool animated)
 		{
+            // trace event
+            TraceHelper.AddMessage("FoldersView: ViewDidAppear");
+
+            // set the background
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
+
             SortFolders();
             TableView.DataSource = new TableDataSource(this);
             TableView.Delegate = new TableDelegate(this);
@@ -83,9 +90,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             float toolbarHeight = navBarHeight;
             float tableHeight = availableHeight - toolbarHeight;
             
-            // create the toolbar and the tableview
+            // create the tableview
             TableView = new UITableView() { Frame = new RectangleF(0, 0, View.Bounds.Width, tableHeight) };
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
             this.View.AddSubview(TableView);
+
+            // create the toolbar
             Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };
             var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
             

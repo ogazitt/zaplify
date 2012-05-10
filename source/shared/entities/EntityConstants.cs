@@ -217,9 +217,14 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         // system items
         public const string ListSortOrders = "ListSortOrders";
-        public const string PhoneSettings = "PhoneSettings";
         public const string PossibleSubjects = "PossibleSubjects";
         public const string ShadowItems = "ShadowItems";
+
+#if IOS
+        public const string PhoneSettings = "iPhoneSettings";
+#else
+        public const string PhoneSettings = "WinPhoneSettings";
+#endif
     }
 
     public class UserConstants

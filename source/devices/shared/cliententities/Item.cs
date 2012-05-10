@@ -671,8 +671,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         } 
 
         // display color property for Name
+#if IOS
+        public string NameDisplayColor { get { return Complete == true ? "Gray" : "Black"; } }
+#else
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
-
+#endif
+        
         public string Phone
         {
             get
