@@ -36,7 +36,7 @@
         <Image x:Name="ConnectedIconImage" Source="{Binding ConnectedIcon}" Width="64" Height="64" Margin="400,-620,0,0"/>
         
         <!--main listbox-->
-        <Grid>
+        <Grid x:Name="ListGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="70" />
                 <RowDefinition Height="*"/>

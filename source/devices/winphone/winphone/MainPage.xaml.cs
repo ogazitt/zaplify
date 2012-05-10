@@ -1018,10 +1018,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // create the "more lists" listpicker
+            var listPickerWidth = Math.Max(AddButtonsStackPanel.ActualWidth - 20, 400);
             ListPicker listPicker = new ListPicker()
             {
-                MinWidth = AddButtonsStackPanel.ActualWidth - 20,
-                MaxWidth = AddButtonsStackPanel.ActualWidth - 20,
+                MinWidth = listPickerWidth,
+                MaxWidth = listPickerWidth,
                 FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
                 Margin = new Thickness(0, 4, 0, 0), 
                 FullModeHeader = "Pick a list to add or navigate to"

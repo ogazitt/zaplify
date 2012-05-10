@@ -131,7 +131,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                 // make a deep copy of the item for local binding
                 itemCopy = new Item(thisItem);
-                DataContext = itemCopy;
+                ItemPagePivotControl.DataContext = itemCopy;
                 RenderViewItem(itemCopy);
                 RenderEditItem(itemCopy, true /* render the list field */);
             }

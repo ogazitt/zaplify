@@ -362,7 +362,7 @@
             }
 
             // set datacontext 
-            DataContext = list;
+            ListGrid.DataContext = list;
 
             // create the ListHelper
             ListHelper = new ListHelper(

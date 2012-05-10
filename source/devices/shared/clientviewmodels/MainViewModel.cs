@@ -52,6 +52,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        // note: windows phone uses BackgroundColor, while iPhone uses Theme
+        public string BackgroundColor
+        {
+            get
+            {
+                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
+                if (phoneSetting.Values.Any(t => t.Name == theme))
+                    return (string)phoneSetting.Values.Single(t => t.Name == theme).Value;
+                else
+#if IOS
+                    return null;
+#else
+                    return "Transparent";
+#endif
+            }
+        }
+
+        // note: theme is not hooked up to windows phone at the moment.  use BackgroundColor instead
         public PhoneTheme Theme
         {
             get
@@ -59,13 +78,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 var theme = ClientSettingsHelper.GetTheme(ClientSettings);
                 var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
                 if (phoneSetting.Values.Any(t => t.Name == theme))
-                    return (PhoneTheme) phoneSetting.Values.Single(t => t.Name == theme).Value;
+                    return (PhoneTheme)phoneSetting.Values.Single(t => t.Name == theme).Value;
                 else
-#if IOS
                     return null;
-#else
-                    return "Transparent";
-#endif
             }
         }
 
@@ -111,6 +126,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
                     // update some databound properties that are bound to client settings
                     NotifyPropertyChanged("BackgroundColor");
+                    NotifyPropertyChanged("Theme");
                 }
             }
         }
