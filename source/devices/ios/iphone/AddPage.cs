@@ -301,7 +301,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 App.ViewModel.SyncComplete += RefreshHandler;
                 App.ViewModel.SyncWithService();
             };
-                    
+            //dialogViewController.TableView.BackgroundColor = UIColor.Red;
+        
             this.PushViewController(dialogViewController, false);
         }
         

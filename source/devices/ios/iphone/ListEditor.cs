@@ -25,6 +25,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private EntryElement ListName;
         private RootElement ItemTypePicker;
         private List<ItemType> ItemTypes;
+        private CheckboxElement ListCheckbox;
         
 		public ListEditor(UINavigationController c, Folder f, Item l, Guid? parentID)
 		{
@@ -79,7 +80,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return;
             }
 
-            MessageBoxResult result = MessageBox.Show("delete this list?", "confirm delete", MessageBoxButton.OKCancel);
+            MessageBoxResult result = MessageBox.Show(String.Format("delete {0}?", list.Name), "confirm delete", MessageBoxButton.OKCancel);
             if (result != MessageBoxResult.OK)
                 return;
 
@@ -91,11 +92,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     Body = list
                 });
 
+            // reobtain the current folder (it may have been replaced by a GetUser operations since the ListEditor was invoked)
+            Folder currentFolder = App.ViewModel.LoadFolder(folder.ID);
+            
             // remove the item from the viewmodel
-            folder.Items.Remove(list);
+            currentFolder.Items.Remove(list);
 
             // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+            StorageHelper.WriteFolder(currentFolder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -111,19 +115,27 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private void SaveButton_Click(object sender, EventArgs e)
         {
             // get the name of the list
-            ListName.FetchValue();
             listCopy.Name = ListName.Value;
+            
+            // get item type
             var index = ItemTypePicker.RadioSelected;
             var itemType = index >= 0 && index < ItemTypes.Count ? ItemTypes[index] : null;
             listCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
+            
+            // get whether this is a list
+            if (list == null)
+                listCopy.IsList = ListCheckbox.Value;
 
             // check for appropriate values
             if (listCopy.Name == "")
             {
-                MessageBox.Show("list name cannot be empty");
+                MessageBox.Show("name cannot be empty");
                 return;
             }
-
+   
+            // reobtain the current folder (it may have been replaced by a GetUser operations since the ListEditor was invoked)
+            Folder currentFolder = App.ViewModel.LoadFolder(folder.ID);
+            
             // if this is a new list, create it
             if (list == null)
             {
@@ -144,8 +156,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         Body = new Item(listCopy)
                     });
 
-                // add the item to the local itemType
-                folder.Items.Add(listCopy);
+                // add the item to the local Folder
+                currentFolder.Items.Add(listCopy);
             }
             else // this is an update
             {
@@ -163,13 +175,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 list.Copy(listCopy, true);
                 
                 // save the new list properties back to the item in the folder
-                var item = folder.Items.Single(i => i.ID == list.ID);
+                var item = currentFolder.Items.Single(i => i.ID == list.ID);
                 item.Name = list.Name;
                 item.ItemTypeID = list.ItemTypeID;
             }
 
             // save the changes to local storage
-            StorageHelper.WriteFolder(folder);
+            StorageHelper.WriteFolder(currentFolder);
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -196,7 +208,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             int selectedIndex = Math.Max(ItemTypes.IndexOf(thisItemType), 0);
             var itemTypeSection = new Section();
             itemTypeSection.AddAll(from it in ItemTypes select (Element) new RadioElement(it.Name));
-            ItemTypePicker = new RootElement("List Type", new RadioGroup(selectedIndex)) { itemTypeSection };
+            ItemTypePicker = new RootElement("Type", new RadioGroup(selectedIndex)) { itemTypeSection };
+            
+            // set up list checkbox
+            ListCheckbox = new CheckboxElement("List?", true);            
 
             var root = new RootElement("List Editor")
             {
@@ -204,6 +219,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 {
                     ListName,
                     ItemTypePicker,
+                    list == null ? ListCheckbox : null
                 }
             };
 

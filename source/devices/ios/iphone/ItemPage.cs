@@ -483,7 +483,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					}
 					element = priorityElement;
                     break;
-                case "List":
+                case DisplayTypes.Lists:
                     // create a collection of lists in this folder, and add the folder as the first entry
                     var lists = App.ViewModel.Items.
                         Where(li => li.FolderID == item.FolderID && li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference).
@@ -563,7 +563,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case DisplayTypes.TagList:
                     // TODO                   
                     break;
-                case "ContactList":
+                case DisplayTypes.ContactList:
                     StringElement contactsElement = new StringElement(field.DisplayName);
                     Item currentContacts = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
                     contactsElement.Value = CreateCommaDelimitedList(currentContacts);
@@ -590,7 +590,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     };
                     element = contactsElement;
                     break;
-                case "LocationList":
+                case DisplayTypes.LocationList:
                     StringElement locationsElement = new StringElement(field.DisplayName);
                     Item currentLocations = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
                     locationsElement.Value = CreateCommaDelimitedList(currentLocations);
@@ -669,8 +669,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			if (renderListField == true)
             {
-                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = "Folder" };
-                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = "List" };
+                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = DisplayTypes.Folders };
+                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = DisplayTypes.Lists };
                 section.Add(RenderEditItemField(item, field));
             }
 

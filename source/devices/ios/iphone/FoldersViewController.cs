@@ -38,24 +38,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             TableView.DataSource = new TableDataSource(this);
             TableView.Delegate = new TableDelegate(this);
             this.thisController = this;
-            this.NavigationItem.RightBarButtonItem = new UIBarButtonItem("Edit", UIBarButtonItemStyle.Bordered, delegate {
-                if (TableView.Editing == false)
-                {
-                    TableView.SetEditing(true, true);
-                    this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Done;
-                    this.NavigationItem.RightBarButtonItem.Title = "Done";
-                }
-                else
-                {
-                    TableView.SetEditing(false, true);
-                    this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Bordered;
-                    this.NavigationItem.RightBarButtonItem.Title = "Edit";
-
-                    // trigger a sync with the Service 
-                    App.ViewModel.SyncWithService();                                       
-                }
-            });
-
+            //this.TableView.BackgroundColor = UIColor.Purple;
             TableView.ReloadData();
 			base.ViewDidAppear(animated);
 		}
@@ -104,13 +87,37 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             TableView = new UITableView() { Frame = new RectangleF(0, 0, View.Bounds.Width, tableHeight) };
             this.View.AddSubview(TableView);
             Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };
-            var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "Folder", UIBarButtonItemStyle.Plain, delegate { 
+            var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
+            
+            //var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "List", UIBarButtonItemStyle.Plain, delegate { 
+            var addButton = new UIBarButtonItem(UIBarButtonSystemItem.Add, delegate { 
                 FolderEditor folderEditor = new FolderEditor(this.NavigationController, null);
                 folderEditor.PushViewController();
             });
-            var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
-            var fixedSpace = new UIBarButtonItem(UIBarButtonSystemItem.FixedSpace) { Width = 10f };                        
-            Toolbar.SetItems(new UIBarButtonItem[] { fixedSpace, addButton, flexSpace }, false);
+            
+            var editButton = new UIBarButtonItem(UIBarButtonSystemItem.Edit);
+            var doneButton = new UIBarButtonItem(UIBarButtonSystemItem.Done);           
+            editButton.Clicked += delegate
+            { 
+                if (TableView.Editing == false)
+                {
+                    TableView.SetEditing(true, true);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, doneButton, flexSpace }, false);
+                }
+            };
+            doneButton.Clicked += delegate
+            {
+                if (TableView.Editing == true)
+                {
+                    TableView.SetEditing(false, true);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, editButton, flexSpace }, false);
+
+                    // trigger a sync with the Service 
+                    App.ViewModel.SyncWithService();   
+                }
+            };
+
+            Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, editButton, flexSpace }, false);
             this.View.AddSubview(Toolbar);
         }
      
@@ -237,7 +244,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 if (editingStyle == UITableViewCellEditingStyle.Delete)
                 {
+                    // get the folder from the local collection, and refresh it from the viewmodel in case 
+                    // it changed underneath us
                     Folder folder = controller.Folders[indexPath.Row];
+                    if (App.ViewModel.Folders.Any(f => f.ID == folder.ID))
+                        folder = App.ViewModel.Folders.Single(f => f.ID == folder.ID);
 
                     // enqueue the Web Request Record
                     RequestQueue.EnqueueRequestRecord(
