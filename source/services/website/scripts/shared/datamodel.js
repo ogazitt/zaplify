@@ -566,7 +566,7 @@ Folder.prototype.update = function (updatedFolder) {
 
 function Item(viewstate) { this.ViewState = (viewstate == null) ? {} : viewstate; }
 // Item public functions
-Item.prototype.Copy = function () { return $.extend(new Item(), this); };
+Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.FolderID)); };
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
@@ -773,7 +773,7 @@ Item.prototype.replaceReference = function (refList, itemToRef) {
         var itemRefs = refList.GetItems();
         for (var id in itemRefs) {
             var itemRef = itemRefs[id];
-            var updatedItemRef = $.extend(new Item(), itemRef);
+            var updatedItemRef = $.extend(true, new Item(), itemRef);
             updatedItemRef.SetFieldValue(FieldNames.EntityRef, itemToRef.ID);
             itemRef.Update(updatedItemRef, refList.GetParent());
             return true;

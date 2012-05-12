@@ -1,0 +1,41 @@
+﻿/*! 
+ * This css must be processed after responsive.css to override default bootstrap styles
+*/
+
+/* increase default font-awesome size */
+i { font-size: 16px; }
+/* center checkbox when add-on in input-prepend */
+.input-prepend .add-on .checkbox { margin-top: -2px; }
+
+/* customize navbar styles */
+.navbar .brand { margin: 0 0 0 20px; }
+.navbar .active img { margin: 0 12px 0 12px; height: 24px; }
+.navbar-fixed-top .navbar-inner { padding: 0 10px 0 10px; }
+.navbar-fixed-bottom .pull-right { margin: 12px 10px 0 0; }
+
+/* customize container styles */
+@media(max-width:800px) {
+    body{padding-left:0; padding-right:0;}
+    .navbar .container-fluid{width:100%;*zoom:1}
+    .container, .container-fluid{width:800px;*zoom:1}
+    .row-fluid [class*="span"]{min-height:28px;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-sizing:border-box;float:left;margin-left:10px;*margin-left:10px}
+    .row-fluid [class*="span"]:first-child{margin-left:0}
+}
+
+@media(max-width:400px) {
+    .navbar .container-fluid{width:400px;*zoom:1}
+}
+
+/* dashboard styles */
+/* TODO: move into dashboard.css file */
+.dashboard-list { padding: 6px; }
+.dashboard-list ul { margin: 0; }
+.dashboard-list li a {  cursor: pointer; } 
+.dashboard-left .itemlist span { padding-left: 21px; } 
+.dashboard-right li.active { text-transform: uppercase; text-align: center; }
+.dashboard-right .dropdown-menu.pull-right { left: auto; right: 0; }
+
+.dashboard-center { padding: 0; margin: 0; }
+.dashboard-center.well { padding: 8px; }
+.dashboard-center .hero-unit { margin: 0; }
+.dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }

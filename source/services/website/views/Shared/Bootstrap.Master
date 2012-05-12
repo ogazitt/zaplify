@@ -1,0 +1,52 @@
+﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head runat="server">
+    <%
+        var requestUrl = this.Context.Request.Url;
+        var domainUrl = string.Format("{0}://{1}/", requestUrl.Scheme, requestUrl.Authority);
+        var siteUrl = ResolveUrl("~/");
+        var resourceUrl = siteUrl;
+        var fbAppID = BuiltSteady.Zaplify.Website.Controllers.BaseController.FBAppID;
+        var cssTheme = BuiltSteady.Zaplify.Website.Models.UserDataModel.CurrentTheme + "/jquery-ui-1.8.18.css";
+    %>
+    <link href="<%: Url.Content("~/content/generated/master.min.css") %>" rel="stylesheet" type="text/css" />
+    <script src="<%: Url.Content("~/scripts/master.min.js") %>" type="text/javascript"></script>
+    <script type="text/javascript">
+        // document ready handler
+        $(function () {
+            Service.Init("<%=siteUrl %>", "<%=resourceUrl %>", "<%=domainUrl %>", "<%=fbAppID %>")
+        });
+    </script>
+    <asp:ContentPlaceHolder ID="MasterHead" runat="server"> </asp:ContentPlaceHolder>
+</head>
+<body>
+    <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <ul class="nav">
+                    <li class="active">
+                        <a class="brand" href="#"><img class="" alt="Zaplify" src="<%: Url.Content("~/content/images/zaplogo-small.png") %>" /></a>
+                    </li>
+                </ul>
+                <% Html.RenderPartial("SignInControl"); %>
+             </div>
+       </div>
+    </div>
+
+    <asp:ContentPlaceHolder ID="MainContent" runat="server" />
+
+    <div class="navbar navbar-fixed-bottom">
+        <div class="navbar-inner">
+            <div class="container-fluid">        
+                <footer class="pull-right">            
+                    <a href="http://www.builtsteady.com">builtsteady inc. &copy;2012</a>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <asp:ContentPlaceHolder ID="ScriptBlock" runat="server" />
+</body>
+</html>

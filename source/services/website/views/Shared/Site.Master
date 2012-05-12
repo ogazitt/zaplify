@@ -35,7 +35,7 @@
                 <img class="logo" alt="Zaplify" src="<%: Url.Content("~/content/images/zaplogo.png") %>" />
                 <asp:ContentPlaceHolder id="HeaderContent" runat="server" />
             </div>
-            <% Html.RenderPartial("SignInControl"); %>  
+            <% Html.RenderPartial("OldSignInControl"); %>  
         </div>
 
         <div class="main-content-region">
