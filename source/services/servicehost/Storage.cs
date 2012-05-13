@@ -462,45 +462,14 @@
             return operation;
         }
 
+        public Item GetOrCreateGroceryCategoriesList(User user)
+        {
+            return GetOrCreateUserFolderList(user, SystemEntities.GroceryCategories, SystemItemTypes.NameValue);
+        }
+
         public Item GetOrCreatePossibleSubjectsList(User user)
         {
-            Folder userFolder = GetOrCreateUserFolder(user);
-            if (userFolder == null)
-                return null;
-
-            // retrieve the PossibleSubjects list inside the $User folder
-            try
-            {
-                // get the PossibleSubjects list
-                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects))
-                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects);
-                else
-                {
-                    // create PossibleSubjects list
-                    DateTime now = DateTime.UtcNow;
-                    var possibleSubjectList = new Item()
-                    {
-                        ID = Guid.NewGuid(),
-                        Name = SystemEntities.PossibleSubjects,
-                        FolderID = userFolder.ID,
-                        UserID = user.ID,
-                        IsList = true,
-                        ItemTypeID = SystemItemTypes.NameValue,
-                        ParentID = null,
-                        Created = now,
-                        LastModified = now
-                    };
-                    Items.Add(possibleSubjectList);
-                    SaveChanges();
-                    TraceLog.TraceInfo("GetOrCreatePossibleSubjectsList: created PossibleSubjects list for user " + user.Name);
-                    return possibleSubjectList;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("GetOrCreatePossibleSubjectsList: could not find or create PossibleSubjects list", ex);
-                return null;
-            }
+            return GetOrCreateUserFolderList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
         }
 
         public Item GetOrCreateShadowItem(User user, ServerEntity entity)
@@ -567,43 +536,7 @@
 
         public Item GetOrCreateShadowItemList(User user)
         {
-            Folder userFolder = GetOrCreateUserFolder(user);
-            if (userFolder == null)
-                return null;
-
-            // retrieve the shadow item list inside the $User folder
-            try
-            {
-                // get the shadow item list
-                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.ShadowItems))
-                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.ShadowItems);
-                else
-                {
-                    // create shadow item list
-                    DateTime now = DateTime.UtcNow;
-                    var shadowItemList = new Item()
-                    {
-                        ID = Guid.NewGuid(),
-                        Name = SystemEntities.ShadowItems,
-                        FolderID = userFolder.ID,
-                        UserID = user.ID,
-                        IsList = true,
-                        ItemTypeID = SystemItemTypes.Reference,
-                        ParentID = null,
-                        Created = now,
-                        LastModified = now
-                    };
-                    Items.Add(shadowItemList);
-                    SaveChanges();
-                    TraceLog.TraceInfo("GetOrCreateShadowItemList: created shadow item list for user " + user.Name);
-                    return shadowItemList;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("GetOrCreateShadowItemList: could not find or create shadow item list", ex);
-                return null;
-            }
+            return GetOrCreateUserFolderList(user, SystemEntities.ShadowItems, SystemItemTypes.Reference);
         }
 
         public Folder GetOrCreateUserFolder(User user)
@@ -639,6 +572,46 @@
                 return null;
             }
         }
-    }
 
+        public Item GetOrCreateUserFolderList(User user, string listName, Guid itemTypeID)
+        {
+            Folder userFolder = GetOrCreateUserFolder(user);
+            if (userFolder == null)
+                return null;
+
+            // retrieve the list inside the $User folder
+            try
+            {
+                // get the list
+                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == listName))
+                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == listName);
+                else
+                {
+                    // create list
+                    DateTime now = DateTime.UtcNow;
+                    var list = new Item()
+                    {
+                        ID = Guid.NewGuid(),
+                        Name = listName,
+                        FolderID = userFolder.ID,
+                        UserID = user.ID,
+                        IsList = true,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        ParentID = null,
+                        Created = now,
+                        LastModified = now
+                    };
+                    Items.Add(list);
+                    SaveChanges();
+                    TraceLog.TraceInfo(String.Format("GetOrCreateUserFolderList: created {0} list for user {1}", listName, user.Name));
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("GetOrCreateUserFolderList: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                return null;
+            }
+        }
+    }
 }

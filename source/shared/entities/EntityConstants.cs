@@ -216,6 +216,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string User = "$User";
 
         // system items
+        public const string GroceryCategories = "GroceryCategories";
         public const string ListSortOrders = "ListSortOrders";
         public const string PossibleSubjects = "PossibleSubjects";
         public const string ShadowItems = "ShadowItems";

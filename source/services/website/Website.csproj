@@ -38,6 +38,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Grocery">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Grocery.dll</HintPath>
+    </Reference>
     <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Supermarket">
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Supermarket.dll</HintPath>
     </Reference>
@@ -151,6 +154,7 @@
   <ItemGroup>
     <Compile Include="controllers\AccountController.cs" />
     <Compile Include="controllers\BaseController.cs" />
+    <Compile Include="controllers\GroceryController.cs" />
     <Compile Include="controllers\UserInfoController.cs" />
     <Compile Include="controllers\DashboardController.cs" />
     <Compile Include="Global.asax.cs">
@@ -160,6 +164,7 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
+    <Compile Include="models\GroceryModels.cs" />
     <Compile Include="models\DataModels.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
@@ -248,6 +253,9 @@
     <Content Include="content\themes\redmond\images\ui-icons_f9bd01_256x240.png" />
     <Content Include="content\themes\redmond\jquery-ui-1.8.18.css" />
     <Content Include="Global.asax" />
+    <Content Include="models\groceries.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="scripts\dashboard\itemviewer.js" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />

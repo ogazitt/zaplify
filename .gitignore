@@ -19,3 +19,4 @@ XapCacheFile.xml
 libSpeechKitLibrary*.a
 ~$*.*
 *~
+Sandbox/

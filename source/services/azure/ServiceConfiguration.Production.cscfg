@@ -27,9 +27,11 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
+      <Setting name="GroceryConnection" value="SQLGrocery" />
       <!-- SQL Azure databases for Production deployment -->
       <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLGrocery" value="data source=raobsl4g40.database.windows.net;Initial Catalog=GroceryDatabase;User Id=builtsteady;Password=zrc022.." />
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <!-- Facebook Application 'Zaplify' -->
       <Setting name="FBAppID" value="411772288837103"/>

@@ -378,7 +378,7 @@ ItemEditor.prototype.render = function (item, container) {
     } else {
         this.mode = ItemEditorMode.Item;
         this.listItem = null;
-        this.item = $.extend(new Item(), item);
+        this.item = $.extend(true, new Item(), item);
     }
 
     if (this.mode == ItemEditorMode.New) {

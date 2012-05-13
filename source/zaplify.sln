@@ -29,10 +29,9 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "UserDatabase", "services\da
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SuggestionDatabase", "services\database\SuggestionDatabase.sqlproj", "{AB279288-8B3E-469C-A237-8660D0D34594}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "GroceryDatabase", "services\database\GroceryDatabase\GroceryDatabase.sqlproj", "{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}"
+EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = TaskStore.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -100,6 +99,12 @@ Global
 		{AB279288-8B3E-469C-A237-8660D0D34594}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB279288-8B3E-469C-A237-8660D0D34594}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB279288-8B3E-469C-A237-8660D0D34594}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

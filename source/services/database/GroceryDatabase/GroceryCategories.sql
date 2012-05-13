@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[GroceryCategories]
+(
+	[ID] INT IDENTITY(0,1) NOT NULL PRIMARY KEY, 
+    [Name] NVARCHAR(128) NOT NULL 
+)

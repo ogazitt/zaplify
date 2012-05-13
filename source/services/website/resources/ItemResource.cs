@@ -15,6 +15,7 @@
     using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
+    using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
 
     [ServiceContract]
     [LogMessages]
@@ -215,7 +216,7 @@
                     clientItem.LastModified = now;
 
                 // do itemtype-specific processing
-                ProcessItem(clientItem);
+                ProcessItemInsert(req, clientItem);
 
                 try
                 {   // add the new item to the database
@@ -347,6 +348,9 @@
                         changed = true;
                     }
 
+                    // do itemtype-specific processing
+                    ProcessItemUpdate(req, originalItem, newItem);
+
                     // call update and make sure the changed flag reflects the outcome correctly
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
                     if (changed == true)
@@ -421,16 +425,72 @@
             return commit;
         }
 
-        private void ProcessItem(Item item)
+        private void ProcessItemInsert(HttpRequestMessage req, Item item)
         {
             // do itemtype-specific processing on the item
             if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
-                ProcessShoppingItem(item);
+                ProcessShoppingItemInsert(req, item);
         }
 
-        private void ProcessShoppingItem(Item item)
+        private void ProcessShoppingItemInsert(HttpRequestMessage req, Item item)
         {
-            // use the Supermarket API to get grocery category
+            // check if the user already set a category in the incoming item
+            // in this case, simply overwrite the current category that's saved in $User/GroceryCategories
+            FieldValue groceryCategoryFV = null;
+            var categoryFV = item.GetFieldValue(FieldNames.Category);
+            if (categoryFV != null)
+            {
+                groceryCategoryFV = GetGroceryCategoryItemFieldValue(item, true);
+                if (groceryCategoryFV == null)
+                    return;
+
+                groceryCategoryFV.Value = categoryFV.Value;
+                StorageContext.SaveChanges();
+                return;
+            }
+
+            // create a new category fieldvalue in the item to process
+            categoryFV = item.GetFieldValue(FieldNames.Category, true);
+            
+            // check if the grocery category has already been saved in $User/GroceryCategories
+            // in this case, store the category in the incoming item
+            groceryCategoryFV = GetGroceryCategoryItemFieldValue(item);
+            if (groceryCategoryFV != null && groceryCategoryFV.Value != null)
+            {
+                categoryFV.Value = groceryCategoryFV.Value;
+                StorageContext.SaveChanges();
+                return;
+            }
+
+            // try to find the category from the local Grocery Controller
+            var endpointBaseUri = string.Format("{0}://{1}/Grocery/", req.RequestUri.Scheme, req.RequestUri.Authority);
+            GroceryAPI gApi = new GroceryAPI() { EndpointBaseUri = endpointBaseUri };
+            try
+            {
+                var results = gApi.Query(GroceryQueries.GroceryCategory, item.Name).ToList();
+
+                // this should only return one result
+                if (results.Count > 0)
+                {
+                    // get the category
+                    foreach (var entry in results)
+                    {
+                        categoryFV.Value = entry[GroceryQueryResult.Category];
+                        // only grab the first category
+                        break;
+                    }
+                    this.StorageContext.SaveChanges();
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("ProcessShoppingItemInsert: Grocery API or database commit failed", ex);
+            }
+
+            // last resort...
+            // use the Supermarket API to get the grocery category
             SupermarketAPI smApi = new SupermarketAPI();
 
 #if FALSE   // use the synchronous codepath for now
@@ -465,23 +525,96 @@
             try
             {
                 var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
-                FieldValue categoryFV = item.GetFieldValue(FieldNames.Category, true);
 
                 // get the category
                 foreach (var entry in results)
                 {
                     categoryFV.Value = entry[SupermarketQueryResult.Category];
+
+                    this.StorageContext.SaveChanges();
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    
                     // only grab the first category
                     break;
                 }
-                this.StorageContext.SaveChanges();
-                TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
             }
             catch (Exception ex)
             {
                 TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
             }
 #endif
+        }
+
+        private void ProcessItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
+        {
+            // do itemtype-specific processing on the item
+            if (newItem.ItemTypeID == SystemItemTypes.ShoppingItem)
+                ProcessShoppingItemUpdate(req, oldItem, newItem);
+        }
+
+        private void ProcessShoppingItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
+        {
+            // if the user stored a grocery category, overwrite the current category that's saved in $User/GroceryCategories
+            var categoryFV = newItem.GetFieldValue(FieldNames.Category);
+            if (categoryFV != null && categoryFV.Value != null)
+            {
+                // the old category must not exist or the value must have changed
+                var oldCategoryFV = oldItem.GetFieldValue(FieldNames.Category);
+                if (oldCategoryFV == null || oldCategoryFV.Value != categoryFV.Value)
+                {
+                    // get the grocery category fieldvalue for the corresponding Item in $User/GroceryCategories
+                    var groceryCategoryFV = GetGroceryCategoryItemFieldValue(newItem, true);
+                    if (groceryCategoryFV == null)
+                        return;
+
+                    groceryCategoryFV.Value = categoryFV.Value;
+                    StorageContext.SaveChanges();
+                }
+            }
+        }
+
+        private FieldValue GetGroceryCategoryItemFieldValue(Item item, bool create = false)
+        {
+            // get the grocery categories list under the $User folder
+            var groceryCategories = StorageContext.GetOrCreateGroceryCategoriesList(CurrentUser);
+            if (groceryCategories == null)
+                return null;
+
+            Item groceryCategory = null;
+            FieldValue groceryCategoryFV = null;
+            var itemName = item.Name.ToLower();
+            if (StorageContext.Items.Any(i => i.Name == itemName && i.ParentID == groceryCategories.ID))
+            {
+                groceryCategory = StorageContext.Items.Include("FieldValues").Single(i => i.Name == item.Name && i.ParentID == groceryCategories.ID);
+                groceryCategoryFV = groceryCategory.GetFieldValue(FieldNames.Value, true);
+            }
+            else if (create)
+            {
+                // create grocery category item 
+                DateTime now = DateTime.UtcNow;
+                var groceryCategoryItemID = Guid.NewGuid();
+                groceryCategoryFV = new FieldValue()
+                {
+                    ItemID = groceryCategoryItemID,
+                    FieldName = FieldNames.Value,
+                    Value = null,
+                };
+                groceryCategory = new Item()
+                {
+                    ID = groceryCategoryItemID,
+                    Name = itemName,
+                    FolderID = groceryCategories.FolderID,
+                    UserID = CurrentUser.ID,
+                    ItemTypeID = SystemItemTypes.NameValue,
+                    ParentID = groceryCategories.ID,
+                    Created = now,
+                    LastModified = now,
+                    FieldValues = new List<FieldValue>() { groceryCategoryFV }
+                };
+                StorageContext.Items.Add(groceryCategory);
+            }
+
+            return groceryCategoryFV;
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)

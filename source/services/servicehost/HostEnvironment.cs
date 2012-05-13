@@ -13,6 +13,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         const string UserDataConnectionConfigKey = "UsersConnection";
         const string UserAccountConnectionConfigKey = "UsersConnection";
         const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
+        const string GroceryConnectionConfigKey = "GroceryConnection";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
 
         static bool? isAzure;               // true for either Azure or DevFabric
@@ -20,6 +21,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         static string userDataConnection;
         static string userAccountConnection;
         static string suggestionsConnection;
+        static string groceryConnection;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -58,7 +60,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         public static string UserDataConnection
         {
-            get 
+            get
             {
                 if (userDataConnection == null)
                 {
@@ -89,6 +91,18 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     suggestionsConnection = ConfigurationSettings.GetConnection(SuggestionsConnectionConfigKey);
                 }
                 return suggestionsConnection;
+            }
+        }
+
+        public static string GroceryConnection
+        {
+            get
+            {
+                if (groceryConnection == null)
+                {
+                    groceryConnection = ConfigurationSettings.GetConnection(GroceryConnectionConfigKey);
+                }
+                return groceryConnection;
             }
         }
 
