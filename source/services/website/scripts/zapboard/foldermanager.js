@@ -429,7 +429,7 @@ ItemEditor.prototype.renderText = function (container, field) {
     $field.data('control', this);
     $field.val(this.item.GetFieldValue(field));
     $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
-    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
     return $field;
 }
 
@@ -503,7 +503,7 @@ ItemEditor.prototype.renderAddress = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
     if (this.mode == ItemEditorMode.New) {
         $field.change(function (event) { Control.get(this).updateField($(this)); });
     }
@@ -540,7 +540,7 @@ ItemEditor.prototype.renderLocationList = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
     var text = '';
     var value = this.item.GetFieldValue(field);
     if (value != null && value.IsList) {
@@ -602,7 +602,7 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     $field = $('<input type="text" />').appendTo(container);
     $field.addClass(field.Class);
     $field.data('control', this);
-    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
     if (this.mode == ItemEditorMode.New) {
         $field.change(function (event) { Control.get(this).updateField($(this)); });
     }
@@ -845,6 +845,7 @@ ItemEditor.prototype.handleEnterPress = function (event) {
                 this.parentControl.updateItem();
             }
         }
+        return false;       // do not propogate event
     }
 }
 
@@ -858,7 +859,7 @@ ItemEditor.prototype.renderListInfo = function (container) {
     $field.data('control', this);
     $field.val(this.listItem.Name);
     $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
-    $field.keypress(function (event) { Control.get(this).handleEnterPress(event); });
+    $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
 
     // ItemTypeID property
     label = 'Kind of ' + listType;

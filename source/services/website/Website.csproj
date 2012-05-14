@@ -212,9 +212,7 @@
     <Content Include="content\dashboard\images\edit-icon.png" />
     <Content Include="content\dashboard\images\facebook.png" />
     <Content Include="content\dashboard\images\info-icon.png" />
-    <Content Include="content\font\fontawesome-webfont.svg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="content\font\fontawesome-webfont.svg" />
     <Content Include="content\generated\bootstrap.css" />
     <Content Include="content\generated\master.min.css" />
     <Content Include="content\generated\responsive.css" />
@@ -302,6 +300,9 @@
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="scripts\bootstrap.js" />
     <Content Include="scripts\bootstrap.min.js" />
+    <Content Include="scripts\master.generated.min.js">
+      <DependentUpon>master.js.chirp.config</DependentUpon>
+    </Content>
     <Content Include="scripts\zapboard\datamodel.js" />
     <Content Include="scripts\zapboard\dashboard.js" />
     <Content Include="scripts\zapboard\folderlist.js" />
@@ -325,14 +326,11 @@
     <Content Include="scripts\jquery.validate.js" />
     <Content Include="scripts\jquery.validate.min.js" />
     <Content Include="scripts\less.min.js" />
-    <Content Include="scripts\master.min.js">
-      <DependentUpon>master.js.chirp.config</DependentUpon>
-    </Content>
     <Content Include="scripts\modernizr-2.0.6-development-only.js" />
     <Content Include="scripts\dashboard\controls.js" />
     <Content Include="scripts\shared\service.js" />
     <Content Include="scripts\shared\datamodel.js" />
-    <Content Include="scripts\zapboard\zapboard.min.js">
+    <Content Include="scripts\zapboard\zapboard.generated.min.js">
       <DependentUpon>zapboard.js.chirp.config</DependentUpon>
     </Content>
     <Content Include="startup\7z.dll">
@@ -408,18 +406,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="scripts\master.js.chirp.config" />
-    <None Include="content\font\fontawesome-webfont.eot">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\font\fontawesome-webfont.svgz">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\font\fontawesome-webfont.ttf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="content\font\fontawesome-webfont.woff">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="content\font\fontawesome-webfont.eot" />
+    <Content Include="content\font\fontawesome-webfont.svgz" />
+    <Content Include="content\font\fontawesome-webfont.ttf" />
+    <Content Include="content\font\fontawesome-webfont.woff" />
     <None Include="content\less\accordion.less" />
     <None Include="content\less\alerts.less" />
     <None Include="content\less\bootstrap.less" />

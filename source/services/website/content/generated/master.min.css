@@ -830,7 +830,7 @@ i { font-size: 16px; }
 
 /* customize navbar styles */
 .navbar .brand { margin: 0 0 0 20px; }
-.navbar .active img { margin: 0 12px 0 12px; height: 24px; }
+.navbar .active img { margin: 0 12px 0 12px; }
 .navbar-fixed-top .navbar-inner { padding: 0 10px 0 10px; }
 .navbar-fixed-bottom .pull-right { margin: 12px 10px 0 0; }
 

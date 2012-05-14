@@ -12,7 +12,7 @@
         var cssTheme = BuiltSteady.Zaplify.Website.Models.UserDataModel.CurrentTheme + "/jquery-ui-1.8.18.css";
     %>
     <link href="<%: Url.Content("~/content/generated/master.min.css") %>" rel="stylesheet" type="text/css" />
-    <script src="<%: Url.Content("~/scripts/master.min.js") %>" type="text/javascript"></script>
+    <script src="<%: Url.Content("~/scripts/master.generated.min.js") %>" type="text/javascript"></script>
     <script type="text/javascript">
         // document ready handler
         $(function () {

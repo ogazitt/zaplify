@@ -29,7 +29,7 @@
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionlist.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionmanager.js") %>"></script>
     <!--
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.min.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.generated.min.js") %>"></script>
     -->
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     
