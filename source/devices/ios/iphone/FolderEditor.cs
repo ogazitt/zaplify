@@ -213,6 +213,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     SaveButton_Click(null, null);
                 });
                 dvc.NavigationItem.LeftBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Cancel, delegate { NavigateBack(); });
+                dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);                
                 controller.PushViewController(dvc, true);
             }
             else

@@ -77,7 +77,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Birthday = "Birthday";          // DateTime
         public const string Address = "Address";            // Address
         public const string WebLink = "WebLink";            // Url
-        public const string WebLinks = "WebLinks";          // JSON
+        public const string WebLinks = "WebLinks";          // Json
         public const string Email = "Email";                // Email
         public const string Phone = "Phone";                // Phone
         public const string HomePhone = "HomePhone";        // Phone
@@ -91,6 +91,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Locations = "Locations";        // EntityID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
         public const string Category = "Category";          // String (grocery category)
+        public const string Picture = "Picture";            // ImageUrl
+        public const string Gender = "Gender";              // String
 
         // Hidden FieldName extensions for Contact
         public const string FacebookID = "FacebookID";      // String
@@ -98,6 +100,9 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         // Hidden FieldName extensions for Location
         public const string LatLong = "LatLong";            // String (comma-delimited)
+
+        // FieldNames for EntityRef extensions
+        public const string SortBy = "SortBy";              // String (ClientSettings: field name to sort a folder/list by)
     }
 
     public class SuggestionTypes
@@ -131,8 +136,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Url = "Url";
         public const string Address = "Address";
         public const string Currency = "Currency";
-        public const string GUID = "GUID";
-        public const string JSON = "JSON";
+        public const string Guid = "Guid";
+        public const string Json = "Json";
         public const string TagIDs = "TagIDs";
 
         public static string DefaultValue(string ft)
@@ -166,6 +171,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string LinkArray = "LinkArray";
         public const string Folders = "Folders";
         public const string Lists = "Lists";
+        public const string ImageUrl = "ImageUrl";
     }
 
     public class EntityTypes
@@ -210,13 +216,22 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string User = "$User";
 
         // system items
+        public const string GroceryCategories = "GroceryCategories";
+        public const string ListSortOrders = "ListSortOrders";
         public const string PossibleSubjects = "PossibleSubjects";
+        public const string ShadowItems = "ShadowItems";
+
+#if IOS
+        public const string PhoneSettings = "iPhoneSettings";
+#else
+        public const string PhoneSettings = "WinPhoneSettings";
+#endif
     }
 
     public class UserConstants
     {
-        public static string SchemaVersion { get { return "1.0.2012.0426"; } }
-        public static string ConstantsVersion { get { return "2012-05-01"; } }
+        public static string SchemaVersion { get { return "1.0.2012.0503"; } }
+        public static string ConstantsVersion { get { return "2012-05-07"; } }
 
         public static List<ActionType> DefaultActionTypes()
         {
@@ -281,50 +296,52 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.System, Name = "System", UserID = SystemUsers.System, Fields = new List<Field>() });
 
             // create Task
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Task, Name = "Task", Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Task, Name = "Task", UserID = SystemUsers.User, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000011"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000012"), FieldType = FieldTypes.Integer, Name = FieldNames.Priority, DisplayName = "Priority", DisplayType = DisplayTypes.Priority, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000013"), FieldType = FieldTypes.DateTime, Name = FieldNames.DueDate, DisplayName = "Due", DisplayType = DisplayTypes.DateTimePicker, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 3 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000014"), FieldType = FieldTypes.DateTime, Name = FieldNames.ReminderDate, DisplayName = "Reminder", DisplayType = DisplayTypes.DateTimePicker, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 4 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000015"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Details", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000016"), FieldType = FieldTypes.GUID, Name = FieldNames.Contacts, DisplayName = "Contacts", DisplayType = DisplayTypes.ContactList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 6 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000017"), FieldType = FieldTypes.GUID, Name = FieldNames.Locations, DisplayName = "Locations", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 7 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000018"), FieldType = FieldTypes.JSON, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000016"), FieldType = FieldTypes.Guid, Name = FieldNames.Contacts, DisplayName = "Contacts", DisplayType = DisplayTypes.ContactList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000017"), FieldType = FieldTypes.Guid, Name = FieldNames.Locations, DisplayName = "Locations", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000018"), FieldType = FieldTypes.Json, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 8 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000019"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", DisplayType = DisplayTypes.TagList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 9 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000001A"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 10 });
 
             // create Location
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Location, Name = "Location", Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Location, Name = "Location", UserID = SystemUsers.User, Icon = "location.png", Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000021"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000022"), FieldType = FieldTypes.Address, Name = FieldNames.Address, DisplayName = "Address", DisplayType = DisplayTypes.Address, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000023"), FieldType = FieldTypes.Phone, Name = FieldNames.Phone, DisplayName = "Phone", DisplayType = DisplayTypes.Phone, ItemTypeID = SystemItemTypes.Location, IsPrimary = true, SortOrder = 3 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000024"), FieldType = FieldTypes.Email, Name = FieldNames.Email, DisplayName = "Email", DisplayType = DisplayTypes.Email, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 4 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000025"), FieldType = FieldTypes.JSON, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000025"), FieldType = FieldTypes.Json, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 5 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000026"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Description", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 6 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000027"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", DisplayType = DisplayTypes.TagList, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 7 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000028"), FieldType = FieldTypes.String, Name = FieldNames.LatLong, DisplayName = "LatLong", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Location, IsPrimary = false, SortOrder = 8 });
 
             // create Contact
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Contact, Name = "Contact", Icon = "contact.png", Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Contact, Name = "Contact", UserID = SystemUsers.User, Icon = "contact.png", Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000031"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Contact, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000032"), FieldType = FieldTypes.Email, Name = FieldNames.Email, DisplayName = "Email", DisplayType = DisplayTypes.Email, ItemTypeID = SystemItemTypes.Contact, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000033"), FieldType = FieldTypes.Phone, Name = FieldNames.Phone, DisplayName = "Mobile Phone", DisplayType = DisplayTypes.Phone, ItemTypeID = SystemItemTypes.Contact, IsPrimary = true, SortOrder = 3 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000034"), FieldType = FieldTypes.Phone, Name = FieldNames.HomePhone, DisplayName = "Home Phone", DisplayType = DisplayTypes.Phone, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 4 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000035"), FieldType = FieldTypes.Phone, Name = FieldNames.WorkPhone, DisplayName = "Work Phone", DisplayType = DisplayTypes.Phone, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000036"), FieldType = FieldTypes.GUID, Name = FieldNames.Locations, DisplayName = "Address", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000036"), FieldType = FieldTypes.Guid, Name = FieldNames.Locations, DisplayName = "Address", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 6 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000037"), FieldType = FieldTypes.DateTime, Name = FieldNames.Birthday, DisplayName = "Birthday", DisplayType = DisplayTypes.DatePicker, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 7 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000038"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", DisplayType = DisplayTypes.TagList, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 8 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000039"), FieldType = FieldTypes.String, Name = FieldNames.FacebookID, DisplayName = "Facebook ID", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 9 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000003A"), FieldType = FieldTypes.String, Name = FieldNames.Sources, DisplayName = "Sources", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 10 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000003B"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 11 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000003C"), FieldType = FieldTypes.String, Name = FieldNames.Gender, DisplayName = "Gender", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Contact, IsPrimary = false, SortOrder = 12 });
 
             // create ListItem
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ListItem, Name = "List Item", Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ListItem, Name = "List Item", UserID = SystemUsers.User, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000041"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000042"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000043"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ListItem, IsPrimary = false, SortOrder = 3 });
 
             // create ShoppingItem
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ShoppingItem, Name = "Shopping Item", Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ShoppingItem, Name = "Shopping Item", UserID = SystemUsers.User, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000051"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000052"), FieldType = FieldTypes.String, Name = FieldNames.Category, DisplayName = "Category", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000053"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 3 });
@@ -335,7 +352,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             // create Reference
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Reference, Name = "Reference", UserID = SystemUsers.System, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000061"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 1 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000062"), FieldType = FieldTypes.GUID, Name = FieldNames.EntityRef, DisplayName = "EntityRef", DisplayType = DisplayTypes.Reference, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000062"), FieldType = FieldTypes.Guid, Name = FieldNames.EntityRef, DisplayName = "EntityRef", DisplayType = DisplayTypes.Reference, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000063"), FieldType = FieldTypes.String, Name = FieldNames.EntityType, DisplayName = "EntityType", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 3 });
 
             // create NameValue
@@ -386,8 +403,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ItemTypeID = SystemItemTypes.Task,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
-#endif
-#if !CLIENT
+#else
                 Items = new List<Item>(),
                 UserID = currentUser.ID,
                 FolderUsers = new List<FolderUser>() { folderUser }
@@ -402,12 +418,14 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 SortOrder = 1000,
                 Name = "Tasks",
                 FolderID = folder.ID,
-                UserID = currentUser.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.Task,
                 ParentID = null,
                 Created = now,
-                LastModified = now
+                LastModified = now,
+#if !CLIENT
+                UserID = currentUser.ID,
+#endif
             };
             folder.Items.Add(item);
             // make this defaultList for Tasks
@@ -420,26 +438,24 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 SortOrder = 2000,
                 Name = "Learn about Zaplify!",
                 FolderID = folder.ID,
-                UserID = currentUser.ID,
                 IsList = false,
                 ItemTypeID = SystemItemTypes.Task,
                 ParentID = item.ID,
+                Created = now,
+                LastModified = now,
 #if CLIENT
                 FieldValues = new ObservableCollection<FieldValue>(),
-#endif
-#if !CLIENT
+#else
                 FieldValues = new List<FieldValue>(),
+                UserID = currentUser.ID,
 #endif
-                Created = now,
-                LastModified = now
             };
             folder.Items.Add(item);
 
 #if CLIENT
             item.GetFieldValue(FieldNames.DueDate, true).Value = DateTime.Today.Date.ToString("MM/dd/yyyy");
             item.GetFieldValue(FieldNames.Description, true).Value = "Get connected with Zaplify.";
-#endif
-#if !CLIENT
+#else
             item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.DueDate, DateTime.Today.Date.ToString("MM/dd/yyyy")));
             item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.Description, "Get connected with Zaplify."));
 #endif
@@ -457,8 +473,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ItemTypeID = SystemItemTypes.ListItem,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
-#endif
-#if !CLIENT
+#else
                 Items = new List<Item>(),
                 UserID = currentUser.ID,
                 FolderUsers = new List<FolderUser>() { folderUser }
@@ -475,12 +490,14 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 SortOrder = 3000,
                 Name = "Groceries",
                 FolderID = folder.ID,
-                UserID = currentUser.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.ShoppingItem,
                 ParentID = null,
                 Created = now,
-                LastModified = now
+                LastModified = now,
+#if !CLIENT
+                UserID = currentUser.ID,
+#endif
             };
             folder.Items.Add(item);
             // make this defaultList for ShoppingItems
@@ -499,8 +516,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ItemTypeID = SystemItemTypes.Contact,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
-#endif
-#if !CLIENT
+#else
                 Items = new List<Item>(),
                 UserID = currentUser.ID,
                 FolderUsers = new List<FolderUser>() { folderUser }
@@ -523,8 +539,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ItemTypeID = SystemItemTypes.Location,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
-#endif
-#if !CLIENT
+#else
                 Items = new List<Item>(),
                 UserID = currentUser.ID,
                 FolderUsers = new List<FolderUser>() { folderUser }
@@ -547,8 +562,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ItemTypeID = SystemItemTypes.NameValue,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
-#endif
-#if !CLIENT
+#else
                 Items = new List<Item>(), 
                 UserID = currentUser.ID, 
                 FolderUsers = new List<FolderUser>() { folderUser }
@@ -564,12 +578,14 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 SortOrder = 0,
                 Name = "DefaultLists",
                 FolderID = folder.ID,
-                UserID = currentUser.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.Reference,
                 ParentID = null,
                 Created = now,
-                LastModified = now
+                LastModified = now,
+#if !CLIENT
+                UserID = currentUser.ID,
+#endif
             };
             folder.Items.Add(item);
 
@@ -583,19 +599,17 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                     SortOrder = sortOrder++,
                     Name = keyValue.Key.ToString(),
                     FolderID = folder.ID,
-                    UserID = currentUser.ID,
                     IsList = false,
                     ItemTypeID = SystemItemTypes.Reference,
                     ParentID = defaultListItemID,
+                    Created = now,
+                    LastModified = now,
 #if CLIENT
                     FieldValues = new ObservableCollection<FieldValue>(),
-#endif
-#if !CLIENT
+#else
                     FieldValues = new List<FieldValue>(),
+                    UserID = currentUser.ID,
 #endif
-
-                    Created = now,
-                    LastModified = now
                 };
 
                 if (keyValue.Value is Folder) 
@@ -604,9 +618,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 #if CLIENT
                     item.GetFieldValue(FieldNames.EntityRef, true).Value = folderToRef.ID.ToString();
                     item.GetFieldValue(FieldNames.EntityType, true).Value = EntityTypes.Folder;
-#endif
-#if !CLIENT
-                    item.FieldValues.Add( Item.CreateFieldValue(item.ID, FieldNames.EntityRef, folderToRef.ID.ToString()));
+#else
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityRef, folderToRef.ID.ToString()));
                     item.FieldValues.Add( Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Folder));
 #endif                
                 }
@@ -614,14 +627,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 { 
                     Item itemToRef = (Item)keyValue.Value; 
 #if CLIENT
-                    FieldValue fv = item.GetFieldValue(FieldNames.EntityRef, true);
-                    fv.Value = itemToRef.ID.ToString();
-                    fv = item.GetFieldValue(FieldNames.EntityType, true);
-                    fv.Value = EntityTypes.Item;
-#endif
-#if !CLIENT
-                    item.FieldValues.Add( Item.CreateFieldValue(item.ID, FieldNames.EntityRef, itemToRef.ID.ToString()));
-                    item.FieldValues.Add( Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Item));
+                    item.GetFieldValue(FieldNames.EntityRef, true).Value = itemToRef.ID.ToString();
+                    item.GetFieldValue(FieldNames.EntityType, true).Value = EntityTypes.Item;
+#else
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityRef, itemToRef.ID.ToString()));
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Item));
 #endif                  
                 }
 

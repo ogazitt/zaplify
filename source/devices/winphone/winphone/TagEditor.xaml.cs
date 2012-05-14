@@ -53,6 +53,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("TagEditor: Loaded");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             string tagIDString = "";
 
@@ -62,7 +63,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 {
                     // new tag
                     tagCopy = new Tag();
-                    DataContext = tagCopy;
+                    TitlePanel.DataContext = tagCopy;
                 }
                 else
                 {
@@ -71,7 +72,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                     // make a deep copy of the tag for local binding
                     tagCopy = new Tag(tag);
-                    DataContext = tagCopy;
+                    TitlePanel.DataContext = tagCopy;
 
                     // add the delete button to the ApplicationBar
                     var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };

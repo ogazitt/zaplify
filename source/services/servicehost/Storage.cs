@@ -462,6 +462,83 @@
             return operation;
         }
 
+        public Item GetOrCreateGroceryCategoriesList(User user)
+        {
+            return GetOrCreateUserFolderList(user, SystemEntities.GroceryCategories, SystemItemTypes.NameValue);
+        }
+
+        public Item GetOrCreatePossibleSubjectsList(User user)
+        {
+            return GetOrCreateUserFolderList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
+        }
+
+        public Item GetOrCreateShadowItem(User user, ServerEntity entity)
+        {
+            Item shadowItemList = GetOrCreateShadowItemList(user);
+            if (shadowItemList == null)
+                return null;
+
+            var entityID = entity.ID.ToString();
+
+            // retrieve the shadow item inside the $User folder
+            try
+            {
+                // get the shadow item
+                if (Items.Include("FieldValues").Any(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                    i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID)))
+                {
+                    return Items.Include("FieldValues").Single(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                        i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID));
+                }
+                else
+                {
+                    // create shadow item 
+                    DateTime now = DateTime.UtcNow;
+                    var shadowItemID = Guid.NewGuid();
+                    var shadowItem = new Item()
+                    {
+                        ID = shadowItemID,
+                        Name = entity.Name,
+                        FolderID = shadowItemList.FolderID,
+                        UserID = user.ID,
+                        ItemTypeID = SystemItemTypes.Reference,
+                        ParentID = shadowItemList.ID,
+                        Created = now,
+                        LastModified = now,
+                        FieldValues = new List<FieldValue>()
+                        {
+                            new FieldValue()
+                            {
+                                ItemID = shadowItemID,
+                                FieldName = FieldNames.EntityRef,
+                                Value = entityID,
+                            },
+                            new FieldValue()
+                            {
+                                ItemID = shadowItemID,
+                                FieldName = FieldNames.EntityType,
+                                Value = entity.GetType().Name,
+                            },
+                        }
+                    };
+                    Items.Add(shadowItem);
+                    SaveChanges();
+                    TraceLog.TraceInfo(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name));
+                    return shadowItem;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name), ex);
+                return null;
+            }
+        }
+
+        public Item GetOrCreateShadowItemList(User user)
+        {
+            return GetOrCreateUserFolderList(user, SystemEntities.ShadowItems, SystemItemTypes.Reference);
+        }
+
         public Folder GetOrCreateUserFolder(User user)
         {
             try
@@ -495,6 +572,46 @@
                 return null;
             }
         }
-    }
 
+        public Item GetOrCreateUserFolderList(User user, string listName, Guid itemTypeID)
+        {
+            Folder userFolder = GetOrCreateUserFolder(user);
+            if (userFolder == null)
+                return null;
+
+            // retrieve the list inside the $User folder
+            try
+            {
+                // get the list
+                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == listName))
+                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == listName);
+                else
+                {
+                    // create list
+                    DateTime now = DateTime.UtcNow;
+                    var list = new Item()
+                    {
+                        ID = Guid.NewGuid(),
+                        Name = listName,
+                        FolderID = userFolder.ID,
+                        UserID = user.ID,
+                        IsList = true,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        ParentID = null,
+                        Created = now,
+                        LastModified = now
+                    };
+                    Items.Add(list);
+                    SaveChanges();
+                    TraceLog.TraceInfo(String.Format("GetOrCreateUserFolderList: created {0} list for user {1}", listName, user.Name));
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("GetOrCreateUserFolderList: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                return null;
+            }
+        }
+    }
 }

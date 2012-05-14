@@ -52,6 +52,37 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
+        // note: windows phone uses BackgroundColor, while iPhone uses Theme
+        public string BackgroundColor
+        {
+            get
+            {
+                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
+                if (phoneSetting.Values.Any(t => t.Name == theme))
+                    return (string)phoneSetting.Values.Single(t => t.Name == theme).Value;
+                else
+#if IOS
+                    return null;
+#else
+                    return "Transparent";
+#endif
+            }
+        }
+
+        // note: theme is not hooked up to windows phone at the moment.  use BackgroundColor instead
+        public PhoneTheme Theme
+        {
+            get
+            {
+                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
+                if (phoneSetting.Values.Any(t => t.Name == theme))
+                    return (PhoneTheme)phoneSetting.Values.Single(t => t.Name == theme).Value;
+                else
+                    return null;
+            }
+        }
 
         // Databinding property for displaying whether we are connected or not
         public string ConnectedText 
@@ -64,21 +95,38 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             get { return LastNetworkOperationStatus == true ? "/Images/connected.true.png" : "/Images/connected.false.png"; } 
         }
 
-        private Folder clientSettingsFolder;
-        public Folder ClientSettingsFolder
+        private Folder clientSettings;
+        public Folder ClientSettings
         {
             get
             {
-                return clientSettingsFolder;
+                if (clientSettings == null)
+                    clientSettings = StorageHelper.ReadClientSettings();
+                if (clientSettings == null)
+                {
+                    clientSettings = new Folder()
+                    {
+                        ID = Guid.NewGuid(),
+                        SortOrder = 0,
+                        Name = SystemEntities.ClientSettings,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        Items = new ObservableCollection<Item>(),
+                    };
+                    StorageHelper.WriteClientSettings(clientSettings);
+                }
+                return clientSettings;
             }
             set
             {
-                if (value != clientSettingsFolder)
+                if (value != clientSettings)
                 {
-                    clientSettingsFolder = value;
-                    StorageHelper.WriteFolder(clientSettingsFolder);
-                    FolderDictionary[clientSettingsFolder.ID] = clientSettingsFolder;
+                    clientSettings = value;
+                    StorageHelper.WriteClientSettings(clientSettings);
                     NotifyPropertyChanged("ClientSettingsFolder");
+
+                    // update some databound properties that are bound to client settings
+                    NotifyPropertyChanged("BackgroundColor");
+                    NotifyPropertyChanged("Theme");
                 }
             }
         }
@@ -139,26 +187,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 }
             }
         }
-
-        private bool lastNetworkOperationStatus;
-        public bool LastNetworkOperationStatus
-        {
-            get
-            {
-                return lastNetworkOperationStatus;
-            }
-            set
-            {
-                if (value != lastNetworkOperationStatus)
-                {
-                    lastNetworkOperationStatus = value;
-                    NotifyPropertyChanged("LastNetworkOperationStatus");
-                    NotifyPropertyChanged("ConnectedText");
-                    NotifyPropertyChanged("ConnectedIcon");
-                }
-            }
-        }
-
         private Dictionary<Guid, Folder> folderDictionary;
         public Dictionary<Guid, Folder> FolderDictionary
         {
@@ -282,6 +310,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     ItemType.CreateDictionary(itemTypes);
 
                     NotifyPropertyChanged("ItemTypes");
+                }
+            }
+        }
+
+        private bool lastNetworkOperationStatus;
+        public bool LastNetworkOperationStatus
+        {
+            get
+            {
+                return lastNetworkOperationStatus;
+            }
+            set
+            {
+                if (value != lastNetworkOperationStatus)
+                {
+                    lastNetworkOperationStatus = value;
+                    NotifyPropertyChanged("LastNetworkOperationStatus");
+                    NotifyPropertyChanged("ConnectedText");
+                    NotifyPropertyChanged("ConnectedIcon");
                 }
             }
         }
@@ -813,11 +860,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 Tags = user.Tags;
 
                 // find the $ClientSettings folder and handle it specially
+                Folder csf = null;
                 if (user.Folders.Any(f => f.Name == SystemEntities.ClientSettings))
                 {
-                    var csf = user.Folders.Single(f => f.Name == SystemEntities.ClientSettings);
+                    csf = user.Folders.Single(f => f.Name == SystemEntities.ClientSettings);
                     user.Folders.Remove(csf);
-                    ClientSettingsFolder = csf;
                 }
 
                 // reset and save the user's folders
@@ -841,6 +888,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     // save the folder in its own isolated storage file
                     StorageHelper.WriteFolder(f);
                 }
+
+                // store the $ClientSettings folder
+                ClientSettings = csf;
             }
             
             // invoke the SyncComplete event handler if it was set
@@ -952,6 +1002,30 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         private ObservableCollection<Folder> InitializeFolders()
         {
+            // get the default folders and enqueue an operation to insert each one of them and their subitems
+            var folders = new ObservableCollection<Folder>(UserConstants.DefaultFolders(null));
+            foreach (var folder in folders)
+            {
+                FolderDictionary.Add(folder.ID, folder);
+                RequestQueue.EnqueueRequestRecord(
+                    new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
+
+                foreach (var item in folder.Items)
+                {
+                    RequestQueue.EnqueueRequestRecord(
+                        new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
+
+                }
+            }
+
+            // extract the $ClientSettings folder and handle it specially
+            var csf = folders.Single(f => f.Name == SystemEntities.ClientSettings);
+            folders.Remove(csf);
+            ClientSettings = csf;
+
+            return folders;
+
+#if FALSE   // TODO: remove when finished debugging new codepath
             ObservableCollection<Folder> folders = new ObservableCollection<Folder>();
 
             Folder folder;
@@ -1040,7 +1114,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             folder = new Folder() { Name = SystemEntities.ClientSettings, Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.NameValue, SortOrder = 0 };
             FolderDictionary.Add(folder.ID, folder);
             StorageHelper.WriteFolder(folder);
-            ClientSettingsFolder = folder;
+            ClientSettings = folder;
 
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
@@ -1049,6 +1123,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             StorageHelper.WriteFolders(folders);
 
             return folders;
+#endif
         }
 
 #endregion

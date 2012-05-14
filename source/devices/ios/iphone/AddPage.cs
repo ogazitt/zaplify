@@ -55,6 +55,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
             if (dialogViewController == null)
                 InitializeComponent();
+   
+            // set the background
+            dialogViewController.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
 
             // initialize controls 
             Name.Value = "";
@@ -210,6 +213,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
             // reset the name field to make it easy to add the next one
             Name.Value = "";
+            
+            this.PopViewControllerAnimated(true);
         }
         
         private void AddItemToFolder(string folderName)
@@ -301,7 +306,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 App.ViewModel.SyncComplete += RefreshHandler;
                 App.ViewModel.SyncWithService();
             };
-                    
+        
             this.PushViewController(dialogViewController, false);
         }
         
@@ -360,7 +365,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     Clicked = (s, e) => 
                     {
                         // assemble a page which contains a hierarchy of every folder and list, grouped by folder 
-                        ListsRootElement = new RootElement("Add to list:")              
+                        var title = String.IsNullOrEmpty(Name.Value) ? "Navigate to:" : "Add " + Name.Value + " to:";
+                        ListsRootElement = new ThemedRootElement(title)              
                         {
                             from f in App.ViewModel.Folders
                                 orderby f.Name ascending
@@ -376,7 +382,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                 }
                         };
                         var dvc = new DialogViewController(ListsRootElement);
-                        dvc.Title = (Name.Value == null || Name.Value == "") ? "Navigate to:" : "Add " + Name.Value + " to:";
+                        dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground); 
+                        dvc.NavigationItem.HidesBackButton = false;
                         dialogViewController.NavigationController.PushViewController(dvc, true); 
                     }
                 }

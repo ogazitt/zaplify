@@ -30,9 +30,12 @@
         public HttpResponseMessageWrapper<User> CreateUser(HttpRequestMessage req)
         {
             Operation operation = null;
-            HttpStatusCode status = HttpStatusCode.BadRequest;
+            HttpStatusCode code = HttpStatusCode.BadRequest;
             // get the new user from the message body (password is not deserialized)
-            BasicAuthCredentials newUser = ProcessRequestBody(req, typeof(BasicAuthCredentials), out operation) as BasicAuthCredentials;
+            BasicAuthCredentials newUser = null;
+            code = ProcessRequestBody<BasicAuthCredentials>(req, out newUser, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<User>(req, operation, code);
 
             // get password from message headers
             BasicAuthCredentials userCreds = GetUserFromMessageHeaders(req);
@@ -40,10 +43,10 @@
             if (newUser.Name == userCreds.Name)
             {   // verify same name in both body and header
                 newUser.Password = userCreds.Password;
-                status = CreateUser(newUser);
+                code = CreateUser(newUser);
             }
 
-            if (status == HttpStatusCode.Created)
+            if (code == HttpStatusCode.Created)
             {
                 // enqueue a message for the Worker that will kick off the New User workflow
                 if (HostEnvironment.IsAzure)
@@ -51,7 +54,7 @@
                 return ReturnResult<User>(req, operation, newUser.AsUser(), HttpStatusCode.Created);
             }
             else
-                return ReturnResult<User>(req, operation, status);
+                return ReturnResult<User>(req, operation, code);
         }
 
         private HttpStatusCode CreateUser(BasicAuthCredentials user)
@@ -96,16 +99,37 @@
                 return ReturnResult<User>(req, operation, code);
             }
 
-            // get current user from the message body
-            User requestedUser = ProcessRequestBody(req, typeof(User), out operation) as User;
-            if (requestedUser.ID != id)
-            {   // verify user id in request body matches id being deleted
-                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
+            // get the tag from the message body if one was passed
+            User clientUser;
+            if (req.Content.Headers.ContentLength > 0)
+            {
+                code = ProcessRequestBody<User>(req, out clientUser, out operation);
+                if (code != HttpStatusCode.OK)  // error encountered processing body
+                    return ReturnResult<User>(req, operation, code);
+
+                if (clientUser.ID != id)
+                {   // IDs must match
+                    TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
+                    return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                // otherwise get the client user from the database
+                try
+                {
+                    clientUser = this.StorageContext.Users.Single<User>(u => u.ID == id);
+                }
+                catch (Exception)
+                {   // user not found - it may have been deleted by someone else.  Return 200 OK.
+                    TraceLog.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
+                    return ReturnResult<User>(req, operation, HttpStatusCode.OK);
+                }
             }
 
             // verify credentials passed in headers match the user in request body
             // disallows one user deleting another user (may want to allow in future with proper permissions)
-            if (requestedUser.Name.Equals(CurrentUser.Name, StringComparison.OrdinalIgnoreCase))
+            if (clientUser.Name.Equals(CurrentUser.Name, StringComparison.OrdinalIgnoreCase))
             {
                 return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
             }
@@ -113,15 +137,15 @@
             try
             {
                 // verify user id in storage matches id being deleted
-                User storedUser = this.StorageContext.Users.Single<User>(u => u.Name == requestedUser.Name.ToLower());
-                if (storedUser.ID != requestedUser.ID)
+                User storedUser = this.StorageContext.Users.Single<User>(u => u.Name == clientUser.Name.ToLower());
+                if (storedUser.ID != clientUser.ID)
                 {
                     return ReturnResult<User>(req, operation, HttpStatusCode.Forbidden);
                 }
                 
                 if (Membership.DeleteUser(CurrentUser.Name))
                 {   // delete user and all related data
-                    return ReturnResult<User>(req, operation, requestedUser, HttpStatusCode.Accepted);
+                    return ReturnResult<User>(req, operation, clientUser, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception)
@@ -234,11 +258,10 @@
             }
 
             // verify body contains two sets of user data - the original values and the new values
-            List<BasicAuthCredentials> userCreds = ProcessRequestBody(req, typeof(List<BasicAuthCredentials>), out operation) as List<BasicAuthCredentials>;
-            if (userCreds.Count != 2)
-            {
-                return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
-            }
+            List<BasicAuthCredentials> userCreds = null;
+            code = ProcessRequestBody<List<BasicAuthCredentials>>(req, out userCreds, out operation);
+            if (code != HttpStatusCode.OK)  // error encountered processing body
+                return ReturnResult<User>(req, operation, code);
 
             // get the original and new items out of the message body
             BasicAuthCredentials originalUserData = userCreds[0];

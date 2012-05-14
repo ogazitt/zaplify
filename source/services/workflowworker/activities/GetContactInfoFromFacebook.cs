@@ -47,18 +47,27 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
                     }
 
+                    // get or create a shadow item in the shadow item list in the $User folder
+                    var shadowItem = UserContext.GetOrCreateShadowItem(user, item);
+                    if (shadowItem == null)
+                    {
+                        TraceLog.TraceError("GetContactInfoFromFacebook: could not retrieve or create a shadow item for this contact");
+                        return Status.Error;
+                    }
+
                     // get the contact's profile information from facebook
                     try
                     {
                         // this is written as a foreach because the Query API returns an IEnumerable, but there is only one result
                         foreach (var contact in fbApi.Query(fbfv.Value, FBQueries.BasicInformation))
                         {
+                            item.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbfv.Value);
                             var birthday = contact[FBQueryResult.Birthday];
                             if (birthday != null)
-                            {
-                                FieldValue birthdayFV = item.GetFieldValue(FieldNames.Birthday, true);
-                                if (birthdayFV != null) birthdayFV.Value = birthday;
-                            }
+                                item.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
+                            var gender = contact[FBQueryResult.Gender];
+                            if (gender != null)
+                                shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                         }
                         UserContext.SaveChanges();
                     }

@@ -30,7 +30,7 @@
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         private const int rendersize = 10;  // limit of elements to render immediately
-        private bool constructorCalled = false;
+        private bool invalidState = false;
         private Folder folder;
         private Item list;
         private ListHelper ListHelper;
@@ -174,6 +174,7 @@
 
             // set some data context information
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
             SpeechProgressBar.DataContext = App.ViewModel;
             QuickAddPopup.DataContext = App.ViewModel;
 
@@ -191,9 +192,6 @@
             // add some event handlers
             Loaded += new RoutedEventHandler(ListPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(ListPage_BackKeyPress);
-
-            // set the constructor called flag
-            constructorCalled = true;
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage constructor");
@@ -215,7 +213,7 @@
                 TraceHelper.StartMessage("ListPage: Navigate back");
 
                 // navigate back
-                NavigationService.GoBack();
+                NavigateBack();
                 return;
             }
 
@@ -226,7 +224,7 @@
                 TraceHelper.StartMessage("ListPage: Navigate back");
 
                 // navigate back
-                NavigationService.GoBack();
+                NavigateBack();
                 return;
             }
 
@@ -252,7 +250,7 @@
                             TraceHelper.StartMessage("ListPage: Navigate back");
 
                             // navigate back
-                            NavigationService.GoBack();
+                            NavigateBack();
                             return;
                         }
 
@@ -263,7 +261,7 @@
                             TraceHelper.StartMessage("ListPage: Navigate back");
 
                             // navigate back
-                            NavigationService.GoBack();
+                            NavigateBack();
                             return;
                         }
 
@@ -321,7 +319,7 @@
                         TraceHelper.StartMessage(String.Format("ListPage: Navigate back (exception: {0})", ex.Message));
 
                         // navigate back
-                        NavigationService.GoBack();
+                        NavigateBack();
                         return;
                     }
                     break;
@@ -350,7 +348,7 @@
                         TraceHelper.StartMessage("ListPage: Navigate back");
 
                         // navigate back
-                        NavigationService.GoBack();
+                        NavigateBack();
                         return;
                     }
                     break;
@@ -359,12 +357,12 @@
                     TraceHelper.StartMessage("ListPage: Navigate back");
 
                     // navigate back
-                    NavigationService.GoBack();
+                    NavigateBack();
                     return;
             }
 
             // set datacontext 
-            DataContext = list;
+            ListGrid.DataContext = list;
 
             // create the ListHelper
             ListHelper = new ListHelper(
@@ -373,7 +371,9 @@
 
             // store the current listbox and ordering
             ListHelper.ListBox = ItemsListBox;
-            ListHelper.OrderBy = null;
+            ListHelper.OrderBy = ClientSettingsHelper.GetListSortOrder(
+                App.ViewModel.ClientSettings, 
+                id == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list);
 
             // trace data
             TraceHelper.AddMessage("Exiting ListPage OnNavigatedTo");
@@ -469,6 +469,15 @@
             ListHelper.OrderBy = target.Name;
             ListHelper.RenderList(list);
 
+            // store the sort order
+            ClientSettingsHelper.StoreListSortOrder(
+                App.ViewModel.ClientSettings,
+                list.ID == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list,
+                target.Name);
+
+            // sync with the service
+            App.ViewModel.SyncWithService();
+
             // close the popup 
             SortPopup.IsOpen = false;
         }
@@ -478,6 +487,15 @@
             // store the current listbox and remove the orderby field, and re-render the list
             ListHelper.OrderBy = null;
             ListHelper.RenderList(list);
+
+            // store the sort order
+            ClientSettingsHelper.StoreListSortOrder(
+                App.ViewModel.ClientSettings,
+                list.ID == Guid.Empty ? (ClientEntity)folder : (ClientEntity)list,
+                null);
+
+            // sync with the service
+            App.ViewModel.SyncWithService();
 
             // close the popup 
             SortPopup.IsOpen = false;
@@ -715,7 +733,7 @@
             TraceHelper.StartMessage("ListPage: Navigate back");
 
             // navigate back
-            NavigationService.GoBack();
+            NavigateBack();
         }
 
         void ListPage_Loaded(object sender, RoutedEventArgs e)
@@ -723,11 +741,9 @@
             // trace page navigation
             TraceHelper.AddMessage("ListPage: Loaded");
 
-            // reset the constructor flag
-            constructorCalled = false;
-
             // create the control tree and render the folder
-            ListHelper.RenderList(list);
+            if (!invalidState)
+                ListHelper.RenderList(list);
 
             // trace page navigation
             TraceHelper.AddMessage("Finished ListPage Loaded");
@@ -1066,6 +1082,12 @@
         #endregion QuickAdd Popup Event Handlers
 
         #region Helpers
+
+        private void NavigateBack()
+        {
+            invalidState = true;
+            NavigationService.GoBack();
+        }
 
         private void RenderItemTypes()
         {

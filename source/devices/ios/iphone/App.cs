@@ -61,7 +61,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			var calendar = new SchedulePage();
 			var folders = new UINavigationController(new FoldersViewController(UITableViewStyle.Plain));
 			var settings = new SettingsPage();
-			var more = new UINavigationController(new MoreViewController());
+			var more = new MoreViewController();
 			
 			tabBarController = new UITabBarController ();
 			tabBarController.ViewControllers = new UIViewController [] {

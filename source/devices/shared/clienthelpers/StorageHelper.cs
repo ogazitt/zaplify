@@ -1,14 +1,12 @@
 using System;
-using System.Net;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.IsolatedStorage;
-using System.Runtime.Serialization;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using BuiltSteady.Zaplify.Devices.ClientEntities;
-using System.Text;
-using System.Threading;
 using System.Runtime.Serialization.Json;
+using System.Threading;
+using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -52,6 +50,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // make a copy and do the write on the background thread
             var copy = new Constants(constants);
             ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Constants>(copy, "Constants"); });
+        }
+
+        /// <summary>
+        /// Read the contents of the ClientSettings Folder XML file from isolated storage
+        /// </summary>
+        /// <returns>retrieved folder</returns>
+        public static Folder ReadClientSettings()
+        {
+            return InternalReadFile<Folder>(SystemEntities.ClientSettings);
+        }
+
+        /// <summary>
+        /// Write the ClientSettings Folder XML to isolated storage
+        /// </summary>
+        public static void WriteClientSettings(Folder folder)
+        {
+            // make a copy and do the write on the background thread
+            var copy = new Folder(folder);
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.ClientSettings); });
         }
 
         /// <summary>

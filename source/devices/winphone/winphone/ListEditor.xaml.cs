@@ -26,6 +26,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("ListEditor: constructor");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             // enable tabbing
             this.IsTabStop = true;
@@ -203,7 +204,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         Created = now,
                         LastModified = now
                     };
-                    DataContext = listCopy;
+                    TitlePanel.DataContext = listCopy;
                 }
                 else
                 {
@@ -212,7 +213,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                     // make a deep copy of the item for local binding
                     listCopy = new Item(list);
-                    DataContext = listCopy;
+                    TitlePanel.DataContext = listCopy;
 
                     // add the delete button to the ApplicationBar
                     var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };

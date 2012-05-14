@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bing", "bing\Bing.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SupermarketAPI", "supermarket\SupermarketAPI.csproj", "{5F30E68A-01C8-4120-B555-B2CAC7577D38}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroceryAPI", "groceries\GroceryAPI.csproj", "{1FB7B88A-895D-4A46-B3EB-158BD2111D69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,16 @@ Global
 		{5F30E68A-01C8-4120-B555-B2CAC7577D38}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5F30E68A-01C8-4120-B555-B2CAC7577D38}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{5F30E68A-01C8-4120-B555-B2CAC7577D38}.Release|x86.ActiveCfg = Release|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1FB7B88A-895D-4A46-B3EB-158BD2111D69}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

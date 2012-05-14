@@ -76,13 +76,13 @@
     <Compile Include="HttpWrappers-ios.cs" />
     <Compile Include="IsolatedStorageSettings-ios.cs" />
     <Compile Include="RequestQueue.cs" />
-    <Compile Include="SettingsHelper.cs" />
     <Compile Include="StorageHelper.cs" />
     <Compile Include="TraceHelper.cs" />
     <Compile Include="WebServiceHelper.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="DataContractJsonSerializer-ios.cs" />
     <Compile Include="AppResourcesHelper.cs" />
+    <Compile Include="ClientSettingsHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cliententities\ClientEntities-ios.csproj">

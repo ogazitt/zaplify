@@ -61,7 +61,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			var cell = new UITableViewCell (UITableViewCellStyle.Default, "ButtonListElementCell");
 			cell.Accessory = UITableViewCellAccessory.None;
 			cell.SelectionStyle = UITableViewCellSelectionStyle.None;
-			cell.BackgroundColor = UIColor.FromPatternImage(new UIImage("Images/background.png"));
+            if (App.ViewModel.Theme == null)
+			    cell.BackgroundColor = UIColor.FromPatternImage(new UIImage("Images/background.png"));
+            else
+                cell.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
 			
 			// if no child buttons, return a blank cell
 			if (Buttons.Count == 0)

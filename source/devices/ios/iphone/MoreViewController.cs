@@ -9,11 +9,14 @@ using MonoTouch.UIKit;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
+using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	public partial class MoreViewController : UIViewController
+	public partial class MoreViewController : UINavigationController
 	{
+        private DialogViewController dvc = null;
+        
 		static bool UserInterfaceIdiomIsPhone {
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
 		}
@@ -31,23 +34,39 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 		public override void ViewDidAppear (bool animated)
 		{
-			base.ViewDidAppear (animated);
-			
-			var menu = new RootElement ("More"){
+			var root = new RootElement("More"){
 				new Section ()
 				{
-					new StyledStringElement ("Debug", DebugPage)
+					new StyledStringElement("Debug", DebugPage)
 					{
 						Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
 					}
 				},
 			};
 			
-			var dv = new DialogViewController (menu) {
-				Style = UITableViewStyle.Plain,
-				Autorotate = true
-			};
-			this.NavigationController.PushViewController (dv, false);				
+            if (dvc == null)
+            {
+                // create and push the dialog view onto the nav stack
+                dvc = new DialogViewController(UITableViewStyle.Plain, root);
+                dvc.NavigationItem.HidesBackButton = true;  
+                dvc.Title = NSBundle.MainBundle.LocalizedString ("More", "More");
+                this.PushViewController(dvc, false);
+            }
+            else
+            {
+                // refresh the dialog view controller with the new root
+                var oldroot = dvc.Root;
+                dvc.Root = root;
+                oldroot.Dispose();
+                dvc.ReloadData();
+            }
+   
+            // set the background
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            dvc.TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
+            
+            base.ViewDidAppear(animated);         
 		}
 		
 		public override void DidReceiveMemoryWarning ()

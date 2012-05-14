@@ -2,7 +2,7 @@
 
 namespace BuiltSteady.Zaplify.ServerEntities
 {
-    public class Operation
+    public class Operation 
     {
         public Guid ID { get; set; }
         public Guid UserID { get; set; }

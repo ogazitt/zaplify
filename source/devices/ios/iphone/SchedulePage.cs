@@ -31,7 +31,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		{
 			// trace event
             TraceHelper.AddMessage("Schedule: ViewDidAppear");
-            
+
 			// initialize controls
 			var now = DateTime.Today;
 			var root = new RootElement("Schedule")
@@ -71,7 +71,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 oldroot.Dispose();
                 dvc.ReloadData();
             }
-			base.ViewDidAppear (animated);
+   
+            // set the background
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            dvc.TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
+            
+            base.ViewDidAppear (animated);
 		}
 	}
 }

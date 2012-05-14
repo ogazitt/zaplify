@@ -46,55 +46,59 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
                     }
 
-                    Folder userFolder = UserContext.GetOrCreateUserFolder(user);
-                    Item possibleSubjectList = null;
-                    DateTime now = DateTime.UtcNow;
-
-                    try
+                    // get or create a shadow item for the user in the $User folder
+                    var shadowItem = UserContext.GetOrCreateShadowItem(user, user);
+                    if (shadowItem == null)
                     {
-                        // issue the query for user data against the Facebook Graph API
-                        //var results = fbApi.Query("me", FBQueries.BasicInformation);
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceException("ImportFromFacebook: Error calling Facebook Graph API", ex);
+                        TraceLog.TraceError("ImportFromFacebook: could not retrieve or create a shadow item for this user");
                         return Status.Error;
                     }
 
-                    // retrieve the PossibleSubjects list inside the $User folder
+                    // get or create the possible subjects list in the $User folder
+                    Item possibleSubjectList = UserContext.GetOrCreatePossibleSubjectsList(user);
+                    if (possibleSubjectList == null)
+                    {
+                        TraceLog.TraceError("ImportFromFacebook: could not retrieve or create the possible subjects list");
+                        return Status.Error;
+                    }
+
+                    // import information about the current user
                     try
                     {
-                        // get the PossibleSubjects list
-                        if (UserContext.Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects))
-                            possibleSubjectList = UserContext.Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects);
-                        else
+                        // this is written as a foreach because the Query API returns an IEnumerable, but there is only one result
+                        foreach (var userInfo in fbApi.Query("me", FBQueries.BasicInformation))
                         {
-                            // create PossibleSubjects list
-                            possibleSubjectList = new Item()
-                            {
-                                ID = Guid.NewGuid(),
-                                Name = SystemEntities.PossibleSubjects,
-                                FolderID = userFolder.ID,
-                                UserID = user.ID,
-                                IsList = true,
-                                ItemTypeID = SystemItemTypes.NameValue,
-                                ParentID = null,
-                                Created = now,
-                                LastModified = now
-                            };
-                            UserContext.Items.Add(possibleSubjectList);
-                            UserContext.SaveChanges();
-                            TraceLog.TraceInfo("ImportFromFacebook: created PossibleSubjects list for user " + user.Name);
+                            // store the facebook ID
+                            var fbid = userInfo[FBQueryResult.ID];
+                            shadowItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
+                            // augment the sources field with Facebook as a source
+                            var sourcesFV = shadowItem.GetFieldValue(FieldNames.Sources, true);
+                            sourcesFV.Value = String.IsNullOrEmpty(sourcesFV.Value) ? 
+                                Sources.Facebook : 
+                                sourcesFV.Value.Contains(Sources.Facebook) ? 
+                                    sourcesFV.Value : 
+                                    String.Format("{0}:{1}", sourcesFV.Value, Sources.Facebook);
+                            // store the picture URL
+                            shadowItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbid);
+                            // augment with birthday and gender information if they don't yet exist
+                            var birthday = userInfo[FBQueryResult.Birthday];
+                            if (birthday != null)
+                                shadowItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
+                            var gender = userInfo[FBQueryResult.Gender];
+                            if (gender != null)
+                                shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                         }
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException("ImportFromFacebook: could not find or create PossibleSubjects list", ex);
+                        TraceLog.TraceException("ImportFromFacebook: Facebook query for user's basic information failed", ex);
                         return Status.Error;
                     }
 
+                    DateTime now = DateTime.UtcNow;
+
                     // get the current list of all possible subjects for this user ($User.PossibleSubjects)
-                    var currentPossibleSubjects = UserContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == userFolder.ID &&
+                    var currentPossibleSubjects = UserContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == possibleSubjectList.FolderID &&
                         ps.ParentID == possibleSubjectList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
                         ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID)).ToList();
 
@@ -165,7 +169,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 {
                                     ID = Guid.NewGuid(),
                                     Name = friend[FBQueryResult.Name],
-                                    FolderID = userFolder.ID,
+                                    FolderID = possibleSubjectList.FolderID,
                                     ParentID = possibleSubjectList.ID,
                                     UserID = user.ID,
                                     ItemTypeID = SystemItemTypes.NameValue,

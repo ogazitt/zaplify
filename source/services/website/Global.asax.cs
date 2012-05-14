@@ -195,7 +195,7 @@ namespace BuiltSteady.Zaplify.Website
                     
                     // timestamp suggestion
                     SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == user.ID && s.SuggestionType == SuggestionTypes.GetADConsent);
+                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == peopleFolder.ID && s.SuggestionType == SuggestionTypes.GetADConsent);
                     Suggestion oldSuggestion = new Suggestion()
                     {
                         ID = suggestion.ID,

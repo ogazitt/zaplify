@@ -1,4 +1,9 @@
 @echo off
+
+cd models
+icacls groceries.txt /grant Everyone:F
+cd ..
+
 if "%EMULATED%"=="true" goto :EOF
 
 cd startup

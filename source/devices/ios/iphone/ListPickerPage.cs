@@ -78,6 +78,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             currentList = BuildCurrentList(valueList, pickList);
             root = RenderPicker(valueList, pickList);            
             var dvc = new DialogViewController (root, true);
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
             controller.PushViewController (dvc, true);
         }
 			        

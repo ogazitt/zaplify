@@ -23,51 +23,26 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                     }
 
                     User user = CurrentUser(item);
-                    Item possibleSubjectList = null;
-                    Folder userFolder = UserContext.GetOrCreateUserFolder(user);
+                    Item possibleSubjectList = UserContext.GetOrCreatePossibleSubjectsList(user);
+                    if (possibleSubjectList == null)
+                    {
+                        TraceLog.TraceError("ImportFromFacebook: could not retrieve or create the possible subjects list");
+                        return Status.Error;
+                    }
+
                     DateTime now = DateTime.UtcNow;
 
                     try
                     {
-                        // get the PossibleSubjects list
-                        if (UserContext.Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects))
-                            possibleSubjectList = UserContext.Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.Name == SystemEntities.PossibleSubjects);
-                        else
-                        {
-                            // create PossibleSubjects list
-                            possibleSubjectList = new Item()
-                            {
-                                ID = Guid.NewGuid(),
-                                Name = SystemEntities.PossibleSubjects,
-                                FolderID = userFolder.ID,
-                                UserID = user.ID,
-                                IsList = true,
-                                ItemTypeID = SystemItemTypes.NameValue,
-                                ParentID = null,
-                                Created = now,
-                                LastModified = now
-                            };
-                            UserContext.Items.Add(possibleSubjectList);
-                            UserContext.SaveChanges();
-                            TraceLog.TraceInfo("ImportFromFacebook: created PossibleSubjects list for user " + user.Name);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        TraceLog.TraceException("AddContactToPossibleSubjects: could not find or create PossibleSubjects list", ex);
-                        return Status.Error;
-                    }
-
-                    try
-                    {
                         // determine if a possible subject by this name already exists, and if so, skip adding it
-                        if (UserContext.Items.Include("FieldValues").Any(ps => ps.UserID == user.ID && ps.FolderID == userFolder.ID &&
+                        if (UserContext.Items.Include("FieldValues").Any(ps => ps.UserID == user.ID && ps.FolderID == possibleSubjectList.FolderID &&
                             ps.Name == item.Name && ps.ParentID == possibleSubjectList.ID && ps.ItemTypeID == SystemItemTypes.NameValue))
                         {
                             TraceLog.TraceInfo("AddContactToPossibleSubjects: contact by this name already exists in the possible subjects list");
                             return Status.Complete;
                         }
 
+                        /*
                         // create a reference item to the new contact (but do not attach it to the DB)
                         var contactRef = new Item()
                         {
@@ -83,13 +58,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         contactRef.FieldValues.Add(new FieldValue() { FieldName = FieldNames.EntityRef, ItemID = contactRef.ID, Value = item.ID.ToString() });
                         contactRef.FieldValues.Add(new FieldValue() { FieldName = FieldNames.EntityType, ItemID = contactRef.ID, Value = EntityTypes.Item });
                         string jsonContact = JsonSerializer.Serialize(contactRef);
+                         */
+                        string jsonContact = JsonSerializer.Serialize(item);
 
                         // store the serialized contact in the value of a new NameValue item on the PossibleSubjects list
                         var nameValItem = new Item()
                         {
                             ID = Guid.NewGuid(),
                             Name = item.Name,
-                            FolderID = userFolder.ID,
+                            FolderID = possibleSubjectList.FolderID,
                             ParentID = possibleSubjectList.ID,
                             UserID = user.ID,
                             ItemTypeID = SystemItemTypes.NameValue,

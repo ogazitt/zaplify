@@ -331,6 +331,31 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         // dictionary to hold all the aliases to FieldValues
         private Dictionary<string, FieldValue> fieldValueDict = new Dictionary<string, FieldValue>();
 
+        // get FieldValue of this Item by FieldName (no create flag)
+        public FieldValue GetFieldValue(string fieldName)
+        {
+            FieldValue fieldValue = null;
+
+            // initialize the dictionary if necessary
+            if (fieldValueDict == null)
+                fieldValueDict = new Dictionary<string, FieldValue>();
+
+            // try to get the FieldValue out of the dictionary (if it was already retrieved)
+            if (fieldValueDict.TryGetValue(fieldName, out fieldValue) == true)
+                return fieldValue;
+
+            // get the fieldvalue associated with this field
+            // this may fail if this item doesn't have this field set yet
+            if (fieldValues.Any(fv => fv.FieldName == fieldName))
+            {
+                fieldValue = fieldValues.Single(fv => fv.FieldName == fieldName);
+                
+                // store the new FieldValue in the dictionary
+                fieldValueDict[fieldName] = fieldValue;
+            }
+
+            return fieldValue;
+        }
 
         // get FieldValue of this Item by FieldName
         // if create == true, a new FieldValue for this FieldName will be created if none exists
@@ -646,8 +671,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         } 
 
         // display color property for Name
+#if IOS
+        public string NameDisplayColor { get { return Complete == true ? "Gray" : "Black"; } }
+#else
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
-
+#endif
+        
         public string Phone
         {
             get

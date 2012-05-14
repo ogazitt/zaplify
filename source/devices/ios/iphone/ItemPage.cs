@@ -86,6 +86,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 };
                 UIBarButtonItem actionsBackBarItem = new UIBarButtonItem(actionsBackButton);
                 editViewController.NavigationItem.LeftBarButtonItem = actionsBackBarItem;
+                editViewController.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
                 controller.PushViewController(editViewController, true);
 			});
 			
@@ -99,6 +100,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             };
 
 			// push the "view item" view onto the nav stack
+            actionsViewController.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
 			controller.PushViewController(actionsViewController, true);
 		}
 				
@@ -472,7 +474,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     priSection.AddAll(
                         from pr in App.ViewModel.Constants.Priorities 
                              select (Element) new RadioEventElement(pr.Name, field.DisplayName));
-                    var priorityElement = new RootElement(field.DisplayName, priorities) { priSection };
+                    var priorityElement = new ThemedRootElement(field.DisplayName, priorities) { priSection };
 					// augment the radio elements with the right index and event handler
 					int i = 0;
 					foreach (var radio in priorityElement[0].Elements)
@@ -483,7 +485,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					}
 					element = priorityElement;
                     break;
-                case "List":
+                case DisplayTypes.Lists:
                     // create a collection of lists in this folder, and add the folder as the first entry
                     var lists = App.ViewModel.Items.
                         Where(li => li.FolderID == item.FolderID && li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference).
@@ -504,7 +506,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     listsSection.AddAll(
                         from l in lists
                             select (Element) new RadioEventElement(l.Name, field.DisplayName));
-                    var listsElement = new RootElement(field.DisplayName, listsGroup) { listsSection };
+                    var listsElement = new ThemedRootElement(field.DisplayName, listsGroup) { listsSection };
 					// augment the radio elements with the right index and event handler
 					int index = 0;
 					foreach (var radio in listsElement[0].Elements)
@@ -518,12 +520,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						index++;
 					}
 					element = listsElement;
-                    break;
-                case "Integer":
-                    entryElement.Value = (string) currentValue;
-                    entryElement.KeyboardType = UIKeyboardType.NumberPad;
-                    //entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); SaveButton_Click(null, null); };
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.DatePicker:
                     DateTime? dateTime = String.IsNullOrEmpty((string) currentValue) ? (DateTime?) null : Convert.ToDateTime((string) currentValue);
@@ -557,13 +553,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					*/
 					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
                     //checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); SaveButton_Click(null, null); };
-                    checkboxElement.Tapped += delegate { pi.SetValue(container, entryElement.Value, null); };
+                    checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
 					element = checkboxElement;
                     break;
                 case DisplayTypes.TagList:
                     // TODO                   
                     break;
-                case "ContactList":
+                case DisplayTypes.ContactList:
                     StringElement contactsElement = new StringElement(field.DisplayName);
                     Item currentContacts = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
                     contactsElement.Value = CreateCommaDelimitedList(currentContacts);
@@ -590,7 +586,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     };
                     element = contactsElement;
                     break;
-                case "LocationList":
+                case DisplayTypes.LocationList:
                     StringElement locationsElement = new StringElement(field.DisplayName);
                     Item currentLocations = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
                     locationsElement.Value = CreateCommaDelimitedList(currentLocations);
@@ -669,8 +665,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			
 			if (renderListField == true)
             {
-                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = "Folder" };
-                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = "List" };
+                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = DisplayTypes.Folders };
+                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = DisplayTypes.Lists };
                 section.Add(RenderEditItemField(item, field));
             }
 

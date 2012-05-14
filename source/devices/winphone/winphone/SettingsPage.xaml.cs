@@ -20,6 +20,11 @@ using BuiltSteady.Zaplify.Devices.ClientHelpers;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
+    public class Foo
+    {
+        public string Name { get; set; }
+    }
+
     public partial class SettingsPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         public SettingsPage()
@@ -150,7 +155,40 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // trace page navigation
             TraceHelper.AddMessage("Settings: Loaded");
 
+            foreach (var setting in PhoneSettings.Settings.Keys)
+            {
+                // get the source list for the setting, along with any current value
+                var phoneSetting = PhoneSettings.Settings[setting];
+                //var bindingList = (from l in list select new { Name = l }).ToList();
+                var bindingList = phoneSetting.Values;
+                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
+                int selectedIndex = 0;
+                if (value != null && bindingList.Any(ps => ps.Name == value))
+                {
+                    var selectedValue = bindingList.Single(ps => ps.Name == value);
+                    selectedIndex = bindingList.IndexOf(selectedValue);
+                }
+
+                var template = !String.IsNullOrEmpty(phoneSetting.DisplayTemplate) ?
+                    (DataTemplate)App.Current.Resources[phoneSetting.DisplayTemplate] :
+                    null;
+
+                // create a new list picker for the setting
+                var listPicker = new ListPicker()
+                {
+                    Header = setting,
+                    Tag = setting,
+                    SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0
+                };
+                listPicker.ItemsSource = bindingList;
+                listPicker.DisplayMemberPath = "Name";
+                if (template != null)
+                    listPicker.FullModeItemTemplate = template;
+                SettingsPanel.Children.Add(listPicker);
+            }
+
             // initialize some fields
+            /*
             DefaultListPicker.ItemsSource = App.ViewModel.Folders;
             DefaultListPicker.DisplayMemberPath = "Name";
 
@@ -158,6 +196,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             if (index >= 0)
                 DefaultListPicker.SelectedIndex = index;
+            */
 
             CreateUserButton.DataContext = this;
             SyncUserButton.DataContext = this;
@@ -187,10 +226,46 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // save the default folder in any case
-            App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
+            //App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
+
+            // get current version of phone settings
+            var phoneSettingsItemCopy = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+            // loop through the settings and store the new value
+            foreach (var element in SettingsPanel.Children)
+            {
+                // get the listpicker key and value
+                ListPicker listPicker = element as ListPicker;
+                if (listPicker == null)
+                    continue;
+                string key = (string)listPicker.Tag;
+                var phoneSetting = PhoneSettings.Settings[key];
+                string value = phoneSetting.Values[listPicker.SelectedIndex].Name;
+
+                // store the key/value pair in phone settings (without syncing)
+                ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+            }
+
+            // get the new version of phone settings
+            var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+
+            // queue up a server request
+            RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+            {
+                ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
+                BodyTypeName = "Item",
+                ID = phoneSettingsItem.ID
+            });
+
+            // sync with the server
+            App.ViewModel.SyncWithService();
 
             // trace page navigation
             TraceHelper.StartMessage("Settings: Navigate back");
+
+            // notify the view model that some data-bound properties bound to client settings may have changed
+            App.ViewModel.NotifyPropertyChanged("BackgroundColor");
 
             // go back to main page
             NavigationService.GoBack();
@@ -340,69 +415,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             });
         }
 
-        #endregion  
-
-        #region Helpers
-
-        private string GetTypeName(PropertyInfo pi)
-        {
-            string typename = pi.PropertyType.Name;
-            // if it's a generic type, get the underlying type (this is for Nullables)
-            if (pi.PropertyType.IsGenericType)
-            {
-                typename = pi.PropertyType.FullName;
-                string del = "[[System.";  // delimiter
-                int index = typename.IndexOf(del);
-                index = index < 0 ? index : index + del.Length;  // add length of delimiter
-                int index2 = index < 0 ? index : typename.IndexOf(",", index);
-                // if anything went wrong, default to String
-                if (index < 0 || index2 < 0)
-                    typename = "String";
-                else
-                    typename = typename.Substring(index, index2 - index);
-            }
-            return typename;
-        }
-
-        private void RenderSettingsTab(Settings settings)
-        {
-            foreach (PropertyInfo pi in settings.GetType().GetProperties())
-            {
-                // get the value of the property
-                var val = pi.GetValue(settings, null);
-
-                ListBoxItem listBoxItem = new ListBoxItem();
-                StackPanel EditStackPanel = new StackPanel();
-                listBoxItem.Content = EditStackPanel;
-                EditStackPanel.Children.Add(new TextBlock() { Text = pi.Name, FontSize = 20 });
-
-                string typename = GetTypeName(pi);
-
-                // render the right control based on the type
-                switch (typename)
-                {
-                    //case "String":
-                    //    PropertyInfo pistr = pi;
-                    //    tb = new TextBox() { DataContext = itemCopy };
-                    //    tb.SetBinding(TextBox.TextProperty, new Binding(pistr.Name) { Mode = BindingMode.TwoWay });
-                    //    //tb.LostFocus += new RoutedEventHandler(delegate { pistr.SetValue(itemCopy, tb.Text, null); });
-                    //    EditStackPanel.Children.Add(tb);
-                    //    break;
-                    case "String":
-                    case "Int32":
-                    case "DateTime":
-                        TextBox tb = new TextBox() { DataContext = settings, MinWidth = App.Current.RootVisual.RenderSize.Width };
-                        tb.SetBinding(TextBox.TextProperty, new Binding(pi.Name) { Mode = BindingMode.TwoWay });
-                        EditStackPanel.Children.Add(tb);
-                        break;
-                    default:
-                        break;
-                }
-                // add the listboxitem to the listbox
-                //SecondListBox.Items.Add(listBoxItem);
-            }
-        }
-
-        #endregion
+        #endregion Authentication callback methods
     }
 }

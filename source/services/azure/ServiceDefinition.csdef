@@ -43,8 +43,10 @@
     <ConfigurationSettings>
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
+      <Setting name="GroceryConnection" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
+      <Setting name="SQLGrocery" />
       <Setting name="DataConnectionString" />
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />

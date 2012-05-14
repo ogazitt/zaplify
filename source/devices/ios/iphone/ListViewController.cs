@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using MonoTouch.Dialog.Utilities;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using BuiltSteady.Zaplify.Shared.Entities;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using MonoTouch.Dialog;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -15,13 +18,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	{
 		public Folder Folder { get; set; }
 		public Item List { get; set; }
+        public List<Item> Sections { get; set; }
         
 		private Guid? listID;
 		private UIViewController parentController;
         
         private UITableView TableView;
         private UIToolbar Toolbar;
-        private UIBarButtonItem EditButton;
+        
+        private static UIImage sortButtonImage;
+        private string OrderBy;
 
 		static bool UserInterfaceIdiomIsPhone {
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
@@ -32,12 +38,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			Folder = f;
             listID = (currentID == Guid.Empty) ? (Guid?) null : (Guid?) currentID;
 			parentController = parent;
+            Sections = new List<Item>();
             InitializeComponent();
         }
             
 		public override void ViewDidAppear(bool animated)
 		{
-			// load the folder and construct the list of Items that will be rendered
+            // trace event
+            TraceHelper.AddMessage("ListView: ViewDidAppear");
+
+            // set the background
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
+
+            // load the folder and construct the list of Items that will be rendered
 			try
             {
                 Folder = App.ViewModel.LoadFolder(Folder.ID);
@@ -64,7 +78,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 else
                     listName = Folder.Items.Single(i => i.ID == listID).Name;
                 this.Title = listName;
-                EditButton.Title = "Edit " + listName;
    
                 // construct a synthetic item that represents the list of items for which the 
                 // ParentID is the parent.  this also works for the root list in a folder, which
@@ -83,25 +96,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     ItemTypeID = (itemTypeID == null) ? Folder.ItemTypeID : (Guid) itemTypeID,
                     IsList = true,
                 };
+                
+                // get the sort order from client settings and sort the list
+                OrderBy = ClientSettingsHelper.GetListSortOrder(
+                    App.ViewModel.ClientSettings, 
+                    List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List);
                 SortList();
                 
-                this.NavigationItem.RightBarButtonItem = new UIBarButtonItem("Edit", UIBarButtonItemStyle.Bordered, delegate {
-                    if (TableView.Editing == false)
+                this.NavigationItem.RightBarButtonItem = new UIBarButtonItem("Properties", UIBarButtonItemStyle.Bordered, delegate {
+                    if (listID == null || listID == Guid.Empty)
                     {
-                        TableView.SetEditing(true, true);
-                        this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Done;
-                        this.NavigationItem.RightBarButtonItem.Title = "Done";
+                        FolderEditor folderEditor = new FolderEditor(this.NavigationController, Folder);
+                        folderEditor.PushViewController();
                     }
                     else
                     {
-                        TableView.SetEditing(false, true);
-                        this.NavigationItem.RightBarButtonItem.Style = UIBarButtonItemStyle.Bordered;
-                        this.NavigationItem.RightBarButtonItem.Title = "Edit";
-    
-                        // trigger a sync with the Service 
-                        App.ViewModel.SyncWithService();   
-                        
-                        Folder = App.ViewModel.LoadFolder(Folder.ID);
+                        ListEditor listEditor = new ListEditor(this.NavigationController, Folder, List, null);
+                        listEditor.PushViewController();
                     }
                 });               
             }
@@ -156,9 +167,219 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
         public void SortList()
         {
-            List.Items = Folder.Items.Where(i => i.ParentID == listID).OrderBy(i => i.SortOrder).ToObservableCollection();
-        }  
+            // refresh the items in the current List from the folder
+            List.Items = Folder.Items.Where(i => i.ParentID == listID).ToObservableCollection();
+
+            // create a new collection without any system itemtypes (which are used for section headings)
+            var sorted = new ObservableCollection<Item>();
+            foreach (var i in List.Items)
+                if (i.ItemTypeID != SystemItemTypes.System)
+                    sorted.Add(i);
+            
+            // order the folder by the correct fields
+            switch (OrderBy)
+            {
+                case FieldNames.DueDate:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Priority:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Name:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Address:
+                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Phone:
+                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Email:
+                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Complete:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case FieldNames.Category:
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    break;
+                case null:
+                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    break;
+                default:
+                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    break;
+            }
+
+            // if we aren't categorizing then there is no need to create section headings
+            Sections.Clear();            
+            if (!Categorize())
+            {
+                var list = new Item(List, false) { Items = sorted };
+                Sections.Add(list);
+                return;
+            }
+
+            // insert separators for section headings
+            string separator = null;
+            Item currentList = null;
+            foreach (var item in sorted)
+            {
+                ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == item.ItemTypeID);
+                string displayType = DisplayTypes.Text;
+                string value = null;
+                if (itemType.Fields.Any(f => f.Name == OrderBy))
+                {
+                    Field field = itemType.Fields.Single(f => f.Name == OrderBy);
+                    FieldValue fv = item.GetFieldValue(field, false);
+                    displayType = field.DisplayType;
+                    value = fv != null ? fv.Value : null;
+                }
+                string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(displayType, value);
+                if (currentSectionHeading != separator)
+                {
+                    currentList = new Item(List, false) { Name = currentSectionHeading };
+                    Sections.Add(currentList);
+                    separator = currentSectionHeading;
+                }
+                currentList.Items.Add(item);
+            }
+
+            //List.Items = finalList;
+        }
   
+        #region Helpers
+        
+        private bool Categorize()
+        {
+            switch (OrderBy)
+            {
+                case FieldNames.DueDate:
+                case FieldNames.Priority:
+                case FieldNames.Category:
+                    return true;
+                case FieldNames.Name:
+                case FieldNames.Address:
+                case FieldNames.Phone:
+                case FieldNames.Email:
+                case FieldNames.Complete:
+                case null:
+                default:
+                    return false;
+            }
+        }
+  
+        private UIBarButtonItem CreateSortButton()
+        {
+            // if haven't loaded the sort image yet, do so now
+            if (sortButtonImage == null)
+                sortButtonImage = new UIImage("Images/appbar.sort.rest.png");
+            
+            // clicking the sort button and its event handler, which creates a new DialogViewController to host the sort picker
+            var sortButton = new UIBarButtonItem(sortButtonImage, UIBarButtonItemStyle.Plain, delegate {
+                // create the remove button
+                var removeButton = new Button() 
+                { 
+                    Caption = "Remove Sort", 
+                    Background = "Images/darkgreybutton.png", 
+                };
+                var removeButtonList = new ButtonListElement() { removeButton };
+                removeButtonList.Margin = 0f;
+                
+                // find the current sort field if any
+                var itemType = App.ViewModel.ItemTypes.Single(it => it.ID == List.ItemTypeID);
+                var fields = itemType.Fields.Where(f => f.IsPrimary == true).ToList();
+                var selectedSortIndex = 0;
+                if (OrderBy != null && fields.Any(f => f.DisplayName == OrderBy))
+                {
+                    var selectedSortField = fields.Single(f => f.DisplayName == OrderBy);
+                    selectedSortIndex = Math.Max(fields.IndexOf(selectedSortField), 0);
+                }
+
+                // create the sort picker                
+                var sortPickerSection = new Section();
+                sortPickerSection.AddAll(from f in fields select (Element) new RadioElement(f.DisplayName));
+                var sortPicker = new ThemedRootElement("Sort by", new RadioGroup(null, selectedSortIndex)) { sortPickerSection };
+                
+                // create the "Choose Sort" form
+                var root = new ThemedRootElement("Choose Sort")
+                {
+                    new Section() { sortPicker },
+                    new Section() { removeButtonList },
+                };
+                
+                // create the DVC and add a "Done" button and handler
+                var dvc = new DialogViewController(root);
+                dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate
+                {
+                    // store the current listbox and orderby field, and re-render the list
+                    var field = fields[sortPicker.RadioSelected];
+                    OrderBy = field.DisplayName;
+        
+                    // store the sort order
+                    ClientSettingsHelper.StoreListSortOrder(
+                        App.ViewModel.ClientSettings,
+                        List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List,
+                        OrderBy);
+        
+                    // sync with the service
+                    App.ViewModel.SyncWithService();
+
+                    // return to parent
+                    dvc.NavigationController.PopViewControllerAnimated(true);
+                });
+                dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
+                
+                // add the click handler for the remove button
+                removeButton.Clicked += delegate 
+                {
+                    // clear the sort
+                    OrderBy = null;
+        
+                    // store the sort order
+                    ClientSettingsHelper.StoreListSortOrder(
+                        App.ViewModel.ClientSettings,
+                        List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List,
+                        null);
+        
+                    // sync with the service
+                    App.ViewModel.SyncWithService();                            
+
+                    // return to parent
+                    dvc.NavigationController.PopViewControllerAnimated(true);
+                };
+    
+                // display the form
+                this.NavigationController.PushViewController(dvc, true);
+            });         
+            
+            return sortButton;
+        }
+        
+        private string FormatSectionHeading(string displayType, string value)
+        {
+            switch (displayType)
+            {
+                case DisplayTypes.Priority:
+                    int pri = value == null ? 1 : Convert.ToInt32(value);
+                    return App.ViewModel.Constants.Priorities[pri].Name;
+                case DisplayTypes.DatePicker:
+                case DisplayTypes.DateTimePicker:
+                    if (value == null)
+                        return "none";
+                    DateTime dt = Convert.ToDateTime(value);
+                    return dt.ToShortDateString();
+                case DisplayTypes.Text:
+                case DisplayTypes.TextArea:
+                case DisplayTypes.Phone:
+                case DisplayTypes.Link:
+                case DisplayTypes.Email:
+                case DisplayTypes.Address:
+                default:
+                    return value ?? "none";
+            }
+        }
+        
         void InitializeComponent()
         {            
             // get the current list name
@@ -182,31 +403,56 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             float toolbarHeight = navBarHeight;
             float tableHeight = availableHeight - toolbarHeight;
 
-            // create the toolbar and the tableview
+            // create the tableview
             TableView = new UITableView() { Frame = new RectangleF(0, 0, View.Bounds.Width, tableHeight) };
+            TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
+            TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
             this.View.AddSubview(TableView);
-            Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };
-            EditButton = new UIBarButtonItem("Edit " + listName, UIBarButtonItemStyle.Bordered, delegate { 
-                if (listID == null || listID == Guid.Empty)
-                {
-                    FolderEditor folderEditor = new FolderEditor(this.NavigationController, Folder);
-                    folderEditor.PushViewController();
-                }
-                else
-                {
-                    ListEditor listEditor = new ListEditor(this.NavigationController, Folder, List, null);
-                    listEditor.PushViewController();
-                }
-            });
-            var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "List", UIBarButtonItemStyle.Plain, delegate { 
+            
+            // create the toolbar - edit button, add button, sort button
+            Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };                            
+            var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
+
+            //var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "List", UIBarButtonItemStyle.Plain, delegate { 
+            var addButton = new UIBarButtonItem(UIBarButtonSystemItem.Add, delegate { 
                 ListEditor listEditor = new ListEditor(this.NavigationController, Folder, null, List.ID);
                 listEditor.PushViewController();
             });
-            var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
-            var fixedSpace = new UIBarButtonItem(UIBarButtonSystemItem.FixedSpace) { Width = 10f };                        
-            Toolbar.SetItems(new UIBarButtonItem[] { fixedSpace, addButton, flexSpace, EditButton, fixedSpace }, false);
+
+            // create the sort button along with the action, which will instantiate a new DialogViewController
+            var sortButton = CreateSortButton();
+                      
+            // create the edit and done buttons
+            // the edit button puts the table in edit mode, and the done button returns to normal mode
+            var editButton = new UIBarButtonItem(UIBarButtonSystemItem.Edit);
+            var doneButton = new UIBarButtonItem(UIBarButtonSystemItem.Done);           
+            editButton.Clicked += delegate
+            { 
+                if (TableView.Editing == false)
+                {
+                    TableView.SetEditing(true, true);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, doneButton, flexSpace }, false);
+                }
+            };
+            doneButton.Clicked += delegate
+            {
+                if (TableView.Editing == true)
+                {
+                    TableView.SetEditing(false, true);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+
+                    // trigger a sync with the Service 
+                    App.ViewModel.SyncWithService();   
+                    
+                    Folder = App.ViewModel.LoadFolder(Folder.ID);
+                }
+            };
+
+            Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
             this.View.AddSubview(Toolbar);
         }
+        
+        #endregion Helpers
              
 		#region Event Handlers
 		
@@ -244,11 +490,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     ID = item.ID
                 });
             
-            // reorder the item in the folder and the ListBox
-            //ListHelper.ReOrderItem(list, item);
-
             // save the changes to local storage
             StorageHelper.WriteFolder(Folder);
+
+            // reorder the item in the folder and the ListBox
+            SortList();
+            TableView.ReloadData();
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
@@ -281,7 +528,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				
 				// get the item at the row and depending on whether it's a list 
 				// or a singleton, navigate to the right page
-				Item item = controller.List.Items[indexPath.Row];
+				Item item = controller.Sections[indexPath.Section].Items[indexPath.Row];
 				if (item != null)
 				{
 					if (item.IsList == true)
@@ -330,14 +577,24 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				controller = c;
 			}
 	 
-			public override int RowsInSection (UITableView tableview, int section)
+            public override int NumberOfSections(UITableView tableView)
+            {
+                 return controller.Sections.Count;
+            }
+            
+            public override int RowsInSection(UITableView tableview, int section)
+            {
+                return controller.Sections[section].Items.Count;
+            }
+            
+			public override string TitleForHeader (UITableView tableView, int section)
+            {
+                return controller.Sections[section].Name;
+            }
+
+            public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
 			{
-				return controller.List.Items.Count;
-			}
-	 
-			public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
-			{
-				Item item = controller.List.Items[indexPath.Row];
+				Item item = controller.Sections[indexPath.Section].Items[indexPath.Row];
                 
                 // if the item is a reference, traverse to the target
                 while (item.ItemTypeID == SystemItemTypes.Reference && item.ItemRef != null)
@@ -420,45 +677,61 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
     				// on iOS, the image path is relative, so transform "/Images/foo.png" to "Images/foo.png"
     				if (icon.StartsWith ("/Images/"))
     				    icon = icon.Substring(1);
-                    if (icon.StartsWith("Images/") == false && icon.StartsWith("http://") == false && icon.StartsWith("www.") == false)
+                    if (icon.StartsWith("Images/") == false && icon.StartsWith("http") == false && icon.StartsWith("www.") == false)
                         icon = "Images/" + icon;
     				if (cell.ImageView.Image == null)
     					cell.ImageView.Image = new UIImage(icon);
                 }
                 
+                // if there is a picture, render it (potentially on top of the icon just rendered)
+                // render a picture if one exists 
+                // this picture will layer on top of the existing icon - in case the picture is unavailable (e.g. disconnected)
+                var picFV = item.GetFieldValue(FieldNames.Picture, false);
+                if (picFV != null && !String.IsNullOrEmpty(picFV.Value))
+                {
+                    var callback = new ImageLoaderCallback(controller, cell.ImageView, indexPath);
+                    //var image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), callback);
+                    cell.ImageView.Image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), callback);
+                    //callback.Image = image;
+                }
+                
 				return cell;
-			}
-		
+			}	
+            
             public override bool CanMoveRow(UITableView tableView, NSIndexPath indexPath)
             {
-                return true;
+                return controller.OrderBy == null;
             }
             
             public override void MoveRow(UITableView tableView, NSIndexPath sourceIndexPath, NSIndexPath destinationIndexPath)
             {
+                if (sourceIndexPath.Section != 0 || 
+                    destinationIndexPath.Section != 0)
+                    return;
+                
                 int sourceRow = sourceIndexPath.Row;
                 int destRow = destinationIndexPath.Row;
                 float before, after;
-                Item item = controller.List.Items[sourceRow];
+                Item item = controller.Sections[0].Items[sourceRow];
                 
                 // compute the new sort order for the folder based on the directiom of motion (up or down)
                 if (sourceRow < destRow) 
                 {
                     // moving down - new position is the average of target position plus next position
-                    before = controller.List.Items[destRow].SortOrder;
-                    if (destRow >= controller.List.Items.Count - 1)
+                    before = controller.Sections[0].Items[destRow].SortOrder;
+                    if (destRow >= controller.Sections[0].Items.Count - 1)
                         after = before + 1000f;
                     else
-                        after = controller.List.Items[destRow + 1].SortOrder;
+                        after = controller.Sections[0].Items[destRow + 1].SortOrder;
                 }                
                 else
                 {
                     // moving up - new position is the average of target position plus previous position
-                    after = controller.List.Items[destRow].SortOrder;
+                    after = controller.Sections[0].Items[destRow].SortOrder;
                     if (destRow == 0)
                         before = 0;
                     else
-                        before = controller.List.Items[destRow - 1].SortOrder;
+                        before = controller.Sections[0].Items[destRow - 1].SortOrder;
                 }
                 float newSortOrder = (before + after) / 2;
                 
@@ -488,7 +761,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 if (editingStyle == UITableViewCellEditingStyle.Delete)
                 {
-                    Item item = controller.List.Items[indexPath.Row];
+                    Item item = controller.Sections[indexPath.Section].Items[indexPath.Row];
 
                     // enqueue the Web Request Record
                     RequestQueue.EnqueueRequestRecord(
@@ -504,11 +777,39 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
      
                     // re-sort the current list, and have the table view update its UI
                     controller.SortList(); 
-                    tableView.DeleteRows(new [] { indexPath }, UITableViewRowAnimation.Fade);
+                    //tableView.DeleteRows(new [] { indexPath }, UITableViewRowAnimation.Fade);
+                    tableView.ReloadData();
                 }
             }
         }
-
+  
+        // callback class for the MonoTouch.Dialog image loader utility
+        private class ImageLoaderCallback : IImageUpdated
+        {
+            private ListViewController controller;
+            private UIImageView imageView;
+            private NSIndexPath indexPath;
+            
+            public ImageLoaderCallback(ListViewController c, UIImageView view, NSIndexPath path)
+            {
+                controller = c;
+                imageView = view;
+                indexPath = path;
+            }
+            
+            public UIImage Image { get; set; }
+                
+            void IImageUpdated.UpdatedImage(Uri uri)
+            {
+                if (uri == null)
+                    return;
+                if (Image != null)
+                    imageView.Image = Image;
+                // refresh the display for the row of the image that just got updated
+                controller.TableView.ReloadRows(new NSIndexPath [] { indexPath }, UITableViewRowAnimation.None);                
+            }
+        }
+        
 		#endregion
 	}
 }

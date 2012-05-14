@@ -25,6 +25,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             TraceHelper.AddMessage("FolderEditor: constructor");
 
             ConnectedIconImage.DataContext = App.ViewModel;
+            LayoutRoot.DataContext = App.ViewModel;
 
             // enable tabbing
             this.IsTabStop = true;
@@ -173,7 +174,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 {
                     // new folder
                     folderCopy = new Folder();
-                    DataContext = folderCopy;
+                    TitlePanel.DataContext = folderCopy;
                 }
                 else
                 {
@@ -182,7 +183,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                     // make a deep copy of the item for local binding
                     folderCopy = new Folder(folder);
-                    DataContext = folderCopy;
+                    TitlePanel.DataContext = folderCopy;
 
                     // add the delete button to the ApplicationBar
                     var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
