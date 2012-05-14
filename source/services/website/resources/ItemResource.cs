@@ -462,9 +462,33 @@
                 return;
             }
 
+            // set up the grocery API endpoint
+            GroceryAPI gApi = new GroceryAPI();
+            if (HostEnvironment.IsAzure)
+            {
+                // set the proper endpoint URI based on the account name 
+                var connStr = ConfigurationSettings.Get("DataConnectionString");
+                var acctname = @"AccountName=";
+                var start = connStr.IndexOf(acctname);
+                if (start >= 0)
+                {
+                    var end = connStr.IndexOf(';', start);
+                    var accountName = connStr.Substring(start + acctname.Length, end - start - acctname.Length);
+                    var endpointBaseUri = String.Format("{0}://{1}.cloudapp.net/Grocery/", req.RequestUri.Scheme, accountName);
+                    gApi.EndpointBaseUri = endpointBaseUri;
+                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
+                }
+            }
+            else
+                if (req.RequestUri.Authority.StartsWith("localhost") || req.RequestUri.Authority.StartsWith("127.0.0.1"))
+                {
+                    // if debugging, set the proper endpoint URI
+                    var endpointBaseUri = String.Format("{0}://{1}/Grocery/", req.RequestUri.Scheme, req.RequestUri.Authority);
+                    gApi.EndpointBaseUri = endpointBaseUri;
+                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
+                }
+
             // try to find the category from the local Grocery Controller
-            var endpointBaseUri = string.Format("{0}://{1}/Grocery/", req.RequestUri.Scheme, req.RequestUri.Authority);
-            GroceryAPI gApi = new GroceryAPI() { EndpointBaseUri = endpointBaseUri };
             try
             {
                 var results = gApi.Query(GroceryQueries.GroceryCategory, item.Name).ToList();
@@ -480,7 +504,7 @@
                         break;
                     }
                     this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return;
                 }
             }
@@ -532,7 +556,7 @@
                     categoryFV.Value = entry[SupermarketQueryResult.Category];
 
                     this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     
                     // only grab the first category
                     break;

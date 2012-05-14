@@ -80,6 +80,7 @@
 
         public ActionResult GroceryCategory(string name)
         {
+            ServiceHost.TraceLog.TraceDetail("GroceryCategory called with " + name);
             JsGroceryResults groceryResults = new JsGroceryResults();
             var context = new GroceryContext();
             List<GroceryReturnValue> grocery = new List<GroceryReturnValue>();
@@ -87,11 +88,13 @@
 
             try
             {
-                var groc = context.Groceries.Include("Category").First(g => g.Name.StartsWith(groceryName));
+                var groc = context.Groceries.Include("Category").OrderBy(g => g.Name).First(g => g.Name.StartsWith(groceryName));
                 grocery.Add(new GroceryReturnValue() { Name = groc.Name, Category = groc.Category.Name });
+                ServiceHost.TraceLog.TraceDetail(String.Format("GroceryCategory: found {0} category for {1}", groc.Category.Name, name));
             }
             catch (Exception)
             {
+                ServiceHost.TraceLog.TraceDetail("GroceryCategory: could not find a category for " + name);
             }
 
             groceryResults.Count = grocery.Count;
@@ -125,7 +128,8 @@
             // load the grocery names and their categories from a tab-delimited flat file
             try
             {
-                using (var stream = System.IO.File.Open(Server.MapPath("~/models/groceries.txt"), FileMode.Open))
+                string filename = Server.MapPath("~/models/").Substring(0, 1) + @":\approot\bin\models\groceries.txt";
+                using (var stream = System.IO.File.Open(filename, FileMode.Open))
                 using (var reader = new StreamReader(stream))
                 {
                     var groceryInfo = reader.ReadLine();

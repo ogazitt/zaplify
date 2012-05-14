@@ -33,7 +33,7 @@
       <!-- SQL Express databases for Local deployment -->
       <Setting name="SQLUsers" value="data source=.\SQLEXPRESS;Initial Catalog=ZapUsers;Integrated Security=SSPI" />
       <Setting name="SQLSuggestions" value="data source=.\SQLEXPRESS;Initial Catalog=ZapSuggestions;Integrated Security=SSPI" />
-      <Setting name="SQLGrocery" value="data source=raobsl4g40.database.windows.net;Initial Catalog=GroceryDatabase;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLGrocery" value="data source=.\SQLEXPRESS;Initial Catalog=GroceryDatabase;User Id=builtsteady;Password=zrc022.." />
       <!-- Facebook Application 'ZaplifyLocal' -->
       <Setting name="FBAppID" value="143874022407356"/>
       <Setting name="FBAppSecret" value="97d8ff1943a2f85a775e4924443b74ad"/>
