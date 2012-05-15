@@ -7,6 +7,7 @@
     using System.Web.Mvc;
     using BuiltSteady.Zaplify.GroceryService.Models;
     using System.IO;
+    using BuiltSteady.Zaplify.ServiceHost;
 
     //[Authorize]
     public class GroceryController : Controller
@@ -129,7 +130,11 @@
             try
             {
                 string filename = Server.MapPath("~/models/").Substring(0, 1) + @":\approot\bin\models\groceries.txt";
-                using (var stream = System.IO.File.Open(filename, FileMode.Open))
+                if (HostEnvironment.IsAzureDevFabric)
+                {
+                    filename = HttpContext.Request.PhysicalApplicationPath + @"bin\models\groceries.txt";
+                }
+                using (var stream = System.IO.File.Open(filename, FileMode.Open, FileAccess.Read))
                 using (var reader = new StreamReader(stream))
                 {
                     var groceryInfo = reader.ReadLine();

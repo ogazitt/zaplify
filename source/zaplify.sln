@@ -25,11 +25,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailWorker", "services\mail
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkflowWorker", "services\workflowworker\WorkflowWorker.csproj", "{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "UserDatabase", "services\database\UserDatabase.sqlproj", "{B844C2F4-C9C6-4265-BED1-021800C06399}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "UserDatabase", "services\database\UserDatabase\UserDatabase.sqlproj", "{B844C2F4-C9C6-4265-BED1-021800C06399}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SuggestionDatabase", "services\database\SuggestionDatabase.sqlproj", "{AB279288-8B3E-469C-A237-8660D0D34594}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SuggestionDatabase", "services\database\SuggestionDatabase\SuggestionDatabase.sqlproj", "{AB279288-8B3E-469C-A237-8660D0D34594}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "GroceryDatabase", "services\database\GroceryDatabase\GroceryDatabase.sqlproj", "{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "GroceryDatabase", "services\database\DataServicesDatabase\DataServicesDatabase.sqlproj", "{A58E98D3-CDDF-4FA9-AF94-CF8F21B7270F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

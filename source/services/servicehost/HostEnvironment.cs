@@ -1,19 +1,21 @@
 namespace BuiltSteady.Zaplify.ServiceHost
 {
     using System;
+    using System.Globalization;
     using System.IO;
     using System.Runtime.CompilerServices;
-
+    using System.Web;
     // avoid loading Azure assemblies unless running in Azure
     using Azure = Microsoft.WindowsAzure;
-    using System.Globalization;
 
     public static class HostEnvironment
     {
+        public const string AzureStorageAccountConfigKey = "AzureStorageAccount";
         const string UserDataConnectionConfigKey = "UsersConnection";
         const string UserAccountConnectionConfigKey = "UsersConnection";
         const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
-        const string GroceryConnectionConfigKey = "GroceryConnection";
+        const string DataServicesConnectionConfigKey = "DataServicesConnection";
+        const string DataServicesEndpointConfigKey = "DataServicesEndpoint";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
 
         static bool? isAzure;               // true for either Azure or DevFabric
@@ -21,7 +23,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
         static string userDataConnection;
         static string userAccountConnection;
         static string suggestionsConnection;
-        static string groceryConnection;
+        static string dataServicesConnection;
+        static string dataServicesEndpoint;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -94,15 +97,38 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
-        public static string GroceryConnection
+        public static string DataServicesConnection
         {
             get
             {
-                if (groceryConnection == null)
+                if (dataServicesConnection == null)
                 {
-                    groceryConnection = ConfigurationSettings.GetConnection(GroceryConnectionConfigKey);
+                    dataServicesConnection = ConfigurationSettings.GetConnection(DataServicesConnectionConfigKey);
                 }
-                return groceryConnection;
+                return dataServicesConnection;
+            }
+        }
+
+        public static string DataServicesEndpoint
+        {
+            get
+            {
+                if (dataServicesEndpoint == null)
+                {
+                    dataServicesEndpoint = ConfigurationSettings.Get(DataServicesEndpointConfigKey);
+                    if (string.IsNullOrEmpty(dataServicesEndpoint))
+                    {   // use local hostname if not defined in configuration
+                        if (HttpContext.Current != null && HttpContext.Current.Request != null)
+                        {
+                            Uri requestUri = HttpContext.Current.Request.UrlReferrer;
+                            if (requestUri != null)
+                            {
+                                dataServicesEndpoint = String.Format("{0}://{1}/", requestUri.Scheme, requestUri.Authority);
+                            }
+                        }
+                    }
+                }
+                return dataServicesEndpoint;
             }
         }
 

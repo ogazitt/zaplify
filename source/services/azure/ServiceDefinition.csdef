@@ -7,11 +7,11 @@
       <Import moduleName="RemoteForwarder" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" />
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
-      <Setting name="DataConnectionString" />
       <Setting name="MailWorkerCount" />
       <Setting name="WorkflowWorkerCount" />
     </ConfigurationSettings>
@@ -41,16 +41,16 @@
       <Import moduleName="RemoteAccess" />
     </Imports>
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" />
       <Setting name="UsersConnection" />
       <Setting name="SuggestionsConnection" />
-      <Setting name="GroceryConnection" />
+      <Setting name="DataServicesConnection" />
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
-      <Setting name="SQLGrocery" />
-      <Setting name="DataConnectionString" />
+      <Setting name="SQLDataServices" />
+      <Setting name="DataServicesEndpoint"/>
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />
-      <Setting name="GroceryServiceEndpointUri"/>
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">

@@ -1,10 +1,7 @@
 ﻿namespace BuiltSteady.Zaplify.GroceryService.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.Data.Entity;
-    using System.Linq;
-    using System.Web.Script.Serialization;
 
     using BuiltSteady.Zaplify.ServiceHost;
 
@@ -50,7 +47,7 @@
     // DbContext for the Grocery DB
     public class GroceryContext : DbContext
     {
-        public GroceryContext() : base(HostEnvironment.GroceryConnection) { }
+        public GroceryContext() : base(HostEnvironment.DataServicesConnection) { }
         public GroceryContext(string connection) : base(connection) { }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -61,20 +58,4 @@
         public DbSet<GroceryCategory> GroceryCategories { get; set; }
     }
 
-    public static class GroceryModel
-    {
-        static string jsonConstants;
-
-        public static string JsonConstants
-        {
-            get
-            {
-                if (jsonConstants == null)
-                {
-                    jsonConstants = JsonSerializer.Serialize("me");
-                }
-                return jsonConstants;
-            }
-        }
-    }
 }
