@@ -33,6 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Grocery">
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Grocery.dll</HintPath>
+    </Reference>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Supermarket, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Supermarket.dll</HintPath>
+    </Reference>
     <Reference Include="EntityDataModel">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\EntityDataModel.dll</HintPath>
     </Reference>
@@ -60,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="ItemProcessor.cs" />
     <Compile Include="IWorker.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />

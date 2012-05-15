@@ -37,6 +37,8 @@
       <!-- Facebook Application 'ZaplifyLocal' -->
       <Setting name="FBAppID" value="143874022407356"/>
       <Setting name="FBAppSecret" value="97d8ff1943a2f85a775e4924443b74ad"/>
+      <!-- Grocery Service Endpoint for Dev1 -->
+      <Setting name="GroceryServiceEndpointUri" value="http://localhost:8888/Grocery/"/>
       <!--Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" /-->
       <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />

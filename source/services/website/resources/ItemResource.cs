@@ -216,7 +216,9 @@
                     clientItem.LastModified = now;
 
                 // do itemtype-specific processing
-                ProcessItemInsert(req, clientItem);
+                var ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
+                ip.RequestUri = req.RequestUri;
+                ip.ProcessCreate(clientItem);
 
                 try
                 {   // add the new item to the database
@@ -341,15 +343,10 @@
                         changed = true;
                     }
                     
-                    if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
-                    {   // delete all the fieldvalues associated with this item
-                        foreach (var fv in requestedItem.FieldValues.ToList())
-                            this.StorageContext.FieldValues.Remove(fv);
-                        changed = true;
-                    }
-
                     // do itemtype-specific processing
-                    ProcessItemUpdate(req, originalItem, newItem);
+                    var ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
+                    ip.RequestUri = req.RequestUri;
+                    ip.ProcessUpdate(originalItem, newItem);
 
                     // call update and make sure the changed flag reflects the outcome correctly
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
@@ -661,21 +658,87 @@
                     continue;
                 }
 
-                // BUGBUG: this is too simplistic - should iterate thru fieldvalue collection and do finer-grained conflict management
+                // iterate thru fieldvalue collection and do finer-grained conflict management
+                // the algorithm is to take a fieldvalue change only if the original value passed in is the same as 
+                // the server's current value, OR the timestamp of the new item is more recent than the server's timestamp
+                // the logic is complicated somewhat by taking into account NEW fieldvalues that don't exist on the original
+                // item OR on the server's item.
                 if (pi.Name == "FieldValues")
-                {   // if this is the FieldValues field make it simple - if this update is the last one, it wins
-                    if (newItem.LastModified >= requestedItem.LastModified)
+                {
+                    var serverFVList = serverValue as List<FieldValue>;
+                    var origFVList = origValue as List<FieldValue>;
+                    var newFVList = newValue as List<FieldValue>;
+
+                    // if there is no fieldvalue list on the new item, skip processing
+                    // this logic assumes that fieldvalues are never removed from an item - only added
+                    if (newFVList == null)
+                        continue;
+
+                    // iterate through the new item's fieldvalues
+                    foreach (var newFV in newFVList)
                     {
-                        pi.SetValue(requestedItem, newValue, null);
-                        updated = true;
+                        FieldValue serverFV = null;
+                        FieldValue origFV = null;
+                        if (serverFVList != null && serverFVList.Any(fv => fv.FieldName == newFV.FieldName))
+                            serverFV = serverFVList.Single(fv => fv.FieldName == newFV.FieldName);
+                        if (origFVList != null && origFVList.Any(fv => fv.FieldName == newFV.FieldName))
+                            origFV = origFVList.Single(fv => fv.FieldName == newFV.FieldName);
+
+                        // if the value has changed, process further
+                        if (origFV == null || origFV.Value != newFV.Value)
+                        {
+                            // process a new fieldvalue
+                            if (origFV == null)
+                            {
+                                // if the server has no record, add this as a new fieldvalue
+                                if (serverFV == null)
+                                {
+                                    serverFVList.Add(newFV);
+                                    updated = true;
+                                }
+                                else
+                                {
+                                    // server also has this fieldvalue (so this is a conflict)
+                                    // overwrite if this new item is newer than server's timestamp
+                                    if (newItem.LastModified > requestedItem.LastModified)
+                                    {
+                                        serverFV.Value = newFV.Value;
+                                        updated = true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // original and new values exist - process a fieldvalue update
+                                if (serverFV == null)
+                                {
+                                    // this case shouldn't really happen - if the old and new items have this fieldvalue, the 
+                                    // server should as well.  but we will tolerate this and add it anyway.
+                                    serverFVList.Add(newFV);
+                                    updated = true;
+                                }
+                                else
+                                {
+                                    // if server has the original value, or the new item has a later timestamp than the server, make the update
+                                    if (origFV.Value == serverFV.Value || newItem.LastModified > requestedItem.LastModified)
+                                    {
+                                        serverFV.Value = newFV.Value;
+                                        updated = true;
+                                    }
+                                }
+                            }
+                        }
                     }
                     continue;
                 }
 
+                // this logic applies for every field OTHER than Tags or FieldValues (e.g. Name, ItemTypeID, ParentID, FolderID, etc)
                 if (!object.Equals(origValue, newValue))
-                {   // value has changed, process further
+                {   
+                    // value has changed, process further
                     if (object.Equals(serverValue, origValue) || newItem.LastModified > requestedItem.LastModified)
-                    {   // server has the original value, or the new item has a later timestamp than the server, make the update
+                    {   
+                        // server has the original value, or the new item has a later timestamp than the server, make the update
                         pi.SetValue(requestedItem, newValue, null);
                         updated = true;
                     }

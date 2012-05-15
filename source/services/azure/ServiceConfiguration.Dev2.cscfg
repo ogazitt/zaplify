@@ -36,6 +36,8 @@
       <!-- Facebook Application 'ZaplifyDev2' -->
       <Setting name="FBAppID" value="329034793824754"/>
       <Setting name="FBAppSecret" value="1caa1ea5bb4a9a6ee4adb64be0080b7d"/>
+      <!-- Grocery Service Endpoint for Dev2 -->
+      <Setting name="GroceryServiceEndpointUri" value="http://zaplifydev2.cloudapp.net/Grocery/"/>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev2;AccountKey=dZAAyMjmI0Ec1VItdf2pJ5uD9Hr8lkMj6aYi7oqRDTVqAXlWZWPH2JmttLsiuB6xgCQfCfFn73AdgJ3L6JD9iw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

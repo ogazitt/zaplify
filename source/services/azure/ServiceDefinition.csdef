@@ -50,6 +50,7 @@
       <Setting name="DataConnectionString" />
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />
+      <Setting name="GroceryServiceEndpointUri"/>
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
