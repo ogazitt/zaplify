@@ -3,8 +3,8 @@ obj/
 tmp/
 build/
 .DS_Store
-source/service/website/bin/
-source/service/website/content/generated
+source/services/website/bin/
+source/services/website/content/generated
 *.generated.min.js
 source/devices/winphone/winphone/PerformanceLogs/
 source/services/azure/csx/
