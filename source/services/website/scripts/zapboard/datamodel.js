@@ -610,23 +610,13 @@ Item.prototype.GetFieldValue = function (field, handler) {
             var fv = this.FieldValues[i];
             if (fv.FieldName == field.Name) {
                 if (fv.Value != null && field.FieldType == FieldTypes.Guid) {
+                    // automatically attempt to dereference Guid values to a Folder or Item
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
-                    /*
-                    // try to fetch referenced item from server
-                    Service.GetResource('items', fv.Value,
-                        function (responseState) {
-                            var newItem = responseState.result;
-                            if (newItem != null) {
-                                newItem = Item.Extend(newItem);        // extend with Item functions
-                                DataModel.Folders[newItem.FolderID].ItemsMap.append(newItem);
-                                if (handler != null) { handler(newItem); }
-                            }
-                        });
-                    */
-                } else {
-                    return fv.Value;
                 }
+                // javascript only recognizes lowercase boolean values
+                if (field.FieldType == FieldTypes.Boolean) { fv.Value = fv.Value.toLowerCase(); }
+                return fv.Value;
             }
         }
         //TODO: return default value based on FieldType
@@ -1019,7 +1009,7 @@ UserSettings.prototype.update = function (name, itemKey) {
     if (this[itemName] == null) {
         this[itemName] = this.Folder.GetItemByName(itemKey, null);
     }
-    var updatedItem = $.extend({}, this[itemName]);
+    var updatedItem = $.extend(true, {}, this[itemName]);       // deep copy
     updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
     this[itemName].Update(updatedItem);
 }
