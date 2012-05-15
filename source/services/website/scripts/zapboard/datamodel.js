@@ -609,7 +609,7 @@ Item.prototype.GetFieldValue = function (field, handler) {
         for (var i in this.FieldValues) {
             var fv = this.FieldValues[i];
             if (fv.FieldName == field.Name) {
-                if (fv.Value != null && field.FieldType == FieldTypes.GUID) {
+                if (fv.Value != null && field.FieldType == FieldTypes.Guid) {
                     var item = DataModel.FindItem(fv.Value);
                     if (item != null) { return item; }
                     /*
@@ -670,7 +670,7 @@ Item.prototype.AddReference = function (field, item, replace) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.Guid) {
 
         var refList = this.GetFieldValue(field);
         if (refList != null) {
@@ -706,7 +706,7 @@ Item.prototype.RemoveReferences = function (field) {
     if (typeof (field) == 'string') {
         field = this.GetField(field);
     }
-    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.GUID) {
+    if (field != null && this.HasField(field.Name) && field.FieldType == FieldTypes.Guid) {
         var refList = this.GetFieldValue(field);
         if (refList != null && refList.IsList) {
             // remove all references
@@ -1064,10 +1064,10 @@ var FieldNames = {
     Amount : "Amount",                      // String
     Cost : "Cost",                          // Currency
     ItemTags : "ItemTags",                  // TagIDs
-    EntityRef: "EntityRef",                 // GUID
+    EntityRef: "EntityRef",                 // Guid
     EntityType: "EntityType",               // String
-    Locations: "Locations",                 // GUID
-    Contacts: "Contacts",                   // GUID
+    Locations: "Locations",                 // Guid
+    Contacts: "Contacts",                   // Guid
     Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
     FacebookID: "FacebookID",               // String
@@ -1099,7 +1099,7 @@ var FieldTypes = {
     Address : "Address",
     Currency : "Currency",
     TagIDs : "TagIDs",
-    GUID : "GUID",
+    Guid : "Guid",
     JSON : "JSON"
 }
 
