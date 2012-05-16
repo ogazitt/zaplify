@@ -17,6 +17,7 @@ using System.Linq;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Shared.Entities;
 using System.Reflection;
+using System.Text;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -62,6 +63,50 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // reinsert it at the correct place
             ListBox.Items.Insert(newIndex, RenderItem(item));
+        }
+
+        public string GetAsText()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(list.Name);
+            sb.AppendLine();
+
+            foreach (Item item in list.Items)
+            {
+                // render a separator (section heading)
+                if (item.ItemTypeID == SystemItemTypes.System)
+                {
+                    sb.AppendLine(item.Name);
+                    continue;
+                }
+                // skip lists
+                if (item.IsList)
+                    continue;
+
+                // indent item
+                sb.Append("    ");
+
+                // render a unicode checkbox (checked or unchecked) if the item has a complete field
+                if (App.ViewModel.ItemTypes.Any(it => it.ID == item.ItemTypeID && it.Fields.Any(f => f.Name == FieldNames.Complete)))
+                {
+                    var complete = item.GetFieldValue(FieldNames.Complete);
+                    if (complete != null && Convert.ToBoolean(complete.Value) == true)
+                        sb.Append("\u2612 ");
+                    else
+                        sb.Append("\u2610 ");
+                }
+
+                // render the item name
+                sb.Append(item.Name);
+
+                var duedate = item.GetFieldValue(FieldNames.DueDate);
+                if (duedate != null && duedate.Value != null)
+                    sb.Append(", due on " + Convert.ToDateTime(duedate.Value).ToString("d"));
+
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

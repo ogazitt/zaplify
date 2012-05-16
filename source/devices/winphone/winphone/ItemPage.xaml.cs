@@ -19,6 +19,8 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Shared.Entities;
 using WPKeyboardHelper;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -68,7 +70,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             tabIndex = 0;
 
             // render the folder field by default
-            bool renderFolderField = true;
+            bool renderListInfo = false;
 
             // find the folder that this item would belong to
             string folderIDString = "";
@@ -93,7 +95,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (folder == null)
             {
                 folder = App.ViewModel.DefaultFolder;
-                renderFolderField = true;
+                renderListInfo = true;
             }
 
             string itemIDString = "";
@@ -116,7 +118,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 itemCopy = new Item() { FolderID = folder.ID };
                 thisItem = null;
                 RenderViewItem(itemCopy); 
-                RenderEditItem(itemCopy, renderFolderField);
+                RenderEditItem(itemCopy, renderListInfo);
 
                 // navigate the pivot control to the "edit" view
                 ItemPagePivotControl.SelectedIndex = 1;
@@ -133,7 +135,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 itemCopy = new Item(thisItem);
                 ItemPagePivotControl.DataContext = itemCopy;
                 RenderViewItem(itemCopy);
-                RenderEditItem(itemCopy, true /* render the list field */);
+                RenderEditItem(itemCopy, false /* don't render the list info as primray fields */);
             }
                     
             // set the initialized flag
@@ -194,7 +196,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             EditListBox.Items.Remove(moreButton);
 
             // render the non-primary fields
-            RenderEditItemFields(itemCopy, itemType, false, false);
+            RenderEditItemFields(itemCopy, itemType, false, true);
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
@@ -339,7 +341,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 item.Website = m.Value;           
         }
 
-        private void RenderEditItem(Item item, bool renderFolderField)
+        private void RenderEditItem(Item item, bool renderListInfo)
         {
             // get itemType for this item
             try
@@ -353,7 +355,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // render the primary fields
-            RenderEditItemFields(item, itemType, true, renderFolderField);
+            RenderEditItemFields(item, itemType, true, renderListInfo);
 
             // render more button
             moreButton = new Button() { Content = "more details" };
@@ -523,8 +525,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                 // Use the Position property of the GeoCoordinateWatcher object to get the current location.
                                 GeoCoordinate co = watcher.Position.Location;
                                 tb.Text = co.Latitude.ToString("0.000") + "," + co.Longitude.ToString("0.000");
-                                //Stop the Location Service to conserve battery power.
+                                // Stop the Location Service to conserve battery power.
                                 watcher.Stop();
+                                // also store the latlong information in a hidden LatLong FieldValue
+                                var latlong = item.GetFieldValue(FieldNames.LatLong, true);
+                                if (latlong != null)
+                                    latlong.Value = tb.Text;
                             }
                         });
                         watcher.Start();
@@ -564,6 +570,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     {
                         MinWidth = minWidth,
                         FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
+                        ItemCountThreshold = 4,
                         IsTabStop = true
                     };
                     var lists = App.ViewModel.Items.
@@ -577,9 +584,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     });
                     listPicker.ItemsSource = lists;
                     listPicker.DisplayMemberPath = "Name";
-                    Item thisItem = lists.FirstOrDefault(i => i.ID == item.ParentID);
+                    var listGuid = currentValue != null ? (Guid) currentValue : Guid.Empty;
+                    Item thisItem = lists.FirstOrDefault(i => i.ID == (Guid) listGuid);
                     // if the list isn't found (e.g. ParentID == null), SelectedIndex will default to the Folder scope (which is correct for that case)
-                    listPicker.SelectedIndex = Math.Max(lists.IndexOf(thisItem), 0);  
+                    listPicker.SelectedIndex = Math.Max(lists.IndexOf(thisItem), 0);
                     listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, lists[listPicker.SelectedIndex].ID, null); });
                     listPicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(listPicker);
@@ -637,15 +645,67 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 case DisplayTypes.ImageUrl:
                     // TODO: wire up to picture picker, and upload to an image service
                     break;
+                case DisplayTypes.LinkArray:
+                    tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Url } } };
+                    tb.AcceptsReturn = true;
+                    tb.TextWrapping = TextWrapping.Wrap;
+                    tb.Height = 300;
+                    tb.TabIndex = tabIndex++;
+                    tb.ClearValue(TextBox.TextProperty);
+                    if (!String.IsNullOrEmpty((string) currentValue))
+                    {
+                        try
+                        {
+                            var linkList = JsonConvert.DeserializeObject<List<Link>>((string)currentValue);
+                            tb.Text = String.Concat(linkList.Select(l => l.Name != null ? l.Name + "," + l.Url + "\n" : l.Url + "\n").ToList());
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                    tb.LostFocus += new RoutedEventHandler(delegate 
+                    {
+                        // the expected format is a newline-delimited list of Name, Url pairs
+                        var linkArray = tb.Text.Split(new char[] { '\r','\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        var linkList = new List<Link>();
+                        foreach (var link in linkArray)
+                        {
+                            var nameval = link.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (nameval.Length == 0)
+                                continue;
+                            if (nameval.Length == 1)
+                                linkList.Add(new Link() { Url = nameval[0].Trim() });
+                            else
+                                linkList.Add(new Link() { Name = nameval[0].Trim(), Url = nameval[1].Trim() });
+                        }
+                        var json = JsonConvert.SerializeObject(linkList);
+                        pi.SetValue(container, json, null); 
+                    });
+                    EditStackPanel.Children.Add(tb);
+                    break;
                 case DisplayTypes.Hidden:
                     // skip rendering
                     break;
-                    /*
-                case "ListPointer":
-                    innerPanel = RenderEditFolderPointer(pi, minWidth);
-                    EditStackPanel.Children.Add(innerPanel);
+                case DisplayTypes.ContactList:
                     break;
-                     */
+                case DisplayTypes.LocationList:
+                    break;
+                case DisplayTypes.ItemTypes:
+                    ListPicker itemTypePicker = new ListPicker()
+                    {
+                        MinWidth = minWidth,
+                        FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
+                        ItemCountThreshold = 1,
+                        IsTabStop = true
+                    };
+                    var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
+                    itemTypePicker.ItemsSource = itemTypes;
+                    itemTypePicker.DisplayMemberPath = "Name";
+                    ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == (Guid) currentValue);
+                    itemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
+                    itemTypePicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, itemTypes[itemTypePicker.SelectedIndex].ID, null); });
+                    EditStackPanel.Children.Add(itemTypePicker);
+                    break;
                 default:
                     notMatched = true;
                     break;
@@ -657,6 +717,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 switch (field.FieldType)
                 {
                     case FieldTypes.String:
+                    default:
                         tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
                         tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                         tb.TabIndex = tabIndex++;
@@ -688,8 +749,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         cb.TabIndex = tabIndex++;
                         EditStackPanel.Children.Add(cb);
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -699,16 +758,18 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         
         private void RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderListField)
         {
-            if (renderListField == true)
-            {
-                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = DisplayTypes.Folders };
-                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = DisplayTypes.Lists };
-                RenderEditItemField(item, field);
-            }
-
             // render fields
             foreach (Field f in itemtype.Fields.Where(f => f.IsPrimary == primary).OrderBy(f => f.SortOrder))
                 RenderEditItemField(item, f);
+
+            if (renderListField == true)
+            {
+                Field field = new Field() { Name = "ParentID", DisplayName = "List", DisplayType = DisplayTypes.Lists };
+                RenderEditItemField(item, field);
+
+                field = new Field() { Name = "ItemTypeID", DisplayName = "Item Type", DisplayType = DisplayTypes.ItemTypes };
+                RenderEditItemField(item, field);
+            }
 
             // refresh the keyboard tabstops
             keyboardHelper.RefreshTabbedControls(null);
@@ -717,6 +778,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private static StackPanel RenderEditItemImageButtonPanel(TextBox tb)
         {
             tb.MinWidth -= 64;
+            tb.MaxWidth = tb.MinWidth;
             StackPanel innerPanel = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
             innerPanel.Children.Add(tb);
             ImageButton imageButton = new ImageButton()
@@ -730,56 +792,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             innerPanel.Children.Add(imageButton);
             return innerPanel;
         }
-
-        /*
-        private StackPanel RenderEditFolderPointer(PropertyInfo pi, double minWidth)
-        {
-            StackPanel innerPanel;
-            innerPanel = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
-            CheckBox listcb = new CheckBox() { DataContext = itemCopy, IsTabStop = true };
-            listcb.SetBinding(CheckBox.IsCheckedProperty, new Binding("LinkedFolderIDBool"));
-            listcb.TabIndex = tabIndex++;
-            ListPicker listPicker = new ListPicker()
-            {
-                MinWidth = minWidth,
-                FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                DataContext = listcb
-            };
-            listPicker.SetBinding(ListPicker.IsEnabledProperty, new Binding("IsChecked"));
-            listPicker.ItemsSource = App.ViewModel.Folders;
-            listPicker.DisplayMemberPath = "Name";
-            Guid? folderID = (Guid?)pi.GetValue(itemCopy, null);
-            if (folderID != null)
-            {
-                try
-                {
-                    Folder folderVal = App.ViewModel.Folders.Single(t => t.ID == (Guid)folderID);
-                    if (folderVal != null)
-                        listPicker.SelectedIndex = App.ViewModel.Folders.IndexOf(folderVal);
-                }
-                catch (Exception)
-                {
-                    listPicker.SelectedIndex = 0;
-                }
-            }
-            else
-                listPicker.SelectedIndex = 0;
-
-            // set the event handlers for the checkbox and listpicker
-            listcb.Unchecked += new RoutedEventHandler(delegate { pi.SetValue(itemCopy, null, null); });
-            listcb.Checked += new RoutedEventHandler(delegate { pi.SetValue(itemCopy, App.ViewModel.Folders[listPicker.SelectedIndex].ID, null); });
-            listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate
-            {
-                if (listcb.IsChecked == false)
-                    pi.SetValue(itemCopy, null, null);
-                else
-                    pi.SetValue(itemCopy, App.ViewModel.Folders[listPicker.SelectedIndex].ID, null);
-            });
-            innerPanel.Children.Add(listcb);
-            innerPanel.Children.Add(listPicker);
-            return innerPanel;
-        }
-         */
 
         private void RenderEditItemTagList(TextBox taglist, Item item, PropertyInfo pi)
         {
@@ -927,20 +939,22 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         case ActionNames.Navigate:
                             try
                             {
-                                Folder f = App.ViewModel.Folders.Single(t => t.ID == Guid.Parse(currentValue));
-                                valueTextBlock.Text = String.Format("to {0}", f.Name);
+                                Item targetList = App.ViewModel.Items.Single(i => i.ID == Guid.Parse(currentValue));
+                                //valueTextBlock.Text = String.Format("to {0}", targetList.Name);
                                 button.Click += new RoutedEventHandler(delegate
                                 {
                                     // trace page navigation
-                                    TraceHelper.StartMessage("Item: Navigate to Folder");
+                                    TraceHelper.StartMessage("Item: Navigate to List");
 
                                     // Navigate to the new page
-                                    NavigationService.Navigate(new Uri("/ListPage.xaml?type=Folder&ID=" + f.ID.ToString(), UriKind.Relative));
+                                    NavigationService.Navigate(
+                                        new Uri(String.Format("/ListPage.xaml?type=Folder&ID={0}&ParentID={1}", targetList.FolderID, targetList.ID), 
+                                        UriKind.Relative));
                                 });
                             }
                             catch (Exception)
                             {
-                                valueTextBlock.Text = "(folder not found)";
+                                valueTextBlock.Text = "(list not found)";
                             }
                             break;
                         case ActionNames.Postpone:
