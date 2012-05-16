@@ -3,16 +3,18 @@
   <Role name="WorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
+      <!--Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==" /-->
+      <!-- SQL Express databases for Local deployment -->
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="MailWorkerCount" value="1" />
-      <Setting name="WorkflowWorkerCount" value="1" />
-      <!-- SQL Express databases for Local deployment -->
       <Setting name="SQLUsers" value="data source=.\SQLEXPRESS;Initial Catalog=ZapUsers;Integrated Security=SSPI" />
       <Setting name="SQLSuggestions" value="data source=.\SQLEXPRESS;Initial Catalog=ZapSuggestions;Integrated Security=SSPI" />
-      <!--Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" /-->
-      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
+      
+      <Setting name="MailWorkerCount" value="1" />
+      <Setting name="WorkflowWorkerCount" value="1" />
+      
+      <!--Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" /-->
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -27,21 +29,22 @@
   <Role name="Website">
     <Instances count="1" />
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
+      <!--Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==" /-->
+      <!-- SQL Express databases for Local deployment -->
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="GroceryConnection" value="SQLGrocery" />
-      <!-- SQL Express databases for Local deployment -->
+      <Setting name="DataServicesConnection" value="SQLDataServices" />
       <Setting name="SQLUsers" value="data source=.\SQLEXPRESS;Initial Catalog=ZapUsers;Integrated Security=SSPI" />
       <Setting name="SQLSuggestions" value="data source=.\SQLEXPRESS;Initial Catalog=ZapSuggestions;Integrated Security=SSPI" />
-      <Setting name="SQLGrocery" value="data source=.\SQLEXPRESS;Initial Catalog=GroceryDatabase;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLDataServices" value="data source=.\SQLEXPRESS;Initial Catalog=ZapDataServices;User Id=builtsteady;Password=zrc022.." />
+      <!-- DataServices Endpoint (empty string will use current host -->
+      <Setting name="DataServicesEndpoint" value=""/>
       <!-- Facebook Application 'ZaplifyLocal' -->
       <Setting name="FBAppID" value="143874022407356"/>
       <Setting name="FBAppSecret" value="97d8ff1943a2f85a775e4924443b74ad"/>
-      <!-- Grocery Service Endpoint for Dev1 -->
-      <Setting name="GroceryServiceEndpointUri" value="http://localhost:8888/Grocery/"/>
-      <!--Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" /-->
-      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
+      
+      <!--Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" /-->
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifylocal;AccountKey=bH35k2ZekEtRFmJLXKXkzqNsJRWKFiWm1LTAsQpp257kppJPUtubul+WTL3o00IohNv6HFPCNPJr9INWeLH0bQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

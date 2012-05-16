@@ -27,7 +27,7 @@
     <DacVersion>1.0.2012.0423</DacVersion>
     <DacDescription>
     </DacDescription>
-    <RootNamespace>Database</RootNamespace>
+    <RootNamespace>UserDatabase</RootNamespace>
     <DefaultSchema>dbo</DefaultSchema>
     <PreviousProjectVersion>4.0</PreviousProjectVersion>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -91,7 +91,7 @@
     <DBSchemaFileName>ZapUsers</DBSchemaFileName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\bin\database\debug\</OutputPath>
+    <OutputPath>..\..\..\..\bin\database\debug\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetDatabase>master</TargetDatabase>
@@ -100,6 +100,7 @@
     <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
     <ValidatePolicy>False</ValidatePolicy>
     <DBSchemaFileName>ZapUsers</DBSchemaFileName>
+    <SqlTargetName>ZapUsers</SqlTargetName>
   </PropertyGroup>
   <!--Import the settings-->
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
@@ -179,9 +180,7 @@
     <None Include="Scripts\Post-Deployment\dbo.Users.Table.sql">
       <SubType>Code</SubType>
     </None>
-    <Build Include="dbo.DatabaseVersions.Table.sql">
-      <SubType>Code</SubType>
-    </Build>
+    <Build Include="dbo.DatabaseVersions.Table.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="scripts\post-deployment\User.PostDeployment.sql" />

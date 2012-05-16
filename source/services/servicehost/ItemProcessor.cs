@@ -14,8 +14,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
         protected UserStorageContext userContext;
         protected User currentUser;
 
-        public Uri RequestUri { get; set; }
-
         /// <summary>
         /// Factory method to create a new item processor based on the item type
         /// </summary>
@@ -174,21 +172,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
             // set up the grocery API endpoint
             GroceryAPI gApi = new GroceryAPI();
-
-            // if debugging, set the proper endpoint URI
-            if (RequestUri != null && (RequestUri.Authority.StartsWith("localhost") || RequestUri.Authority.StartsWith("127.0.0.1")))
-            {
-                var endpointBaseUri = String.Format("{0}://{1}/Grocery/", RequestUri.Scheme, RequestUri.Authority);
-                gApi.EndpointBaseUri = endpointBaseUri;
-                TraceLog.TraceDetail("ProcessCreate: endpointURI: " + endpointBaseUri);
-            }
-            else if (HostEnvironment.IsAzure)
-            {
-                // set the proper endpoint URI based on the account name 
-                var endpointBaseUri = ConfigurationSettings.Get("GroceryServiceEndpointUri");
-                gApi.EndpointBaseUri = endpointBaseUri;
-                TraceLog.TraceDetail("ProcessCreate: endpointURI: " + endpointBaseUri);
-            }
+            gApi.EndpointBaseUri = string.Format("{0}{1}/", HostEnvironment.DataServicesEndpoint, "Grocery");
+            TraceLog.TraceDetail("ProcessCreate: endpointURI: " + gApi.EndpointBaseUri);
 
             // try to find the category from the local Grocery Controller
             try
@@ -314,7 +299,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             
             if (userContext.Items.Any(i => i.Name == itemName && i.ParentID == groceryCategories.ID))
             {
-                groceryCategory = userContext.Items.Include("FieldValues").Single(i => i.Name == item.Name && i.ParentID == groceryCategories.ID);
+                groceryCategory = userContext.Items.Include("FieldValues").Single(i => i.Name == itemName && i.ParentID == groceryCategories.ID);
                 groceryCategoryFV = groceryCategory.GetFieldValue(FieldNames.Value, true);
             }
             else if (create)

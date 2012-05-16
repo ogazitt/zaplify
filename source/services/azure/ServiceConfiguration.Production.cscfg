@@ -3,14 +3,16 @@
   <Role name="WorkerRole">
     <Instances count="2" />
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <!-- SQL Azure databases for Production deployment -->
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="MailWorkerCount" value="1" />
-      <Setting name="WorkflowWorkerCount" value="2" />
-      <!-- SQL Azure databases for Production deployment -->
       <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+
+      <Setting name="MailWorkerCount" value="1" />
+      <Setting name="WorkflowWorkerCount" value="2" />
+      
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -25,19 +27,20 @@
   <Role name="Website">
     <Instances count="2" />
     <ConfigurationSettings>
+      <Setting name="AzureStorageAccount" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <!-- SQL Azure databases for Production deployment -->
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="GroceryConnection" value="SQLGrocery" />
-      <!-- SQL Azure databases for Production deployment -->
+      <Setting name="DataServicesConnection" value="SQLDataServices" />
       <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLGrocery" value="data source=raobsl4g40.database.windows.net;Initial Catalog=GroceryDatabase;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="DataConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
+      <Setting name="SQLDataServices" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapDataServices;User Id=builtsteady;Password=zrc022.." />
+      <!-- DataServices Endpoint for Production -->
+      <Setting name="DataServicesEndpoint" value="http://api.zaplify.com/"/>
       <!-- Facebook Application 'Zaplify' -->
       <Setting name="FBAppID" value="411772288837103"/>
       <Setting name="FBAppSecret" value="88a4f4d70a8c4060aa15c593a36062ff"/>
-      <!-- Grocery Service Endpoint for Dev1 -->
-      <Setting name="GroceryServiceEndpointUri" value="http://api.zaplify.com/Grocery/"/>
+      
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

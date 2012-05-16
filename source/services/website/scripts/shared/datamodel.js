@@ -566,7 +566,7 @@ Folder.prototype.update = function (updatedFolder) {
 
 function Item(viewstate) { this.ViewState = (viewstate == null) ? {} : viewstate; }
 // Item public functions
-Item.prototype.Copy = function () { return $.extend(new Item(), this); };
+Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.FolderID)); };
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
@@ -978,7 +978,7 @@ UserSettings.prototype.update = function (name, itemKey) {
     if (this[itemName] == null) {
         this[itemName] = this.Folder.GetItemByName(itemKey, null);
     }
-    var updatedItem = $.extend(true, {}, this[itemName]);
+    var updatedItem = this[itemName].Copy();
     updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
     this[itemName].Update(updatedItem);
 }

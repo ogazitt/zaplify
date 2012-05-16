@@ -215,10 +215,12 @@
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                // do itemtype-specific processing
-                var ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
-                ip.RequestUri = req.RequestUri;
-                ip.ProcessCreate(clientItem);
+                
+                ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
+                if (ip != null)
+                {   // do itemtype-specific processing
+                    ip.ProcessCreate(clientItem);
+                }
 
                 try
                 {   // add the new item to the database
@@ -342,11 +344,12 @@
                             this.StorageContext.ItemTags.Remove(tt);
                         changed = true;
                     }
-                    
-                    // do itemtype-specific processing
-                    var ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
-                    ip.RequestUri = req.RequestUri;
-                    ip.ProcessUpdate(originalItem, newItem);
+                                   
+                    ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
+                    if (ip != null)
+                    {   // do itemtype-specific processing
+                        ip.ProcessUpdate(originalItem, newItem);
+                    }
 
                     // call update and make sure the changed flag reflects the outcome correctly
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
@@ -420,222 +423,6 @@
             // commit deletion of References
             if (commit) { this.StorageContext.SaveChanges(); }
             return commit;
-        }
-
-        private void ProcessItemInsert(HttpRequestMessage req, Item item)
-        {
-            // do itemtype-specific processing on the item
-            if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
-                ProcessShoppingItemInsert(req, item);
-        }
-
-        private void ProcessShoppingItemInsert(HttpRequestMessage req, Item item)
-        {
-            // check if the user already set a category in the incoming item
-            // in this case, simply overwrite the current category that's saved in $User/GroceryCategories
-            FieldValue groceryCategoryFV = null;
-            var categoryFV = item.GetFieldValue(FieldNames.Category);
-            if (categoryFV != null)
-            {
-                groceryCategoryFV = GetGroceryCategoryItemFieldValue(item, true);
-                if (groceryCategoryFV == null)
-                    return;
-
-                groceryCategoryFV.Value = categoryFV.Value;
-                StorageContext.SaveChanges();
-                return;
-            }
-
-            // create a new category fieldvalue in the item to process
-            categoryFV = item.GetFieldValue(FieldNames.Category, true);
-            
-            // check if the grocery category has already been saved in $User/GroceryCategories
-            // in this case, store the category in the incoming item
-            groceryCategoryFV = GetGroceryCategoryItemFieldValue(item);
-            if (groceryCategoryFV != null && groceryCategoryFV.Value != null)
-            {
-                categoryFV.Value = groceryCategoryFV.Value;
-                StorageContext.SaveChanges();
-                return;
-            }
-
-            // set up the grocery API endpoint
-            GroceryAPI gApi = new GroceryAPI();
-            if (HostEnvironment.IsAzure)
-            {
-                // set the proper endpoint URI based on the account name 
-                var connStr = ConfigurationSettings.Get("DataConnectionString");
-                var acctname = @"AccountName=";
-                var start = connStr.IndexOf(acctname);
-                if (start >= 0)
-                {
-                    var end = connStr.IndexOf(';', start);
-                    var accountName = connStr.Substring(start + acctname.Length, end - start - acctname.Length);
-                    var endpointBaseUri = String.Format("{0}://{1}.cloudapp.net/Grocery/", req.RequestUri.Scheme, accountName);
-                    gApi.EndpointBaseUri = endpointBaseUri;
-                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
-                }
-            }
-            else
-                if (req.RequestUri.Authority.StartsWith("localhost") || req.RequestUri.Authority.StartsWith("127.0.0.1"))
-                {
-                    // if debugging, set the proper endpoint URI
-                    var endpointBaseUri = String.Format("{0}://{1}/Grocery/", req.RequestUri.Scheme, req.RequestUri.Authority);
-                    gApi.EndpointBaseUri = endpointBaseUri;
-                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
-                }
-
-            // try to find the category from the local Grocery Controller
-            try
-            {
-                var results = gApi.Query(GroceryQueries.GroceryCategory, item.Name).ToList();
-
-                // this should only return one result
-                if (results.Count > 0)
-                {
-                    // get the category
-                    foreach (var entry in results)
-                    {
-                        categoryFV.Value = entry[GroceryQueryResult.Category];
-                        // only grab the first category
-                        break;
-                    }
-                    this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("ProcessShoppingItemInsert: Grocery API or database commit failed", ex);
-            }
-
-            // last resort...
-            // use the Supermarket API to get the grocery category
-            SupermarketAPI smApi = new SupermarketAPI();
-
-#if FALSE   // use the synchronous codepath for now
-            // execute the call asynchronously so as to not block the response
-            smApi.BeginQuery(SupermarketQueries.SearchByProductName, item.Name, new AsyncCallback((iar) =>
-            {
-                try
-                {
-                    var results = smApi.EndQuery(iar);
-
-                    // find the item using a new context 
-                    var context = Storage.NewUserContext;
-                    var shoppingItem = context.Items.Single(i => i.ID == item.ID);
-                    FieldValue categoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
-
-                    // get the category
-                    foreach (var entry in results)
-                    {
-                        categoryFV.Value = entry[SupermarketQueryResult.Category];
-                        // only grab the first category
-                        break;
-                    }
-                    context.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                }
-                catch (Exception ex)
-                {
-                    TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
-                }
-            }), null);
-#else
-            try
-            {
-                var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
-
-                // get the category
-                foreach (var entry in results)
-                {
-                    categoryFV.Value = entry[SupermarketQueryResult.Category];
-
-                    this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                    
-                    // only grab the first category
-                    break;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
-            }
-#endif
-        }
-
-        private void ProcessItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
-        {
-            // do itemtype-specific processing on the item
-            if (newItem.ItemTypeID == SystemItemTypes.ShoppingItem)
-                ProcessShoppingItemUpdate(req, oldItem, newItem);
-        }
-
-        private void ProcessShoppingItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
-        {
-            // if the user stored a grocery category, overwrite the current category that's saved in $User/GroceryCategories
-            var categoryFV = newItem.GetFieldValue(FieldNames.Category);
-            if (categoryFV != null && categoryFV.Value != null)
-            {
-                // the old category must not exist or the value must have changed
-                var oldCategoryFV = oldItem.GetFieldValue(FieldNames.Category);
-                if (oldCategoryFV == null || oldCategoryFV.Value != categoryFV.Value)
-                {
-                    // get the grocery category fieldvalue for the corresponding Item in $User/GroceryCategories
-                    var groceryCategoryFV = GetGroceryCategoryItemFieldValue(newItem, true);
-                    if (groceryCategoryFV == null)
-                        return;
-
-                    groceryCategoryFV.Value = categoryFV.Value;
-                    StorageContext.SaveChanges();
-                }
-            }
-        }
-
-        private FieldValue GetGroceryCategoryItemFieldValue(Item item, bool create = false)
-        {
-            // get the grocery categories list under the $User folder
-            var groceryCategories = StorageContext.GetOrCreateGroceryCategoriesList(CurrentUser);
-            if (groceryCategories == null)
-                return null;
-
-            Item groceryCategory = null;
-            FieldValue groceryCategoryFV = null;
-            var itemName = item.Name.ToLower();
-            if (StorageContext.Items.Any(i => i.Name == itemName && i.ParentID == groceryCategories.ID))
-            {
-                groceryCategory = StorageContext.Items.Include("FieldValues").Single(i => i.Name == item.Name && i.ParentID == groceryCategories.ID);
-                groceryCategoryFV = groceryCategory.GetFieldValue(FieldNames.Value, true);
-            }
-            else if (create)
-            {
-                // create grocery category item 
-                DateTime now = DateTime.UtcNow;
-                var groceryCategoryItemID = Guid.NewGuid();
-                groceryCategoryFV = new FieldValue()
-                {
-                    ItemID = groceryCategoryItemID,
-                    FieldName = FieldNames.Value,
-                    Value = null,
-                };
-                groceryCategory = new Item()
-                {
-                    ID = groceryCategoryItemID,
-                    Name = itemName,
-                    FolderID = groceryCategories.FolderID,
-                    UserID = CurrentUser.ID,
-                    ItemTypeID = SystemItemTypes.NameValue,
-                    ParentID = groceryCategories.ID,
-                    Created = now,
-                    LastModified = now,
-                    FieldValues = new List<FieldValue>() { groceryCategoryFV }
-                };
-                StorageContext.Items.Add(groceryCategory);
-            }
-
-            return groceryCategoryFV;
         }
 
         private bool Update(Item requestedItem, Item originalItem, Item newItem)
