@@ -91,7 +91,7 @@
     <DBSchemaFileName>ZapSuggestions</DBSchemaFileName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\bin\database\debug\</OutputPath>
+    <OutputPath>..\..\..\..\bin\database\debug\</OutputPath>
     <BaseIntermediateOutputPath>..\..\..\obj\database\</BaseIntermediateOutputPath>
     <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
     <TargetDatabase>master</TargetDatabase>
@@ -100,6 +100,7 @@
     <DacDatabaseCollation>SQL_Latin1_General_CP1_CI_AS</DacDatabaseCollation>
     <ValidatePolicy>False</ValidatePolicy>
     <DBSchemaFileName>ZapSuggestions</DBSchemaFileName>
+    <SqlTargetName>ZapSuggestions</SqlTargetName>
   </PropertyGroup>
   <!--Import the settings-->
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />

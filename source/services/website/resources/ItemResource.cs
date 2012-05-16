@@ -215,8 +215,12 @@
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                // do itemtype-specific processing
-                ProcessItemInsert(req, clientItem);
+                
+                ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
+                if (ip != null)
+                {   // do itemtype-specific processing
+                    ip.ProcessCreate(clientItem);
+                }
 
                 try
                 {   // add the new item to the database
@@ -340,16 +344,12 @@
                             this.StorageContext.ItemTags.Remove(tt);
                         changed = true;
                     }
-                    
-                    if (requestedItem.FieldValues != null && requestedItem.FieldValues.Count > 0)
-                    {   // delete all the fieldvalues associated with this item
-                        foreach (var fv in requestedItem.FieldValues.ToList())
-                            this.StorageContext.FieldValues.Remove(fv);
-                        changed = true;
+                                   
+                    ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
+                    if (ip != null)
+                    {   // do itemtype-specific processing
+                        ip.ProcessUpdate(originalItem, newItem);
                     }
-
-                    // do itemtype-specific processing
-                    ProcessItemUpdate(req, originalItem, newItem);
 
                     // call update and make sure the changed flag reflects the outcome correctly
                     changed = (Update(requestedItem, originalItem, newItem) == true ? true : changed);
@@ -425,222 +425,6 @@
             return commit;
         }
 
-        private void ProcessItemInsert(HttpRequestMessage req, Item item)
-        {
-            // do itemtype-specific processing on the item
-            if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
-                ProcessShoppingItemInsert(req, item);
-        }
-
-        private void ProcessShoppingItemInsert(HttpRequestMessage req, Item item)
-        {
-            // check if the user already set a category in the incoming item
-            // in this case, simply overwrite the current category that's saved in $User/GroceryCategories
-            FieldValue groceryCategoryFV = null;
-            var categoryFV = item.GetFieldValue(FieldNames.Category);
-            if (categoryFV != null)
-            {
-                groceryCategoryFV = GetGroceryCategoryItemFieldValue(item, true);
-                if (groceryCategoryFV == null)
-                    return;
-
-                groceryCategoryFV.Value = categoryFV.Value;
-                StorageContext.SaveChanges();
-                return;
-            }
-
-            // create a new category fieldvalue in the item to process
-            categoryFV = item.GetFieldValue(FieldNames.Category, true);
-            
-            // check if the grocery category has already been saved in $User/GroceryCategories
-            // in this case, store the category in the incoming item
-            groceryCategoryFV = GetGroceryCategoryItemFieldValue(item);
-            if (groceryCategoryFV != null && groceryCategoryFV.Value != null)
-            {
-                categoryFV.Value = groceryCategoryFV.Value;
-                StorageContext.SaveChanges();
-                return;
-            }
-
-            // set up the grocery API endpoint
-            GroceryAPI gApi = new GroceryAPI();
-            if (HostEnvironment.IsAzure)
-            {
-                // set the proper endpoint URI based on the account name 
-                var connStr = ConfigurationSettings.Get("DataConnectionString");
-                var acctname = @"AccountName=";
-                var start = connStr.IndexOf(acctname);
-                if (start >= 0)
-                {
-                    var end = connStr.IndexOf(';', start);
-                    var accountName = connStr.Substring(start + acctname.Length, end - start - acctname.Length);
-                    var endpointBaseUri = String.Format("{0}://{1}.cloudapp.net/Grocery/", req.RequestUri.Scheme, accountName);
-                    gApi.EndpointBaseUri = endpointBaseUri;
-                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
-                }
-            }
-            else
-                if (req.RequestUri.Authority.StartsWith("localhost") || req.RequestUri.Authority.StartsWith("127.0.0.1"))
-                {
-                    // if debugging, set the proper endpoint URI
-                    var endpointBaseUri = String.Format("{0}://{1}/Grocery/", req.RequestUri.Scheme, req.RequestUri.Authority);
-                    gApi.EndpointBaseUri = endpointBaseUri;
-                    TraceLog.TraceDetail("ProcessShoppingItemInsert: endpointURI: " + endpointBaseUri);
-                }
-
-            // try to find the category from the local Grocery Controller
-            try
-            {
-                var results = gApi.Query(GroceryQueries.GroceryCategory, item.Name).ToList();
-
-                // this should only return one result
-                if (results.Count > 0)
-                {
-                    // get the category
-                    foreach (var entry in results)
-                    {
-                        categoryFV.Value = entry[GroceryQueryResult.Category];
-                        // only grab the first category
-                        break;
-                    }
-                    this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("ProcessShoppingItemInsert: Grocery API or database commit failed", ex);
-            }
-
-            // last resort...
-            // use the Supermarket API to get the grocery category
-            SupermarketAPI smApi = new SupermarketAPI();
-
-#if FALSE   // use the synchronous codepath for now
-            // execute the call asynchronously so as to not block the response
-            smApi.BeginQuery(SupermarketQueries.SearchByProductName, item.Name, new AsyncCallback((iar) =>
-            {
-                try
-                {
-                    var results = smApi.EndQuery(iar);
-
-                    // find the item using a new context 
-                    var context = Storage.NewUserContext;
-                    var shoppingItem = context.Items.Single(i => i.ID == item.ID);
-                    FieldValue categoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
-
-                    // get the category
-                    foreach (var entry in results)
-                    {
-                        categoryFV.Value = entry[SupermarketQueryResult.Category];
-                        // only grab the first category
-                        break;
-                    }
-                    context.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItem: assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                }
-                catch (Exception ex)
-                {
-                    TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
-                }
-            }), null);
-#else
-            try
-            {
-                var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
-
-                // get the category
-                foreach (var entry in results)
-                {
-                    categoryFV.Value = entry[SupermarketQueryResult.Category];
-
-                    this.StorageContext.SaveChanges();
-                    TraceLog.TraceInfo(String.Format("ProcessShoppingItemInsert: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
-                    
-                    // only grab the first category
-                    break;
-                }
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("ProcessShoppingItem: Supermarket API or database commit failed", ex);
-            }
-#endif
-        }
-
-        private void ProcessItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
-        {
-            // do itemtype-specific processing on the item
-            if (newItem.ItemTypeID == SystemItemTypes.ShoppingItem)
-                ProcessShoppingItemUpdate(req, oldItem, newItem);
-        }
-
-        private void ProcessShoppingItemUpdate(HttpRequestMessage req, Item oldItem, Item newItem)
-        {
-            // if the user stored a grocery category, overwrite the current category that's saved in $User/GroceryCategories
-            var categoryFV = newItem.GetFieldValue(FieldNames.Category);
-            if (categoryFV != null && categoryFV.Value != null)
-            {
-                // the old category must not exist or the value must have changed
-                var oldCategoryFV = oldItem.GetFieldValue(FieldNames.Category);
-                if (oldCategoryFV == null || oldCategoryFV.Value != categoryFV.Value)
-                {
-                    // get the grocery category fieldvalue for the corresponding Item in $User/GroceryCategories
-                    var groceryCategoryFV = GetGroceryCategoryItemFieldValue(newItem, true);
-                    if (groceryCategoryFV == null)
-                        return;
-
-                    groceryCategoryFV.Value = categoryFV.Value;
-                    StorageContext.SaveChanges();
-                }
-            }
-        }
-
-        private FieldValue GetGroceryCategoryItemFieldValue(Item item, bool create = false)
-        {
-            // get the grocery categories list under the $User folder
-            var groceryCategories = StorageContext.GetOrCreateGroceryCategoriesList(CurrentUser);
-            if (groceryCategories == null)
-                return null;
-
-            Item groceryCategory = null;
-            FieldValue groceryCategoryFV = null;
-            var itemName = item.Name.ToLower();
-            if (StorageContext.Items.Any(i => i.Name == itemName && i.ParentID == groceryCategories.ID))
-            {
-                groceryCategory = StorageContext.Items.Include("FieldValues").Single(i => i.Name == item.Name && i.ParentID == groceryCategories.ID);
-                groceryCategoryFV = groceryCategory.GetFieldValue(FieldNames.Value, true);
-            }
-            else if (create)
-            {
-                // create grocery category item 
-                DateTime now = DateTime.UtcNow;
-                var groceryCategoryItemID = Guid.NewGuid();
-                groceryCategoryFV = new FieldValue()
-                {
-                    ItemID = groceryCategoryItemID,
-                    FieldName = FieldNames.Value,
-                    Value = null,
-                };
-                groceryCategory = new Item()
-                {
-                    ID = groceryCategoryItemID,
-                    Name = itemName,
-                    FolderID = groceryCategories.FolderID,
-                    UserID = CurrentUser.ID,
-                    ItemTypeID = SystemItemTypes.NameValue,
-                    ParentID = groceryCategories.ID,
-                    Created = now,
-                    LastModified = now,
-                    FieldValues = new List<FieldValue>() { groceryCategoryFV }
-                };
-                StorageContext.Items.Add(groceryCategory);
-            }
-
-            return groceryCategoryFV;
-        }
-
         private bool Update(Item requestedItem, Item originalItem, Item newItem)
         {
             bool updated = false;
@@ -661,21 +445,87 @@
                     continue;
                 }
 
-                // BUGBUG: this is too simplistic - should iterate thru fieldvalue collection and do finer-grained conflict management
+                // iterate thru fieldvalue collection and do finer-grained conflict management
+                // the algorithm is to take a fieldvalue change only if the original value passed in is the same as 
+                // the server's current value, OR the timestamp of the new item is more recent than the server's timestamp
+                // the logic is complicated somewhat by taking into account NEW fieldvalues that don't exist on the original
+                // item OR on the server's item.
                 if (pi.Name == "FieldValues")
-                {   // if this is the FieldValues field make it simple - if this update is the last one, it wins
-                    if (newItem.LastModified >= requestedItem.LastModified)
+                {
+                    var serverFVList = serverValue as List<FieldValue>;
+                    var origFVList = origValue as List<FieldValue>;
+                    var newFVList = newValue as List<FieldValue>;
+
+                    // if there is no fieldvalue list on the new item, skip processing
+                    // this logic assumes that fieldvalues are never removed from an item - only added
+                    if (newFVList == null)
+                        continue;
+
+                    // iterate through the new item's fieldvalues
+                    foreach (var newFV in newFVList)
                     {
-                        pi.SetValue(requestedItem, newValue, null);
-                        updated = true;
+                        FieldValue serverFV = null;
+                        FieldValue origFV = null;
+                        if (serverFVList != null && serverFVList.Any(fv => fv.FieldName == newFV.FieldName))
+                            serverFV = serverFVList.Single(fv => fv.FieldName == newFV.FieldName);
+                        if (origFVList != null && origFVList.Any(fv => fv.FieldName == newFV.FieldName))
+                            origFV = origFVList.Single(fv => fv.FieldName == newFV.FieldName);
+
+                        // if the value has changed, process further
+                        if (origFV == null || origFV.Value != newFV.Value)
+                        {
+                            // process a new fieldvalue
+                            if (origFV == null)
+                            {
+                                // if the server has no record, add this as a new fieldvalue
+                                if (serverFV == null)
+                                {
+                                    serverFVList.Add(newFV);
+                                    updated = true;
+                                }
+                                else
+                                {
+                                    // server also has this fieldvalue (so this is a conflict)
+                                    // overwrite if this new item is newer than server's timestamp
+                                    if (newItem.LastModified > requestedItem.LastModified)
+                                    {
+                                        serverFV.Value = newFV.Value;
+                                        updated = true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // original and new values exist - process a fieldvalue update
+                                if (serverFV == null)
+                                {
+                                    // this case shouldn't really happen - if the old and new items have this fieldvalue, the 
+                                    // server should as well.  but we will tolerate this and add it anyway.
+                                    serverFVList.Add(newFV);
+                                    updated = true;
+                                }
+                                else
+                                {
+                                    // if server has the original value, or the new item has a later timestamp than the server, make the update
+                                    if (origFV.Value == serverFV.Value || newItem.LastModified > requestedItem.LastModified)
+                                    {
+                                        serverFV.Value = newFV.Value;
+                                        updated = true;
+                                    }
+                                }
+                            }
+                        }
                     }
                     continue;
                 }
 
+                // this logic applies for every field OTHER than Tags or FieldValues (e.g. Name, ItemTypeID, ParentID, FolderID, etc)
                 if (!object.Equals(origValue, newValue))
-                {   // value has changed, process further
+                {   
+                    // value has changed, process further
                     if (object.Equals(serverValue, origValue) || newItem.LastModified > requestedItem.LastModified)
-                    {   // server has the original value, or the new item has a later timestamp than the server, make the update
+                    {   
+                        // server has the original value, or the new item has a later timestamp than the server, make the update
                         pi.SetValue(requestedItem, newValue, null);
                         updated = true;
                     }

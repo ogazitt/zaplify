@@ -8,13 +8,18 @@
 function FolderManager(parentControl, $parentElement) {
     this.parentControl = parentControl;
     this.$parentElement = $parentElement;
-    this.addWell = true;
+    this.addWell = false;
 
     this.$element = null;
     this.currentFolder = null;
     this.currentItem = null;
+    this.views = {};
     this.listEditor = new ListEditor(this);
 }
+
+FolderManager.ListView = "fm-list-view";
+FolderManager.ItemView = "fm-item-view";
+FolderManager.PropertyView = "fm-property-view";
 
 FolderManager.prototype.hide = function () {
     if (this.$element != null) {
@@ -25,6 +30,33 @@ FolderManager.prototype.hide = function () {
 FolderManager.prototype.show = function () {
     if (this.$element == null) {
         this.$element = $('<div class="manager-folders" />').appendTo(this.$parentElement);
+        // render tabs
+        var $tabs = $('<ul class="nav nav-tabs" />').appendTo(this.$element);
+        $tabs.data('control', this);
+        var $tab = $('<li><a data-toggle="tab">List View</a></li>').appendTo($tabs);
+        $tab.find('a').attr('href', '.' + FolderManager.ListView);
+        $tab = $('<li><a data-toggle="tab">Item View</a></li>').appendTo($tabs);
+        $tab.find('a').attr('href', '.' + FolderManager.ItemView);
+        $tab = $('<li><a data-toggle="tab">Properties</a></li>').appendTo($tabs);
+        $tab.find('a').attr('href', '.' + FolderManager.PropertyView);
+        // render views
+        var $tabContent = $('<div class="tab-content" />').appendTo(this.$element);
+        var $view = $('<div class="tab-pane" />').appendTo($tabContent);
+        $view.addClass(FolderManager.ListView);
+        this.views[FolderManager.ListView] = $view;
+        $view = $('<div class="tab-pane" />').appendTo($tabContent);
+        $view.addClass(FolderManager.ItemView);
+        this.views[FolderManager.ItemView] = $view;
+        $view = $('<div class="tab-pane" />').appendTo($tabContent);
+        $view.addClass(FolderManager.PropertyView);
+        this.views[FolderManager.PropertyView] = $view;
+
+        $('a[data-toggle="tab"]').on('shown', function (e) {
+            var $tabs = $(e.target).parents('.nav-tabs');
+            Control.get($tabs).viewChanged($(e.target)); ;
+        });
+
+        $tabs.find('a[href=".' + this.activeView() + '"]').tab('show');
     }
     this.render();
     this.$element.show();
@@ -32,15 +64,22 @@ FolderManager.prototype.show = function () {
 
 // render is only called internally by show method
 FolderManager.prototype.render = function () {
-    // list editor
-    this.listEditor.render(this.$element);
+    var $tabs = this.$element.find('.nav-tabs');
+    var $tabContent = this.$element.find('.tab-content');
+    $tabs.find('li a:first').html(this.activeListName());
+
+    var activeView = this.activeView();
+    var $view = this.views[activeView];
+    if (activeView == FolderManager.ListView) {
+        this.listEditor.render($view, this.activeList());
+    }
 }
 
 FolderManager.prototype.selectFolder = function (folder) {
     this.currentFolder = folder;
     this.currentItem = null;
     if (this.currentFolder != null) {
-        this.listEditor.render(this.container);
+        this.render();
     }
 }
 
@@ -48,10 +87,39 @@ FolderManager.prototype.selectItem = function (item) {
     this.currentItem = item;
     if (this.currentItem != null) {
         this.currentFolder = this.currentItem.GetFolder();
-        this.listEditor.render(this.container);
+        this.render();
     } else {
         this.selectFolder(this.currentFolder);
     }
+}
+
+FolderManager.prototype.activeList = function () {
+    if (this.currentItem != null) {
+        return (this.currentItem.IsList) ? this.currentItem :
+            (this.currentItem.ParentID == null) ? this.currentItem.GetFolder() :
+             this.currentItem.GetParent();
+    } else if (this.currentFolder != null) {
+        return this.currentFolder;
+    }
+    return null;
+}
+
+FolderManager.prototype.activeListName = function () {
+    var activeList = this.activeList();
+    return (activeList != null) ? activeList.Name : 'List View';
+}
+
+FolderManager.prototype.activeView = function (viewName) {
+    var dataModel = Control.findParent(this, 'dataModel').dataModel;
+    if (viewName === undefined) {       // get
+        return (dataModel.UserSettings.ViewState.ActiveView != null) ? dataModel.UserSettings.ViewState.ActiveView : FolderManager.ListView;
+    } else {                            // set
+        dataModel.UserSettings.ViewState.ActiveView = viewName;
+    }
+}
+
+FolderManager.prototype.viewChanged = function ($tab) {
+    this.activeView($tab.attr('href').substr(1));
 }
 
 // ---------------------------------------------------------
@@ -60,45 +128,14 @@ function ListEditor(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
 
-    this.itemPath = new ItemPath(this);
-    this.itemEditor = new ItemEditor(this);
-    this.itemViewer = new ItemViewer(this);
+    this.newItemEditor = new NewItemEditor(this);
+    this.listView = new ListView(this);
 }
 
-ListEditor.prototype.render = function (container) {
-    var folder = this.parentControl.currentFolder;
-    var item = this.parentControl.currentItem;
-    if (this.$element == null) {
-        this.$element = $('<div class="list-editor" />').appendTo(container);
-    }
-
-    var selection = (item == null) ? folder : item;
-    this.itemViewer.hide();
-    this.itemPath.closeDelegate = null;
-    this.itemPath.render(this.$element, folder, item);
-    this.itemEditor.render(selection, this.$element);
-    if (selection != null && (selection.IsFolder() || selection.IsList)) {
-        // calculate and set height for itemViewer
-        var viewerHeight = this.$element.outerHeight() - this.itemPath.$element.outerHeight();
-        if (this.itemEditor.$element != null) { viewerHeight -= this.itemEditor.$element.outerHeight(); }
-        this.itemViewer.show(viewerHeight);
-        // display items
-        this.itemViewer.render(selection, this.$element);
-    }
-}
-
-ListEditor.prototype.hide = function () {
-    this.$element.hide();
-}
-
-ListEditor.prototype.show = function () {
-    this.$element.show();
-}
-
-ListEditor.prototype.activeItem = function () {
-    // TODO: track active editor
-    var item = this.itemEditor.activeItem();
-    return item;
+ListEditor.prototype.render = function ($element, list) {
+    this.$element = $element;
+    this.newItemEditor.render($element, list);
+    this.listView.render($element, list);
 }
 
 ListEditor.prototype.selectItem = function (item) {
@@ -106,142 +143,167 @@ ListEditor.prototype.selectItem = function (item) {
     Dashboard.ManageFolder(item.FolderID, item.ID);
 }
 
-ListEditor.prototype.addFolder = function () {
-    var newFolder = this.activeItem();
-
-    var dataModel = Control.findParent(this, 'dataModel').dataModel;
-    newFolder.ItemTypeID = dataModel.FoldersMap.array[1].ItemTypeID;
-    dataModel.InsertFolder(newFolder);
-}
-
-ListEditor.prototype.addItem = function (isList) {
-    var folder = this.parentControl.currentFolder;
-    var item = this.parentControl.currentItem;
-    var newItem = this.activeItem();
-    newItem.IsList = isList;
-
-    if (item != null) {
-        item.InsertItem(newItem);
-    } else if (folder != null) {
-        folder.InsertItem(newItem);
-    }
-}
-
-ListEditor.prototype.updateItem = function () {
-    var updatedItem = this.activeItem();
-    if (updatedItem.IsFolder() && this.parentControl.currentFolder != null) {
-        this.parentControl.currentFolder.Update(updatedItem);
-    } else if (this.parentControl.currentItem != null) {
-        this.parentControl.currentItem.Update(updatedItem);
-    }
-}
-
-ListEditor.prototype.deleteItem = function () {
-    var item = this.parentControl.currentItem;
-    if (item != null) {
-        // WARN USER when deleting a List
-        if (item.IsList && !confirm('Are you sure?\n\nThis will delete the list and all items contained within!')) {
-            return;
-        }
-        item.Delete();
-    } else {
-        if (this.parentControl.currentFolder.IsDefault()) {
-            alert('This is a default folder and cannot be deleted.');
-        } else if (confirm('Are you sure?\n\nThis will delete the folder and all items contained within!')) {
-            // WARN USER when deleting a Folder
-            this.parentControl.currentFolder.Delete();
-        }
-    }
-}
-
-ListEditor.prototype.showListInfo = function (show) {
-    if (show == null) { show = false; }
-    if (show) {
-        this.itemPath.closeDelegate = Control.delegate(this, 'showListInfo');
-        this.itemPath.render(this.$element, this.parentControl.currentFolder, this.parentControl.currentItem);
-        this.itemEditor.mode = ItemEditorMode.List;
-        this.itemEditor.render(this.itemEditor.listItem);
-    } else {
-        this.itemPath.closeDelegate = null;
-        this.itemEditor.mode = ItemEditorMode.New;
-        this.render();
-    }
-}
-
 // ---------------------------------------------------------
-// ItemPath control
-function ItemPath(parentControl) {
+// NewItemEditor control
+function NewItemEditor(parentControl) {
     this.parentControl = parentControl;
-    this.closeDelegate = null;
     this.$element = null;
+    this.list;
+    this.newItem;
 }
 
-ItemPath.prototype.render = function (container, folder, item) {
-    if (this.$element == null) {
-        this.$element = $('<ul class="breadcrumb" />').appendTo(container);
-    }
-
-    var addBtnTitle;
-    var deleteBtnTitle;
-    var infoBtnTitle;
-    this.$element.empty();
-    if (folder != null) {
-        this.$element.append('<li><a href="#">' + folder.Name + '</a><span class="divider">:</span></li>');
-        if (!folder.IsDefault()) { deleteBtnTitle = 'Delete Folder'; }
-        if (item == null) {
-            addBtnTitle = 'Add List';
-            infoBtnTitle = 'Folder Properties';
+NewItemEditor.prototype.render = function ($element, list) {
+    if (list != null && (list.IsFolder() || list.IsList)) {
+        if (this.$element == null) {
+            this.$element = $('<div class="row-fluid" />').appendTo($element);
         }
+        this.$element.empty();
 
+        this.list = list;
+        this.newItem = Item.Extend({ Name: '', ItemTypeID: this.list.ItemTypeID });
+
+        // render name field for new item 
+        $field = this.renderNameField(this.$element);
+        $field.val('');
+        $field.focus();
     }
-    if (item != null) {
-        deleteBtnTitle = 'Delete Item';
-        if (item.IsList) {
-            this.$element.append('<li><a href="#">' + item.Name + '</a></li>');
-            deleteBtnTitle = 'Delete List';
-            infoBtnTitle = 'List Properties';
-        } else if (item.ParentID != null) {
-            this.$element.append('<li><a href="#">' + item.GetParent().Name + '</a></li>');
+}
+
+NewItemEditor.prototype.renderNameField = function ($element) {
+    // render name field
+    var fields = this.newItem.GetFields();
+    var nameField = fields[FieldNames.Name];
+    var $form = $('<form class="form-inline"/>').appendTo($element);
+
+
+    var $field = this.renderText($form, nameField);
+    // support autocomplete for new Locations and Contacts
+    if (this.newItem.ItemTypeID == ItemTypes.Location) {
+        this.autoCompleteAddress($field);
+    } else if (this.newItem.ItemTypeID == ItemTypes.Contact) {
+        this.autoCompleteContact($field);
+    }
+
+    $field.addClass('input-block-level');
+    $field.attr('placeholder', '-- new item --');
+    return $field;
+}
+
+NewItemEditor.prototype.renderText = function (container, field) {
+    $field = $('<input type="text" />').appendTo(container);
+    $field.addClass(field.Class);
+    $field.data('control', this);
+    $field.val(this.newItem.GetFieldValue(field));
+    //$field.change(function (e) { Control.get(this).handleChange($(e.srcElement)); });
+    $field.keypress(function (e) { return Control.get(this).handleEnterPress(e); });
+    return $field;
+}
+
+NewItemEditor.prototype.autoCompleteAddress = function ($field) {
+    $field.autocomplete({
+        source: function (request, response) {
+            Service.Geocoder().geocode({ 'address': request.term },
+                    function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            var addresses = $.map(results, function (item) {
+                                return {
+                                    label: item.formatted_address,
+                                    value: item.formatted_address,
+                                    latlong: item.geometry.location.toUrlValue()
+                                }
+                            });
+                            response(addresses);
+                        }
+                    });
+        },
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.LatLong, ui.item.latlong);
+            var editor = Control.get(this);
+            if (editor != null) { editor.handleChange($(this)); }
+            return false;
+        },
+        minLength: 2
+    });
+}
+
+NewItemEditor.prototype.autoCompleteContact = function ($field) {
+    $field.autocomplete({
+        source: function (request, response) {
+            Service.InvokeController('UserInfo', 'PossibleSubjects',
+                { 'startsWith': request.term },
+                function (responseState) {
+                    var result = responseState.result;
+                    var contacts = [];
+                    if (result.Count > 0) {
+                        for (var name in result.Subjects) {
+                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
+                        }
+                    }
+                    response(contacts);
+                });
+        },
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.Contacts, ui.item.json);
+            var editor = Control.get(this);
+            if (editor != null) { editor.handleChange($(this)); }
+            return false;
+        },
+        minLength: 1
+    });
+}
+
+NewItemEditor.prototype.handleChange = function ($element) {
+    if (this.updateNameField($element)) {
+        this.list.InsertItem(this.newItem);
+    }
+}
+
+NewItemEditor.prototype.handleEnterPress = function (e) {
+    if (e.which == 13) {
+        if (this.updateNameField($(e.srcElement))) {
+            this.list.InsertItem(this.newItem);
         }
+        return false;       // do not propogate event
     }
-
-    if (this.closeDelegate != null) {
-        // only display close icon and invoke delegate if close is clicked
-        var $closeBtn = $('<div class="ui-icon ui-icon-circle-close" />').appendTo(this.$element);
-        $closeBtn.data('control', this);
-        $closeBtn.attr('title', 'Close');
-        $closeBtn.bind('click', function () { Control.get(this).closeDelegate.invoke(); });
-        return;
-    }
-/*
-    if (deleteBtnTitle != null) {
-        var $deleteBtn = $('<div class="ui-icon delete-icon" />').appendTo(this.$element);
-        $deleteBtn.data('control', this);
-        $deleteBtn.attr('title', deleteBtnTitle);
-        $deleteBtn.bind('click', function () { Control.get(this).parentControl.deleteItem(); });
-    }
-    if (addBtnTitle != null) {
-        var $addBtn = $('<div class="ui-icon add-icon" />').appendTo(this.$element);
-        $addBtn.data('control', this);
-        $addBtn.attr('title', addBtnTitle);
-        $addBtn.bind('click', function () { Control.get(this).parentControl.addItem(true); });
-    }
-    if (infoBtnTitle != null) {
-        var $infoBtn = $('<div class="ui-icon info-icon" />').appendTo(this.$element);
-        $infoBtn.data('control', this);
-        $infoBtn.attr('title', infoBtnTitle);
-        $infoBtn.bind('click', function () { Control.get(this).parentControl.showListInfo(true); });
-    }
-*/
 }
 
-ItemPath.prototype.hide = function () {
-    this.$element.hide();
+NewItemEditor.prototype.updateNameField = function ($element) {
+    var fields = this.newItem.GetFields();
+    var nameField = fields[FieldNames.Name];
+
+    if ($element.hasClass(nameField.ClassName)) {
+        var value = $element.val();
+
+        if (this.newItem.ItemTypeID == ItemTypes.Location) {
+            // autocomplete for new Locations
+            var latlong = $element.data(FieldNames.LatLong);
+            if (latlong != null) {
+                this.newItem.SetFieldValue(FieldNames.Name, value);
+                this.newItem.SetFieldValue(FieldNames.Address, value);
+                return true;
+            } 
+        }
+        if (this.newItem.ItemTypeID == ItemTypes.Contact) {
+            // autocomplete for new Contacts
+            var jsonContact = $element.data(FieldNames.Contacts);
+            if (jsonContact != null) {
+                contact = $.parseJSON(jsonContact);
+                if (contact.ItemTypeID == ItemTypes.Contact) {
+                    this.newItem = Item.Extend(contact);
+                    return true;
+                }
+            }
+        }
+        // update name field with new value
+        this.newItem.SetFieldValue(nameField, value);
+        return true;
+    }
+    return false;
 }
 
-ItemPath.prototype.show = function () {
-    this.$element.show();
-}
+
 
 // ---------------------------------------------------------
 // ItemEditor control

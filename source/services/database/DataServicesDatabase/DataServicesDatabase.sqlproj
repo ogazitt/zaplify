@@ -12,8 +12,8 @@
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>GroceryDatabase</RootNamespace>
-    <AssemblyName>GroceryDatabase</AssemblyName>
+    <RootNamespace>DataServicesDatabase</RootNamespace>
+    <AssemblyName>DataServicesDatabase</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
@@ -21,6 +21,7 @@
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>True</SqlServerVerification>
+    <DacApplicationName>ZapDataServices</DacApplicationName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>..\..\..\..\bin\database\release\</OutputPath>
@@ -46,6 +47,7 @@
     <DefineTrace>true</DefineTrace>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <SqlTargetName>ZapDataServices</SqlTargetName>
   </PropertyGroup>
   <!-- VS10 without SP1 will not have VisualStudioVersion set, so do that here -->
   <PropertyGroup>
@@ -58,11 +60,13 @@
   <ItemGroup>
     <Build Include="GroceryCategories.sql" />
     <Build Include="Groceries.sql" />
+    <Build Include="dbo.DatabaseVersions.Table.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="GroceryDatabase.Production.publish.xml" />
-    <None Include="GroceryDatabase.Dev2.publish.xml" />
-    <None Include="GroceryDatabase.Dev1.publish.xml" />
+    <None Include="DataServicesDatabase.Dev1.publish.xml" />
+    <None Include="DataServicesDatabase.Production.publish.xml" />
+    <None Include="DataServicesDatabase.Dev2.publish.xml" />
+    <None Include="DataServicesDatabase.Local.publish.xml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Script.PostDeployment.sql" />

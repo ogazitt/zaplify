@@ -27,7 +27,7 @@ i { font-size: 16px; }
 }
 
 /* dashboard styles */
-/* TODO: move into dashboard.css file */
+/* TODO: move into dashboard.less file */
 .dashboard-list { padding: 6px; }
 .dashboard-list ul { margin: 0; }
 .dashboard-list li a {  cursor: pointer; } 
@@ -37,5 +37,18 @@ i { font-size: 16px; }
 
 .dashboard-center { padding: 0; margin: 0; }
 .dashboard-center.well { padding: 8px; }
-.dashboard-center .hero-unit { margin: 0; }
+.dashboard-center .hero-unit { margin-top: -16px; }
+.dashboard-center .manager-folders { margin-top: -16px; }
+
+.dashboard-center .manager-folders .nav-tabs { Xborder: 1px solid blue/*#dddddd*/; margin-bottom: 0; }
+.dashboard-center .manager-folders .tab-content {
+    padding: 12px 8px 12px 8px;
+    border: 1px solid #dddddd;
+    border-top-color: transparent;
+    -webkit-border-radius: 0 4px 4px 4px;
+    -moz-border-radius: 0 4px 4px 4px;
+    border-radius: 0 4px 4px 4px;
+}
+
+
 .dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }

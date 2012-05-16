@@ -229,7 +229,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             //App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
 
             // get current version of phone settings
-            var phoneSettingsItemCopy = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+            var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
 
             // loop through the settings and store the new value
             foreach (var element in SettingsPanel.Children)

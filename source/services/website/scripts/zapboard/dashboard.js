@@ -320,7 +320,7 @@ SettingsManager.prototype.renderThemePicker = function (container) {
 // Control static object
 // shared helpers used by controls
 var Control = function Control$() { };
-Control.ttDelay = { delay: { show: 500, hide: 100} };       // default tooltip delay
+Control.ttDelay = { delay: { show: 500, hide: 200} };       // default tooltip delay
 
 // get the control object associated with the id
 Control.get = function Control$get(element) {

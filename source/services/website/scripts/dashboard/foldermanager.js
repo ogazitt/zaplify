@@ -959,7 +959,7 @@ ItemEditor.prototype.renderListInfo = function (container) {
     var itemTypes = dataModel.Constants.ItemTypes;
     for (var id in itemTypes) {
         var itemType = itemTypes[id];
-        if (itemType.UserID == null || itemType.UserID == dataModel.User.ID) {
+        if (itemType.UserID == '00000000-0000-0000-0000-000000000002' || itemType.UserID == dataModel.User.ID) {
             $('<option value="' + id + '">' + itemType.Name + '</option>').appendTo($itemTypePicker);
         }
     }

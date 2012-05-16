@@ -1009,7 +1009,7 @@ UserSettings.prototype.update = function (name, itemKey) {
     if (this[itemName] == null) {
         this[itemName] = this.Folder.GetItemByName(itemKey, null);
     }
-    var updatedItem = $.extend(true, {}, this[itemName]);       // deep copy
+    var updatedItem = this[itemName].Copy();
     updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
     this[itemName].Update(updatedItem);
 }

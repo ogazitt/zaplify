@@ -91,11 +91,17 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Locations = "Locations";        // EntityID
         public const string Value = "Value";                // String (value of NameValue - e.g. SuggestionID)
         public const string Category = "Category";          // String (grocery category)
-        public const string Picture = "Picture";            // ImageUrl
-        public const string Gender = "Gender";              // String
 
+        // Hidden FieldName extensions
+        public const string Intent = "Intent";              // lowercase string 
+
+        // Hidden FieldName extensions for Task
+        public const string SubjectHint = "SubjectHint";    // String
+        
         // Hidden FieldName extensions for Contact
         public const string FacebookID = "FacebookID";      // String
+        public const string Gender = "Gender";              // String
+        public const string Picture = "Picture";            // ImageUrl
         public const string Sources = "Sources";            // String (comma-delimited) 
 
         // Hidden FieldName extensions for Location

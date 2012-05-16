@@ -1,44 +1,44 @@
 ﻿//----------------------------------------------------------
 // Copyright (C) BuiltSteady Inc. All rights reserved.
 //----------------------------------------------------------
-// ItemViewer.js
+// ListView.js
 
 // ---------------------------------------------------------
-// ItemViewer control
-function ItemViewer(parentControl) {
+// ListView control
+function ListView(parentControl) {
     this.parentControl = parentControl;
     this.$element = null;
     this.list = null;
 }
 
 // static helper for getting attached item from $element
-ItemViewer.getItem = function ItemViewer$getItem($element) {
+ListView.getItem = function ListView$getItem($element) {
     return $element.parent('a').data('item');
 }
 
-ItemViewer.prototype.hide = function () {
+ListView.prototype.hide = function () {
     if (this.$element != null) {
         this.$element.hide();
     }
 }
 
-ItemViewer.prototype.show = function (height) {
+ListView.prototype.show = function (height) {
     if (this.$element != null) {
         if (height != null) { this.$element.height(height); }
         this.$element.show();
     }
 }
 
-ItemViewer.prototype.render = function (list, container) {
+ListView.prototype.render = function ($element, list) {
     if (list == null) { return; }
     if (this.$element == null) {
-        this.$element = $('<ul class="nav nav-list" />').appendTo(container);
+        this.$element = $('<ul class="nav nav-list" />').appendTo($element);
     }
     this.$element.empty();
     if (this.renderListItems(list.GetItems()) == 0) { this.hide(); }
 }
 
-ItemViewer.prototype.renderListItems = function (listItems) {
+ListView.prototype.renderListItems = function (listItems) {
     var itemCount = 0;
     for (var id in listItems) {
         var item = listItems[id];
@@ -65,7 +65,7 @@ ItemViewer.prototype.renderListItems = function (listItems) {
     return itemCount;
 }
 
-ItemViewer.prototype.renderNameField = function ($item, item) {
+ListView.prototype.renderNameField = function ($item, item) {
     var fields = item.GetFields();
     // render complete field if exists 
     var field = fields[FieldNames.Complete];
@@ -78,18 +78,19 @@ ItemViewer.prototype.renderNameField = function ($item, item) {
     this.renderLabel($item, item, field);
 }
 
-ItemViewer.prototype.renderDeleteBtn = function ($element) {
-    var $button = $('<i class="icon-remove pull-right"></i>').appendTo($element);
+ListView.prototype.renderDeleteBtn = function ($element) {
+    var $button = $('<i class="icon-remove-sign pull-right"></i>').appendTo($element);
     $button.attr('title', 'Delete Item').tooltip(Control.ttDelay);
     $button.bind('click', function () {
-        var item = ItemViewer.getItem($(this));
+        var item = ListView.getItem($(this));
         var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
+        $(this).tooltip('hide');
         item.Delete(activeItem);
         return false;   // do not propogate event
     });
 }
 
-ItemViewer.prototype.renderFields = function ($element, item) {
+ListView.prototype.renderFields = function ($element, item) {
     var fields = item.GetFields();
     for (var name in fields) {
         var field = fields[name];
@@ -97,7 +98,7 @@ ItemViewer.prototype.renderFields = function ($element, item) {
     }
 }
 
-ItemViewer.prototype.renderField = function ($element, item, field) {
+ListView.prototype.renderField = function ($element, item, field) {
     var $field;
     var renderByDisplayType = false;
 
@@ -140,7 +141,7 @@ ItemViewer.prototype.renderField = function ($element, item, field) {
     return $field;
 }
 
-ItemViewer.prototype.renderLabel = function ($element, item, field) {
+ListView.prototype.renderLabel = function ($element, item, field) {
     var $field;
     var value = item.GetFieldValue(field);
     if (value != null) {
@@ -151,7 +152,7 @@ ItemViewer.prototype.renderLabel = function ($element, item, field) {
     return $field;
 }
 
-ItemViewer.prototype.renderText = function ($element, item, field, textBefore, textAfter) {
+ListView.prototype.renderText = function ($element, item, field, textBefore, textAfter) {
     var $field;
     var value = item.GetFieldValue(field);
     if (value != null) {
@@ -163,7 +164,7 @@ ItemViewer.prototype.renderText = function ($element, item, field, textBefore, t
     return $field;
 }
 
-ItemViewer.prototype.renderEmail = function ($element, item, field) {
+ListView.prototype.renderEmail = function ($element, item, field) {
     var $field;
     var value = item.GetFieldValue(field);
     if (value != null) {
@@ -176,7 +177,7 @@ ItemViewer.prototype.renderEmail = function ($element, item, field) {
     return $field;
 }
 
-ItemViewer.prototype.renderCheckbox = function ($element, item, field) {
+ListView.prototype.renderCheckbox = function ($element, item, field) {
     $field = $('<input type="checkbox" class="checkbox" />').appendTo($element);
     $field.addClass(field.Class);
     $field.attr('title', field.DisplayName).tooltip(Control.ttDelay);
@@ -188,8 +189,8 @@ ItemViewer.prototype.renderCheckbox = function ($element, item, field) {
     return $field;
 }
 
-ItemViewer.prototype.updateCheckbox = function ($checkbox, field) {
-    var item = ItemViewer.getItem($checkbox);
+ListView.prototype.updateCheckbox = function ($checkbox, field) {
+    var item = ListView.getItem($checkbox);
     if (item != null) {
         var currentValue = item.GetFieldValue(field);
         var value = ($checkbox.attr('checked') == 'checked');
