@@ -181,7 +181,6 @@
   <ItemGroup>
     <Compile Include="controllers\AccountController.cs" />
     <Compile Include="controllers\BaseController.cs" />
-    <Compile Include="controllers\ZapboardController.cs" />
     <Compile Include="controllers\GroceryController.cs" />
     <Compile Include="controllers\UserInfoController.cs" />
     <Compile Include="controllers\DashboardController.cs" />
@@ -366,8 +365,8 @@
     <Content Include="views\account\OldRegister.aspx" />
     <Content Include="views\account\OldSignIn.aspx" />
     <Content Include="views\account\SignIn.aspx" />
-    <Content Include="views\zapboard\Home.aspx" />
     <Content Include="views\dashboard\Home.aspx" />
+    <Content Include="views\dashboard\Homer.aspx" />
     <Content Include="views\shared\SignInControl.ascx" />
     <Content Include="views\shared\OldSignInControl.ascx" />
     <Content Include="Web.config">

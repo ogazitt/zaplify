@@ -33,6 +33,23 @@
             return View(model);
         }
 
+        // entry-point for original dashboard
+        public ActionResult Homer(bool renewFBToken = false)
+        {
+            UserDataModel model = new UserDataModel(this);
+            try
+            {   // force access to validate current user
+                var userData = model.UserData;
+                UserDataModel.CurrentTheme = model.UserTheme;
+                model.RenewFBToken = renewFBToken;
+            }
+            catch
+            {
+                return RedirectToAction("SignOut", "Account");
+            }
+            return View(model);
+        }
+
         public ActionResult Initialize(int id = 0)
         {
             UserDataModel model = new UserDataModel(this);
