@@ -75,7 +75,7 @@ SuggestionList.prototype.renderSuggestion = function ($element, suggestion) {
 
     if (suggestion.SuggestionType == SuggestionTypes.ChooseOneSubject) {
         var contact = Item.Extend($.parseJSON(suggestion.Value));
-        $icons = Control.getIconsForSources(contact).addClass('pull-right');
+        $icons = Control.Icons.forSources(contact).addClass('pull-right');
         $suggestion.find('a').append($icons);
     }
 }

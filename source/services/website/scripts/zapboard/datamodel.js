@@ -502,9 +502,10 @@ DataModel.restoreSelection = function DataModel$restoreSelection(itemID) {
 // Folder object - provides prototype functions for Folder
 
 function Folder() { };
-Folder.Extend = function Folder$Extend(folder) { return $.extend(new Folder(), folder); }         // extend with Folder prototypes
+Folder.Extend = function Folder$Extend(folder) { return $.extend(new Folder(), folder); }   // extend with Folder prototypes
 
 // Folder public functions
+Folder.prototype.Copy = function () { return $.extend(true, new Folder(), this); };         // deep copy
 Folder.prototype.IsFolder = function () { return true; };
 Folder.prototype.IsDefault = function () {
     var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
@@ -546,7 +547,7 @@ Folder.prototype.addItem = function (newItem, activeItem) {
         this.ItemsMap.append(newItem);
     }
     if (activeItem === undefined) {                             // default, fire event with new List or parent List
-        var itemID = (newItem.IsList) ? newItem.ID : newItem.ParentID;
+        var itemID = (newItem.IsList) ? newItem.ID : newItem.ID; //.ParentID;
         DataModel.fireDataChanged(this.ID, itemID);
     } else if (activeItem != null) {                            // fire event with activeItem
         DataModel.fireDataChanged(activeItem.FolderID, activeItem.ID);
@@ -573,9 +574,11 @@ Item.Extend = function Item$Extend(item) { return $.extend(new Item(), item); } 
 // Item public functions
 Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
 Item.prototype.IsFolder = function () { return false; };
+Item.prototype.Select = function () { return DataModel.UserSettings.Selection(this.FolderID, this.ID); };
 Item.prototype.IsSelected = function (includingChildren) { return DataModel.UserSettings.IsItemSelected(this.ID, includingChildren); };
 Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.FolderID)); };
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
+Item.prototype.GetParentContainer = function () { return (this.ParentID == null) ? this.GetFolder() : this.GetParent(); };
 Item.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Item.prototype.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
 Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
@@ -615,7 +618,11 @@ Item.prototype.GetFieldValue = function (field, handler) {
                     if (item != null) { return item; }
                 }
                 // javascript only recognizes lowercase boolean values
-                if (field.FieldType == FieldTypes.Boolean) { fv.Value = fv.Value.toLowerCase(); }
+                if (field.FieldType == FieldTypes.Boolean) {
+                    if (typeof (fv.Value) == 'string') {
+                        fv.Value = (fv.Value.toLowerCase() == 'true');
+                    }
+                }
                 return fv.Value;
             }
         }
@@ -1157,3 +1164,13 @@ var SystemFolders = {
     ClientSettings: "$ClientSettings",
     User: "$User"
 }
+
+// ---------------------------------------------------------
+// SystemUsers constants
+
+var SystemUsers = {
+    // built-in system users
+    System: "00000000-0000-0000-0000-000000000001",
+    User: "00000000-0000-0000-0000-000000000002"
+}
+

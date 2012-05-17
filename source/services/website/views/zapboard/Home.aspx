@@ -21,11 +21,13 @@
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>"></script>
     <!-- use merged and minified script when NOT debugging -->
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/folderlist.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/foldermanager.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/itemviewer.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/listeditor.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/itemeditor.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionlist.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionmanager.js") %>"></script>
     <!--

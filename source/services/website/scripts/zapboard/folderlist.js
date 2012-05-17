@@ -45,7 +45,7 @@ FolderList.prototype.render = function ($element, folders) {
         $folder.data('control', this);
         $folder.data('folder', folder);
         $folder.click(function () { Control.get(this).folderClicked($(this)); });
-        $folder.find('strong').prepend(Control.getIconForItemType(folder));
+        $folder.find('strong').prepend(Control.Icons.forItemType(folder));
         if (folder.IsSelected()) { this.select($folder, folder); }
         this.renderItems($folder, folder);
     }
@@ -61,7 +61,7 @@ FolderList.prototype.renderItems = function ($folder, folder) {
             $item.data('control', this);
             $item.data('item', item);
             $item.click(function () { Control.get(this).itemClicked($(this)); });
-            $item.find('span').prepend(Control.getIconForItemType(item));
+            $item.find('span').prepend(Control.Icons.forItemType(item));
             if (item.IsSelected(true)) { this.select($item, item); }
         }
     }

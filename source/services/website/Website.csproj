@@ -313,12 +313,14 @@
     <Content Include="scripts\master.generated.min.js">
       <DependentUpon>master.js.chirp.config</DependentUpon>
     </Content>
+    <Content Include="scripts\zapboard\controls.js" />
+    <Content Include="scripts\zapboard\itemeditor.js" />
     <Content Include="scripts\zapboard\datamodel.js" />
     <Content Include="scripts\zapboard\dashboard.js" />
     <Content Include="scripts\zapboard\folderlist.js" />
     <Content Include="scripts\zapboard\foldermanager.js" />
-    <Content Include="scripts\zapboard\itemviewer.js" />
     <Content Include="scripts\zapboard\jquery-ui-1.8.16.bootstrap.min.js" />
+    <Content Include="scripts\zapboard\listeditor.js" />
     <Content Include="scripts\zapboard\suggestionlist.js" />
     <Content Include="scripts\zapboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\itemviewer.js" />

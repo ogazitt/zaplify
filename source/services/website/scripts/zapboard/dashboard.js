@@ -52,6 +52,7 @@ Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
 
     // folder manager
     Dashboard.folderManager = new FolderManager(Dashboard, Dashboard.$center);
+    Dashboard.folderManager.addSelectionChangedHandler('dashboard', Dashboard.ManageFolder);
     if (Dashboard.dataModel.UserSettings.ViewState.SelectedFolder != null) {
         Dashboard.showManager(Dashboard.folderManager);
         Dashboard.dataModel.restoreSelection();
@@ -87,14 +88,15 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var item;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     if (itemID == null) {
+        Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
         Dashboard.showManager(Dashboard.folderManager);
         Dashboard.folderManager.selectFolder(folder);
     } else {
         item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
+        Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
         Dashboard.showManager(Dashboard.folderManager);
         Dashboard.folderManager.selectItem(item);
     }
-    Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
 
     if (!Dashboard.resizing) {
         // get suggestions for currently selected user, folder, or item
@@ -222,194 +224,4 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
     if (suggestions['Group_0'] != null) {
         $('.working').hide();
     }
-}
-
-// ---------------------------------------------------------
-// HelpManager control
-function HelpManager(parentControl, $parentElement) {
-    this.parentControl = parentControl;
-    this.$parentControl = $parentElement;
-    this.$element = null;
-}
-
-HelpManager.prototype.hide = function () {
-    if (this.$element != null) {
-        this.$element.hide();
-    }
-}
-
-HelpManager.prototype.show = function () {
-    if (this.$element == null) {
-        this.$element = $('<div class="manager-help" />').appendTo(this.$parentControl);
-        this.render();
-    }
-    this.$element.show();
-}
-
-// render is only called internally by show method
-HelpManager.prototype.render = function () {
-    var $help = $('<div class="hero-unit" />').appendTo(this.$element);
-    $help.append('<h1>Zaplify!</h1>');
-    $help.append(HelpManager.tagline);
-    $help.append('<p><a class="btn btn-primary btn-large">Learn more</a></p>');
-}
-
-HelpManager.tagline =
-'<p>The ultimate tool for managing your digital life. ' +
-'Get connected and get organized. All your information just one click away. ' +
-'Learns about you and provides recommendations. Your own personal assistant!</p>';
-
-// ---------------------------------------------------------
-// SettingsManager control
-function SettingsManager(parentControl, $parentElement) {
-    this.parentControl = parentControl;
-    this.$parentControl = $parentElement;
-    this.$element = null;
-    this.addWell = true;
-}
-
-SettingsManager.prototype.hide = function () {
-    if (this.$element != null) {
-        this.$element.hide();
-    }
-}
-
-SettingsManager.prototype.show = function () {
-    if (this.$element == null) {
-        this.$element = $('<div class="manager-settings" />').appendTo(this.$parentControl);
-        this.render();
-    }
-    this.$element.show();
-}
-
-// render is only called internally by show method
-SettingsManager.prototype.render = function () {
-    var $header = $('<div class="manager-header ui-state-active"><label>User Preferences</label></div>').appendTo(this.$element);
-    var $settings = $('<div class="manager-panel ui-widget-content" />').appendTo(this.$element);
-    this.renderThemePicker($settings);
-
-    // close button
-    var $closeBtn = $('<div class="ui-icon ui-icon-circle-close" />').appendTo($header);
-    $closeBtn.data('control', this);
-    $closeBtn.attr('title', 'Close');
-    $closeBtn.click(function () {
-        var control = Control.get(this);
-        control.parentControl.selectItem(control.parentControl.currentItem);
-    });
-}
-
-SettingsManager.prototype.renderThemePicker = function (container) {
-    var dataModel = Control.findParent(this, 'dataModel').dataModel;
-    var themes = dataModel.Constants.Themes;
-    var currentTheme = dataModel.UserSettings.Preferences.Theme;
-    var $wrapper = $('<div class="ui-widget setting"><label>Theme </label></div>').appendTo(container);
-
-    var $themePicker = $('<select />').appendTo($wrapper);
-    for (var i in themes) {
-        var $option = $('<option value="' + themes[i] + '">' + themes[i] + '</option>').appendTo($themePicker);
-    }
-    $themePicker.val(currentTheme);
-    $themePicker.combobox({ selected: function () {
-        var theme = $(this).val();
-        dataModel.UserSettings.UpdateTheme(theme);
-    }
-    });
-}
-
-// ---------------------------------------------------------
-// Control static object
-// shared helpers used by controls
-var Control = function Control$() { };
-Control.ttDelay = { delay: { show: 500, hide: 200} };       // default tooltip delay
-
-// get the control object associated with the id
-Control.get = function Control$get(element) {
-    return $(element).data('control');
-}
-
-// helpers for creating and invoking a delegate
-Control.delegate = function Control$delegate(object, funcName) {
-    var delegate = { object: object, handler: funcName };
-    delegate.invoke = function () { return this.object[this.handler](); };
-    return delegate;
-}
-
-// get first parent control that contains member
-Control.findParent = function Control$findParent(control, member) {
-    while (control.parentControl != null) {
-        control = control.parentControl;
-        if (control[member] != null) {
-            return control;
-        }
-    }
-    return null;
-}
-
-// expand an element
-Control.expand = function Control$expand($element, animate, callback) {
-    if (animate == true) {
-        $element.show('blind', { direction: 'vertical' }, 400, callback);   // animated
-    } else {
-        $element.collapse('show');
-    }
-}
-// collapse an element
-Control.collapse = function Control$collapse($element, animate, callback) {
-    if (animate == true) {
-        $element.hide('blind', { direction: 'vertical' }, 300, callback);   // animated
-    } else {
-        $element.collapse('hide');
-    }
-}
-
-// return an element containing icons for item sources
-Control.getIconsForSources = function Control$getIconsForSources(item) {
-    var $icons = $('<span />');
-    if (item.HasField(FieldNames.Sources)) {
-        var sources = item.GetFieldValue(FieldNames.Sources);
-        if (sources != null) {
-            sources = sources.split(",");
-            for (var i in sources) {
-                switch (sources[i]) {
-                    case "Facebook":
-                        var fbID = item.GetFieldValue(FieldNames.FacebookID);
-                        var $fbLink = $('<i class="icon-facebook-sign" />').appendTo($icons);
-                        if (fbID != null) {
-                            $fbLink.click(function () { window.open('http://www.facebook.com/' + fbID); });
-                        }
-                        break;
-                    case "Directory":
-                        $icons.append('<i class="azure-icon" />');
-                        break;
-                }
-            }
-        } else if (item.ItemTypeID == ItemTypes.Contact) {
-            $icons.append('<i class="icon-user"></i>');
-        }
-    }
-    return $icons;
-}
-
-// return an element that is an icon for the item type
-Control.getIconForItemType = function Control$getIconForItemType(item) {
-    var $icon = $('<i></i>');
-    switch (item.ItemTypeID) {
-        case ItemTypes.Task:
-            (item.IsFolder()) ? $icon.addClass('icon-calendar') : $icon.addClass('icon-check');
-            break;
-        case ItemTypes.Contact:
-            $icon.addClass('icon-user');
-            break;
-        case ItemTypes.Location:
-            $icon.addClass('icon-map-marker');
-            break;
-        case ItemTypes.ShoppingItem:
-            $icon.addClass('icon-shopping-cart');
-            break;
-        case ItemTypes.ListItem:
-        default:
-            $icon.addClass('icon-list-alt');
-            break;
-    }
-    return $icon;
 }
