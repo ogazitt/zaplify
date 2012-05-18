@@ -29,6 +29,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
         private const string SearchProductResultItemDescription = "./sm:ItemDescription";
         private const string SearchProductResultItemID = "./sm:ItemID";
         private const string SearchProductResultItemImage = "./sm:ItemImage";
+        private const string SearchProductResultAisleNumber = "./sm:AisleNumber";
 
         private const string GetGroceriesResultXPath = "./sm:string";
         private const string GetGroceriesResultName = ".";
@@ -125,10 +126,16 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
                 var itemName = webResult.XPathSelectElement(SearchProductResultItemname, nsmgr);
                 var description = webResult.XPathSelectElement(SearchProductResultItemDescription, nsmgr);
                 var category = webResult.XPathSelectElement(SearchProductResultItemCategory, nsmgr);
+                var id = webResult.XPathSelectElement(SearchProductResultItemID, nsmgr);
+                var image = webResult.XPathSelectElement(SearchProductResultItemImage, nsmgr);
+                var aisle = webResult.XPathSelectElement(SearchProductResultAisleNumber, nsmgr);
                 var retval = new SupermarketQueryResult();
                 retval[SupermarketQueryResult.Name] = itemName != null ? itemName.Value : null;
                 retval[SupermarketQueryResult.Description] = description != null ? description.Value : null;
                 retval[SupermarketQueryResult.Category] = category != null ? category.Value : null;
+                retval[SupermarketQueryResult.ID] = id != null ? id.Value : null;
+                retval[SupermarketQueryResult.Image] = image != null ? image.Value : null;
+                retval[SupermarketQueryResult.Aisle] = aisle != null ? aisle.Value : null;
                 yield return retval;
             }
         }

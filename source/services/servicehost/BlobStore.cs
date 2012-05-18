@@ -8,11 +8,13 @@
 
     public class BlobStore
     {
-        private const string TraceContainerName = "client-traces";
+        public const string TraceContainerName = "client-traces";
+        public const string GroceryContainerName = "grocery-data";
 
         static CloudStorageAccount storageAccount;
         static CloudBlobClient blobClient;
         static CloudBlobContainer traceContainer;
+        static CloudBlobContainer groceryContainer;
 
         private static CloudBlobClient BlobClient
         {
@@ -23,6 +25,7 @@
                 return blobClient;
             }
         }
+   
         private static CloudStorageAccount StorageAccount
         {
             get
@@ -40,12 +43,23 @@
                 return storageAccount;
             }
         }
+        
         private static CloudBlobContainer TraceContainer
         {
             get
             {
                 if (traceContainer == null)
                     traceContainer = BlobClient.GetContainerReference(TraceContainerName);
+                return traceContainer;
+            }
+        }
+
+        private static CloudBlobContainer GroceryContainer
+        {
+            get
+            {
+                if (groceryContainer == null)
+                    groceryContainer = BlobClient.GetContainerReference(GroceryContainerName);
                 return traceContainer;
             }
         }
@@ -65,6 +79,25 @@
             catch (Exception ex)
             {
                 TraceLog.TraceException(String.Format("BlobStore.AddTraceFile: failed to upload trace file {0}", filename), ex);
+            }
+        }
+
+        public static void WriteBlobData(string containerName, string filename, string data)
+        {
+            try
+            {
+                var container = BlobClient.GetContainerReference(containerName);
+                bool created = container.CreateIfNotExist();
+                if (created == true)
+                    TraceLog.TraceInfo("BlobStore.WriteBlobData: created container " + containerName);
+
+                var blob = TraceContainer.GetBlobReference(filename);
+                blob.UploadText(data);
+                TraceLog.TraceInfo(String.Format("BlobStore.WriteBlobData: added file {0} to container {1}", filename, containerName));
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("BlobStore.WriteBlobData: failed to add file {0} to container {1}", filename, containerName), ex);
             }
         }
     }

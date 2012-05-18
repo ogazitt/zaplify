@@ -102,6 +102,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string LatLong = "LatLong";            // String (comma-delimited)
 
         // FieldNames for EntityRef extensions
+        public const string SelectedCount = "SelectedCount";// Integer
         public const string SortBy = "SortBy";              // String (ClientSettings: field name to sort a folder/list by)
     }
 
@@ -215,17 +216,32 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ClientSettings = "$ClientSettings";
         public const string User = "$User";
 
-        // system items
-        public const string GroceryCategories = "GroceryCategories";
-        public const string ListSortOrders = "ListSortOrders";
-        public const string PossibleSubjects = "PossibleSubjects";
-        public const string ShadowItems = "ShadowItems";
-
+        // system items - $ClientSettings
+        public const string DefaultLists = "DefaultLists";
+        public const string ListMetadata = "ListMetadata";
 #if IOS
         public const string PhoneSettings = "iPhoneSettings";
 #else
         public const string PhoneSettings = "WinPhoneSettings";
 #endif
+
+        // system items - $User
+        public const string GroceryCategories = "GroceryCategories";
+        public const string PossibleSubjects = "PossibleSubjects";
+        public const string ShadowItems = "ShadowItems";
+    }
+
+    public class UserEntities
+    {
+        // user folders
+        public const string Activities = "Activities";
+        public const string Lists = "Lists";
+        public const string People = "People";
+        public const string Places = "Places";
+
+        // user items
+        public const string Tasks = "Tasks";
+        public const string Groceries = "Groceries";
     }
 
     public class UserConstants
@@ -348,6 +364,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000054"), FieldType = FieldTypes.String, Name = FieldNames.Amount, DisplayName = "Quantity", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 4 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000055"), FieldType = FieldTypes.Currency, Name = FieldNames.Cost, DisplayName = "Price", DisplayType = DisplayTypes.Currency, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 5 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000056"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000057"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 7 });
 
             // create Reference
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Reference, Name = "Reference", UserID = SystemUsers.System, Fields = new List<Field>() });
@@ -399,7 +416,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = folderID,
                 SortOrder = 1000,
-                Name = "Activities",
+                Name = UserEntities.Activities,
                 ItemTypeID = SystemItemTypes.Task,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
@@ -416,7 +433,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = Guid.NewGuid(),
                 SortOrder = 1000,
-                Name = "Tasks",
+                Name = UserEntities.Tasks,
                 FolderID = folder.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.Task,
@@ -469,7 +486,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = folderID,
                 SortOrder = 2000,
-                Name = "Lists",
+                Name = UserEntities.Lists,
                 ItemTypeID = SystemItemTypes.ListItem,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
@@ -488,7 +505,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = Guid.NewGuid(),
                 SortOrder = 3000,
-                Name = "Groceries",
+                Name = UserEntities.Groceries,
                 FolderID = folder.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.ShoppingItem,
@@ -512,7 +529,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = folderID,
                 SortOrder = 3000,
-                Name = "People",
+                Name = UserEntities.People,
                 ItemTypeID = SystemItemTypes.Contact,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
@@ -535,7 +552,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = folderID,
                 SortOrder = 4000,
-                Name = "Places",
+                Name = UserEntities.Places,
                 ItemTypeID = SystemItemTypes.Location,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
@@ -576,7 +593,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             {
                 ID = defaultListItemID,
                 SortOrder = 0,
-                Name = "DefaultLists",
+                Name = SystemEntities.DefaultLists,
                 FolderID = folder.ID,
                 IsList = true,
                 ItemTypeID = SystemItemTypes.Reference,

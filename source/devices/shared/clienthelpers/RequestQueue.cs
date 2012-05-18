@@ -9,7 +9,6 @@ using System.Text;
 using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
-
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
@@ -46,6 +45,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             [DataMember]
             public string SerializedBody { get; set; }
+
+            [DataMember]
+            public bool IsDefaultObject { get; set; }
 
             // deep-copy the passed in newRecord
             public void Copy(RequestRecord record)
@@ -317,6 +319,83 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     {
                         // could not open the isolated storage file
                         return null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This function prepares the request queue for a "Connect with Existing Account" operation
+        /// If the queue only contains default items (because the user hasn't made any changes), remove the 
+        /// default objects so that we don't create duplicates on the server
+        /// 
+        /// Otherwise, change the names of all the "local" folders to include " (Phone)" so the user can 
+        /// distinguish these folders from the ones that they already have in their existing account
+        /// </summary>
+        public static void PrepareQueueForAccountConnect()
+        {
+            bool deleteQueue = true;
+            var requests = GetAllRequestRecords();
+            if (requests != null)
+                foreach (var r in GetAllRequestRecords())
+                    if (r.IsDefaultObject == false)
+                    {
+                        deleteQueue = false;
+                        break;
+                    }
+
+            if (deleteQueue)
+            {
+                DeleteQueue();
+                return;
+            }
+
+            requests = new List<RequestRecord>();
+            DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
+
+            using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                lock (fileLock)
+                {
+                    // try block because the using block below will throw if the file doesn't exist
+                    try
+                    {
+                        // if the file opens, read the contents 
+                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.Open, file))
+                        {
+                            try
+                            {
+                                // if the file opens, read the contents 
+                                requests = dc.ReadObject(stream) as List<RequestRecord>;
+                                foreach (var req in requests)
+                                {
+                                    // append (Phone) to all folder names
+                                    req.DeserializeBody();
+                                    if (req.BodyTypeName == typeof(Folder).Name && req.ReqType == RequestRecord.RequestType.Insert)
+                                    {
+                                        var folder = req.Body as Folder;
+                                        if (folder != null)
+                                            folder.Name += " (Phone)";
+                                        req.SerializeBody();
+                                    }
+                                }
+
+                                // reset the stream and rewrite the request queue file
+                                stream.Position = 0;
+                                dc.WriteObject(stream, requests);
+                            }
+                            catch (Exception ex)
+                            {
+                                TraceHelper.AddMessage("PrepareQueueForAccountConnect: Error rewriting request queue file; ex: " + ex.Message);
+                                return;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // could not open the isolated storage file
+                        TraceHelper.AddMessage("PrepareQueueForAccountConnect: Error opening request queue file; ex: " + ex.Message);
+                        return;
                     }
                 }
             }

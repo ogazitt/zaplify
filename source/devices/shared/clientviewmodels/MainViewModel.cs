@@ -403,10 +403,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     changed = true;
                     if (user != null && value != null)
                     {
-                        if (value.Name == user.Name && value.Email == user.Email && value.Password == null)
-                        {   // for comparison purposes, a null password is NOT considered a change
-                            changed = false;
-                        }
                         if (value.Password == null)
                         {   // preserve local client password, as password is NOT sent back from server
                             value.Password = user.Password;
@@ -488,6 +484,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 #endregion
 
 #region // Public Methods
+
+        public void EraseAllData()
+        {
+            foreach (var tl in Folders)
+                StorageHelper.DeleteFolder(tl);
+            StorageHelper.WriteConstants(null);
+            StorageHelper.WriteDefaultFolderID(null);
+            StorageHelper.WriteItemTypes(null);
+            StorageHelper.WriteTags(null);
+            StorageHelper.WriteFolders(null);
+            StorageHelper.WriteUserCredentials(null);
+            RequestQueue.DeleteQueue();
+
+            IsDataLoaded = false;
+            LastNetworkOperationStatus = false;
+            if (FolderDictionary != null)
+                FolderDictionary.Clear();
+
+            LoadData();
+        }
 
         public About GetAboutData()
         {
@@ -863,7 +879,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 Folder csf = null;
                 if (user.Folders.Any(f => f.Name == SystemEntities.ClientSettings))
                 {
-                    csf = user.Folders.Single(f => f.Name == SystemEntities.ClientSettings);
+                    csf = user.Folders.First(f => f.Name == SystemEntities.ClientSettings);
                     user.Folders.Remove(csf);
                 }
 
@@ -1008,14 +1024,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             {
                 FolderDictionary.Add(folder.ID, folder);
                 RequestQueue.EnqueueRequestRecord(
-                    new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
+                    new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID, IsDefaultObject = true });
 
                 foreach (var item in folder.Items)
                 {
                     RequestQueue.EnqueueRequestRecord(
-                        new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
+                        new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID, IsDefaultObject = true });
 
                 }
+                StorageHelper.WriteFolder(folder);
             }
 
             // extract the $ClientSettings folder and handle it specially
@@ -1023,107 +1040,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             folders.Remove(csf);
             ClientSettings = csf;
 
-            return folders;
-
-#if FALSE   // TODO: remove when finished debugging new codepath
-            ObservableCollection<Folder> folders = new ObservableCollection<Folder>();
-
-            Folder folder;
-            Item item;
-
-            // create the Activities folder
-            folders.Add(folder = new Folder() { Name = "Activities", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Task, SortOrder=1000 });
-            FolderDictionary.Add(folder.ID, folder);
-            
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
-
-            // create the Tasks list
-            folder.Items.Add(item = new Item()
+            // initialize the SelectedCount for a few default folders and lists
+            foreach (var folder in folders)
             {
-                Name = "Tasks",
-                FolderID = folder.ID,
-                IsList = true,
-                ItemTypeID = SystemItemTypes.Task,
-                SortOrder = 1000,
-                ParentID = Guid.Empty
-            });
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
-
-            // create the Learn Zaplify task
-            folder.Items.Add(item = new Item() 
-            { 
-                Name = "Learn about Zaplify!", 
-                FolderID = folder.ID, 
-                ItemTypeID = SystemItemTypes.Task,
-                SortOrder = 2000,
-                ParentID = item.ID,             // add to Tasks
-                Complete = false,
-                Due = DateTime.Today.Date,
-                Priority = 0,
-                Description = "Tap the browse button below to discover more about Zaplify.",
-            });
-            StorageHelper.WriteFolder(folder);
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID });
-
-
-            // create the People folder
-            folders.Add(folder = new Folder() { Name = "People", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Contact, SortOrder = 2000 });
-            FolderDictionary.Add(folder.ID, folder);
-            StorageHelper.WriteFolder(folder);
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
-
-            // create the Places folder
-            folders.Add(folder = new Folder() { Name = "Places", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.Location, SortOrder = 3000 });
-            FolderDictionary.Add(folder.ID, folder);
-            StorageHelper.WriteFolder(folder);
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
-
-            // create the Lists folder
-            folders.Add(folder = new Folder() { Name = "Lists", Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.ListItem, SortOrder = 4000 });
-            FolderDictionary.Add(folder.ID, folder);
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
-
-            // create the Groceries list
-            folder.Items.Add(item = new Item()
-            {
-                Name = "Groceries",
-                FolderID = folder.ID,
-                IsList = true,
-                ItemTypeID = SystemItemTypes.ShoppingItem,
-                SortOrder = 3000,
-                ParentID = Guid.Empty
-            });
-            StorageHelper.WriteFolder(folder);
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord()
-                { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = folder.ID });
-
-            // create the $ClientSettings folder
-            folder = new Folder() { Name = SystemEntities.ClientSettings, Items = new ObservableCollection<Item>(), ItemTypeID = SystemItemTypes.NameValue, SortOrder = 0 };
-            FolderDictionary.Add(folder.ID, folder);
-            StorageHelper.WriteFolder(folder);
-            ClientSettings = folder;
-
-            RequestQueue.EnqueueRequestRecord(
-                new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID });
-
-            // save changes to local storage
-            StorageHelper.WriteFolders(folders);
+                if (folder.Name == UserEntities.People ||
+                    folder.Name == UserEntities.Places)
+                {
+                    ListMetadataHelper.IncrementListSelectedCount(csf, folder);
+                    continue;
+                }
+                foreach (var item in folder.Items)
+                {
+                    if (item.Name == UserEntities.Tasks ||
+                        item.Name == UserEntities.Groceries)
+                    {
+                        ListMetadataHelper.IncrementListSelectedCount(csf, item);
+                        continue;
+                    }
+                }                
+            }
 
             return folders;
-#endif
         }
 
 #endregion

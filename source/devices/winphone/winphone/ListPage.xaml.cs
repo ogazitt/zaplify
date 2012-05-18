@@ -371,7 +371,7 @@
 
             // store the current listbox and ordering
             ListHelper.ListBox = ItemsListBox;
-            ListHelper.OrderBy = ClientSettingsHelper.GetListSortOrder(
+            ListHelper.OrderBy = ListMetadataHelper.GetListSortOrder(
                 App.ViewModel.ClientSettings, 
                 id == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list);
 
@@ -470,7 +470,7 @@
             ListHelper.RenderList(list);
 
             // store the sort order
-            ClientSettingsHelper.StoreListSortOrder(
+            ListMetadataHelper.StoreListSortOrder(
                 App.ViewModel.ClientSettings,
                 list.ID == Guid.Empty ? (ClientEntity) folder : (ClientEntity) list,
                 target.Name);
@@ -489,7 +489,7 @@
             ListHelper.RenderList(list);
 
             // store the sort order
-            ClientSettingsHelper.StoreListSortOrder(
+            ListMetadataHelper.StoreListSortOrder(
                 App.ViewModel.ClientSettings,
                 list.ID == Guid.Empty ? (ClientEntity)folder : (ClientEntity)list,
                 null);

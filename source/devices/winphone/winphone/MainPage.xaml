@@ -32,10 +32,11 @@
                         <RowDefinition Height="20"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBox Grid.Row="1" Height="170" HorizontalAlignment="Left" Margin="10,21,0,0" Name="NameTextBox" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="440" />
-                    <TextBlock Grid.Row="1" Height="30" HorizontalAlignment="Left" Margin="20,190,0,0" FontSize="{StaticResource PhoneFontSizeMedium}" Text="Add to list:" VerticalAlignment="Top" Width="420" />
+                    <TextBlock Grid.Row="1" Height="230" HorizontalAlignment="Left" Margin="20,5,0,0" FontSize="{StaticResource PhoneFontSizeMedium}" Text="Enter item name:" VerticalAlignment="Top" Width="420" />
+                    <TextBox Grid.Row="1" Height="170" HorizontalAlignment="Left" Margin="10,30,0,0" Name="NameTextBox" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="440" />
+                    <TextBlock Grid.Row="1" Height="30" x:Name="ListsHeader" HorizontalAlignment="Left" Margin="20,200,0,0" FontSize="{StaticResource PhoneFontSizeMedium}" Text="{Binding ListsHeaderText}" VerticalAlignment="Top" Width="420" />
                     <Button Content="Touch to speak" Grid.Row="1" Height="90" HorizontalAlignment="Left" Margin="10,0,0,10" Name="SpeakButton" VerticalAlignment="Bottom" Width="440" Click="SpeechButton_Click"/>
-                    <StackPanel Grid.Row="1" Height="235" HorizontalAlignment="Left" Margin="20,225,0,0" Name="AddButtonsStackPanel" VerticalAlignment="Top" Width="420" />
+                    <StackPanel Grid.Row="1" Height="235" HorizontalAlignment="Left" Margin="20,230,0,0" Name="AddButtonsStackPanel" VerticalAlignment="Top" Width="420" />
                 </Grid>
             </controls:PivotItem>
 
@@ -94,6 +95,20 @@
                 </ListBox>
             </controls:PivotItem>
         </controls:Pivot>
+
+        <!--more lists panel-->
+        <Popup x:Name="MoreListsPopup" VerticalAlignment="Top" Width="480" IsOpen="False">
+            <Grid Width="480" Height="800">
+                <Border Background="#FF1F1F1F" Height="800"/>
+                <ListBox x:Name="MoreListsListBox" Margin="0,0,-12,0" ItemsSource="{Binding MoreLists}" SelectionChanged="MoreListsListBox_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Popup>
 
         <!--search popup panel-->
         <Popup x:Name="SearchPopup" VerticalAlignment="Top" Width="480" IsOpen="False">

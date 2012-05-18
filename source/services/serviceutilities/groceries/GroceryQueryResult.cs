@@ -7,6 +7,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Grocery
     {
         public const string Name = "Name";
         public const string Category = "Category";
+        public const string ImageUrl = "ImageUrl";
 
         JObject jobject = null;
 
