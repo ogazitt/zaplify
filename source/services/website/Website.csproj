@@ -38,6 +38,9 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Chirpy">
+      <HintPath>..\..\packages\ChirpyDllOnly.2.0.0.4\lib\Chirpy.dll</HintPath>
+    </Reference>
     <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Grocery">
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Grocery.dll</HintPath>
     </Reference>
@@ -103,6 +106,9 @@
     <Reference Include="NSpeex">
       <HintPath>..\..\packages\NSpeex.1.1\lib\NSpeex.dll</HintPath>
     </Reference>
+    <Reference Include="SassAndCoffee.Core">
+      <HintPath>..\..\packages\ChirpyDllOnly.2.0.0.4\lib\SassAndCoffee.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Data.OData">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\System.Data.OData.dll</HintPath>
@@ -164,7 +170,6 @@
     <Compile Include="helpers\MessageLoggingHelper.cs" />
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
-    <Compile Include="models\GroceryModels.cs" />
     <Compile Include="models\DataModels.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
@@ -183,6 +188,7 @@
     <Compile Include="WebRole.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="content\bootstrap-after.css" />
     <Content Include="content\dashboard\Dashboard.css" />
     <Content Include="content\dashboard\images\add-icon.png" />
     <Content Include="content\dashboard\images\azure.png" />
@@ -191,10 +197,35 @@
     <Content Include="content\dashboard\images\edit-icon.png" />
     <Content Include="content\dashboard\images\facebook.png" />
     <Content Include="content\dashboard\images\info-icon.png" />
+    <Content Include="content\font\fontawesome-webfont.svg" />
+    <Content Include="content\bootstrap-tweener.css" />
     <Content Include="content\images\busy.png" />
+    <Content Include="content\images\glyphicons-halflings-white.png" />
+    <Content Include="content\images\glyphicons-halflings.png" />
+    <Content Include="content\images\page-turn-next.png" />
+    <Content Include="content\images\page-turn-prev.png" />
     <Content Include="content\images\refresh.png" />
     <Content Include="content\images\settings.png" />
+    <Content Include="content\images\zaplogo-small.png" />
     <Content Include="content\images\zaplogo.png" />
+    <Content Include="content\master.generated.min.css">
+      <DependentUpon>master.css.chirp.config</DependentUpon>
+    </Content>
+    <Content Include="content\themes\bootstrap\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_glass_75_dadada_1x400.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_glass_75_ffffff_1x400.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <Content Include="content\themes\bootstrap\images\ui-bg_inset-soft_95_fef1ec_1x100.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_222222_256x240.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_2e83ff_256x240.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_454545_256x240.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_888888_256x240.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_cd0a0a_256x240.png" />
+    <Content Include="content\themes\bootstrap\images\ui-icons_f6cf3b_256x240.png" />
+    <Content Include="content\themes\bootstrap\jquery-ui-1.8.18.css" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_c8ccd5_40x100.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_0_ccccee_40x100.png" />
     <Content Include="content\themes\default\images\ui-bg_flat_75_3b5998_40x100.png" />
@@ -257,6 +288,21 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="README.jQuery.vsdoc.txt" />
+    <Content Include="scripts\bootstrap.js" />
+    <Content Include="scripts\bootstrap.min.js" />
+    <Content Include="scripts\master.generated.min.js">
+      <DependentUpon>master.js.chirp.config</DependentUpon>
+    </Content>
+    <Content Include="scripts\zapboard\controls.js" />
+    <Content Include="scripts\zapboard\itemeditor.js" />
+    <Content Include="scripts\zapboard\datamodel.js" />
+    <Content Include="scripts\zapboard\dashboard.js" />
+    <Content Include="scripts\zapboard\folderlist.js" />
+    <Content Include="scripts\zapboard\foldermanager.js" />
+    <Content Include="scripts\zapboard\jquery-ui-1.8.16.bootstrap.min.js" />
+    <Content Include="scripts\zapboard\listeditor.js" />
+    <Content Include="scripts\zapboard\suggestionlist.js" />
+    <Content Include="scripts\zapboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\itemviewer.js" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\suggestionlist.js" />
@@ -271,10 +317,14 @@
     <Content Include="scripts\jquery.validate-vsdoc.js" />
     <Content Include="scripts\jquery.validate.js" />
     <Content Include="scripts\jquery.validate.min.js" />
+    <Content Include="scripts\less.min.js" />
     <Content Include="scripts\modernizr-2.0.6-development-only.js" />
     <Content Include="scripts\dashboard\controls.js" />
     <Content Include="scripts\shared\service.js" />
     <Content Include="scripts\shared\datamodel.js" />
+    <Content Include="scripts\zapboard\zapboard.generated.min.js">
+      <DependentUpon>zapboard.js.chirp.config</DependentUpon>
+    </Content>
     <Content Include="startup\7z.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -293,9 +343,13 @@
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="views\account\OldRegister.aspx" />
+    <Content Include="views\account\OldSignIn.aspx" />
     <Content Include="views\account\SignIn.aspx" />
     <Content Include="views\dashboard\Home.aspx" />
+    <Content Include="views\dashboard\Homer.aspx" />
     <Content Include="views\shared\SignInControl.ascx" />
+    <Content Include="views\shared\OldSignInControl.ascx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -343,9 +397,60 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="scripts\master.js.chirp.config" />
+    <Content Include="content\font\fontawesome-webfont.eot" />
+    <Content Include="content\font\fontawesome-webfont.svgz" />
+    <Content Include="content\font\fontawesome-webfont.ttf" />
+    <Content Include="content\font\fontawesome-webfont.woff" />
+    <None Include="content\less\accordion.less" />
+    <None Include="content\less\alerts.less" />
+    <None Include="content\less\bootstrap.less" />
+    <None Include="content\less\breadcrumbs.less" />
+    <None Include="content\less\button-groups.less" />
+    <None Include="content\less\buttons.less" />
+    <None Include="content\less\carousel.less" />
+    <None Include="content\less\close.less" />
+    <None Include="content\less\code.less" />
+    <None Include="content\less\component-animations.less" />
+    <None Include="content\less\dropdowns.less" />
+    <None Include="content\less\font-awesome.less" />
+    <None Include="content\less\forms.less" />
+    <None Include="content\less\grid.less" />
+    <None Include="content\less\hero-unit.less" />
+    <None Include="content\less\labels-badges.less" />
+    <None Include="content\less\layouts.less" />
+    <None Include="content\less\mixins.less" />
+    <None Include="content\less\modals.less" />
+    <None Include="content\less\navbar.less" />
+    <None Include="content\less\navs.less" />
+    <None Include="content\less\pager.less" />
+    <None Include="content\less\pagination.less" />
+    <None Include="content\less\popovers.less" />
+    <None Include="content\less\progress-bars.less" />
+    <None Include="content\less\reset.less" />
+    <None Include="content\less\responsive-1200px-min.less" />
+    <None Include="content\less\responsive-767px-max.less" />
+    <None Include="content\less\responsive-768px-979px.less" />
+    <None Include="content\less\responsive-navbar.less" />
+    <None Include="content\less\responsive-utilities.less" />
+    <None Include="content\less\responsive.less" />
+    <None Include="content\less\scaffolding.less" />
+    <None Include="content\less\sprites.less" />
+    <None Include="content\less\tables.less" />
+    <None Include="content\less\thumbnails.less" />
+    <None Include="content\less\tooltip.less" />
+    <None Include="content\less\type.less" />
+    <None Include="content\less\utilities.less" />
+    <None Include="content\less\variables.less" />
+    <None Include="content\less\wells.less" />
+    <Content Include="content\master.css.chirp.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="scripts\zapboard\zapboard.js.chirp.config" />
     <None Include="startup\Install.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="views\shared\Bootstrap.Master" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
@@ -380,5 +485,9 @@
   <PropertyGroup>
     <PostBuildEvent>rd "$(ProjectDir)obj" /S /Q
 </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

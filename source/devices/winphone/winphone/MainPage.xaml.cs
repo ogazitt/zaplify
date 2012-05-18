@@ -522,6 +522,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // remove all existing buttons from the application bar
             ApplicationBar.Buttons.Clear();
 
+            // remove any "add" menu items
+            if (((ApplicationBarMenuItem)ApplicationBar.MenuItems[0]).Text.StartsWith("add"))
+                ApplicationBar.MenuItems.RemoveAt(0);
+
             // create the sync and settings buttons, which are shared by all pivot tabs
             var syncButton = new ApplicationBarIconButton() 
             { 
@@ -558,24 +562,24 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ApplicationBar.Buttons.Add(searchButton);
                     break;
                 case 2: // folders
-                    var addFolderButton = new ApplicationBarIconButton() 
+                    var addFolderMenuItem = new ApplicationBarMenuItem() 
                     { 
                         Text = "add folder", 
-                        IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
+                        //IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
                     };
-                    addFolderButton.Click += new EventHandler(Folders_AddButton_Click);
-                    ApplicationBar.Buttons.Add(addFolderButton);
+                    addFolderMenuItem.Click += new EventHandler(Folders_AddButton_Click);
+                    ApplicationBar.MenuItems.Insert(0, addFolderMenuItem);
                     ApplicationBar.Buttons.Add(syncButton);
                     ApplicationBar.Buttons.Add(settingsButton);
                     break;
                 case 3: // tags
-                    var addTagButton = new ApplicationBarIconButton() 
+                    var addTagMenuItem = new ApplicationBarMenuItem() 
                     { 
-                        Text = "add folder", 
-                        IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
+                        Text = "add tag", 
+                        // IconUri = new Uri("/Images/appbar.add.rest.png", UriKind.Relative) 
                     };
-                    addTagButton.Click += new EventHandler(Tags_AddButton_Click);
-                    ApplicationBar.Buttons.Add(addTagButton);
+                    addTagMenuItem.Click += new EventHandler(Tags_AddButton_Click);
+                    ApplicationBar.MenuItems.Insert(0, addTagMenuItem);
                     ApplicationBar.Buttons.Add(syncButton);
                     ApplicationBar.Buttons.Add(settingsButton);
                     break;
@@ -646,6 +650,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 UriKind.Relative));
         }
 
+        /*
         private void TagsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // If selected index is -1 (no selection) do nothing
@@ -664,6 +669,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // Reset selected index to -1 (no selection)
             TagsListBox.SelectedIndex = -1;
         }
+        */
 
         // Event handlers for items tab
         private void Items_AddButton_Click(object sender, EventArgs e)
@@ -1019,7 +1025,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void CreateAddButtons()
         {
             const string moreListsString = "more lists...";
-            double width = (AddButtonsStackPanel.ActualWidth) / 2;
+            double width = Math.Max(420f, AddButtonsStackPanel.ActualWidth) / 2;
             // get all the lists
             /*
             lists = (from it in App.ViewModel.Items

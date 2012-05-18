@@ -26,6 +26,9 @@
     using BuiltSteady.Zaplify.Devices.ClientViewModels;
     using BuiltSteady.Zaplify.Devices.ClientHelpers;
     using BuiltSteady.Zaplify.Shared.Entities;
+    using System.Text;
+using System.Reflection;
+    using Microsoft.Phone.Tasks;
 
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
@@ -381,15 +384,14 @@
 
         #region Button Event Handlers
 
-        private void AddButton_Click(object sender, EventArgs e)
+        private void AddItemButton_Click(object sender, EventArgs e)
         {
             // trace page navigation
             TraceHelper.StartMessage("ListPage: Navigate to List Editor");
 
-            // Navigate to the new page
+            // Navigate to the main page's add tab
             NavigationService.Navigate(
-                new Uri(String.Format("/ListEditor.xaml?ID={0}&FolderID={1}&ParentID={2}", "new", folder.ID, list.ID),
-                UriKind.Relative));
+                new Uri("/MainPage.xaml?Tab=Add", UriKind.Relative));
         }
 
         private void EditButton_Click(object sender, EventArgs e)
@@ -452,7 +454,6 @@
             SortPopup.IsOpen = true;
         }
 
-        // handle events associated with Import List
         private void Sort_Filter(object sender, FilterEventArgs e)
         {
             Field f = e.Item as Field;
@@ -505,6 +506,17 @@
 
         #region Menu Item Event Handlers
 
+        private void AddListMenuItem_Click(object sender, EventArgs e)
+        {
+            // trace page navigation
+            TraceHelper.StartMessage("ListPage: Navigate to List Editor");
+
+            // Navigate to the new page
+            NavigationService.Navigate(
+                new Uri(String.Format("/ListEditor.xaml?ID={0}&FolderID={1}&ParentID={2}", "new", folder.ID, list.ID),
+                UriKind.Relative));
+        }
+
         private void DeleteCompletedMenuItem_Click(object sender, EventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("delete all completed items in this folder?", "confirm delete", MessageBoxButton.OKCancel);
@@ -548,6 +560,15 @@
 
             // trigger a sync with the Service 
             App.ViewModel.SyncWithService();
+        }
+
+        private void EmailListMenuItem_Click(object sender, EventArgs e)
+        {
+            string emailBody = ListHelper.GetAsText();
+            EmailComposeTask emailComposeItem = new EmailComposeTask();
+            emailComposeItem.Subject = "Zaplify List: " + list.Name;
+            emailComposeItem.Body = emailBody;
+            emailComposeItem.Show();
         }
 
         // handle events associated with Import List

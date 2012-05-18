@@ -236,6 +236,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             try
             {
                 var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
+
                 // get the category and image
                 foreach (var entry in results)
                 {
@@ -245,6 +246,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
                     // write the data to the blob store
                     BlobStore.WriteBlobData(BlobStore.GroceryContainerName, entry[SupermarketQueryResult.Name], entry.ToString());
+
                     // only grab the first category
                     userContext.SaveChanges();
                     TraceLog.TraceInfo(String.Format("ProcessCreate: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));

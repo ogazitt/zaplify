@@ -1,0 +1,6 @@
+﻿/*! 
+ * This css must be processed after bootstrap.css but before responsive.css
+ * Padding is required to keep content below navbar at top of page 
+*/
+body { padding-top: 54px; padding-bottom: 40px; }
+a { cursor: pointer; }

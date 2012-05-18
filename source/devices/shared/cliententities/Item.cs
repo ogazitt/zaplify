@@ -331,8 +331,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         // dictionary to hold all the aliases to FieldValues
         private Dictionary<string, FieldValue> fieldValueDict = new Dictionary<string, FieldValue>();
 
-        // get FieldValue of this Item by FieldName (no create flag)
-        public FieldValue GetFieldValue(string fieldName)
+        // get FieldValue of this Item by FieldName 
+        // if create == true, a new FieldValue for this FieldName will be created if none exists
+        public FieldValue GetFieldValue(string fieldName, bool create = false)
         {
             FieldValue fieldValue = null;
 
@@ -352,36 +353,38 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 
                 // store the new FieldValue in the dictionary
                 fieldValueDict[fieldName] = fieldValue;
+                return fieldValue;
             }
 
-            return fieldValue;
-        }
+            if (create)
+            {
+                // try to find the current item's itemtype (this should succeed)
+                ItemType it;
+                if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
+                    return null;
 
-        // get FieldValue of this Item by FieldName
-        // if create == true, a new FieldValue for this FieldName will be created if none exists
-        public FieldValue GetFieldValue(string fieldName, bool create)
-        {
-            // try to find the current item's itemtype (this should succeed)
-            ItemType it;
-            if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
-                return null;
-            try
-            {   // try to find the fieldName among the "supported" fields of the itemtype 
-                // this may fail if this itemtype doesn't support this field name
-                Field field = it.Fields.Single(f => f.Name == fieldName);
+                Field field = null;
+                try
+                {   // try to find the fieldName among the "supported" fields of the itemtype 
+                    // this may fail if this itemtype doesn't support this field name
+                    field = it.Fields.Single(f => f.Name == fieldName);
+                }
+                catch (Exception)
+                {
+                    // manufacture a synthetic, generic field which has a default FieldType
+                    field = new Field() { Name = name, FieldType = FieldTypes.String };
+                }
 
                 // delegate to GetFieldValue(Guid fieldID)
                 return GetFieldValue(field, create);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            return null;
         }
         
         // get FieldValue of this Item by ID
         // if create == true, a new FieldValue with this ID will be created if none exists
-        public FieldValue GetFieldValue(Guid fieldID, bool create)
+        public FieldValue GetFieldValue(Guid fieldID, bool create = false)
         {
             // try to find the current item's itemtype (this should succeed)
             ItemType it;
@@ -404,7 +407,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         
         // get FieldValue of this Item for the given Field
         // if create == true, a new FieldValue with for this Field will be created if none exists
-        public FieldValue GetFieldValue(Field field, bool create)
+        public FieldValue GetFieldValue(Field field, bool create = false)
         {
             FieldValue fieldValue = null;
 

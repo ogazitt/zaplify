@@ -33,7 +33,7 @@
                         configSetter(Microsoft.WindowsAzure.ServiceRuntime.RoleEnvironment.GetConfigurationSettingValue(configName));
                     });
                     // get the connection string from config
-                    storageAccount = CloudStorageAccount.FromConfigurationSetting("DataConnectionString");
+                    storageAccount = CloudStorageAccount.FromConfigurationSetting(HostEnvironment.AzureStorageAccountConfigKey);
                 }
                 return storageAccount;
             }

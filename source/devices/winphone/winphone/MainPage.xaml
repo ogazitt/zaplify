@@ -76,6 +76,7 @@
             </controls:PivotItem>
 
             <!--tags pivot item-->
+            <!-- disable until tag implementation is complete 
             <controls:PivotItem Header="tags">
                 <ListBox x:Name="TagsListBox" Margin="0,0,-12,0" ItemsSource="{Binding Tags}" SelectionChanged="TagsListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
@@ -94,6 +95,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </controls:PivotItem>
+            -->
         </controls:Pivot>
 
         <!--more lists panel-->

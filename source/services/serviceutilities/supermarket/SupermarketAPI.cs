@@ -16,7 +16,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
 
         private const string InvalidAsyncResult = "The IAsyncResult instance is invalid in the current context.";
 
-        private const string APIKeyDefault = "37554f4bc6";
+        private const string APIKeyDefault = "0f573cb7cd";
 
         private const string EndpointBaseUri = "http://www.SupermarketAPI.com/api.asmx/";
 
