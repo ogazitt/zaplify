@@ -222,10 +222,10 @@ ListView.prototype.render = function ($element, list, height) {
     this.hide();
     this.$element.empty();
     if (height != null) { this.$element.css('max-height', height); }
-    if (this.renderListItems(list.GetItems()) > 0) {
+    if (this.renderListItems(list.GetItems(true)) > 0) {
         this.show();
-        //this.$element.scrollTop(0);
         var $selected = this.$element.find('li.selected');
+        // scroll selected item into view
         var scroll = $selected.offset().top - height + this.$element.scrollTop();
         if (scroll > 0) {
             this.$element.animate({ scrollTop: scroll }, 500);
@@ -237,26 +237,24 @@ ListView.prototype.renderListItems = function (listItems) {
     var itemCount = 0;
     for (var id in listItems) {
         var item = listItems[id];
-        if (!item.IsList) {
-            var $li = $('<li />').appendTo(this.$element);
-            if (item.IsSelected()) { $li.addClass('selected'); }
-            var $item = $('<a class="form-inline" />').appendTo($li);
-            $item.data('control', this);
-            $item.data('item', item);
-            this.renderDeleteBtn($item);
-            this.renderNameField($item, item);
+        var $li = $('<li />').appendTo(this.$element);
+        if (item.IsSelected()) { $li.addClass('selected'); }
+        var $item = $('<a class="form-inline" />').appendTo($li);
+        $item.data('control', this);
+        $item.data('item', item);
+        this.renderDeleteBtn($item);
+        this.renderNameField($item, item);
 
-            // click item to edit
-            $item.bind('click', function (event) {
-                if (!$(event.srcElement).hasClass('dt-checkbox')) {
-                    var item = $(this).data('item');
-                    Control.get(this).parentControl.selectItem(item);
-                }
-            });
+        // click item to edit
+        $item.bind('click', function (event) {
+            if (!$(event.srcElement).hasClass('dt-checkbox')) {
+                var item = $(this).data('item');
+                Control.get(this).parentControl.selectItem(item);
+            }
+        });
 
-            this.renderFields($item, item);
-            itemCount++;
-        }
+        this.renderFields($item, item);
+        itemCount++;
     }
     return itemCount;
 }

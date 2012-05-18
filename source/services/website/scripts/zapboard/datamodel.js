@@ -115,15 +115,17 @@ DataModel.FindContact = function DataModel$FindContact(name, facebookID) {
 }
 
 // generic helper for getting local items associated with folder or list item
-DataModel.GetItems = function DataModel$GetItems(folderID, parentID) {
+DataModel.GetItems = function DataModel$GetItems(folderID, parentID, excludeListItems) {
     var items = {};
-    var folder = (typeof(folderID) == 'object') ? folderID : DataModel.Folders[folderID];
+    var folder = (typeof (folderID) == 'object') ? folderID : DataModel.Folders[folderID];
     if (folder != undefined) {
-        // extract list items first 
-        for (var id in folder.Items) {
-            var item = folder.Items[id];
-            if (item.ParentID == parentID && item.IsList) {
-                items[id] = folder.Items[id];
+        if (excludeListItems != true) {
+            // extract list items first 
+            for (var id in folder.Items) {
+                var item = folder.Items[id];
+                if (item.ParentID == parentID && item.IsList) {
+                    items[id] = folder.Items[id];
+                }
             }
         }
         for (var id in folder.Items) {
@@ -518,7 +520,7 @@ Folder.prototype.IsSelected = function () { return DataModel.UserSettings.IsFold
 Folder.prototype.IsExpanded = function () { return DataModel.UserSettings.IsFolderExpanded(this.ID); };
 Folder.prototype.Expand = function (expand) { DataModel.UserSettings.ExpandFolder(this.ID, expand); };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
-Folder.prototype.GetItems = function () { return DataModel.GetItems(this, null); };
+Folder.prototype.GetItems = function (excludeListItems) { return DataModel.GetItems(this, null, excludeListItems); };
 Folder.prototype.GetItemByName = function (name, parentID) {
     for (id in this.Items) {
         var item = this.Items[id];
@@ -580,7 +582,7 @@ Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.Folder
 Item.prototype.GetParent = function () { return (this.ParentID == null) ? null : this.GetFolder().Items[this.ParentID]; };
 Item.prototype.GetParentContainer = function () { return (this.ParentID == null) ? this.GetFolder() : this.GetParent(); };
 Item.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
-Item.prototype.GetItems = function () { return DataModel.GetItems(this.FolderID, this.ID); };
+Item.prototype.GetItems = function (excludeListItems) { return DataModel.GetItems(this.FolderID, this.ID, excludeListItems); };
 Item.prototype.InsertItem = function (newItem, adjacentItem, insertBefore, activeItem) { return DataModel.InsertItem(newItem, this, adjacentItem, insertBefore, activeItem); };
 Item.prototype.Update = function (updatedItem, activeItem) { return DataModel.UpdateItem(this, updatedItem, activeItem); };
 Item.prototype.Delete = function (activeItem) { return DataModel.DeleteItem(this, activeItem); };

@@ -24,23 +24,37 @@ ItemEditor.prototype.show = function () {
 ItemEditor.prototype.render = function ($element, item) {
     if (item != null && !(item.IsFolder() || item.IsList)) {
         if (this.$element == null) {
-            this.$element = $('<form class="row-fluid form-vertical" />').appendTo($element);
+            this.$element = $('<form class="row-fluid form-vertical carousel" />').appendTo($element);
+            this.$element.data('control', this);
         }
         this.$element.empty();
 
         this.originalItem = item;
-        this.item = item.Copy();             
+        this.item = item.Copy();
+        this.siblings = this.item.GetParentContainer().GetItems(true);  // exclude sibling list items
         // render all fields of item
         this.renderFields(this.$element);
+
+        if (ItemMap.count(this.siblings) > 1) {      // render navigator if more than one item in list
+            $('<a class="page-turn-control left" data-slide="prev"><div class="page-turn-prev small"></div></a>').appendTo(this.$element);
+            $('<a class="page-turn-control right" data-slide="next"><div class="page-turn-next small"></div></a>').appendTo(this.$element); ;
+            this.$element.find('.page-turn-control').click(function (e) {
+                var $element = $(e.target);
+                var control = Control.get($element.parents('.carousel').first());
+                control.renderNextItem($element);
+                e.preventDefault();
+            });
+            this.$element.find('.carousel-control').dblclick(function (e) { e.preventDefault(); });
+        }
 
         // display field expander
         /*
         var $expander = $('<div class="btn expander pull-right"><i></i></div>').appendTo(this.$element);
         if (this.expanded) {
-            $expander.addClass('expanded');
-            $expander.find('i').addClass('icon-chevron-up');
+        $expander.addClass('expanded');
+        $expander.find('i').addClass('icon-chevron-up');
         } else {
-            $expander.find('i').addClass('icon-chevron-down');
+        $expander.find('i').addClass('icon-chevron-down');
         }
         $expander.data('control', this);
         $expander.click(this.expandEditor);
@@ -57,6 +71,19 @@ ItemEditor.prototype.expandEditor = function () {
     var itemEditor = Control.get(this);
     itemEditor.expanded = !$(this).hasClass('expanded');
     itemEditor.render(null, itemEditor.item);
+}
+
+ItemEditor.prototype.renderNextItem = function ($element) {
+    var direction = $element.attr('data-slide');
+    var index = ItemMap.indexOf(this.siblings, this.item.ID);
+    var lastIndex = ItemMap.count(this.siblings) - 1;
+    if (direction == 'next') {
+        index = (index == lastIndex) ? 0 : index + 1;
+    } else {
+        index = (index == 0) ? lastIndex : index - 1;
+    }
+    var nextItem = ItemMap.itemAt(this.siblings, index);
+    this.parentControl.fireSelectionChanged(nextItem);
 }
 
 ItemEditor.prototype.renderFields = function ($element) {

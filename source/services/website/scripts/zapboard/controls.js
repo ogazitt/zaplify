@@ -115,8 +115,10 @@ Control.ItemTypePicker = {};
 Control.ItemTypePicker.render = function Control$ItemTypePicker$render($element, item) {
     var itemTypes = DataModel.Constants.ItemTypes;
     var currentItemTypeName = itemTypes[item.ItemTypeID].Name;
-    var label = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
-    var $wrapper = $('<div class="control-group"><label class="control-label">Type of ' + label + '</label></div>').appendTo($element);
+    var labelType = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
+    var label = '<label class="control-label">Type of ' + labelType + '</label>';
+    var $wrapper = $('<div class="control-group"></div>').appendTo($element);
+    $(label).appendTo($wrapper);
 
     var $btnGroup = $('<div class="btn-group" />').appendTo($wrapper);
     var $btn = $('<a class="btn">' + currentItemTypeName + '</a>').appendTo($btnGroup);
