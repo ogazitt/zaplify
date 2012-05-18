@@ -51,6 +51,7 @@
     <Compile Include="About.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="Color.cs" />
+    <Compile Include="Link.cs" />
     <Compile Include="FieldValue.cs" />
     <Compile Include="Permission.cs" />
     <Compile Include="ItemTag.cs" />
