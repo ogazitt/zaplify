@@ -41,9 +41,6 @@
     <Reference Include="Chirpy">
       <HintPath>..\..\packages\ChirpyDllOnly.2.0.0.4\lib\Chirpy.dll</HintPath>
     </Reference>
-    <Reference Include="dotless.Core">
-      <HintPath>..\..\packages\dotless.1.3.0.3\lib\dotless.Core.dll</HintPath>
-    </Reference>
     <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Grocery">
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Grocery.dll</HintPath>
     </Reference>
@@ -57,15 +54,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="IronRuby">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\IronRuby.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries.Yaml">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\IronRuby.Libraries.Yaml.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.ApplicationServer.Http">
       <HintPath>..\..\packages\WebApi.0.6.0\lib\40-Full\Microsoft.ApplicationServer.Http.dll</HintPath>
     </Reference>
@@ -75,9 +63,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Spatial">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\Microsoft.Data.Spatial.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.IdentityModel, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -97,12 +82,6 @@
     </Reference>
     <Reference Include="Microsoft.Runtime.Serialization.Internal">
       <HintPath>..\..\packages\WebApi.0.6.0\lib\40-Full\Microsoft.Runtime.Serialization.Internal.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\packages\IronRuby.1.1.3\Lib\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Server.Common">
       <HintPath>..\..\packages\WebApi.0.6.0\lib\40-Full\Microsoft.Server.Common.dll</HintPath>
@@ -219,9 +198,6 @@
     <Content Include="content\dashboard\images\facebook.png" />
     <Content Include="content\dashboard\images\info-icon.png" />
     <Content Include="content\font\fontawesome-webfont.svg" />
-    <Content Include="content\generated\bootstrap.css" />
-    <Content Include="content\generated\master.min.css" />
-    <Content Include="content\generated\responsive.css" />
     <Content Include="content\bootstrap-tweener.css" />
     <Content Include="content\images\busy.png" />
     <Content Include="content\images\glyphicons-halflings-white.png" />
@@ -232,6 +208,9 @@
     <Content Include="content\images\settings.png" />
     <Content Include="content\images\zaplogo-small.png" />
     <Content Include="content\images\zaplogo.png" />
+    <Content Include="content\master.generated.min.css">
+      <DependentUpon>master.css.chirp.config</DependentUpon>
+    </Content>
     <Content Include="content\themes\bootstrap\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="content\themes\bootstrap\images\ui-bg_glass_55_fbf9ee_1x400.png" />
     <Content Include="content\themes\bootstrap\images\ui-bg_glass_65_ffffff_1x400.png" />
@@ -508,7 +487,7 @@
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)packages\dotless.1.3.0.3\tool\dotless.compiler.exe $(ProjectDir)Content\less\bootstrap.less $(ProjectDir)Content\generated\bootstrap.css
-$(SolutionDir)packages\dotless.1.3.0.3\tool\dotless.compiler.exe $(ProjectDir)Content\less\responsive.less $(ProjectDir)Content\generated\responsive.css</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

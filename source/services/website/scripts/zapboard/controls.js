@@ -110,7 +110,19 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
     return $icon;
 }
 
+// ---------------------------------------------------------
+// Control.Checkbox static object
+//
+Control.Checkbox = {};
+
+Control.Checkbox.update = function Control$Checkbox$update(item, field) {
+
+}
+
+// ---------------------------------------------------------
+// Control.ItemTypePicker static object
 // static re-usable helper to display and update ItemTypeID on an item
+//
 Control.ItemTypePicker = {};
 Control.ItemTypePicker.render = function Control$ItemTypePicker$render($element, item) {
     var itemTypes = DataModel.Constants.ItemTypes;
@@ -142,7 +154,10 @@ Control.ItemTypePicker.render = function Control$ItemTypePicker$render($element,
     });
 }
 
+// ---------------------------------------------------------
+// Control.ItemTypePicker static object
 // static re-usable helper to display theme picker and update UserSettings
+//
 Control.ThemePicker = {};
 Control.ThemePicker.render = function Control$ThemePicker$render($element) {
     var themes = DataModel.Constants.Themes;

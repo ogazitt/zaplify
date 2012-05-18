@@ -64,10 +64,10 @@ i { font-size: 16px; }
 
 /* styles for paging */
 .page-turn-prev { display: inline-block; width: 24px; height: 24px;
-    background: transparent url(../images/page-turn-prev.png) no-repeat;
+    background: transparent url(images/page-turn-prev.png) no-repeat;
 }
 .page-turn-next { display: inline-block; width: 24px; height: 24px;
-    background: transparent url(../images/page-turn-next.png) no-repeat;
+    background: transparent url(images/page-turn-next.png) no-repeat;
 }
 .page-turn-control { position: absolute; bottom: -28px; }
 .page-turn-control.left { left: -10px; right: auto; }

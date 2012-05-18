@@ -1048,9 +1048,10 @@ var FieldNames = {
     Name : "Name",                          // String
     Description : "Description",            // String
     Priority : "Priority",                  // Integer
-    Complete : "Complete",                  // Boolean 
-    DueDate : "DueDate",                    // DateTime
-    ReminderDate : "ReminderDate",          // DateTime
+    Complete: "Complete",                   // Boolean 
+    CompletedOn : "CompletedOn",            // DateTime 
+    DueDate: "DueDate",                     // DateTime
+    Duration : "Duration",                  // TimeSpan
     Birthday : "Birthday",                  // DateTime
     Address : "Address",                    // Address
     WebLink : "WebLink",                    // Url
@@ -1091,8 +1092,9 @@ var FieldTypes = {
     String: "String",
     Boolean: "Boolean",
     Integer : "Integer",
-    DateTime : "DateTime",
-    Phone : "Phone",
+    DateTime: "DateTime",
+    TimeSpan: "TimeSpan",
+    Phone: "Phone",
     Email : "Email",
     Url : "Url",
     Address : "Address",
@@ -1111,8 +1113,9 @@ var DisplayTypes = {
     TextArea : "TextArea",
     Checkbox : "Checkbox",
     DatePicker : "DatePicker",
-    DateTimePicker : "DateTimePicker",
-    Phone : "Phone",
+    DateTimePicker: "DateTimePicker",
+    TimeSpanPicker: "TimeSpanPicker",
+    Phone: "Phone",
     Email : "Email",
     Link : "Link",
     Currency : "Currency",

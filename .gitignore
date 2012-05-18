@@ -4,7 +4,7 @@ tmp/
 build/
 .DS_Store
 source/services/website/bin/
-source/services/website/content/generated
+*.generated.min.css
 *.generated.min.js
 source/devices/winphone/winphone/PerformanceLogs/
 source/services/azure/csx/
