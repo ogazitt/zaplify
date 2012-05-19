@@ -71,7 +71,7 @@ Control.Icons.forSources = function Control$Icons$forSources(item) {
                         var fbID = item.GetFieldValue(FieldNames.FacebookID);
                         var $fbLink = $('<i class="icon-facebook-sign" />').appendTo($icons);
                         if (fbID != null) {
-                            $fbLink.click(function () { window.open('http://www.facebook.com/' + fbID); });
+                            $fbLink.click(function () { window.open('http://www.facebook.com/' + fbID); return false; });
                         }
                         break;
                     case "Directory":
@@ -115,8 +115,30 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
 //
 Control.Checkbox = {};
 
-Control.Checkbox.update = function Control$Checkbox$update(item, field) {
+Control.Checkbox.render = function Control$Checkbox$render($element, item, field) {
+    $checkbox = $('<input type="checkbox" class="checkbox" />').appendTo($element);
+    $checkbox.addClass(field.Class);
+    $checkbox.attr('title', field.DisplayName).tooltip(Control.ttDelay);
+    if (item.GetFieldValue(field) == true) {
+        $checkbox.attr('checked', 'checked');
+    }
+    $checkbox.data('item', item);
+    $checkbox.data('field', field);
+    $checkbox.change(function () { Control.Checkbox.update($(this)); });
+    return $checkbox;
+}
 
+Control.Checkbox.update = function Control$Checkbox$update($checkbox) {
+    var item = $checkbox.data('item');
+    var field = $checkbox.data('field');
+    var currentValue = item.GetFieldValue(field);
+    var value = ($checkbox.attr('checked') == 'checked');
+    if (value != currentValue) {
+        $checkbox.tooltip('hide');
+        var updatedItem = item.Copy();
+        updatedItem.SetFieldValue(field, value);
+        item.Update(updatedItem);
+    }
 }
 
 // ---------------------------------------------------------

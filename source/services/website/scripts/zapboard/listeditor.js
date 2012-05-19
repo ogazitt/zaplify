@@ -246,8 +246,8 @@ ListView.prototype.renderListItems = function (listItems) {
         this.renderNameField($item, item);
 
         // click item to edit
-        $item.bind('click', function (event) {
-            if (!$(event.srcElement).hasClass('dt-checkbox')) {
+        $item.bind('click', function (e) {
+            if (!$(e.srcElement).hasClass('dt-checkbox') && !$(e.srcElement).hasClass('dt-email')) {
                 var item = $(this).data('item');
                 Control.get(this).parentControl.selectItem(item);
             }
@@ -264,7 +264,7 @@ ListView.prototype.renderNameField = function ($item, item) {
     // render complete field if exists 
     var field = fields[FieldNames.Complete];
     if (field != null) {
-        this.renderCheckbox($item, item, field);
+        Control.Checkbox.render($item, item, field);
     }
     // render name field
     $item.append(Control.Icons.forSources(item));
@@ -300,7 +300,14 @@ ListView.prototype.renderField = function ($element, item, field) {
         case FieldNames.Name:
             break;
         case FieldNames.DueDate:
-            $field = this.renderText($element, item, field, 'Due on ');
+            if (item.GetFieldValue(FieldNames.Complete) != true) {
+                $field = this.renderText($element, item, field, 'Due on ');
+            }
+            break;
+        case FieldNames.CompletedOn:
+            if (item.GetFieldValue(FieldNames.Complete) == true) {
+                $field = this.renderText($element, item, field, 'Completed on ');
+            }
             break;
         case FieldNames.Category:
             $field = this.renderText($element, item, field);
@@ -369,31 +376,6 @@ ListView.prototype.renderEmail = function ($element, item, field) {
         $field.html(value);
     }
     return $field;
-}
-
-ListView.prototype.renderCheckbox = function ($element, item, field) {
-    $field = $('<input type="checkbox" class="checkbox" />').appendTo($element);
-    $field.addClass(field.Class);
-    $field.attr('title', field.DisplayName).tooltip(Control.ttDelay);
-    $field.data('control', this);
-    if (item.GetFieldValue(field) == 'true') {
-        $field.attr('checked', 'checked');
-    }
-    $field.change(function () { Control.get(this).updateCheckbox($(this), field); });
-    return $field;
-}
-
-ListView.prototype.updateCheckbox = function ($checkbox, field) {
-    var item = ListView.getItem($checkbox);
-    if (item != null) {
-        var currentValue = item.GetFieldValue(field);
-        var value = ($checkbox.attr('checked') == 'checked');
-        if (value != currentValue) {
-            var updatedItem = item.Copy();
-            updatedItem.SetFieldValue(field, value);
-            item.Update(updatedItem, null);
-        }
-    }
 }
 
 // ---------------------------------------------------------

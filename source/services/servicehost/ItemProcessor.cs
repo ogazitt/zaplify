@@ -65,12 +65,19 @@ namespace BuiltSteady.Zaplify.ServiceHost
         /// <returns>true if already processed, false if subclass needs to process</returns>
         public virtual bool ProcessUpdate(Item oldItem, Item newItem)
         {
-            if (newItem.Name != oldItem.Name ||
-                newItem.ItemTypeID != oldItem.ItemTypeID)
+            if (newItem.Name != oldItem.Name || newItem.ItemTypeID != oldItem.ItemTypeID)
             {
                 ProcessCreate(newItem);
                 return true;
             }
+            
+            // process CompletedOn field if newItem has a Complete field set true
+            FieldValue complete = newItem.GetFieldValue(FieldNames.Complete);
+            if (complete != null && complete.Value.Equals("true", StringComparison.OrdinalIgnoreCase))
+            {
+                FieldProcessor.ProcessUpdateCompletedOn(userContext, oldItem, newItem);
+            }
+
             return false;
         }
 
@@ -82,7 +89,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         protected void CreateIntentFieldValue(Item item, string intent)
         {
             item.GetFieldValue(FieldNames.Intent, true).Value = intent;
-            userContext.SaveChanges();
+            //userContext.SaveChanges();
         }
 
         /// <summary>
@@ -153,7 +160,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     return false;
 
                 groceryCategoryFV.Value = categoryFV.Value;
-                userContext.SaveChanges();
+                //userContext.SaveChanges();
                 return true;
             }
 
@@ -248,7 +255,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     BlobStore.WriteBlobData(BlobStore.GroceryContainerName, entry[SupermarketQueryResult.Name], entry.ToString());
 
                     // only grab the first category
-                    userContext.SaveChanges();
+                    //userContext.SaveChanges();
                     TraceLog.TraceInfo(String.Format("ProcessCreate: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return true;
                 }
@@ -281,7 +288,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         return false;
 
                     groceryCategoryFV.Value = categoryFV.Value;
-                    userContext.SaveChanges();
+                    //userContext.SaveChanges();
                     return true;
                 }
             }

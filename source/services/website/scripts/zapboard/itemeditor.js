@@ -105,7 +105,8 @@ ItemEditor.prototype.renderNameField = function ($element) {
     if (field != null) {
         // render complete field if exists 
         var $prepend = $('<div class="input-prepend" />').appendTo($controls);
-        this.renderCheckbox($('<span class="add-on" />').appendTo($prepend), field);
+        var $addon = $('<span class="add-on" />').appendTo($prepend);
+        Control.Checkbox.render($addon, this.originalItem, field);
         inputClass = 'input-inline-max';
     }
 
@@ -161,7 +162,7 @@ ItemEditor.prototype.renderField = function ($element, field) {
             break;
         case DisplayTypes.Checkbox:
             $wrapper = $(wrapper).appendTo($element);
-            $field = this.renderCheckbox($wrapper, field);
+            $field = Control.Checkbox.render($wrapper, this.originalItem, field);
             break;
         case DisplayTypes.Text:
         default:
@@ -180,21 +181,6 @@ ItemEditor.prototype.renderText = function (container, field) {
     $field.val(this.item.GetFieldValue(field));
     $field.change(function (event) { Control.get(this).handleChange($(event.srcElement)); });
     $field.keypress(function (event) { return Control.get(this).handleEnterPress(event); });
-    return $field;
-}
-
-ItemEditor.prototype.renderCheckbox = function (container, field) {
-    $field = $('<input type="checkbox" class="checkbox" />').appendTo(container);
-    $field.addClass(field.Class);
-    $field.attr('title', field.DisplayName).tooltip(Control.ttDelay);
-    $field.data('control', this);
-    if (this.item.GetFieldValue(field) == true) {
-        $field.attr('checked', 'checked');
-    }
-    $field.change(function (event) {
-        $(this).tooltip('hide');
-        Control.get(this).handleChange($(event.srcElement)); 
-    });
     return $field;
 }
 
