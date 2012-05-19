@@ -372,7 +372,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 catch (Exception)
                 {
                     // manufacture a synthetic, generic field which has a default FieldType
-                    field = new Field() { Name = name, FieldType = FieldTypes.String };
+                    field = new Field() { Name = fieldName, FieldType = FieldTypes.String };
                 }
 
                 // delegate to GetFieldValue(Guid fieldID)

@@ -350,7 +350,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // confirm the delete and return if the user cancels
             MessageBoxResult result = MessageBox.Show(
-                "are you sure you want to erase all data on the phone?  unless you paired the phone to an account, your data will be not be retrievable.",
+                "are you sure you want to erase all data on the phone?  unless you connected the phone to an account, your data will be not be retrievable.",
                 "confirm erasing all data",
                 MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.Cancel)
@@ -486,12 +486,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
             else
             {
+                listToAddTo.Name = listToAddTo.Name.Trim();
                 AddItem(folderToAddTo, listToAddTo);
                 ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, listToAddTo);
             }
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
-            if (!String.IsNullOrWhiteSpace(NameTextBox.Text))
+            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
                 App.ViewModel.SyncWithService();
 
             // Reset selected index to -1 (no selection)
@@ -1160,7 +1161,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
-            if (!String.IsNullOrWhiteSpace(NameTextBox.Text))
+            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
                 App.ViewModel.SyncWithService();
         }     
 
