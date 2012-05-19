@@ -120,6 +120,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             InvokeWebServiceRequest(user, BaseUrl + "/folders/" + folder.ID, "DELETE", folder, del, netOpInProgressDel, new AsyncCallback(ProcessResponse<Folder>));
         }
 
+        public static void Disconnect()
+        {
+            authCookie = null;
+        }
+
         public static void GetConstants(User user, Delegate del, Delegate netOpInProgressDel)
         {
             InvokeWebServiceRequest(user, String.Format("{0}/constants", BaseUrl), "GET", null, del, netOpInProgressDel, ProcessResponse<Constants>);

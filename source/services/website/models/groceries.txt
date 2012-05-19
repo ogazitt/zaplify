@@ -1,344 +1,344 @@
-apples	Fruits & Vegetables
-apricots	Fruits & Vegetables
-avocados	Fruits & Vegetables
-bananas	Fruits & Vegetables
-berries	Fruits & Vegetables
-cherries	Fruits & Vegetables
-grapefruit	Fruits & Vegetables
-grapes	Fruits & Vegetables
-kiwi	Fruits & Vegetables
-lemons	Fruits & Vegetables
-limes	Fruits & Vegetables
-melons	Fruits & Vegetables
-nectarines	Fruits & Vegetables
-oranges	Fruits & Vegetables
-papaya	Fruits & Vegetables
-peaches	Fruits & Vegetables
-pears	Fruits & Vegetables
-plums	Fruits & Vegetables
-pomegranate	Fruits & Vegetables
-watermelon	Fruits & Vegetables
-artichokes	Fruits & Vegetables
-asparagus	Fruits & Vegetables
-basil	Fruits & Vegetables
-beets	Fruits & Vegetables
-broccoli	Fruits & Vegetables
-cabbage	Fruits & Vegetables
-cauliflower	Fruits & Vegetables
-carrots	Fruits & Vegetables
-celery	Fruits & Vegetables
-chiles	Fruits & Vegetables
-chives	Fruits & Vegetables
-cilantro	Fruits & Vegetables
-corn	Fruits & Vegetables
-cucumbers	Fruits & Vegetables
-eggplant	Fruits & Vegetables
-garlic	Fruits & Vegetables
-green onions	Fruits & Vegetables
-lettuce	Fruits & Vegetables
-onions	Fruits & Vegetables
-peppers	Fruits & Vegetables
-green peppers	Fruits & Vegetables
-red peppers	Fruits & Vegetables
-bell peppers	Fruits & Vegetables
-potatoes	Fruits & Vegetables
-salad greens	Fruits & Vegetables
-spinach	Fruits & Vegetables
-sprouts	Fruits & Vegetables
-squash	Fruits & Vegetables
-tomatoes	Fruits & Vegetables
-zucchini	Fruits & Vegetables
-fruit	Fruits & Vegetables
-vegetables	Fruits & Vegetables
-cereal	Breakfast & Cereal
-grits	Breakfast & Cereal
-instant breakfast drink	Breakfast & Cereal
-oatmeal	Breakfast & Cereal
-pancake mix	Breakfast & Cereal
-bacon	Meat & Seafood
-chicken	Meat & Seafood
-deli meat	Deli & Signature Cafe
-ground beef	Meat & Seafood
-ground turkey	Meat & Seafood
-ham	Meat & Seafood
-hot dogs	Meat & Seafood
-pork	Meat & Seafood
-sausage	Meat & Seafood
-steak	Meat & Seafood
-turkey	Meat & Seafood
-roast beef	Deli & Signature Cafe
-smoked turkey	Deli & Signature Cafe
-catfish	Meat & Seafood
-cod	Meat & Seafood
-crab	Meat & Seafood
-halibut	Meat & Seafood
-lobster	Meat & Seafood
-oysters	Meat & Seafood
-salmon	Meat & Seafood
-shrimp	Meat & Seafood
-tilapia	Meat & Seafood
-meat	Meat & Seafood
-tuna	Meat & Seafood
-chicken bites	Frozen Foods
-frozen chicken	Frozen Foods
-desserts	Frozen Foods
-fish sticks	Frozen Foods
-fishsticks	Frozen Foods
-ice	Frozen Foods
-ice cream	Frozen Foods
-ice pops	Frozen Foods
-frozen juice	Frozen Foods
-frozen meat	Frozen Foods
-pie shells	Frozen Foods
-pizza	Frozen Foods
-pot pies	Frozen Foods
-tv dinners	Frozen Foods
-frozen vegetables	Frozen Foods
-veggieburger	Frozen Foods
-waffles	Frozen Foods
-baby cereal	Baby
-baby food	Baby
-diapers	Baby
-diaper cream	Baby
-formula	Baby
-wipes	Baby
-cat food	Pet Care
-catfood	Pet Care
-cat litter	Pet Care
-litter	Pet Care
-cat sand	Pet Care
-dog food	Pet Care
-dogfood	Pet Care
-pet shampoo	Pet Care
-treats	Pet Care
-flea treatment	Pet Care
-baking powder	Condiments/Spices & Bake
-baking soda	Condiments/Spices & Bake
-bread crumbs	Condiments/Spices & Bake
-cake decor	Condiments/Spices & Bake
-cake mix	Condiments/Spices & Bake
-canned milk	Condiments/Spices & Bake
-chocolate chips	Condiments/Spices & Bake
-cocoa	Condiments/Spices & Bake
-cornmeal	Condiments/Spices & Bake
-cornstarch	Condiments/Spices & Bake
-flour	Condiments/Spices & Bake
-food coloring	Condiments/Spices & Bake
-frosting	Condiments/Spices & Bake
-muffin mix	Condiments/Spices & Bake
-pie crust	Condiments/Spices & Bake
-shortening	Condiments/Spices & Bake
-brown sugar	Condiments/Spices & Bake
-white sugar	Condiments/Spices & Bake
-sugar	Condiments/Spices & Bake
-yeast	Condiments/Spices & Bake
-candy	"Cookies, Snacks & Candy"
-cookies	"Cookies, Snacks & Candy"
-crackers	"Cookies, Snacks & Candy"
-dried fruit	"Cookies, Snacks & Candy"
-fruit snacks	"Cookies, Snacks & Candy"
-gelatin	"Cookies, Snacks & Candy"
-graham crackers	"Cookies, Snacks & Candy"
-granola bars	"Cookies, Snacks & Candy"
-gum	"Cookies, Snacks & Candy"
-nuts	"Cookies, Snacks & Candy"
-popcorn	"Cookies, Snacks & Candy"
-potato chips	"Cookies, Snacks & Candy"
-pretzels	"Cookies, Snacks & Candy"
-pudding	"Cookies, Snacks & Candy"
-raisins	"Cookies, Snacks & Candy"
-chocolate	"Cookies, Snacks & Candy"
-tortilla chips	"Cookies, Snacks & Candy"
-bagels	Bread & Bakery
-bread	Bread & Bakery
-donuts	Bread & Bakery
-cake	Bread & Bakery
-croutons	Bread & Bakery
-dinner rolls	Bread & Bakery
-hamburger buns	Bread & Bakery
-hotdog buns	Bread & Bakery
-hot dog buns	Bread & Bakery
-muffins	Bread & Bakery
-pastries	Bread & Bakery
-pie	Bread & Bakery
-pita bread	Bread & Bakery
-tortillas	Bread & Bakery
-flour tortillas	Bread & Bakery
-corn tortillas	Bread & Bakery
-brown rice	"Grains, Pasta & Sides"
-burger helper	"Grains, Pasta & Sides"
-couscous	"Grains, Pasta & Sides"
-elbow macaroni	"Grains, Pasta & Sides"
-lasagna	"Grains, Pasta & Sides"
-mac & cheese	"Grains, Pasta & Sides"
-noodle mix	"Grains, Pasta & Sides"
-rice mix	"Grains, Pasta & Sides"
-fettucini	"Grains, Pasta & Sides"
-ravioli	"Grains, Pasta & Sides"
-spaghetti	"Grains, Pasta & Sides"
-linguini	"Grains, Pasta & Sides"
-white rice	"Grains, Pasta & Sides"
-applesauce	Canned Goods & Soups
-baked beans	Canned Goods & Soups
-black beans	Canned Goods & Soups
-beans	Canned Goods & Soups
-broth	Canned Goods & Soups
-bullion cubes	Canned Goods & Soups
-canned fruit	Canned Goods & Soups
-canned vegetables	Canned Goods & Soups
-canned carrots	Canned Goods & Soups
-chili	Canned Goods & Soups
-canned corn	Canned Goods & Soups
-creamed corn	Canned Goods & Soups
-jam	Canned Goods & Soups
-jelly	Canned Goods & Soups
-canned mushrooms	Canned Goods & Soups
-olives	Canned Goods & Soups
-green olives	Canned Goods & Soups
-black olives	Canned Goods & Soups
-pasta sauce	Canned Goods & Soups
-peanut butter	Canned Goods & Soups
-pickles	Canned Goods & Soups
-pie filling	Canned Goods & Soups
-soup	Canned Goods & Soups
-biscuits	"Dairy, Eggs & Cheese"
-butter	"Dairy, Eggs & Cheese"
-cheddar cheese	"Dairy, Eggs & Cheese"
-cream	"Dairy, Eggs & Cheese"
-cream cheese	"Dairy, Eggs & Cheese"
-dip	"Dairy, Eggs & Cheese"
-eggs	"Dairy, Eggs & Cheese"
-egg substitute	"Dairy, Eggs & Cheese"
-feta cheese	"Dairy, Eggs & Cheese"
-half & half	"Dairy, Eggs & Cheese"
-coffee mate	"Dairy, Eggs & Cheese"
-creamer	"Dairy, Eggs & Cheese"
-jack cheese	"Dairy, Eggs & Cheese"
-milk	"Dairy, Eggs & Cheese"
-mozarella	"Dairy, Eggs & Cheese"
-processed cheese	"Dairy, Eggs & Cheese"
-salsa	"Dairy, Eggs & Cheese"
-shredded cheese	"Dairy, Eggs & Cheese"
-sour cream	"Dairy, Eggs & Cheese"
-swiss cheese	"Dairy, Eggs & Cheese"
-whipped cream	"Dairy, Eggs & Cheese"
-yogurt	"Dairy, Eggs & Cheese"
-basil	Condiments/Spices & Bake
-bay leaves	Condiments/Spices & Bake
-bbq seasoning	Condiments/Spices & Bake
-cinnamon	Condiments/Spices & Bake
-cloves	Condiments/Spices & Bake
-cumin	Condiments/Spices & Bake
-curry	Condiments/Spices & Bake
-dill	Condiments/Spices & Bake
-garlic powder	Condiments/Spices & Bake
-garlic salt	Condiments/Spices & Bake
-gravy mix	Condiments/Spices & Bake
-Italian seasoning	Condiments/Spices & Bake
-marinade	Condiments/Spices & Bake
-meat tenderizer	Condiments/Spices & Bake
-oregano	Condiments/Spices & Bake
-paprika	Condiments/Spices & Bake
-pepper	Condiments/Spices & Bake
-poppy seed	Condiments/Spices & Bake
-red pepper	Condiments/Spices & Bake
-sage	Condiments/Spices & Bake
-salt	Condiments/Spices & Bake
-seasoned salt	Condiments/Spices & Bake
-soup mix	Condiments/Spices & Bake
-vanilla extract	Condiments/Spices & Bake
-bbq sauce	Condiments/Spices & Bake
-ketchup	Condiments/Spices & Bake
-catsup	Condiments/Spices & Bake
-cocktail sauce	Condiments/Spices & Bake
-cooking spray	Condiments/Spices & Bake
-honey	Condiments/Spices & Bake
-horseradish	Condiments/Spices & Bake
-hot sauce	Condiments/Spices & Bake
-lemon juice	Condiments/Spices & Bake
-mayonnaise	Condiments/Spices & Bake
-mustard	Condiments/Spices & Bake
-olive oil	Condiments/Spices & Bake
-relish	Condiments/Spices & Bake
-salad dressing	Condiments/Spices & Bake
-salsa	Condiments/Spices & Bake
-soy sauce	Condiments/Spices & Bake
-steak sauce	Condiments/Spices & Bake
-sweet & sour	Condiments/Spices & Bake
-teriyaki	Condiments/Spices & Bake
-vegetable oil	Condiments/Spices & Bake
-vinegar	Condiments/Spices & Bake
-beer	"Beer, Wine & Spirits"
-champagne	"Beer, Wine & Spirits"
-club soda	Beverages
-coffee	Beverages
-diet soft drinks	Beverages
-energy drinks	Beverages
-orange juice	Beverages
-grapefruit juice	Beverages
-apple juice	Beverages
-juice	Beverages
-liquor	"Beer, Wine & Spirits"
-soft drinks	Beverages
-tea	Beverages
-coke	Beverages
-diet coke	Beverages
-sprite	Beverages
-diet sprite	Beverages
-dr pepper	Beverages
-diet dr pepper	Beverages
-pepsi	Beverages
-martinelli	Beverages
-diet pepsi	Beverages
-wine	"Beer, Wine & Spirits"
-aluminum foil	"Paper, Cleaning & Home"
-coffee filters	"Paper, Cleaning & Home"
-cups	"Paper, Cleaning & Home"
-garbage bags	"Paper, Cleaning & Home"
-napkins	"Paper, Cleaning & Home"
-paper plates	"Paper, Cleaning & Home"
-paper towels	"Paper, Cleaning & Home"
-plastic bags	"Paper, Cleaning & Home"
-plastic cutlery	"Paper, Cleaning & Home"
-plastic wrap	"Paper, Cleaning & Home"
-straws	"Paper, Cleaning & Home"
-waxed paper	"Paper, Cleaning & Home"
-air freshener	"Paper, Cleaning & Home"
-bleach	"Paper, Cleaning & Home"
-dish soap	"Paper, Cleaning & Home"
-dishwasher detergent	"Paper, Cleaning & Home"
-fabric softener	"Paper, Cleaning & Home"
-floor cleaner	"Paper, Cleaning & Home"
-glass spray	"Paper, Cleaning & Home"
-laundry soap	"Paper, Cleaning & Home"
-polish	"Paper, Cleaning & Home"
-sponges	"Paper, Cleaning & Home"
-vacuum bags	"Paper, Cleaning & Home"
-bath soap	Personal Care & Pharmacy
-bug repellant	Personal Care & Pharmacy
-conditioner	Personal Care & Pharmacy
-cotton swabs	Personal Care & Pharmacy
-dental floss	Personal Care & Pharmacy
-deodorant	Personal Care & Pharmacy
-facial tissue	Personal Care & Pharmacy
-family planning	Personal Care & Pharmacy
-feminine products	Personal Care & Pharmacy
-hair spray	Personal Care & Pharmacy
-hand soap	Personal Care & Pharmacy
-lip care	Personal Care & Pharmacy
-lotion	Personal Care & Pharmacy
-makeup	Personal Care & Pharmacy
-mouthwash	Personal Care & Pharmacy
-razor	Personal Care & Pharmacy
-razorblades	Personal Care & Pharmacy
-razor blades	Personal Care & Pharmacy
-shampoo	Personal Care & Pharmacy
-shaving cream	Personal Care & Pharmacy
-sunscreen	Personal Care & Pharmacy
-toilet tissue	Personal Care & Pharmacy
-toothbrush	Personal Care & Pharmacy
-toothpaste	Personal Care & Pharmacy
-batteries	"Paper, Cleaning & Home"
-charcoal	"Paper, Cleaning & Home"
-greeting cards	"Paper, Cleaning & Home"
-light bulbs	"Paper, Cleaning & Home"
+apples	Fruits & Vegetables	http://smapistorage.blob.core.windows.net/thumbimages/184020063_100x100.jpg
+apricots	Fruits & Vegetables	
+avocados	Fruits & Vegetables	
+bananas	Fruits & Vegetables	http://smapistorage.blob.core.windows.net/thumbimages/184060007_100x100.jpg
+berries	Fruits & Vegetables	
+cherries	Fruits & Vegetables	
+grapefruit	Fruits & Vegetables	
+grapes	Fruits & Vegetables	
+kiwi	Fruits & Vegetables	
+lemons	Fruits & Vegetables	
+limes	Fruits & Vegetables	
+melons	Fruits & Vegetables	
+nectarines	Fruits & Vegetables	
+oranges	Fruits & Vegetables	http://smapistorage.blob.core.windows.net/thumbimages/184700027_100x100.jpg
+papaya	Fruits & Vegetables	
+peaches	Fruits & Vegetables	
+pears	Fruits & Vegetables	
+plums	Fruits & Vegetables	
+pomegranate	Fruits & Vegetables	
+watermelon	Fruits & Vegetables	
+artichokes	Fruits & Vegetables	
+asparagus	Fruits & Vegetables	
+basil	Fruits & Vegetables	
+beets	Fruits & Vegetables	
+broccoli	Fruits & Vegetables	
+cabbage	Fruits & Vegetables	
+cauliflower	Fruits & Vegetables	
+carrots	Fruits & Vegetables	
+celery	Fruits & Vegetables	
+chiles	Fruits & Vegetables	
+chives	Fruits & Vegetables	
+cilantro	Fruits & Vegetables	
+corn	Fruits & Vegetables	
+cucumbers	Fruits & Vegetables	
+eggplant	Fruits & Vegetables	
+garlic	Fruits & Vegetables	
+green onions	Fruits & Vegetables	
+lettuce	Fruits & Vegetables	http://smapistorage.blob.core.windows.net/thumbimages/184420016_100x100.jpg
+onions	Fruits & Vegetables	
+peppers	Fruits & Vegetables	
+green peppers	Fruits & Vegetables	
+red peppers	Fruits & Vegetables	
+bell peppers	Fruits & Vegetables	
+potatoes	Fruits & Vegetables	
+salad greens	Fruits & Vegetables	
+spinach	Fruits & Vegetables	
+sprouts	Fruits & Vegetables	
+squash	Fruits & Vegetables	
+tomatoes	Fruits & Vegetables	
+zucchini	Fruits & Vegetables	
+fruit	Fruits & Vegetables	
+vegetables	Fruits & Vegetables	
+cereal	Breakfast & Cereal	
+grits	Breakfast & Cereal	
+instant breakfast drink	Breakfast & Cereal	
+oatmeal	Breakfast & Cereal	
+pancake mix	Breakfast & Cereal	
+bacon	Meat & Seafood	
+chicken	Meat & Seafood	
+deli meat	Deli & Signature Cafe	
+ground beef	Meat & Seafood	
+ground turkey	Meat & Seafood	
+ham	Meat & Seafood	
+hot dogs	Meat & Seafood	
+pork	Meat & Seafood	
+sausage	Meat & Seafood	
+steak	Meat & Seafood	
+turkey	Meat & Seafood	
+roast beef	Deli & Signature Cafe	
+smoked turkey	Deli & Signature Cafe	
+catfish	Meat & Seafood	
+cod	Meat & Seafood	
+crab	Meat & Seafood	
+halibut	Meat & Seafood	
+lobster	Meat & Seafood	
+oysters	Meat & Seafood	
+salmon	Meat & Seafood	
+shrimp	Meat & Seafood	
+tilapia	Meat & Seafood	
+meat	Meat & Seafood	
+tuna	Meat & Seafood	
+chicken bites	Frozen Foods	
+frozen chicken	Frozen Foods	
+desserts	Frozen Foods	
+fish sticks	Frozen Foods	
+fishsticks	Frozen Foods	
+ice	Frozen Foods	
+ice cream	Frozen Foods	
+ice pops	Frozen Foods	
+frozen juice	Frozen Foods	
+frozen meat	Frozen Foods	
+pie shells	Frozen Foods	
+pizza	Frozen Foods	
+pot pies	Frozen Foods	
+tv dinners	Frozen Foods	
+frozen vegetables	Frozen Foods	
+veggieburger	Frozen Foods	
+waffles	Frozen Foods	
+baby cereal	Baby	
+baby food	Baby	
+diapers	Baby	
+diaper cream	Baby	
+formula	Baby	
+wipes	Baby	
+cat food	Pet Care	
+catfood	Pet Care	
+cat litter	Pet Care	
+litter	Pet Care	
+cat sand	Pet Care	
+dog food	Pet Care	
+dogfood	Pet Care	
+pet shampoo	Pet Care	
+treats	Pet Care	
+flea treatment	Pet Care	
+baking powder	Condiments/Spices & Bake	
+baking soda	Condiments/Spices & Bake	
+bread crumbs	Condiments/Spices & Bake	
+cake decor	Condiments/Spices & Bake	
+cake mix	Condiments/Spices & Bake	
+canned milk	Condiments/Spices & Bake	
+chocolate chips	Condiments/Spices & Bake	
+cocoa	Condiments/Spices & Bake	
+cornmeal	Condiments/Spices & Bake	
+cornstarch	Condiments/Spices & Bake	
+flour	Condiments/Spices & Bake	
+food coloring	Condiments/Spices & Bake	
+frosting	Condiments/Spices & Bake	
+muffin mix	Condiments/Spices & Bake	
+pie crust	Condiments/Spices & Bake	
+shortening	Condiments/Spices & Bake	
+brown sugar	Condiments/Spices & Bake	
+white sugar	Condiments/Spices & Bake	
+sugar	Condiments/Spices & Bake	
+yeast	Condiments/Spices & Bake	
+candy	"Cookies, Snacks & Candy"	
+cookies	"Cookies, Snacks & Candy"	
+crackers	"Cookies, Snacks & Candy"	
+dried fruit	"Cookies, Snacks & Candy"	
+fruit snacks	"Cookies, Snacks & Candy"	
+gelatin	"Cookies, Snacks & Candy"	
+graham crackers	"Cookies, Snacks & Candy"	
+granola bars	"Cookies, Snacks & Candy"	
+gum	"Cookies, Snacks & Candy"	
+nuts	"Cookies, Snacks & Candy"	
+popcorn	"Cookies, Snacks & Candy"	
+potato chips	"Cookies, Snacks & Candy"	
+pretzels	"Cookies, Snacks & Candy"	
+pudding	"Cookies, Snacks & Candy"	
+raisins	"Cookies, Snacks & Candy"	
+chocolate	"Cookies, Snacks & Candy"	
+tortilla chips	"Cookies, Snacks & Candy"	
+bagels	Bread & Bakery	
+bread	Bread & Bakery	http://smapistorage.blob.core.windows.net/thumbimages/196052087_100x100.jpg
+donuts	Bread & Bakery	
+cake	Bread & Bakery	
+croutons	Bread & Bakery	
+dinner rolls	Bread & Bakery	
+hamburger buns	Bread & Bakery	
+hotdog buns	Bread & Bakery	
+hot dog buns	Bread & Bakery	
+muffins	Bread & Bakery	
+pastries	Bread & Bakery	
+pie	Bread & Bakery	
+pita bread	Bread & Bakery	
+tortillas	Bread & Bakery	
+flour tortillas	Bread & Bakery	
+corn tortillas	Bread & Bakery	
+brown rice	"Grains, Pasta & Sides"	
+burger helper	"Grains, Pasta & Sides"	
+couscous	"Grains, Pasta & Sides"	
+elbow macaroni	"Grains, Pasta & Sides"	
+lasagna	"Grains, Pasta & Sides"	
+mac & cheese	"Grains, Pasta & Sides"	
+noodle mix	"Grains, Pasta & Sides"	
+rice mix	"Grains, Pasta & Sides"	
+fettucini	"Grains, Pasta & Sides"	
+ravioli	"Grains, Pasta & Sides"	
+spaghetti	"Grains, Pasta & Sides"	
+linguini	"Grains, Pasta & Sides"	
+white rice	"Grains, Pasta & Sides"	
+applesauce	Canned Goods & Soups	
+baked beans	Canned Goods & Soups	
+black beans	Canned Goods & Soups	
+beans	Canned Goods & Soups	
+broth	Canned Goods & Soups	
+bullion cubes	Canned Goods & Soups	
+canned fruit	Canned Goods & Soups	
+canned vegetables	Canned Goods & Soups	
+canned carrots	Canned Goods & Soups	
+chili	Canned Goods & Soups	
+canned corn	Canned Goods & Soups	
+creamed corn	Canned Goods & Soups	
+jam	Canned Goods & Soups	
+jelly	Canned Goods & Soups	
+canned mushrooms	Canned Goods & Soups	
+olives	Canned Goods & Soups	
+green olives	Canned Goods & Soups	
+black olives	Canned Goods & Soups	
+pasta sauce	Canned Goods & Soups	
+peanut butter	Canned Goods & Soups	
+pickles	Canned Goods & Soups	
+pie filling	Canned Goods & Soups	
+soup	Canned Goods & Soups	
+biscuits	"Dairy, Eggs & Cheese"	
+butter	"Dairy, Eggs & Cheese"	
+cheddar cheese	"Dairy, Eggs & Cheese"	
+cream	"Dairy, Eggs & Cheese"	
+cream cheese	"Dairy, Eggs & Cheese"	
+dip	"Dairy, Eggs & Cheese"	
+eggs	"Dairy, Eggs & Cheese"	http://smapistorage.blob.core.windows.net/thumbimages/138350058_100x100.jpg
+egg substitute	"Dairy, Eggs & Cheese"	
+feta cheese	"Dairy, Eggs & Cheese"	
+half & half	"Dairy, Eggs & Cheese"	
+coffee mate	"Dairy, Eggs & Cheese"	
+creamer	"Dairy, Eggs & Cheese"	
+jack cheese	"Dairy, Eggs & Cheese"	
+milk	"Dairy, Eggs & Cheese"	http://smapistorage.blob.core.windows.net/thumbimages/960038543_100x100.jpg
+mozarella	"Dairy, Eggs & Cheese"	
+processed cheese	"Dairy, Eggs & Cheese"	
+salsa	"Dairy, Eggs & Cheese"	
+shredded cheese	"Dairy, Eggs & Cheese"	
+sour cream	"Dairy, Eggs & Cheese"	
+swiss cheese	"Dairy, Eggs & Cheese"	
+whipped cream	"Dairy, Eggs & Cheese"	
+yogurt	"Dairy, Eggs & Cheese"	
+basil	Condiments/Spices & Bake	
+bay leaves	Condiments/Spices & Bake	
+bbq seasoning	Condiments/Spices & Bake	
+cinnamon	Condiments/Spices & Bake	
+cloves	Condiments/Spices & Bake	
+cumin	Condiments/Spices & Bake	
+curry	Condiments/Spices & Bake	
+dill	Condiments/Spices & Bake	
+garlic powder	Condiments/Spices & Bake	
+garlic salt	Condiments/Spices & Bake	
+gravy mix	Condiments/Spices & Bake	
+Italian seasoning	Condiments/Spices & Bake	
+marinade	Condiments/Spices & Bake	
+meat tenderizer	Condiments/Spices & Bake	
+oregano	Condiments/Spices & Bake	
+paprika	Condiments/Spices & Bake	
+pepper	Condiments/Spices & Bake	
+poppy seed	Condiments/Spices & Bake	
+red pepper	Condiments/Spices & Bake	
+sage	Condiments/Spices & Bake	
+salt	Condiments/Spices & Bake	
+seasoned salt	Condiments/Spices & Bake	
+soup mix	Condiments/Spices & Bake	
+vanilla extract	Condiments/Spices & Bake	
+bbq sauce	Condiments/Spices & Bake	
+ketchup	Condiments/Spices & Bake	
+catsup	Condiments/Spices & Bake	
+cocktail sauce	Condiments/Spices & Bake	
+cooking spray	Condiments/Spices & Bake	
+honey	Condiments/Spices & Bake	
+horseradish	Condiments/Spices & Bake	
+hot sauce	Condiments/Spices & Bake	
+lemon juice	Condiments/Spices & Bake	
+mayonnaise	Condiments/Spices & Bake	
+mustard	Condiments/Spices & Bake	
+olive oil	Condiments/Spices & Bake	
+relish	Condiments/Spices & Bake	
+salad dressing	Condiments/Spices & Bake	
+salsa	Condiments/Spices & Bake	
+soy sauce	Condiments/Spices & Bake	
+steak sauce	Condiments/Spices & Bake	
+sweet & sour	Condiments/Spices & Bake	
+teriyaki	Condiments/Spices & Bake	
+vegetable oil	Condiments/Spices & Bake	
+vinegar	Condiments/Spices & Bake	
+beer	"Beer, Wine & Spirits"	
+champagne	"Beer, Wine & Spirits"	
+club soda	Beverages	
+coffee	Beverages	
+diet soft drinks	Beverages	
+energy drinks	Beverages	
+orange juice	Beverages	
+grapefruit juice	Beverages	
+apple juice	Beverages	
+juice	Beverages	
+liquor	"Beer, Wine & Spirits"	
+soft drinks	Beverages	
+tea	Beverages	
+coke	Beverages	
+diet coke	Beverages	
+sprite	Beverages	
+diet sprite	Beverages	
+dr pepper	Beverages	
+diet dr pepper	Beverages	
+pepsi	Beverages	
+martinelli	Beverages	
+diet pepsi	Beverages	
+wine	"Beer, Wine & Spirits"	
+aluminum foil	"Paper, Cleaning & Home"	
+coffee filters	"Paper, Cleaning & Home"	
+cups	"Paper, Cleaning & Home"	
+garbage bags	"Paper, Cleaning & Home"	
+napkins	"Paper, Cleaning & Home"	
+paper plates	"Paper, Cleaning & Home"	
+paper towels	"Paper, Cleaning & Home"	
+plastic bags	"Paper, Cleaning & Home"	
+plastic cutlery	"Paper, Cleaning & Home"	
+plastic wrap	"Paper, Cleaning & Home"	
+straws	"Paper, Cleaning & Home"	
+waxed paper	"Paper, Cleaning & Home"	
+air freshener	"Paper, Cleaning & Home"	
+bleach	"Paper, Cleaning & Home"	
+dish soap	"Paper, Cleaning & Home"	
+dishwasher detergent	"Paper, Cleaning & Home"	
+fabric softener	"Paper, Cleaning & Home"	
+floor cleaner	"Paper, Cleaning & Home"	
+glass spray	"Paper, Cleaning & Home"	
+laundry soap	"Paper, Cleaning & Home"	
+polish	"Paper, Cleaning & Home"	
+sponges	"Paper, Cleaning & Home"	
+vacuum bags	"Paper, Cleaning & Home"	
+bath soap	Personal Care & Pharmacy	
+bug repellant	Personal Care & Pharmacy	
+conditioner	Personal Care & Pharmacy	
+cotton swabs	Personal Care & Pharmacy	
+dental floss	Personal Care & Pharmacy	
+deodorant	Personal Care & Pharmacy	
+facial tissue	Personal Care & Pharmacy	
+family planning	Personal Care & Pharmacy	
+feminine products	Personal Care & Pharmacy	
+hair spray	Personal Care & Pharmacy	
+hand soap	Personal Care & Pharmacy	
+lip care	Personal Care & Pharmacy	
+lotion	Personal Care & Pharmacy	
+makeup	Personal Care & Pharmacy	
+mouthwash	Personal Care & Pharmacy	
+razor	Personal Care & Pharmacy	
+razorblades	Personal Care & Pharmacy	
+razor blades	Personal Care & Pharmacy	
+shampoo	Personal Care & Pharmacy	
+shaving cream	Personal Care & Pharmacy	
+sunscreen	Personal Care & Pharmacy	
+toilet tissue	Personal Care & Pharmacy	
+toothbrush	Personal Care & Pharmacy	
+toothpaste	Personal Care & Pharmacy	
+batteries	"Paper, Cleaning & Home"	
+charcoal	"Paper, Cleaning & Home"	
+greeting cards	"Paper, Cleaning & Home"	
+light bulbs	"Paper, Cleaning & Home"	

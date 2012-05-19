@@ -17,14 +17,10 @@ using System.ComponentModel;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
-    public class Foo
-    {
-        public string Name { get; set; }
-    }
-
     public partial class SettingsPage : PhoneApplicationPage, INotifyPropertyChanged
     {
         public SettingsPage()
@@ -44,47 +40,48 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             BackKeyPress += new EventHandler<CancelEventArgs>(SettingsPage_BackKeyPress);
         }
 
-        private bool enableCreateButton;
         /// <summary>
-        /// Databound flag to indicate whether to enable the create button
+        /// Databound flag to that determines some controls' visibility based on whether we are connected or disconnected
         /// </summary>
         /// <returns></returns>
-        public bool EnableCreateButton
+        public Visibility ConnectedMode
         {
             get
             {
-                //return enableCreateButton;
-                return true;
-            }
-            set
-            {
-                if (value != enableCreateButton)
-                {
-                    enableCreateButton = value;
-                    NotifyPropertyChanged("EnableCreateButton");
-                }
+                return IsConnected ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
-        private bool enableSyncButton;
         /// <summary>
-        /// Databound flag to indicate whether to enable the sync button
+        /// Databound property for create button text (which doubles as the disconnect button)
         /// </summary>
-        /// <returns></returns>
-        public bool EnableSyncButton
+        public string CreateButtonText
         {
             get
             {
-                //return enableSyncButton;
-                return true;
+                return IsConnected ? "disconnect" : "create";
             }
-            set
+        }
+
+        /// <summary>
+        /// Databound flag to indicate whether to enable the create/disconnect and connect buttons
+        /// </summary>
+        /// <returns></returns>
+        public bool EnableButtons
+        {
+            get
             {
-                if (value != enableSyncButton)
-                {
-                    enableSyncButton = value;
-                    NotifyPropertyChanged("EnableSyncButton");
-                }
+                return IsConnected
+                    ? true
+                    : !String.IsNullOrWhiteSpace(Email.Text) && !String.IsNullOrWhiteSpace(Password.Password);
+            }
+        }
+
+        public bool IsConnected
+        {
+            get
+            {
+                return App.ViewModel.User != null && App.ViewModel.User.Synced;
             }
         }
 
@@ -107,29 +104,53 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void CreateUserButton_Click(object sender, RoutedEventArgs e)
         {
+            // if we're connected, this is a disconnect request
+            if (IsConnected)
+            {
+                // if the request queue isn't empty, warn the user
+                if (RequestQueue.GetRequestRecord() != null)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                        "some of the changes you made on the phone haven't made it to your Zaplify account yet.  " +
+                        "click ok to disconnect now and potentially lose these changes, or cancel the operation",
+                        "disconnect now?",
+                        MessageBoxButton.OKCancel);
+                    if (result == MessageBoxResult.Cancel)
+                        return;
+                }
+
+                // process the disconnect
+                App.ViewModel.User = null;
+                App.ViewModel.EraseAllData();
+                WebServiceHelper.Disconnect();
+
+                // reset the settings page
+                NotifyPropertyChanged("ConnectedMode");
+                NotifyPropertyChanged("CreateButtonText");
+                NotifyPropertyChanged("EnableButtons");
+                Email.IsEnabled = true;
+                Email.Text = "";
+                Password.IsEnabled = true;
+                Password.Password = "";
+                accountTextChanged = false;
+                accountOperationSuccessful = false;
+                foreach (var element in SettingsPanel.Children)
+                {
+                    // get the listpicker key and value
+                    ListPicker listPicker = element as ListPicker;
+                    if (listPicker == null)
+                        continue;
+                    listPicker.SelectedIndex = 0;
+                }
+                return;
+            }
+            
+            // process an account creation request
             if (Email.Text == null || Email.Text == "" ||
                 Password.Password == null || Password.Password == "")
             {
                 MessageBox.Show("please enter a valid email address and password");
                 return;
-            }
-
-            if (MergeCheckbox.IsChecked == false)
-            {
-                MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox unchecked will cause any new items you've added to be lost.  " +
-                    "click ok to create the account without the local data, or cancel the operation.",
-                    "erase local data?",
-                    MessageBoxButton.OKCancel);
-                if (result == MessageBoxResult.Cancel)
-                    return;
-
-                // clear the record queue
-                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-                while (record != null)
-                {
-                    record = RequestQueue.DequeueRequestRecord();
-                }
             }
 
             User user = new User() { Email = Email.Text, Password = Password.Password };
@@ -154,6 +175,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // trace page navigation
             TraceHelper.AddMessage("Settings: Loaded");
+
+            Email.IsEnabled = !IsConnected;
+            Password.IsEnabled = !IsConnected;
+            accountOperationSuccessful = false;
+            accountTextChanged = false;
 
             foreach (var setting in PhoneSettings.Settings.Keys)
             {
@@ -187,19 +213,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 SettingsPanel.Children.Add(listPicker);
             }
 
-            // initialize some fields
-            /*
-            DefaultListPicker.ItemsSource = App.ViewModel.Folders;
-            DefaultListPicker.DisplayMemberPath = "Name";
-
-            int index = App.ViewModel.Folders.IndexOf(App.ViewModel.DefaultFolder);
-
-            if (index >= 0)
-                DefaultListPicker.SelectedIndex = index;
-            */
-
             CreateUserButton.DataContext = this;
-            SyncUserButton.DataContext = this;
+            CreateButtonLabel.DataContext = this;
+            ConnectUserButton.DataContext = this;
+            ConnectButtonLabel.DataContext = this;
+            Email.TextChanged += new TextChangedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
+            Password.PasswordChanged += new RoutedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
         }
 
         // Event handlers for settings tab
@@ -209,24 +228,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (accountTextChanged && !accountOperationSuccessful)
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "account was not successfully created or paired (possibly because you haven't clicked the 'create' or 'pair' button).  " +
-                    "click ok to dismiss the settings page and forget the changes to the account page, or cancel the operation.",
-                    "exit settings before creating or pairing an account?",
+                    "account was not successfully created or connected (possibly because you haven't clicked the 'create' or 'connect' button).  " +
+                    "click ok to dismiss the settings page and forget the changes to the account page, or cancel to try again.",
+                    "exit settings before creating or connecting to an account?",
                     MessageBoxButton.OKCancel);
                 if (result == MessageBoxResult.Cancel)
-                {
                     return;
-                }
             }
-            else
-            {
-                // save the new account information
-                User user = new User() { Email = Email.Text, Password = Password.Password };
-                App.ViewModel.User = user;
-            }
-
-            // save the default folder in any case
-            //App.ViewModel.DefaultFolder = DefaultListPicker.SelectedItem as Folder;
 
             // get current version of phone settings
             var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
@@ -255,7 +263,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 ReqType = RequestQueue.RequestRecord.RequestType.Update,
                 Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
                 BodyTypeName = "Item",
-                ID = phoneSettingsItem.ID
+                ID = phoneSettingsItem.ID,
+                IsDefaultObject = true
             });
 
             // sync with the server
@@ -271,28 +280,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             NavigationService.GoBack();
         }
 
-        private void SyncUserButton_Click(object sender, RoutedEventArgs e)
+        private void ConnectUserButton_Click(object sender, RoutedEventArgs e)
         {
-            if (MergeCheckbox.IsChecked == true)
-            {
-                MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox checked will merge the new data on the phone with existing data in the account, potentially creating duplicate data.  " +
-                    "click ok to sync the account and merge the phone data, or cancel the operation.",
-                    "merge local data?",
-                    MessageBoxButton.OKCancel);
-                if (result == MessageBoxResult.Cancel)
-                    return;
-            }
-            else
-            {
-                // clear the record queue
-                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-                while (record != null)
-                {
-                    record = RequestQueue.DequeueRequestRecord();
-                }
-            }
-
             User user = new User() { Email = Email.Text, Password = Password.Password };
             App.ViewModel.User = user;
 
@@ -300,30 +289,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 user,
                 new VerifyUserCallbackDelegate(VerifyUserCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
-        }
-
-        private void Textbox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            // must have values for the create user button to be enabled
-            if (Email.Text == null || Email.Text == "" ||
-                Password.Password == null || Password.Password == "")
-                CreateUserButton.IsEnabled = false;
-            else
-                CreateUserButton.IsEnabled = true;
-
-            // email and password textboxes must have valid values for the sync button to be enabled
-            if (Email.Text == null || Email.Text == "" ||
-                Password.Password == null || Password.Password == "")
-                SyncUserButton.IsEnabled = false;
-            else
-                SyncUserButton.IsEnabled = true;
-
-            // email must be different than the current email (if any) for create user button to be enabled
-            if (App.ViewModel.User != null && App.ViewModel.User.Name == Email.Text)
-                CreateUserButton.IsEnabled = false;
-
-            // indicate that the account text is modified
-            accountTextChanged = true;
         }
 
         #endregion
@@ -339,10 +304,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 switch (code)
                 {
                     case HttpStatusCode.OK:
-                        MessageBox.Show(String.Format("successfully linked with {0} account; data sync will start automatically.", Email.Text));
+                        MessageBox.Show(String.Format("successfully connected to account {0}; data sync will start automatically.", Email.Text));
                         accountOperationSuccessful = true;
                         user.Synced = true;
                         App.ViewModel.User = user;
+                        RequestQueue.PrepareQueueForAccountConnect();
                         App.ViewModel.SyncWithService();
                         break;
                     case HttpStatusCode.NotFound:
@@ -358,13 +324,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("account {0} was not successfully paired", Email.Text));
+                        MessageBox.Show(String.Format("did not successfully connect to account {0}", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                 }
-                //if (!accountOperationSuccessful)
-                //    App.ViewModel.User = null;
 
+                // update UI if successful
+                if (accountOperationSuccessful)
+                {
+                    NotifyPropertyChanged("ConnectedMode");
+                    NotifyPropertyChanged("CreateButtonText");
+                    NotifyPropertyChanged("EnableButtons");
+                    Email.IsEnabled = false;
+                    Password.IsEnabled = false;
+                    // return to main page
+                    TraceHelper.StartMessage("Settings: Navigate back");
+                    NavigationService.GoBack();
+                }
             });
         }
 
@@ -393,7 +369,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     case HttpStatusCode.NotAcceptable:
-                        MessageBox.Show(String.Format("email address {0} in invalid OR password is not strong enough", Email.Text));
+                        MessageBox.Show(String.Format("email address {0} is invalid or password is not strong enough", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                     case HttpStatusCode.InternalServerError:
@@ -410,8 +386,18 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         break;
                 }
 
-                //if (!accountOperationSuccessful)
-                //    App.ViewModel.User = null;
+                // update UI if successful
+                if (accountOperationSuccessful)
+                {
+                    NotifyPropertyChanged("ConnectedMode");
+                    NotifyPropertyChanged("CreateButtonText");
+                    NotifyPropertyChanged("EnableButtons");
+                    Email.IsEnabled = false;
+                    Password.IsEnabled = false;
+                    // return to main page
+                    TraceHelper.StartMessage("Settings: Navigate back");
+                    NavigationService.GoBack();
+                }
             });
         }
 

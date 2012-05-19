@@ -11,6 +11,7 @@
         public string Name { get; set; }
         public int GroceryCategoryID { get; set; }
         public GroceryCategory Category { get; set; }
+        public string ImageUrl { get; set; }
     }
 
     public class GroceryCategory

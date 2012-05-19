@@ -8,6 +8,9 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
         public const string Name = "Name";
         public const string Category = "Category";
         public const string Description = "Description";
+        public const string ID = "ID";
+        public const string Image = "Image";
+        public const string Aisle = "Aisle";
 
         Dictionary<string, string> properties = new Dictionary<string, string>();
 

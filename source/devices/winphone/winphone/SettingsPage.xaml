@@ -33,9 +33,9 @@
                 <ScrollViewer BorderThickness="0">
                     <StackPanel>
                         <TextBlock Text="email" Style="{StaticResource PhoneTextNormalStyle}" />
-                        <TextBox x:Name="Email" InputScope="EmailNameOrAddress" Text="{Binding User.Email}" IsTabStop="True" TabIndex="1" LostFocus="Textbox_LostFocus"/>
+                        <TextBox x:Name="Email" InputScope="EmailNameOrAddress" Text="{Binding User.Email, Mode=OneTime}" IsTabStop="True" TabIndex="1"/>
                         <TextBlock Text="password" Style="{StaticResource PhoneTextNormalStyle}"/>
-                        <PasswordBox x:Name="Password" Password="{Binding User.Password}" IsTabStop="True" TabIndex="2" LostFocus="Textbox_LostFocus"/>
+                        <PasswordBox x:Name="Password" Password="{Binding User.Password, Mode=OneTime}" IsTabStop="True" TabIndex="2"/>
                         <Grid Margin="0,10,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
@@ -46,12 +46,10 @@
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Row="0" Grid.Column="0" x:Name="CreateUserButton" Content="create" IsEnabled="{Binding EnableCreateButton}" Click="CreateUserButton_Click"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="a new account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0"/>
-                            <Button Grid.Row="1" Grid.Column="0" x:Name="SyncUserButton" Content="pair" IsEnabled="{Binding EnableSyncButton}" Click="SyncUserButton_Click"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="with an existing account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0"/>
-                            <CheckBox Grid.Row="2" Grid.Column="0" x:Name="MergeCheckbox" HorizontalAlignment="Left" Margin="0,0,-10,0" IsChecked="True"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="merge any data created offline on the phone with any existing data in the account" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" Margin="-140,7,0,0"/>
+                            <Button Grid.Row="0" Grid.Column="0" x:Name="CreateUserButton" Content="{Binding CreateButtonText}" Click="CreateUserButton_Click" IsEnabled="{Binding EnableButtons}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="CreateButtonLabel" Text="a new account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0" Visibility="{Binding ConnectedMode}"/>
+                            <Button Grid.Row="1" Grid.Column="0" x:Name="ConnectUserButton" Content="connect" Visibility="{Binding ConnectedMode}" Click="ConnectUserButton_Click" IsEnabled="{Binding EnableButtons}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="ConnectButtonLabel" Text="to an existing account" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,22,0,0" Visibility="{Binding ConnectedMode}"/>
                         </Grid>
                     </StackPanel>
                 </ScrollViewer>

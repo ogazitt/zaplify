@@ -53,9 +53,9 @@
                 {
                     clientFolder = this.StorageContext.Folders.Single<Folder>(f => f.ID == id);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {   // item not found - it may have been deleted by someone else.  Return 200 OK.
-                    TraceLog.TraceInfo("FolderResource.Delete: entity not found; returned OK anyway");
+                    TraceLog.TraceException("FolderResource.Delete: entity not found; returned OK anyway", ex);
                     return ReturnResult<Folder>(req, operation, HttpStatusCode.OK);
                 }
             }
@@ -100,23 +100,35 @@
                 //foreach (FolderUser fu in requestedFolder.FolderUsers)
                 //    this.StorageContext.FolderUsers.Remove(fu);
 
-                // remove the current folder 
-                this.StorageContext.Folders.Remove(requestedFolder);                
-                if (this.StorageContext.SaveChanges() < 1)
+                try
                 {
-                    TraceLog.TraceError("FolderResource.Delete: Internal Server Error (database operation did not succeed)");
-                    return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
+                    // items inside of folders have referential integrity between Item.ParentID and Item.ID but no cascade rules
+                    // therefore, we need to delete the items in a folder in the proper order before deleting the folder itself
+                    bool deleted = DeleteItems(requestedFolder);
+
+                    // remove the current folder 
+                    this.StorageContext.Folders.Remove(requestedFolder);
+                    if (this.StorageContext.SaveChanges() < 1)
+                    {
+                        TraceLog.TraceError("FolderResource.Delete: Internal Server Error (database operation did not succeed)");
+                        return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
+                    }
+                    else
+                    {
+                        TraceLog.TraceInfo("FolderResource.Delete: Accepted");
+                        return ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.Accepted);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    TraceLog.TraceInfo("FolderResource.Delete: Accepted");
-                    return ReturnResult<Folder>(req, operation, requestedFolder, HttpStatusCode.Accepted);
+                    TraceLog.TraceException("FolderResource.Delete: Internal Server Error (database operation did not succeed)", ex);
+                    return ReturnResult<Folder>(req, operation, HttpStatusCode.InternalServerError);
                 }
             }
             catch (Exception ex)
             {
                 // Folder not found - it may have been deleted by someone else.  Return 200 OK.
-                TraceLog.TraceInfo(String.Format("FolderResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
+                TraceLog.TraceException("FolderResource.Delete: exception in database operation; returned OK anyway", ex);
                 return ReturnResult<Folder>(req, operation, HttpStatusCode.OK);
             }
         }
@@ -343,6 +355,28 @@
             }
         }
 
+        /// <summary>
+        /// Delete all items in a folder.  While there are any items, we use the ItemResource's recursive
+        /// delete static methods to delete each item and any potential children.  This way we ensure that 
+        /// the deletes are done in the proper order.
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        private bool DeleteItems(Folder folder)
+        {
+            bool multipleItemsDeleted = false;
+            while (StorageContext.Items.Any(i => i.FolderID == folder.ID))
+            {
+                var item = StorageContext.Items.First(i => i.FolderID == folder.ID);
+                // delete all the items with ParentID of this item.ID (recursively, from the bottom up)
+                multipleItemsDeleted = ItemResource.DeleteItemChildrenRecursively(StorageContext, item);
+                // delete all ItemRef FieldValues with Value of this item.ID
+                multipleItemsDeleted |= ItemResource.DeleteItemReferences(CurrentUser, StorageContext, item);
+                StorageContext.Items.Remove(item);
+                StorageContext.SaveChanges();
+            }
+            return multipleItemsDeleted;
+        }
 
         // Update the requested folder with values from the new folder
         // Currently, the algorithm updates only if the server's current value is equal 

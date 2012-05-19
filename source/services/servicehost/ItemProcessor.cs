@@ -244,10 +244,15 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {
                 var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
 
-                // get the category
+                // get the category and image
                 foreach (var entry in results)
                 {
                     categoryFV.Value = entry[SupermarketQueryResult.Category];
+                    if (!String.IsNullOrEmpty(entry[SupermarketQueryResult.Image]))
+                        item.GetFieldValue(FieldNames.Picture, true).Value = entry[SupermarketQueryResult.Image];
+
+                    // write the data to the blob store
+                    BlobStore.WriteBlobData(BlobStore.GroceryContainerName, entry[SupermarketQueryResult.Name], entry.ToString());
 
                     // only grab the first category
                     //userContext.SaveChanges();

@@ -24,8 +24,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         // number of lists to generate "Add" buttons for
         const int MaxLists = 4;
         private StackPanel[] AddButtons = new StackPanel[3];
-        private List<Item> lists;
-        private List<Item> moreLists;
+        private List<ClientEntity> lists;
         private List<Button> buttonList;
 
         // speech fields
@@ -34,7 +33,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private DateTime speechStart;
 
         private bool addedItemsPropertyChangedHandler = false;
-        private bool initialSync = false;
+        private bool initialSyncAlreadyHappened = false;
         Item list;
         ScheduleHelper ScheduleHelper;
 
@@ -49,8 +48,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // Set the data context of the page to the main view model
             DataContext = App.ViewModel;
 
-            // set the data context of the search header to this page
+            // set the data context of a few controls to this page
             SearchHeader.DataContext = this;
+            MoreListsListBox.DataContext = this;
+            ListsHeader.DataContext = this;
 
             // set some data context information for the speech UI
             SpeechProgressBar.DataContext = this;
@@ -59,6 +60,46 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             SpeechLabel.DataContext = this;
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
+            this.BackKeyPress += new EventHandler<CancelEventArgs>(MainPage_BackKeyPress);
+            NameTextBox.TextChanged += new TextChangedEventHandler(delegate { NotifyPropertyChanged("ListsHeaderText"); });
+        }
+
+        public string ListsHeaderText 
+        {
+            get
+            {
+                if (String.IsNullOrWhiteSpace(NameTextBox.Text))
+                    return "Choose list to navigate to:";
+                else
+                    return "Choose list to add to:";
+            }
+        }
+
+        /// <summary>
+        /// A list of all the lists under all the folders
+        /// </summary>
+        public ObservableCollection<Item> MoreLists
+        {
+            get
+            {
+                // create the hierarchy of folders/lists for the list picker
+                var moreLists = new ObservableCollection<Item>();
+                if (App.ViewModel.Folders != null)
+                {
+                    foreach (Folder f in App.ViewModel.Folders)
+                    {
+                        moreLists.Add(new Item() { ID = Guid.Empty, Name = f.Name, FolderID = f.ID, ItemTypeID = f.ItemTypeID });
+                        var lists = App.ViewModel.Items.
+                            Where(i => i.FolderID == f.ID && i.IsList == true && i.ItemTypeID != SystemItemTypes.Reference).
+                            OrderBy(i => i.Name).
+                            Select(i => new Item() { ID = i.ID, Name = "    " + i.Name, FolderID = i.FolderID, ItemTypeID = i.ItemTypeID }).
+                            ToList();
+                        foreach (var i in lists)
+                            moreLists.Add(i);
+                    }
+                }
+                return moreLists;
+            }
         }
 
         private string searchTerm;
@@ -309,29 +350,17 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // confirm the delete and return if the user cancels
             MessageBoxResult result = MessageBox.Show(
-                "are you sure you want to erase all data on the phone?  unless you paired the phone to an account, your data will be not be retrievable.",
+                "are you sure you want to erase all data on the phone?  unless you connected the phone to an account, your data will be not be retrievable.",
                 "confirm erasing all data",
                 MessageBoxButton.OKCancel);
             if (result == MessageBoxResult.Cancel)
                 return;
 
-            foreach (var tl in App.ViewModel.Folders)
-                StorageHelper.DeleteFolder(tl);
-            StorageHelper.WriteConstants(null);
-            StorageHelper.WriteDefaultFolderID(null);
-            StorageHelper.WriteItemTypes(null);
-            StorageHelper.WriteTags(null);
-            StorageHelper.WriteFolders(null);
-            StorageHelper.WriteUserCredentials(null);
-            RequestQueue.DeleteQueue();
+            initialSyncAlreadyHappened = false;
+            App.ViewModel.EraseAllData();
 
-            App.ViewModel.IsDataLoaded = false;
-            initialSync = false;
-            App.ViewModel.LastNetworkOperationStatus = false;
-            if (App.ViewModel.FolderDictionary != null)
-                App.ViewModel.FolderDictionary.Clear();
-
-            App.ViewModel.LoadData();
+            // refresh the add buttons on the Add tab
+            CreateAddButtons();
         }
 
         // Handle selection changed on ListBox
@@ -370,6 +399,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 UriKind.Relative));
         }
 
+        private void MainPage_BackKeyPress(object sender, CancelEventArgs e)
+        {
+            if (MoreListsPopup.IsOpen)
+            {
+                MoreListsPopup.IsOpen = false;
+                e.Cancel = true;
+            }
+        }
+
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             TraceHelper.AddMessage("Main: Loaded");
@@ -379,15 +417,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             {
                 // Load app data from local storage (user creds, about tab data, constants, item types, folders, etc)
                 App.ViewModel.LoadData();
+
+                // create the add button panel
+                CreateAddButtons();
             }
 
             // if haven't synced with web service yet, try now
-            if (initialSync == false)
+            if (initialSyncAlreadyHappened == false)
             {
                 // attempt to sync with the Service
                 App.ViewModel.SyncWithService();
 
-                initialSync = true;
+                initialSyncAlreadyHappened = true;
+
+                // if there's a home tab set, switch to it now
+                var homeTab = ClientSettingsHelper.GetHomeTab(App.ViewModel.ClientSettings);
+                if (homeTab != null && homeTab != "Add")
+                    SelectPivot(homeTab);
             }
 
             // create a list of items to render 
@@ -420,41 +466,56 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // set the datacontext
             SearchHeader.DataContext = this;
 
-            // add the "Add" buttons to the AddButtons stack panel
-            CreateAddButtons();
-
             // trace exit
             TraceHelper.AddMessage("Exiting Main Loaded");
         }
 
+        // handle a selection changed event for the "more lists..." ListBox in the MoreListsPopup
+        private void MoreListsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // If selected index is -1 (no selection) do nothing
+            if (MoreListsListBox.SelectedIndex == -1)
+                return;
+
+            Item listToAddTo = MoreLists[MoreListsListBox.SelectedIndex];
+            Folder folderToAddTo = App.ViewModel.Folders.Single(f => f.ID == listToAddTo.FolderID);
+            if (listToAddTo.ID == Guid.Empty)
+            {
+                AddItem(folderToAddTo, null);
+                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, folderToAddTo);
+            }
+            else
+            {
+                listToAddTo.Name = listToAddTo.Name.Trim();
+                AddItem(folderToAddTo, listToAddTo);
+                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, listToAddTo);
+            }
+
+            // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
+            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
+                App.ViewModel.SyncWithService();
+
+            // Reset selected index to -1 (no selection)
+            MoreListsListBox.SelectedIndex = -1;
+
+            // close popup
+            MoreListsPopup.IsOpen = false;
+        }
+
+
         // When page is navigated to, switch to the specified tab
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            // if the user data is already loaded, redraw the add button panel
+            if (App.ViewModel.IsDataLoaded == true)
+                CreateAddButtons();
+
             string tabString = "";
             // check for the optional "Tab" parameter
             if (NavigationContext.QueryString.TryGetValue("Tab", out tabString) == false)
-            {
                 return;
-            }
 
-            switch (tabString)
-            {
-                case "Add":
-                    MainPivot.SelectedIndex = 0;  // switch to add tab
-                    break;
-                case "Items":
-                case "Schedule":
-                    MainPivot.SelectedIndex = 1;  // switch to schedule tab
-                    break;
-                case "Folders":
-                    MainPivot.SelectedIndex = 2;  // switch to folders tab
-                    break;
-                case "Tags":
-                    MainPivot.SelectedIndex = 3;  // switch to tags tab
-                    break;
-                default:
-                    break;
-            }
+            SelectPivot(tabString);
         }
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -486,6 +547,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 case 0: // add
                     ApplicationBar.Buttons.Add(syncButton);
                     ApplicationBar.Buttons.Add(settingsButton);
+                    // if the user data is already loaded, redraw the add button panel
+                    if (App.ViewModel.IsDataLoaded == true)
+                        CreateAddButtons();
                     break;
                 case 1: // schedule
                     ApplicationBar.Buttons.Add(syncButton);
@@ -961,14 +1025,26 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         private void CreateAddButtons()
         {
-            //const string moreListsString = "\u0332m\u0332o\u0332r\u0332e\u0332 \u0332l\u0332i\u0332s\u0332t\u0332s\u0332.\u0332.\u0332.\u0332";
             const string moreListsString = "more lists...";
             double width = Math.Max(420f, AddButtonsStackPanel.ActualWidth) / 2;
             // get all the lists
+            /*
             lists = (from it in App.ViewModel.Items
                      where it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
                      orderby it.Name ascending
                      select it).ToList();
+             */
+            var entityRefItems = ListMetadataHelper.GetListsOrderedBySelectedCount(App.ViewModel.ClientSettings);
+            lists = new List<ClientEntity>();
+            foreach (var entityRefItem in entityRefItems)
+            {
+                var entityType = entityRefItem.GetFieldValue(FieldNames.EntityType).Value;
+                var entityID = new Guid(entityRefItem.GetFieldValue(FieldNames.EntityRef).Value);
+                if (entityType == typeof(Folder).Name && App.ViewModel.Folders.Any(f => f.ID == entityID))
+                    lists.Add(App.ViewModel.Folders.Single(f => f.ID == entityID));
+                if (entityType == typeof(Item).Name && App.ViewModel.Items.Any(i => i.ID == entityID))
+                    lists.Add(App.ViewModel.Items.Single(i => i.ID == entityID));
+            }
             // create a list of buttons - one for each list
             buttonList = (from it in lists
                           select new Button()
@@ -996,6 +1072,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
             if (firstrow > 0)
             {
+                if (firstrow == 1)
+                    buttonList[0].Width *= 2;  // if there's only one button, make it double-width
                 var sp = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
                 foreach (var b in buttonList.Take(firstrow))
                     sp.Children.Add(b);
@@ -1011,49 +1089,18 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 AddButtonsStackPanel.Children.Add(sp);
             }
 
-            // create the hierarchy of folders/lists for the list picker
-            moreLists = new List<Item>() { new Item() { Name = moreListsString } };
-            foreach (Folder f in App.ViewModel.Folders)
+            var moreButton = new Button()
             {
-                moreLists.Add(new Item() { ID = Guid.Empty, Name = f.Name, FolderID = f.ID, ItemTypeID = f.ItemTypeID });
-                moreLists.AddRange(App.ViewModel.Items.
-                    Where(i => i.FolderID == f.ID && i.IsList == true && i.ItemTypeID != SystemItemTypes.Reference).
-                    OrderBy(i => i.Name).
-                    Select(i => new Item() { ID = i.ID, Name = "    " + i.Name, FolderID = i.FolderID, ItemTypeID = i.ItemTypeID }).
-                    ToList());
-            }
-
-            // create the "more lists" listpicker
-            var listPickerWidth = Math.Max(AddButtonsStackPanel.ActualWidth - 20, 400);
-            ListPicker listPicker = new ListPicker()
-            {
-                MinWidth = listPickerWidth,
-                MaxWidth = listPickerWidth,
-                FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                Margin = new Thickness(0, 4, 0, 0), 
-                FullModeHeader = "Pick a list to add or navigate to"
+                Content = moreListsString,
+                Width = width * 2,
             };
-            listPicker.ItemsSource = moreLists;
-            listPicker.DisplayMemberPath = "Name";
-            listPicker.SelectionChanged += new SelectionChangedEventHandler(delegate 
+            moreButton.Click += new RoutedEventHandler(delegate
             {
-                if (listPicker.SelectedIndex > 0)
-                {
-                    Item listToAddTo = moreLists[listPicker.SelectedIndex];
-                    Folder folderToAddTo = App.ViewModel.Folders.Single(f => f.ID == listToAddTo.FolderID);
-                    if (listToAddTo.ID == Guid.Empty)
-                        AddItem(folderToAddTo, null);
-                    else
-                        AddItem(folderToAddTo, listToAddTo);
-                    listPicker.SelectedIndex = 0;
-                    moreLists[0].Name = moreListsString;
-                }
+                // rebind the list of lists
+                NotifyPropertyChanged("MoreLists");
+                MoreListsPopup.IsOpen = true;
             });
-            listPicker.Tap += new EventHandler<System.Windows.Input.GestureEventArgs>(delegate
-            {
-                moreLists[0].Name = "";
-            });
-            AddButtonsStackPanel.Children.Add(listPicker);
+            AddButtonsStackPanel.Children.Add(moreButton);
         }
 
         private void CreateItem(string name, Folder folder, ItemType itemType, Guid parentID)
@@ -1097,10 +1144,25 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Button clickedButton = sender as Button ?? AddButtons[0].Children[0] as Button;
             int listIndex = buttonList.IndexOf(clickedButton);
             
-            Item list = lists[listIndex];
-            Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
-   
-            AddItem(folder, list);
+            ClientEntity entity = lists[listIndex];
+            if (entity is Item)
+            {
+                var list = entity as Item;
+                Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
+                AddItem(folder, list);
+            }
+            if (entity is Folder)
+            {
+                var folder = entity as Folder;
+                AddItem(folder, null);
+            }
+
+            // increment the SelectedCount
+            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
+
+            // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
+            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
+                App.ViewModel.SyncWithService();
         }     
 
         private ObservableCollection<Item> FilterItems(ObservableCollection<Item> items)
@@ -1150,6 +1212,28 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // return the filtered item collection
             return filteredItems;
+        }
+
+        private void SelectPivot(string tabString)
+        {
+            switch (tabString)
+            {
+                case "Add":
+                    MainPivot.SelectedIndex = 0;  // switch to add tab
+                    break;
+                case "Items":
+                case "Schedule":
+                    MainPivot.SelectedIndex = 1;  // switch to schedule tab
+                    break;
+                case "Folders":
+                    MainPivot.SelectedIndex = 2;  // switch to folders tab
+                    break;
+                case "Tags":
+                    MainPivot.SelectedIndex = 3;  // switch to tags tab
+                    break;
+                default:
+                    break;
+            }
         }
 
         /// <summary>

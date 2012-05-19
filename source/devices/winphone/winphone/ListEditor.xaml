@@ -45,7 +45,7 @@
         <!--TitlePanel contains the name of the application and page title-->
         <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="9,17,0,28">
             <TextBlock x:Name="ApplicationTitle" Text="ZAPLIFY" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock Text="list editor" Style="{StaticResource PhoneTextTitle1Style}"/>
+            <TextBlock Text="list properties" Style="{StaticResource PhoneTextTitle1Style}" FontSize="64" Margin="0"/>
             <ScrollViewer BorderThickness="0">
                 <StackPanel Margin="0,30,0,0">
                     <TextBlock Text="name" Style="{StaticResource PhoneTextNormalStyle}" />
