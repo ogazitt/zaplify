@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="FieldProcessor.cs" />
     <Compile Include="ItemProcessor.cs" />
     <Compile Include="GroceryServiceModels.cs" />
     <Compile Include="IWorker.cs" />
