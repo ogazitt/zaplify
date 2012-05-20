@@ -52,7 +52,7 @@ i { font-size: 16px; }
     border-radius: 0 4px 4px 4px;
 }
 .dashboard-center .tab-content .form-vertical { min-height: 240px; }
-.dashboard-center .tab-content .form-vertical .control-group { margin: 0; padding: 0; }
+.dashboard-center .tab-content .form-vertical .control-group { margin: 0 10px 0 0; padding: 0; }
 .dashboard-center .tab-content .form-vertical .control-label { font-size: 8pt; margin: 0 0 -4px 8px; }
 .dashboard-center .tab-content .form-vertical .btn-group > .btn:first-child { min-width: 115px; text-align: left; }
 .dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }
@@ -61,6 +61,10 @@ i { font-size: 16px; }
 .dashboard-center .manager-folders .tab-content .nav-list li.selected { background-color: #eeeeee; }  /* use @btnBackgroundHighlight */
 .dashboard-center .manager-folders .tab-content textarea { height: 56px; }
 .dashboard-center .manager-folders .tab-content .input-inline-max { display:inline-block; width: 90%; }
+
+.inline-left { display: inline-block; float: left; }
+.inline-right { display: inline-block; float: right; }
+.control-group.inline-right { margin-left: 8px; }
 
 /* styles for paging */
 .page-turn-prev { display: inline-block; width: 24px; height: 24px;
@@ -74,3 +78,20 @@ i { font-size: 16px; }
 .page-turn-control.right { left: auto; right: -10px; }
 .page-turn-control div { opacity: 0.35; filter: alpha(opacity=35); }
 .page-turn-control div:hover { opacity: 0.9; filter: alpha(opacity=90); }
+
+/*----------------------------------------------------------
+jquery-ui timepicker extension
+----------------------------------------------------------*/
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+.ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+
+/*----------------------------------------------------------
+jquery-ui combobox extension
+----------------------------------------------------------*/
+.ui-combobox { position: relative; display: inline-block; }
+.ui-combobox .ui-button { position: absolute; margin-left: -1px; padding: 0; top: 0; bottom: 0; }
+.ui-autocomplete-input { margin: 0; padding: 0.3em }

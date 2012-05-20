@@ -57,136 +57,15 @@ NewItemEditor.prototype.renderNameField = function ($element) {
     var nameField = fields[FieldNames.Name];
     var $form = $('<form class="form-inline"/>').appendTo($element);
 
-
-    var $field = this.renderText($form, nameField);
-    // support autocomplete for new Locations and Contacts
-    if (this.newItem.ItemTypeID == ItemTypes.Location) {
-        this.autoCompleteAddress($field);
-    } else if (this.newItem.ItemTypeID == ItemTypes.Contact) {
-        this.autoCompleteContact($field);
-    }
+    var $nameField = Control.Text.renderInputNew($form, this.newItem, nameField, this.list);
 
     // TODO: figure out how to append button but keep on one line 100% wide
     //var $append = $('<div class="input-append" />').appendTo($form);
     //var $addButton = $('<span class="add-on"><i class="icon-plus-sign"></i></span>').appendTo($append);
 
-    $field.addClass('input-block-level');
-    $field.attr('placeholder', '-- new item --');
-    return $field;
-}
-
-NewItemEditor.prototype.renderText = function (container, field) {
-    $field = $('<input type="text" />').appendTo(container);
-    $field.addClass(field.Class);
-    $field.data('control', this);
-    $field.val(this.newItem.GetFieldValue(field));
-    $field.keypress(function (e) { return Control.get(this).handleEnterPress(e); });
-    return $field;
-}
-
-NewItemEditor.prototype.autoCompleteAddress = function ($field) {
-    $field.autocomplete({
-        source: function (request, response) {
-            Service.Geocoder().geocode({ 'address': request.term },
-                    function (results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            var addresses = $.map(results, function (item) {
-                                return {
-                                    label: item.formatted_address,
-                                    value: item.formatted_address,
-                                    latlong: item.geometry.location.toUrlValue()
-                                }
-                            });
-                            response(addresses);
-                        }
-                    });
-        },
-        select: function (event, ui) {
-            $(this).val(ui.item.label);
-            $(this).data(FieldNames.LatLong, ui.item.latlong);
-            var editor = Control.get(this);
-            if (editor != null) { editor.handleChange($(this)); }
-            return false;
-        },
-        minLength: 2
-    });
-}
-
-NewItemEditor.prototype.autoCompleteContact = function ($field) {
-    $field.autocomplete({
-        source: function (request, response) {
-            Service.InvokeController('UserInfo', 'PossibleSubjects',
-                { 'startsWith': request.term },
-                function (responseState) {
-                    var result = responseState.result;
-                    var contacts = [];
-                    if (result.Count > 0) {
-                        for (var name in result.Subjects) {
-                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
-                        }
-                    }
-                    response(contacts);
-                });
-        },
-        select: function (event, ui) {
-            $(this).val(ui.item.label);
-            $(this).data(FieldNames.Contacts, ui.item.json);
-            var editor = Control.get(this);
-            if (editor != null) { editor.handleChange($(this)); }
-            return false;
-        },
-        minLength: 1
-    });
-}
-
-NewItemEditor.prototype.handleChange = function ($element) {
-    if (this.updateNameField($element)) {
-        this.list.InsertItem(this.newItem);
-    }
-}
-
-NewItemEditor.prototype.handleEnterPress = function (e) {
-    if (e.which == 13) {
-        if (this.updateNameField($(e.srcElement))) {
-            this.list.InsertItem(this.newItem);
-        }
-        return false;       // do not propogate event
-    }
-}
-
-NewItemEditor.prototype.updateNameField = function ($element) {
-    var fields = this.newItem.GetFields();
-    var nameField = fields[FieldNames.Name];
-
-    if ($element.hasClass(nameField.ClassName)) {
-        var value = $element.val();
-        if (value == null || value.length == 0) { return false; }
-
-        if (this.newItem.ItemTypeID == ItemTypes.Location) {
-            // autocomplete for new Locations
-            var latlong = $element.data(FieldNames.LatLong);
-            if (latlong != null) {
-                this.newItem.SetFieldValue(FieldNames.Name, value);
-                this.newItem.SetFieldValue(FieldNames.Address, value);
-                return true;
-            }
-        }
-        if (this.newItem.ItemTypeID == ItemTypes.Contact) {
-            // autocomplete for new Contacts
-            var jsonContact = $element.data(FieldNames.Contacts);
-            if (jsonContact != null) {
-                contact = $.parseJSON(jsonContact);
-                if (contact.ItemTypeID == ItemTypes.Contact) {
-                    this.newItem = Item.Extend(contact);
-                    return true;
-                }
-            }
-        }
-        // update name field with new value
-        this.newItem.SetFieldValue(nameField, value);
-        return true;
-    }
-    return false;
+    $nameField.addClass('input-block-level');
+    $nameField.attr('placeholder', '-- new item --');
+    return $nameField;
 }
 
 // ---------------------------------------------------------
@@ -393,7 +272,7 @@ PropertyEditor.prototype.render = function ($element, list, maxHeight) {
     this.list = list;
 
     // name property
-    var $wrapper = $('<div class="control-group"><label class="control-label">Name</label></div>').appendTo($form);
+    var $wrapper = $('<div class="control-group"><label class="control-label">Name of List</label></div>').appendTo($form);
     var $property = $('<input type="text" class="" />').appendTo($wrapper);
     $property.addClass('li-name');
     $property.data('control', this);
@@ -402,7 +281,10 @@ PropertyEditor.prototype.render = function ($element, list, maxHeight) {
     $property.keypress(function (e) { return Control.get(this).handleEnterPress(e); });
 
     // itemtype property
-    Control.ItemTypePicker.render($form, this.list);
+    var $dropdown = Control.ItemType.renderDropdown($form, this.list);
+    // display controls inline
+    $wrapper.addClass('inline-left');
+    $dropdown.addClass('inline-left');
 }
 
 PropertyEditor.prototype.updateProperty = function ($element) {

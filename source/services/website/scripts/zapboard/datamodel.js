@@ -914,8 +914,12 @@ LinkArray.prototype.ToText = function () {
     var text = '';
     for (var i in this.links) {
         var link = this.links[i];
-        if (link.hasOwnProperty('Name')) { text += link.Name + ', '; }
-        text += link.Url + '\n';
+        if (link.hasOwnProperty('Name')) {
+            if (link.Name != null && link.Name.length > 0 && link.Name != link.Url) {
+                text += link.Name + ', ';
+            }
+        }
+        text += link.Url + '\r\n';
     }
     return text;
 }
@@ -923,7 +927,7 @@ LinkArray.prototype.Parse = function (text) {
     var lines = text.split(/\r\n|\r|\n/g);
     for (var i in lines) {
         var parts = lines[i].split(',');
-        if (parts.length == 1) { this.links.push({ Url: parts[0] }); }
+        if (parts.length == 1 && parts[0].length > 0) { this.links.push({ Url: parts[0] }); }
         if (parts.length == 2) { this.links.push({ Name: parts[0], Url: parts[1] }); }
     }
 }
