@@ -34,14 +34,33 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		
 		public override void ViewDidAppear (bool animated)
 		{
-			var root = new RootElement("More"){
+			var root = new RootElement("More")
+            {
 				new Section ()
 				{
-					new StyledStringElement("Debug", DebugPage)
-					{
-						Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                    new StyledStringElement("Add Folder", delegate 
+                    { 
+                        var form = new FolderEditor(this, null);
+                        form.PushViewController();
+                    })
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
                         BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
-					}
+                    },
+                    new StyledStringElement("Add List", delegate 
+                    { 
+                        var form = new ListEditor(this, null, null, null);
+                        form.PushViewController();
+                    })
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    },
+                    new StyledStringElement("Debug", DebugPage)
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    }
 				},
 			};
 			

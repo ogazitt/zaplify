@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using MonoTouch.Foundation;
 using System.Text;
 using BuiltSteady.Zaplify.Shared.Entities;
+using Newtonsoft.Json;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -55,7 +56,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
    
             // create an Edit button which pushes the edit view onto the nav stack
 			actionsViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem (UIBarButtonSystemItem.Edit, delegate {
-                var editRoot = RenderEditItem(ThisItem, true /* render the list field */);
+                var editRoot = RenderEditItem(ThisItem, false);
 				editViewController = new DialogViewController(editRoot, true);
                 editViewController.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
                     // save the item and trigger a sync with the service  
@@ -317,7 +318,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 item.Website = m.Value;           
         }
 		
-		private RootElement RenderEditItem(Item item, bool renderFolderField)
+		private RootElement RenderEditItem(Item item, bool renderListInfo)
         {
             // get itemType for this item
 			ItemType itemType = null;
@@ -332,7 +333,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 
             // render the primary fields
-			Section primarySection = RenderEditItemFields(item, itemType, true, renderFolderField);
+			Section primarySection = RenderEditItemFields(item, itemType, true, renderListInfo);
 
 			// render more button
             var moreButton = new Button() { Background = "Images/darkgreybutton.png", Caption = "more details" };
@@ -363,7 +364,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             	editRoot.Remove(moreSection);
 
                 // render the non-primary fields as a new section
-                editRoot.Insert(1, RenderEditItemFields(item, itemType, false, false));
+                editRoot.Insert(1, RenderEditItemFields(item, itemType, false, !renderListInfo));
 				
 				//primarySection.Remove (sse);
 			};			
@@ -456,8 +457,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 case DisplayTypes.Email:
                     entryElement.Value = (string) currentValue;
                     entryElement.KeyboardType = UIKeyboardType.EmailAddress;
-                    entryElement.Changed += delegate { 
-                        pi.SetValue(container, entryElement.Value, null); };
+                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Address:
                     entryElement.Value = (string) currentValue;
@@ -558,6 +558,48 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     break;
                 case DisplayTypes.TagList:
                     // TODO                   
+                    element = null;
+                    break;
+                case DisplayTypes.ImageUrl:
+                    // TODO: wire up to picture picker, and upload to an image service
+                    element = null;
+                    break;
+                case DisplayTypes.LinkArray:
+                    //MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
+                    if (!String.IsNullOrEmpty((string) currentValue))
+                    {
+                        try
+                        {
+                            var linkList = JsonConvert.DeserializeObject<List<Link>>((string)currentValue);
+                            entryElement.Value = String.Concat(linkList.Select(l => l.Name != null ? l.Name + "," + l.Url + "\n" : l.Url + "\n").ToList());
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                    entryElement.Changed += delegate 
+                    {
+                        // the expected format is a newline-delimited list of Name, Url pairs
+                        var linkArray = entryElement.Value.Split(new char[] { '\r','\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        var linkList = new List<Link>();
+                        foreach (var link in linkArray)
+                        {
+                            var nameval = link.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                            if (nameval.Length == 0)
+                                continue;
+                            if (nameval.Length == 1)
+                                linkList.Add(new Link() { Url = nameval[0].Trim() });
+                            else
+                                linkList.Add(new Link() { Name = nameval[0].Trim(), Url = nameval[1].Trim() });
+                        }
+                        var json = JsonConvert.SerializeObject(linkList);
+                        pi.SetValue(container, json, null); 
+                    };
+                    //element = multilineElement;
+                    break;
+                case DisplayTypes.Hidden:
+                    // skip rendering
+                    element = null;
                     break;
                 case DisplayTypes.ContactList:
                     StringElement contactsElement = new StringElement(field.DisplayName);
@@ -613,29 +655,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     };
                     element = locationsElement;
                     break;
+                case DisplayTypes.ItemTypes:
+                    var itemTypePickerElement = new ItemTypePickerElement("Type", (Guid) currentValue);
+                    itemTypePickerElement.OnSelected += (sender, e) => { pi.SetValue(container, itemTypePickerElement.SelectedItemType, null); };
+                    element = itemTypePickerElement;
+                    break;
                 default:
                     notMatched = true;
                     break;
             }
 			
-            // if wasn't able to match field type by display type, try matching by CLR type
+            // if wasn't able to match field type by display type, try matching by FieldType
             if (notMatched == true)
             {
-                string typename = GetTypeName(pi);
-                switch (typename)
+                switch (field.FieldType)
                 {
-                    case "String":
+                    case FieldTypes.String:
+                    default:
                         entryElement.KeyboardType = UIKeyboardType.Default;
                         entryElement.Value = (string) currentValue;
                         entryElement.AutocorrectionType = UITextAutocorrectionType.Yes;
                         entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                         break;
-                    case "Int32":
+                    case FieldTypes.Integer:
                         entryElement.Value = (string) currentValue;
                         entryElement.KeyboardType = UIKeyboardType.NumberPad;
                         entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                         break;
-                    case "DateTime":
+                    case FieldTypes.DateTime:
                         DateTime dateTime = currentValue == null ? DateTime.Now.Date : Convert.ToDateTime ((string) currentValue);
                         DateEventElement dateElement = new DateEventElement(field.DisplayName, dateTime);
                         dateElement.ValueSelected += delegate 
@@ -646,12 +693,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         };
                         element = dateElement;
                         break;
-                    case "Boolean":
+                    case FieldTypes.Boolean:
                         CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
                         checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
                         element = checkboxElement;
-                        break;
-                    default:
                         break;
                 }
             }
@@ -661,19 +706,25 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
         private Section RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderListField)
         {
-            Section section = new Section(/* primary ? "" : "Other" */);
+            Section section = new Section();
 			
+            // render fields
+            foreach (Field f in itemtype.Fields.Where(f => f.IsPrimary == primary).OrderBy(f => f.SortOrder))
+            {
+                var e = RenderEditItemField(item, f);
+                if (e != null)
+                    section.Add(e);
+            }
+            
 			if (renderListField == true)
             {
-                //FieldType fieldType = new FieldType() { Name = "FolderID", DisplayName = "folder", DisplayType = DisplayTypes.Folders };
-                Field field = new Field() { Name = "ParentID", DisplayName = "list", DisplayType = DisplayTypes.Lists };
+                Field field = new Field() { Name = "ParentID", DisplayName = "List", DisplayType = DisplayTypes.Lists };
+                section.Add(RenderEditItemField(item, field));
+
+                field = new Field() { Name = "ItemTypeID", DisplayName = "Type", DisplayType = DisplayTypes.ItemTypes };
                 section.Add(RenderEditItemField(item, field));
             }
 
-            // render fields
-            foreach (Field f in itemtype.Fields.Where(f => f.IsPrimary == primary).OrderBy(f => f.SortOrder))
-                section.Add(RenderEditItemField(item, f));
-			
 			return section;
         }
 		

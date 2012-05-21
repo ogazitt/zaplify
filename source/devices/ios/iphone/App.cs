@@ -19,7 +19,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		UITabBarController tabBarController;
 		
         private static MainViewModel viewModel = null;
-		private bool initialSync = false;
+		private bool initialSyncAlreadyHappened = false;
 
         /// <summary>
         /// A static ViewModel used by the views to bind against.
@@ -79,10 +79,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			};
 			
             // if haven't synced with web service yet, try now
-            if (initialSync == false)
+            if (initialSyncAlreadyHappened == false)
             {
                 App.ViewModel.SyncWithService();
-                initialSync = true;
+                initialSyncAlreadyHappened = true;
+
+                // if there's a home tab set, switch to it now
+                var homeTab = ClientSettingsHelper.GetHomeTab(App.ViewModel.ClientSettings);
+                if (homeTab != null && homeTab != "Add")
+                    SelectTab(homeTab);
             }
 
             // create a new window instance based on the screen size
@@ -98,6 +103,28 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
 			return true;
 		}
+
+        private void SelectTab(string tabString)
+        {
+            switch (tabString)
+            {
+                case "Add":
+                    tabBarController.SelectedIndex = 0;  // switch to add tab
+                    break;
+                case "Schedule":
+                    tabBarController.SelectedIndex = 1;  // switch to schedule tab
+                    break;
+                case "Folders":
+                    tabBarController.SelectedIndex = 2;  // switch to folders tab
+                    break;
+                case "Tags":
+                    tabBarController.SelectedIndex = 3;  // switch to tags tab
+                    break;
+                default:
+                    break;
+            }
+        }
+
 	}
 }
 

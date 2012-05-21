@@ -26,7 +26,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private DialogViewController dialogViewController;
 		private RootElement ListsRootElement;
         private ButtonListElement[] AddButtons = new ButtonListElement[3];
-		private List<Item> lists;
+		private List<ClientEntity> lists;
         private List<Button> buttonList;
         private Section listsSection = null;
         public MultilineEntryElement Name;
@@ -89,11 +89,26 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // determine which button was clicked
             Button clickedButton = sender as Button ?? AddButtons[0][0];
             int listIndex = buttonList.IndexOf(clickedButton);
-            
-            Item list = lists[listIndex];
-            Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
-   
-            AddItem(folder, list);
+
+            ClientEntity entity = lists[listIndex];
+            if (entity is Item)
+            {
+                var list = entity as Item;
+                Folder folder = App.ViewModel.Folders.Single(f => f.ID == list.FolderID);
+                AddItem(folder, list);
+            }
+            if (entity is Folder)
+            {
+                var folder = entity as Folder;
+                AddItem(folder, null);
+            }
+
+            // increment the SelectedCount
+            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
+
+            // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
+            if (String.IsNullOrWhiteSpace(Name.Value))
+                App.ViewModel.SyncWithService();
         }     
 
         private void RefreshHandler(object sender, MainViewModel.SyncCompleteEventArgs e)
@@ -217,12 +232,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             this.PopViewControllerAnimated(true);
         }
         
-        private void AddItemToFolder(string folderName)
-        {
-            Folder folder = App.ViewModel.Folders.Single(f => f.Name == folderName);
-            AddItem(folder, null);
-        }
- 
         public void SetupSpeechPopup(string text)
         {
             SpeechPopup = new UIActionSheet(" ", SpeechPopupDelegate, "Cancel", "Done");
@@ -313,10 +322,18 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private void CreateAddButtons()
         {
             // get all the lists
-            lists = (from it in App.ViewModel.Items 
-                          where it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
-                          orderby it.Name ascending
-                          select it).ToList();
+            var entityRefItems = ListMetadataHelper.GetListsOrderedBySelectedCount(App.ViewModel.ClientSettings);
+            lists = new List<ClientEntity>();
+            foreach (var entityRefItem in entityRefItems)
+            {
+                var entityType = entityRefItem.GetFieldValue(FieldNames.EntityType).Value;
+                var entityID = new Guid(entityRefItem.GetFieldValue(FieldNames.EntityRef).Value);
+                if (entityType == typeof(Folder).Name && App.ViewModel.Folders.Any(f => f.ID == entityID))
+                    lists.Add(App.ViewModel.Folders.Single(f => f.ID == entityID));
+                if (entityType == typeof(Item).Name && App.ViewModel.Items.Any(i => i.ID == entityID))
+                    lists.Add(App.ViewModel.Items.Single(i => i.ID == entityID));
+            }
+
             // create a list of buttons - one for each list
             buttonList = (from it in lists
                           select new Button() 
@@ -370,15 +387,27 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         {
                             from f in App.ViewModel.Folders
                                 orderby f.Name ascending
-                                group f by f.Name into g
                                 select new Section() 
                                 {
-                                    new StyledStringElement(g.Key, delegate { AddItemToFolder(g.Key); }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
-                                    from hs in g 
-                                        from it in App.ViewModel.Items 
-                                            where it.FolderID == hs.ID && it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
-                                            orderby it.Name ascending
-                                            select (Element) new StyledStringElement("        " + it.Name, delegate { AddItem(hs, it); }) { Image = new UIImage("Images/179-notepad.png") }
+                                    new StyledStringElement(f.Name, delegate 
+                                    { 
+                                        AddItem(f, null);
+                                        // increment the selected count for this folder and sync if this isn't an actual Add
+                                        ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, f);
+                                        if (String.IsNullOrWhiteSpace(Name.Value))
+                                            App.ViewModel.SyncWithService();
+                                    }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
+                                    from li in f.Items
+                                        where li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference
+                                        orderby li.Name ascending
+                                        select (Element) new StyledStringElement("        " + li.Name, delegate 
+                                        {
+                                            AddItem(f, li);
+                                            // increment the selected count for this list and sync if this isn't an actual Add
+                                            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, li);
+                                            if (String.IsNullOrWhiteSpace(Name.Value))
+                                                App.ViewModel.SyncWithService();
+                                        }) { Image = new UIImage("Images/179-notepad.png") }
                                 }
                         };
                         var dvc = new DialogViewController(ListsRootElement);

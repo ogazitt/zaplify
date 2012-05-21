@@ -85,5 +85,6 @@
     <Compile Include="..\..\..\shared\entities\EntityConstants.cs">
       <Link>EntityConstants.cs</Link>
     </Compile>
+    <Compile Include="Link.cs" />
   </ItemGroup>
 </Project>
