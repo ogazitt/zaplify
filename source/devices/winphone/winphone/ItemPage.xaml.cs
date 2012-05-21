@@ -767,7 +767,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 Field field = new Field() { Name = "ParentID", DisplayName = "List", DisplayType = DisplayTypes.Lists };
                 RenderEditItemField(item, field);
 
-                field = new Field() { Name = "ItemTypeID", DisplayName = "Item Type", DisplayType = DisplayTypes.ItemTypes };
+                field = new Field() { Name = "ItemTypeID", DisplayName = "Type", DisplayType = DisplayTypes.ItemTypes };
                 RenderEditItemField(item, field);
             }
 

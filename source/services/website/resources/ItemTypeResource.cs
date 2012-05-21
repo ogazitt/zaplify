@@ -50,6 +50,7 @@
                 try
                 {
                     clientItemType = this.StorageContext.ItemTypes.Single<ItemType>(it => it.ID == id);
+                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientItemType, null);
                 }
                 catch (Exception)
                 {   // itemtype not found - it may have been deleted by someone else.  Return 200 OK.

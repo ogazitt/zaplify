@@ -49,6 +49,7 @@
                 try
                 {
                     clientTag = this.StorageContext.Tags.Single<Tag>(t => t.ID == id);
+                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientTag, null);
                 }
                 catch (Exception)
                 {   // tag not found - it may have been deleted by someone else.  Return 200 OK.

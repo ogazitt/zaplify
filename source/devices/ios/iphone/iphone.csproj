@@ -82,6 +82,9 @@
     <Reference Include="SpeechKitLibraryBinder">
       <HintPath>..\..\..\packages\Nuance.SpeechKit.1.0.1\lib\mono\SpeechKitLibraryBinder.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json.MonoTouch">
+      <HintPath>..\..\..\packages\Newtonsoft.Json.4.0.5\lib\mono\Newtonsoft.Json.MonoTouch.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Info.plist" />
@@ -122,6 +125,8 @@
     <Compile Include="ListEditor.cs" />
     <Compile Include="SchedulePage.cs" />
     <Compile Include="controls\ThemedRootElement.cs" />
+    <Compile Include="controls\ItemTypePickerElement.cs" />
+    <Compile Include="controls\ParentListPickerElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />
