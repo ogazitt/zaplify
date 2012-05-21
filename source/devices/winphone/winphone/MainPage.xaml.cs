@@ -433,7 +433,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // if there's a home tab set, switch to it now
                 var homeTab = ClientSettingsHelper.GetHomeTab(App.ViewModel.ClientSettings);
                 if (homeTab != null && homeTab != "Add")
-                    SelectPivot(homeTab);
+                    SelectTab(homeTab);
             }
 
             // create a list of items to render 
@@ -515,7 +515,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (NavigationContext.QueryString.TryGetValue("Tab", out tabString) == false)
                 return;
 
-            SelectPivot(tabString);
+            SelectTab(tabString);
         }
 
         private void Pivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1214,14 +1214,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             return filteredItems;
         }
 
-        private void SelectPivot(string tabString)
+        private void SelectTab(string tabString)
         {
             switch (tabString)
             {
                 case "Add":
                     MainPivot.SelectedIndex = 0;  // switch to add tab
                     break;
-                case "Items":
                 case "Schedule":
                     MainPivot.SelectedIndex = 1;  // switch to schedule tab
                     break;

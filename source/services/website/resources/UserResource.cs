@@ -119,6 +119,7 @@
                 try
                 {
                     clientUser = this.StorageContext.Users.Single<User>(u => u.ID == id);
+                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientUser, null);
                 }
                 catch (Exception)
                 {   // user not found - it may have been deleted by someone else.  Return 200 OK.

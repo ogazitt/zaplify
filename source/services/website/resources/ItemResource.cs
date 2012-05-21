@@ -54,6 +54,7 @@
                 try
                 {
                     clientItem = this.StorageContext.Items.Single<Item>(i => i.ID == id);
+                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientItem, null);
                 }
                 catch (Exception)
                 {   // item not found - it may have been deleted by someone else.  Return 200 OK along with a dummy item.
