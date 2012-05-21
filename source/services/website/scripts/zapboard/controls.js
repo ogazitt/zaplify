@@ -362,8 +362,8 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
         ampm: true,
         timeFormat: 'h:mm TT',
         hourGrid: 4,
-        minuteGrid: 10,
-        stepMinute: 5,
+        minuteGrid: 15,
+        stepMinute: 15,
         numberOfMonths: 2,
         onClose: function (value, picker) { Control.DateTime.update(picker.input); }
     });

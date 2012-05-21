@@ -18,9 +18,8 @@
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>"></script>
     <!-- use merged and minified script when NOT debugging -->
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script>
+    <!--script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script-->
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>
@@ -33,6 +32,7 @@
     <!--
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.generated.min.js") %>"></script>
     -->
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     
 <%
