@@ -78,7 +78,7 @@ function ListView(parentControl) {
 
 // static helper for getting attached item from $element
 ListView.getItem = function ListView$getItem($element) {
-    return $element.parent('a').data('item');
+    return $element.parents('li').first().data('item');
 }
 
 ListView.prototype.hide = function () {
@@ -97,7 +97,9 @@ ListView.prototype.render = function ($element, list, height) {
     if (list == null) { return; }
     if (this.$element == null) {
         this.$element = $('<ul class="nav nav-list" />').appendTo($element);
+        Control.List.sortable(this.$element);
     }
+
     this.hide();
     this.$element.empty();
     if (height != null) { this.$element.css('max-height', height); }
@@ -117,19 +119,23 @@ ListView.prototype.renderListItems = function (listItems) {
     for (var id in listItems) {
         var item = listItems[id];
         var $li = $('<li />').appendTo(this.$element);
+        $li.data('control', this);
+        $li.data('item', item);
         if (item.IsSelected()) { $li.addClass('selected'); }
+
         var $item = $('<a class="form-inline" />').appendTo($li);
-        $item.data('control', this);
-        $item.data('item', item);
         this.renderDeleteBtn($item);
         this.renderNameField($item, item);
 
-        // click item to edit
-        $item.bind('click', function (e) {
-            if (!$(e.srcElement).hasClass('dt-checkbox') && !$(e.srcElement).hasClass('dt-email')) {
-                var item = $(this).data('item');
-                Control.get(this).parentControl.selectItem(item);
+        // click item to select
+        $li.bind('click', function (e) {
+            if ($(this).hasClass('sorting') ||
+                $(e.srcElement).hasClass('dt-checkbox') ||
+                $(e.srcElement).hasClass('dt-email')) {
+                return;
             }
+            var item = $(this).data('item');
+            Control.get(this).parentControl.selectItem(item);
         });
 
         this.renderFields($item, item);
@@ -148,7 +154,7 @@ ListView.prototype.renderNameField = function ($item, item) {
     // render name field
     $item.append(Control.Icons.forSources(item));
     field = fields[FieldNames.Name];
-    this.renderLabel($item, item, field);
+    Control.Text.renderLabel($item, item, field);
 }
 
 ListView.prototype.renderDeleteBtn = function ($element) {
@@ -164,95 +170,42 @@ ListView.prototype.renderDeleteBtn = function ($element) {
 }
 
 ListView.prototype.renderFields = function ($element, item) {
+    var $fields = $('<div />').appendTo($element);
     var fields = item.GetFields();
     for (var name in fields) {
         var field = fields[name];
-        this.renderField($element, item, field);
+        this.renderField($fields, item, field);
     }
+    $('<small>&nbsp;</small>').appendTo($fields); 
 }
 
 ListView.prototype.renderField = function ($element, item, field) {
     var $field;
-    var renderByDisplayType = false;
-
     switch (field.Name) {
-        case FieldNames.Name:
-            break;
         case FieldNames.DueDate:
             if (item.GetFieldValue(FieldNames.Complete) != true) {
-                $field = this.renderText($element, item, field, 'Due on ');
+                $field = Control.Text.render($element, item, field, 'small', 'Due on ');
             }
             break;
         case FieldNames.CompletedOn:
             if (item.GetFieldValue(FieldNames.Complete) == true) {
-                $field = this.renderText($element, item, field, 'Completed on ');
+                $field = Control.Text.render($element, item, field, 'small', 'Completed on ');
             }
             break;
         case FieldNames.Category:
-            $field = this.renderText($element, item, field);
+            $field = Control.Text.render($element, item, field, 'small');
             break;
         case FieldNames.Email:
-            $field = this.renderEmail($element, item, field);
+            $field = Control.Text.renderEmail($element, item, field);
             break;
         case FieldNames.Address:
             var address = item.GetFieldValue(FieldNames.Address);
             if (address != item.Name) {
-                $field = this.renderText($element, item, field);
+                $field = Control.Text.render($element, item, field, 'small');
             }
             break;
         default:
             break;
-    }
-
-    if (renderByDisplayType) {
-        switch (field.DisplayType) {
-            case DisplayTypes.Checkbox:
-            case DisplayTypes.Hidden:
-            case DisplayTypes.Priority:
-            case DisplayTypes.Reference:
-            case DisplayTypes.TagList:
-                break;
-            default:
-                $field = this.renderText($element, item, field);
-                break;
-        }
-    }
-
-    return $field;
-}
-
-ListView.prototype.renderLabel = function ($element, item, field) {
-    var $field;
-    var value = item.GetFieldValue(field);
-    if (value != null) {
-        $field = $('<label style="font-weight:bold;"/>').appendTo($element);
-        $field.addClass(field.Class);
-        $field.html(value);
-    }
-    return $field;
-}
-
-ListView.prototype.renderText = function ($element, item, field, textBefore, textAfter) {
-    var $field;
-    var value = item.GetFieldValue(field);
-    if (value != null) {
-        $field = $('<div />').appendTo($element);
-        $field.addClass(field.Class);
-        value = ((textBefore == null) ? '' : textBefore) + value + ((textAfter == null) ? '' : textAfter);
-        $field.html(value);
-    }
-    return $field;
-}
-
-ListView.prototype.renderEmail = function ($element, item, field) {
-    var $field;
-    var value = item.GetFieldValue(field);
-    if (value != null) {
-        var $div = $('<div />').appendTo($element);
-        $field = $('<a />').appendTo($div);
-        $field.addClass(field.Class);
-        $field.attr('href', 'mailto:' + value);
-        $field.html(value);
     }
     return $field;
 }

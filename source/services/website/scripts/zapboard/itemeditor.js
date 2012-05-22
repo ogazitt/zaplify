@@ -35,8 +35,8 @@ ItemEditor.prototype.render = function ($element, item) {
         this.renderFields(this.$element);
 
         if (ItemMap.count(this.siblings) > 1) {      // render navigator if more than one item in list
-            $('<a class="page-turn-control left" data-slide="prev"><div class="page-turn-prev small"></div></a>').appendTo(this.$element);
-            $('<a class="page-turn-control right" data-slide="next"><div class="page-turn-next small"></div></a>').appendTo(this.$element); ;
+            $('<a class="page-turn-control left"><div class="page-turn-prev" /></a>').appendTo(this.$element);
+            $('<a class="page-turn-control right"><div class="page-turn-next" /></a>').appendTo(this.$element);
             this.$element.find('.page-turn-control').click(function (e) {
                 var $element = $(e.target);
                 var control = Control.get($element.parents('.carousel').first());
@@ -73,10 +73,10 @@ ItemEditor.prototype.expandEditor = function () {
 }
 
 ItemEditor.prototype.renderNextItem = function ($element) {
-    var direction = $element.attr('data-slide');
+    var moveNext = $element.hasClass('page-turn-next');
     var index = ItemMap.indexOf(this.siblings, this.item.ID);
     var lastIndex = ItemMap.count(this.siblings) - 1;
-    if (direction == 'next') {
+    if (moveNext) {
         index = (index == lastIndex) ? 0 : index + 1;
     } else {
         index = (index == 0) ? lastIndex : index - 1;
@@ -136,7 +136,7 @@ ItemEditor.prototype.renderField = function ($element, field) {
             $field = Control.LocationList.renderInput($wrapper, this.item, field);
             break;
         case DisplayTypes.Address:
-            $field = Control.Text.renderAddress($wrapper, this.item, field);
+            $field = Control.Text.renderInputAddress($wrapper, this.item, field);
             break;
         case DisplayTypes.LinkArray:
             $field = Control.LinkArray.renderTextArea($wrapper, this.item, field);

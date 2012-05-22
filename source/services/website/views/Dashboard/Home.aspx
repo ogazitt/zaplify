@@ -3,7 +3,7 @@
 <%@ Import Namespace="BuiltSteady.Zaplify.Website.Models" %>
 
 <asp:Content ContentPlaceHolderID="MasterHead" runat="server">
-    <title>Zapboard</title>
+    <title>Dashboard</title>
     <link href="<%: Url.Content("~/content/themes/bootstrap/jquery-ui-1.8.18.css") %>" rel="stylesheet" type="text/css" />
 </asp:Content>
 
@@ -19,7 +19,6 @@
 
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
     <!-- use merged and minified script when NOT debugging -->
-    <!--script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script-->
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>

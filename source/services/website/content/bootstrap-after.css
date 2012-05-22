@@ -56,6 +56,7 @@ i { font-size: 16px; }
 .dashboard-center .tab-content .form-vertical .control-label { font-size: 8pt; margin: 0 0 -4px 8px; }
 .dashboard-center .tab-content .form-vertical .btn-group > .btn:first-child { min-width: 115px; text-align: left; }
 .dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }
+.dashboard-center .nav-list small { font-size: 90%; margin-right: 12px;  }
 .dashboard-center .manager-folders .tab-content .nav-list { overflow-y: auto; overflow-x: hidden; padding: 0; }
 .dashboard-center .manager-folders .tab-content .nav-list li { border-top: 1px solid #dddddd; padding: 0 0 0 8px; }
 .dashboard-center .manager-folders .tab-content .nav-list li.selected { background-color: #eeeeee; }  /* use @btnBackgroundHighlight */

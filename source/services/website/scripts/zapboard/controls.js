@@ -114,6 +114,43 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
 // Control.Text static object
 //
 Control.Text = {};
+
+// render text in tag (span is default)
+Control.Text.render = function Control$Text$render($element, item, field, tag, textBefore, textAfter) {
+    var tag = (tag == null) ? 'span' : tag;
+    var $tag;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $tag = $('<' + tag + '/>').appendTo($element);
+        $tag.addClass(field.Class);
+        value = ((textBefore == null) ? '' : textBefore) + value + ((textAfter == null) ? '' : textAfter);
+        $tag.html(value);
+    }
+    return $tag;
+}
+// render label strong
+Control.Text.renderLabel = function Control$Text$renderLabel($element, item, field) {
+    var $label;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $label = $('<label><strong>' + value + '</strong></label>').appendTo($element);
+        $label.addClass(field.Class);
+    }
+    return $label;
+}
+// render email link
+Control.Text.renderEmail = function Control$Text$renderEmail($element, item, field) {
+    var $link;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $link = $('<a />').appendTo($element);
+        $link.addClass(field.Class);
+        $link.attr('href', 'mailto:' + value);
+        $link.html(value);
+    }
+    return $link;
+}
+// render input with update onchange and onkeypress
 Control.Text.renderInput = function Control$Text$renderInput($element, item, field) {
     $text = $('<input type="text" />').appendTo($element);
     $text = Control.Text.base($text, item, field);
@@ -121,7 +158,7 @@ Control.Text.renderInput = function Control$Text$renderInput($element, item, fie
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.update($(e.srcElement)); return false; } });
     return $text;
 }
-
+// render input with insert into list onkeypress (autocomplete based on ItemType)
 Control.Text.renderInputNew = function Control$Text$renderInput($element, item, field, list) {
     $text = $('<input type="text" />').appendTo($element);
     $text = Control.Text.base($text, item, field);
@@ -135,24 +172,24 @@ Control.Text.renderInputNew = function Control$Text$renderInput($element, item, 
     } 
     return $text;
 }
-
+// render textarea with update onchange
 Control.Text.renderTextArea = function Control$Text$renderTextArea($element, item, field) {
     $text = $('<textarea></textarea>').appendTo($element);
     $text = Control.Text.base($text, item, field);
     $text.change(function (e) { Control.Text.update($(e.srcElement)); });
     return $text;
 }
-
-Control.Text.renderAddress = function Control$Text$renderAddress($element, item, field) {
+// render input with update on keypress and autocomplete
+Control.Text.renderInputAddress = function Control$Text$renderInputAddress($element, item, field) {
     $text = $('<input type="text" />').appendTo($element);
     $text = Control.Text.base($text, item, field);
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.updateAddress($(e.srcElement)); return false; } });
     $text = Control.Text.autoCompleteAddress($text, Control.Text.updateAddress);
     return $text;
 }
-
-Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($text, selectHandler) {
-    $text.autocomplete({
+// attach address autocomplete behavior to input element
+Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($input, selectHandler) {
+    $input.autocomplete({
         source: function (request, response) {
             Service.Geocoder().geocode({ 'address': request.term },
                 function (results, status) {
@@ -176,11 +213,11 @@ Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($te
         },
         minLength: 2
     });
-    return $text;
+    return $input;
 }
-
-Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($text, selectHandler) {
-    $text.autocomplete({
+// attach contact autocomplete behavior to input element
+Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($input, selectHandler) {
+    $input.autocomplete({
         source: function (request, response) {
             Service.InvokeController('UserInfo', 'PossibleSubjects',
                 { 'startsWith': request.term },
@@ -203,9 +240,9 @@ Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($te
         },
         minLength: 1
     }); 
-    return $text;
+    return $input;
 }
-
+// handler for inserting new item into list
 Control.Text.insert = function Control$Text$insert($input) {
     var field = $input.data('field');
     if (field.Name == FieldNames.Name) {
@@ -237,7 +274,7 @@ Control.Text.insert = function Control$Text$insert($input) {
         list.InsertItem(item);
     }
 }
-
+// handler for updating text 
 Control.Text.update = function Control$Text$update($input) {
     var item = $input.data('item');
     var field = $input.data('field');
@@ -249,7 +286,7 @@ Control.Text.update = function Control$Text$update($input) {
         item.Update(updatedItem);
     }
 }
-
+// handler for updating address
 Control.Text.updateAddress = function Control$Text$updateAddress($input) {
     var item = $input.data('item');
     var field = $input.data('field');
@@ -269,13 +306,13 @@ Control.Text.updateAddress = function Control$Text$updateAddress($input) {
         item.Update(updatedItem);
     } 
 }
-
-Control.Text.base = function Control$Text$base($text, item, field) {
-    $text.addClass(field.Class);
-    $text.data('item', item);
-    $text.data('field', field);
-    $text.val(item.GetFieldValue(field));
-    return $text;
+// base function for applying class, item, field, and value to element
+Control.Text.base = function Control$Text$base($element, item, field) {
+    $element.addClass(field.Class);
+    $element.data('item', item);
+    $element.data('field', field);
+    $element.val(item.GetFieldValue(field));
+    return $element;
 }
 
 // ---------------------------------------------------------
@@ -567,6 +604,41 @@ Control.LocationList.update = function Control$LocationList$update($input) {
                 item.AddReference(field, insertedLocation, true);
             });
     }
+}
+
+// ---------------------------------------------------------
+// Control.List static object
+// static re-usable helper to support List elements <ul>
+//
+Control.List = {};
+
+// make a list of items sortable, apply to <ul> element
+// each <li> in list must have attached data('item')
+Control.List.sortable = function Control$List$sortable($element) {
+    $element.sortable({ 
+        revert: true,
+        start: function (e, ui) {
+            ui.item.addClass('sorting');
+        },
+        stop: function (e, ui) {
+            var $item = ui.item;
+            var item = $item.data('item');
+            $item.removeClass('sorting');
+            var liElements = $item.parent('ul').find('li');
+            for (var i in liElements) {
+                if (item.ID == $(liElements[i]).data('item').ID) {
+                    var liBefore = liElements[i].previousSibling;
+                    var before = Number((liBefore == null) ? 0 : $(liBefore).data('item').SortOrder);
+                    var liAfter = liElements[i].nextSibling;
+                    var after = Number((liAfter == null) ? before + 1000 : $(liAfter).data('item').SortOrder);
+                    var updatedItem = item.Copy();
+                    updatedItem.SortOrder = before + ((after - before) / 2);
+                    item.Update(updatedItem);
+                    break;
+                }
+            }
+        }
+    });
 }
 
 // ---------------------------------------------------------
