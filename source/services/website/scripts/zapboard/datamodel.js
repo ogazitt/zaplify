@@ -199,8 +199,11 @@ DataModel.InsertFolder = function DataModel$InsertFolder(newFolder, adjacentFold
 DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem, activeItem) {
     if (originalItem != null && updatedItem != null) {
         updatedItem.LastModified = DataModel.timeStamp;                         // timestamp on server
-        var resource = (originalItem.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;        
+        var resource = (originalItem.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;
         var data = [originalItem, updatedItem];
+        if (resource == Service.FoldersResource) {
+            data = [originalItem.Copy(), updatedItem];                          // remove items from original folder
+        }
         Service.UpdateResource(resource, originalItem.ID, data,
             function (responseState) {                                          // successHandler
                 var returnedItem = responseState.result;
@@ -507,7 +510,8 @@ function Folder() { };
 Folder.Extend = function Folder$Extend(folder) { return $.extend(new Folder(), folder); }   // extend with Folder prototypes
 
 // Folder public functions
-Folder.prototype.Copy = function () { return $.extend(true, new Folder(), this); };         // deep copy
+// do not deep copy, remove Items collection, copy is for updating Folder entity only
+Folder.prototype.Copy = function () { var copy = $.extend(new Folder(), this); copy.Items = {}; copy.ItemsMap = {}; return copy; };                
 Folder.prototype.IsFolder = function () { return true; };
 Folder.prototype.IsDefault = function () {
     var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
@@ -558,9 +562,11 @@ Folder.prototype.addItem = function (newItem, activeItem) {
 Folder.prototype.update = function (updatedFolder) {
     if (this.ID == updatedFolder.ID) {
         updatedFolder = Folder.Extend(updatedFolder);  // extend with Folder functions
-        updatedFolder.Items = this.Items;
+        updatedFolder.ItemsMap = this.ItemsMap;
+        updatedFolder.Items = this.ItemsMap.Items;
         updatedFolder.FolderUsers = this.FolderUsers;
         DataModel.FoldersMap.update(updatedFolder);
+        DataModel.Folders = DataModel.FoldersMap.Items;
         DataModel.fireDataChanged(this.ID);
         return true;
     }

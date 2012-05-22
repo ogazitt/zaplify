@@ -19,6 +19,7 @@
 
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
     <!-- use merged and minified script when NOT debugging -->
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/service.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>

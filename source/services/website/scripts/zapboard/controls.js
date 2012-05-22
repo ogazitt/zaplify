@@ -624,13 +624,13 @@ Control.List.sortable = function Control$List$sortable($element) {
             var $item = ui.item;
             var item = $item.data('item');
             $item.removeClass('sorting');
-            var liElements = $item.parent('ul').find('li');
+            var liElements = $item.parent('ul').children('li');
             for (var i in liElements) {
                 if (item.ID == $(liElements[i]).data('item').ID) {
-                    var liBefore = liElements[i].previousSibling;
-                    var before = Number((liBefore == null) ? 0 : $(liBefore).data('item').SortOrder);
-                    var liAfter = liElements[i].nextSibling;
-                    var after = Number((liAfter == null) ? before + 1000 : $(liAfter).data('item').SortOrder);
+                    var $liBefore = $(liElements[i]).prevAll('li').first();
+                    var before = Number(($liBefore.length == 0) ? 0 : $liBefore.data('item').SortOrder);
+                    var $liAfter = $(liElements[i]).nextAll('li').first();
+                    var after = Number(($liAfter.length == 0) ? before + 1000 : $liAfter.data('item').SortOrder);
                     var updatedItem = item.Copy();
                     updatedItem.SortOrder = before + ((after - before) / 2);
                     item.Update(updatedItem);
