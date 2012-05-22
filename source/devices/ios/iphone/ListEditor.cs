@@ -18,21 +18,18 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	public class ListEditor
 	{
         private DialogViewController dvc;
-        private Folder folder;
         private Item list;
         private Item listCopy;
         private UINavigationController controller;
         private EntryElement ListName;
-        private RootElement ItemTypePicker;
-        private List<ItemType> ItemTypes;
-        private CheckboxElement ListCheckbox;
-        
+        private ItemTypePickerElement ItemTypePicker;
+        private ParentListPickerElement ParentListPicker;
+
 		public ListEditor(UINavigationController c, Folder f, Item l, Guid? parentID)
 		{
 			// trace event
             TraceHelper.AddMessage("ListEditor: constructor");
             controller = c;
-            folder = f;
             list = l;
             if (l == null)
             {
@@ -40,10 +37,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 DateTime now = DateTime.UtcNow;
                 listCopy = new Item()
                 {
-                    FolderID = f.ID,
+                    FolderID = f != null ? f.ID : Guid.Empty,
                     ParentID = parentID ?? Guid.Empty,
                     IsList = true,
-                    ItemTypeID = folder.ItemTypeID,
+                    ItemTypeID = f != null ? f.ItemTypeID : SystemItemTypes.Task,
                     Created = now,
                     LastModified = now
                 };
@@ -93,9 +90,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 });
 
             // reobtain the current folder (it may have been replaced by a GetUser operations since the ListEditor was invoked)
-            Folder currentFolder = App.ViewModel.LoadFolder(folder.ID);
+            Folder currentFolder = App.ViewModel.LoadFolder(list.FolderID);
             
             // remove the item from the viewmodel
+            list = currentFolder.Items.Single(i => i.ID == list.ID);
             currentFolder.Items.Remove(list);
 
             // save the changes to local storage
@@ -116,15 +114,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         {
             // get the name of the list
             listCopy.Name = ListName.Value;
-            
+
+            // get parent list
+            listCopy.FolderID = ParentListPicker.SelectedFolderID;
+            listCopy.ParentID = ParentListPicker.SelectedParentID;
+
             // get item type
-            var index = ItemTypePicker.RadioSelected;
-            var itemType = index >= 0 && index < ItemTypes.Count ? ItemTypes[index] : null;
-            listCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
-            
-            // get whether this is a list
-            if (list == null)
-                listCopy.IsList = ListCheckbox.Value;
+            listCopy.ItemTypeID = ItemTypePicker.SelectedItemType;
 
             // check for appropriate values
             if (listCopy.Name == "")
@@ -133,15 +129,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return;
             }
    
-            // reobtain the current folder (it may have been replaced by a GetUser operations since the ListEditor was invoked)
-            Folder currentFolder = App.ViewModel.LoadFolder(folder.ID);
+            // get a reference to the folder of the new or existing list
+            Folder currentFolder = App.ViewModel.LoadFolder(listCopy.FolderID);
             
             // if this is a new list, create it
             if (list == null)
             {
                 // figure out the sort value 
                 float sortOrder = 1000f;
-                var listItems = folder.Items.Where(it => it.ParentID == listCopy.ParentID).ToList();
+                var listItems = currentFolder.Items.Where(it => it.ParentID == listCopy.ParentID).ToList();
                 if (listItems.Count > 0)
                     sortOrder += listItems.Max(it => it.SortOrder);
                 listCopy.SortOrder = sortOrder;
@@ -178,6 +174,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 var item = currentFolder.Items.Single(i => i.ID == list.ID);
                 item.Name = list.Name;
                 item.ItemTypeID = list.ItemTypeID;
+                item.ParentID = list.ParentID;
+                item.FolderID = list.FolderID;
             }
 
             // save the changes to local storage
@@ -201,25 +199,21 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         {
             // initialize controls 
             ListName = new EntryElement("Name", "", listCopy.Name);
-            
-            // set up the item type listpicker
-            ItemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
-            ItemType thisItemType = ItemTypes.FirstOrDefault(i => i.ID == listCopy.ItemTypeID);
-            int selectedIndex = Math.Max(ItemTypes.IndexOf(thisItemType), 0);
-            var itemTypeSection = new Section();
-            itemTypeSection.AddAll(from it in ItemTypes select (Element) new RadioElement(it.Name));
-            ItemTypePicker = new RootElement("Type", new RadioGroup(selectedIndex)) { itemTypeSection };
-            
-            // set up list checkbox
-            ListCheckbox = new CheckboxElement("List?", true);            
 
-            var root = new RootElement("List Editor")
+            // set up the parent list picker
+            ParentListPicker = new ParentListPickerElement("Parent", list);
+
+            // set up the item type picker
+            ItemTypePicker = new ItemTypePickerElement("Type", listCopy.ItemTypeID);
+
+            var root = new RootElement("List Properties")
             {
                 new Section()
                 {
                     ListName,
+                    ParentListPicker,
                     ItemTypePicker,
-                    list == null ? ListCheckbox : null
+                    //list == null ? ListCheckbox : null
                 }
             };
 
@@ -238,7 +232,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 // create and push the dialog view onto the nav stack
                 dvc = new DialogViewController(UITableViewStyle.Grouped, root);
-                dvc.Title = NSBundle.MainBundle.LocalizedString ("List Editor", "List Editor");
+                dvc.Title = NSBundle.MainBundle.LocalizedString ("List Properties", "List Properties");
                 dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
                     // save the item and trigger a sync with the service  
                     SaveButton_Click(null, null);

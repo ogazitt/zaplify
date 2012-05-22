@@ -370,16 +370,16 @@ $.extend(Timepicker.prototype, {
 			html += '<dd class="ui_tpicker_hour"><div id="ui_tpicker_hour_' + dp_id + '"' +
 						((o.showHour) ? '' : noDisplay) + '></div>';
 			if (o.showHour && o.hourGrid > 0) {
-				html += '<div style="padding-left: 1px"><table class="ui-tpicker-grid-label"><tr>';
+				html += '<div style="padding-left: 2px"><table class="ui-tpicker-grid-label"><tr>';
 
 				for (var h = o.hourMin; h <= hourMax; h += parseInt(o.hourGrid,10)) {
 					hourGridSize++;
 					var tmph = (o.ampm && h > 12) ? h-12 : h;
-					if (tmph < 10) tmph = '0' + tmph;
+					//if (tmph < 10) tmph = '0' + tmph;
 					if (o.ampm) {
-						if (h == 0) tmph = 12 +'a';
-						else if (h < 12) tmph += 'a';
-						else tmph += 'p';
+						if (h == 0) tmph = 12 +'am';
+						else if (h < 12) tmph += 'am';
+						else tmph += 'pm';
 					}
 					html += '<td>' + tmph + '</td>';
 				}
@@ -395,9 +395,9 @@ $.extend(Timepicker.prototype, {
 							((o.showMinute) ? '' : noDisplay) + '></div>';
 
 			if (o.showMinute && o.minuteGrid > 0) {
-				html += '<div style="padding-left: 1px"><table class="ui-tpicker-grid-label"><tr>';
+				html += '<div style="padding-left: 2px"><table class="ui-tpicker-grid-label"><tr>';
 
-				for (var m = o.minuteMin; m <= minMax; m += parseInt(o.minuteGrid,10)) {
+				for (var m = o.minuteMin; m < minMax; m += parseInt(o.minuteGrid,10)) {
 					minuteGridSize++;
 					html += '<td>' + ((m < 10) ? '0' : '') + m + '</td>';
 				}

@@ -83,22 +83,25 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // ParentID is the parent.  this also works for the root list in a folder, which
                 // is represented with a ParentID of Guid.Empty.
                 Guid? itemTypeID = null;
+                Guid? parentID = null;
                 if (listID != null)
                 {
                     Item list = App.ViewModel.Items.Single(i => i.ID == (Guid) listID);
                     itemTypeID = list.ItemTypeID;
+                    parentID = list.ParentID;
                 }
                 List = new Item()
                 {
                     ID = (listID == null) ? Guid.Empty : (Guid) listID,
                     Name = this.Title,
                     FolderID = Folder.ID,
+                    ParentID = (parentID == null) ? null : parentID,
                     ItemTypeID = (itemTypeID == null) ? Folder.ItemTypeID : (Guid) itemTypeID,
                     IsList = true,
                 };
                 
                 // get the sort order from client settings and sort the list
-                OrderBy = ClientSettingsHelper.GetListSortOrder(
+                OrderBy = ListMetadataHelper.GetListSortOrder(
                     App.ViewModel.ClientSettings, 
                     List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List);
                 SortList();
@@ -317,7 +320,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     OrderBy = field.DisplayName;
         
                     // store the sort order
-                    ClientSettingsHelper.StoreListSortOrder(
+                    ListMetadataHelper.StoreListSortOrder(
                         App.ViewModel.ClientSettings,
                         List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List,
                         OrderBy);
@@ -337,7 +340,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     OrderBy = null;
         
                     // store the sort order
-                    ClientSettingsHelper.StoreListSortOrder(
+                    ListMetadataHelper.StoreListSortOrder(
                         App.ViewModel.ClientSettings,
                         List.ID == Guid.Empty ? (ClientEntity) Folder : (ClientEntity) List,
                         null);
@@ -431,7 +434,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (TableView.Editing == false)
                 {
                     TableView.SetEditing(true, true);
-                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, doneButton, flexSpace }, false);
+                    Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
                 }
             };
             doneButton.Clicked += delegate
@@ -439,7 +442,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (TableView.Editing == true)
                 {
                     TableView.SetEditing(false, true);
-                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+                    Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
 
                     // trigger a sync with the Service 
                     App.ViewModel.SyncWithService();   
@@ -448,7 +451,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }
             };
 
-            Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+            Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
             this.View.AddSubview(Toolbar);
         }
         

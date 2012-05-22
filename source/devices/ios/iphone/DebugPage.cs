@@ -9,7 +9,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public partial class MoreViewController
 	{
-		public void DebugPage ()
+		public void DebugPage()
 		{
 			// render URL and status
 			var serviceUrl = new EntryElement("URL", "URL to connect to", WebServiceHelper.BaseUrl);

@@ -77,10 +77,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             {
                 var theme = ClientSettingsHelper.GetTheme(ClientSettings);
                 var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
-                if (phoneSetting.Values.Any(t => t.Name == theme))
-                    return (PhoneTheme)phoneSetting.Values.Single(t => t.Name == theme).Value;
-                else
-                    return null;
+                if (theme != null)
+                    if (phoneSetting.Values.Any(t => t.Name == theme))
+                        return (PhoneTheme)phoneSetting.Values.Single(t => t.Name == theme).Value;
+
+                // if couldn't find a theme, return the first (default) theme
+                return (PhoneTheme)phoneSetting.Values[0].Value;
             }
         }
 

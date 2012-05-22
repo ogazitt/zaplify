@@ -725,10 +725,12 @@ Item.prototype.addItem = function (newItem, activeItem) { this.GetFolder().addIt
 Item.prototype.update = function (updatedItem, activeItem) {
     if (this.ID == updatedItem.ID) {
         updatedItem = Item.Extend(updatedItem);         // extend with Item functions
+        var thisFolder = this.GetFolder();
         if (this.FolderID == updatedItem.FolderID) {
-            this.GetFolder().ItemsMap.update(updatedItem);
+            thisFolder.ItemsMap.update(updatedItem);
+            thisFolder.Items = thisFolder.ItemsMap.Items;
         } else {
-            this.GetFolder().ItemsMap.remove(this);
+            thisFolder.ItemsMap.remove(this);
             updatedItem.GetFolder().ItemsMap.append(updatedItem);
         }
         if (activeItem === undefined) {
@@ -806,10 +808,14 @@ ItemType.prototype.HasField = function (name) { return (this.Fields.hasOwnProper
 //
 function ItemMap(array) {
     this.array = array;
+    this.updateMap();
+}
+
+ItemMap.prototype.updateMap = function () {
     this.Items = {};
-    for (var i in array) {
-        if (array[i].hasOwnProperty('ID')) {
-            this.Items[array[i].ID] = array[i];
+    for (var i in this.array) {
+        if (this.array[i].hasOwnProperty('ID')) {
+            this.Items[this.array[i].ID] = this.array[i];
         } else {
             throw ItemMap.errorMustHaveID;
         }
@@ -846,10 +852,25 @@ ItemMap.prototype.append = function (item) {
 
 ItemMap.prototype.update = function (item) {
     if (item.hasOwnProperty('ID')) {
-        // TODO: check SortOrder and reorder if necessary
         var index = this.indexOf(item);
-        this.array[index] = item;
-        this.Items[item.ID] = this.array[index];
+        var currentItem = this.itemAt(index);
+        if (item.hasOwnProperty('SortOrder') && currentItem.hasOwnProperty('SortOrder') &&
+            (item.SortOrder != currentItem.SortOrder)) {
+            // move item to correct position in array
+            this.array.splice(index, 1);
+            for (var i in this.array) {
+                if (this.array[i].hasOwnProperty('SortOrder') && item.SortOrder < this.array[i].SortOrder) {
+                    this.array.splice(i, 0, item);
+                    this.updateMap();
+                    return;
+                }
+            }
+            this.array.push(item);
+            this.updateMap();
+        } else {
+            this.array[index] = item;
+            this.Items[item.ID] = this.array[index];
+        }
     } else {
         throw ItemMap.errorMustHaveID;
     }
@@ -914,8 +935,12 @@ LinkArray.prototype.ToText = function () {
     var text = '';
     for (var i in this.links) {
         var link = this.links[i];
-        if (link.hasOwnProperty('Name')) { text += link.Name + ', '; }
-        text += link.Url + '\n';
+        if (link.hasOwnProperty('Name')) {
+            if (link.Name != null && link.Name.length > 0 && link.Name != link.Url) {
+                text += link.Name + ', ';
+            }
+        }
+        text += link.Url + '\r\n';
     }
     return text;
 }
@@ -923,7 +948,7 @@ LinkArray.prototype.Parse = function (text) {
     var lines = text.split(/\r\n|\r|\n/g);
     for (var i in lines) {
         var parts = lines[i].split(',');
-        if (parts.length == 1) { this.links.push({ Url: parts[0] }); }
+        if (parts.length == 1 && parts[0].length > 0) { this.links.push({ Url: parts[0] }); }
         if (parts.length == 2) { this.links.push({ Name: parts[0], Url: parts[1] }); }
     }
 }

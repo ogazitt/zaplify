@@ -22,9 +22,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private Folder folderCopy;
         private UINavigationController controller;
         private EntryElement ListName;
-        private RootElement ItemTypePicker;
-        private List<ItemType> ItemTypes;
-        
+        private ItemTypePickerElement ItemTypePicker;
+
 		public FolderEditor(UINavigationController c, Folder f)
 		{
 			// trace event
@@ -98,12 +97,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            // get the name of the folder
-            ListName.FetchValue();
+            // get the property values
             folderCopy.Name = ListName.Value;
-            var index = ItemTypePicker.RadioSelected;
-            var itemType = index >= 0 && index < ItemTypes.Count ? ItemTypes[index] : null;
-            folderCopy.ItemTypeID = itemType != null ? itemType.ID : SystemItemTypes.Task;
+            folderCopy.ItemTypeID = ItemTypePicker.SelectedItemType;
 
             // check for appropriate values
             if (folderCopy.Name == "")
@@ -176,14 +172,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             ListName = new EntryElement("Name", "", folderCopy.Name);
             
             // set up the item type listpicker
-            ItemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
-            ItemType thisItemType = ItemTypes.FirstOrDefault(i => i.ID == folderCopy.ItemTypeID);
-            int selectedIndex = Math.Max(ItemTypes.IndexOf(thisItemType), 0);
-            var itemTypeSection = new Section();
-            itemTypeSection.AddAll(from it in ItemTypes select (Element) new RadioElement(it.Name));
-            ItemTypePicker = new RootElement("Folder Type", new RadioGroup(selectedIndex)) { itemTypeSection };
+            ItemTypePicker = new ItemTypePickerElement("Folder Type", folderCopy.ItemTypeID);
 
-            var root = new RootElement("Folder Editor")
+            var root = new RootElement("Folder Properties")
             {
                 new Section()
                 {
@@ -207,7 +198,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 // create and push the dialog view onto the nav stack
                 dvc = new DialogViewController(UITableViewStyle.Grouped, root);
-                dvc.Title = NSBundle.MainBundle.LocalizedString ("Folder Editor", "Folder Editor");
+                dvc.Title = NSBundle.MainBundle.LocalizedString ("Folder Properties", "Folder Properties");
                 dvc.NavigationItem.RightBarButtonItem = new UIBarButtonItem(UIBarButtonSystemItem.Done, delegate {
                     // save the item and trigger a sync with the service  
                     SaveButton_Click(null, null);

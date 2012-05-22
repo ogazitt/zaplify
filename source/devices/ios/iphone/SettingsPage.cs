@@ -260,7 +260,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     var radioEventElement = (RadioEventElement) ree;
                     radioEventElement.OnSelected += delegate {
                         // make a copy of the existing version of phone settings
-                        var phoneSettingsItemCopy = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+                        var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
 
                         // find the key and the valuy for the current setting
                         var radioRoot = radioEventElement.GetImmediateRootElement();

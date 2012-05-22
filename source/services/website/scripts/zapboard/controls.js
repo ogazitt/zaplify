@@ -111,10 +111,214 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
 }
 
 // ---------------------------------------------------------
+// Control.Text static object
+//
+Control.Text = {};
+
+// render text in tag (span is default)
+Control.Text.render = function Control$Text$render($element, item, field, tag, textBefore, textAfter) {
+    var tag = (tag == null) ? 'span' : tag;
+    var $tag;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $tag = $('<' + tag + '/>').appendTo($element);
+        $tag.addClass(field.Class);
+        value = ((textBefore == null) ? '' : textBefore) + value + ((textAfter == null) ? '' : textAfter);
+        $tag.html(value);
+    }
+    return $tag;
+}
+// render label strong
+Control.Text.renderLabel = function Control$Text$renderLabel($element, item, field) {
+    var $label;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $label = $('<label><strong>' + value + '</strong></label>').appendTo($element);
+        $label.addClass(field.Class);
+    }
+    return $label;
+}
+// render email link
+Control.Text.renderEmail = function Control$Text$renderEmail($element, item, field) {
+    var $link;
+    var value = item.GetFieldValue(field);
+    if (value != null) {
+        $link = $('<a />').appendTo($element);
+        $link.addClass(field.Class);
+        $link.attr('href', 'mailto:' + value);
+        $link.html(value);
+    }
+    return $link;
+}
+// render input with update onchange and onkeypress
+Control.Text.renderInput = function Control$Text$renderInput($element, item, field) {
+    $text = $('<input type="text" />').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    $text.change(function (e) { Control.Text.update($(e.srcElement)); });
+    $text.keypress(function (e) { if (e.which == 13) { Control.Text.update($(e.srcElement)); return false; } });
+    return $text;
+}
+// render input with insert into list onkeypress (autocomplete based on ItemType)
+Control.Text.renderInputNew = function Control$Text$renderInput($element, item, field, list) {
+    $text = $('<input type="text" />').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    $text.data('list', list);       // list to insert into
+    $text.keypress(function (e) { if (e.which == 13) { Control.Text.insert($(e.srcElement)); return false; } });
+    // support autocomplete for new Locations and Contacts
+    if (item.ItemTypeID == ItemTypes.Location) {
+        Control.Text.autoCompleteAddress($text, Control.Text.insert);
+    } else if (item.ItemTypeID == ItemTypes.Contact) {
+        Control.Text.autoCompleteContact($text, Control.Text.insert);
+    } 
+    return $text;
+}
+// render textarea with update onchange
+Control.Text.renderTextArea = function Control$Text$renderTextArea($element, item, field) {
+    $text = $('<textarea></textarea>').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    $text.change(function (e) { Control.Text.update($(e.srcElement)); });
+    return $text;
+}
+// render input with update on keypress and autocomplete
+Control.Text.renderInputAddress = function Control$Text$renderInputAddress($element, item, field) {
+    $text = $('<input type="text" />').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    $text.keypress(function (e) { if (e.which == 13) { Control.Text.updateAddress($(e.srcElement)); return false; } });
+    $text = Control.Text.autoCompleteAddress($text, Control.Text.updateAddress);
+    return $text;
+}
+// attach address autocomplete behavior to input element
+Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($input, selectHandler) {
+    $input.autocomplete({
+        source: function (request, response) {
+            Service.Geocoder().geocode({ 'address': request.term },
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var addresses = $.map(results, function (item) {
+                            return {
+                                label: item.formatted_address,
+                                value: item.formatted_address,
+                                latlong: item.geometry.location.toUrlValue()
+                            }
+                        });
+                        response(addresses);
+                    }
+                });
+        },
+        select: function (e, ui) {
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.LatLong, ui.item.latlong);
+            selectHandler($(this));
+            return false;
+        },
+        minLength: 2
+    });
+    return $input;
+}
+// attach contact autocomplete behavior to input element
+Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($input, selectHandler) {
+    $input.autocomplete({
+        source: function (request, response) {
+            Service.InvokeController('UserInfo', 'PossibleSubjects',
+                { 'startsWith': request.term },
+                function (responseState) {
+                    var result = responseState.result;
+                    var contacts = [];
+                    if (result.Count > 0) {
+                        for (var name in result.Subjects) {
+                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
+                        }
+                    }
+                    response(contacts);
+                });
+        },
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.Contacts, ui.item.json);
+            selectHandler($(this));
+            return false;
+        },
+        minLength: 1
+    }); 
+    return $input;
+}
+// handler for inserting new item into list
+Control.Text.insert = function Control$Text$insert($input) {
+    var field = $input.data('field');
+    if (field.Name == FieldNames.Name) {
+        var value = $input.val();
+        if (value == null || value.length == 0) { return false; }
+
+        var item = $input.data('item');         // item to insert
+        var list = $input.data('list');         // list to insert into
+        if (item.ItemTypeID == ItemTypes.Location) {
+            // autocomplete for new Locations
+            var latlong = $input.data(FieldNames.LatLong);
+            if (latlong != null) {
+                item.SetFieldValue(FieldNames.LatLong, latlong);
+                item.SetFieldValue(FieldNames.Address, value);
+            }
+        }
+        if (item.ItemTypeID == ItemTypes.Contact) {
+            // autocomplete for new Contacts
+            var jsonContact = $input.data(FieldNames.Contacts);
+            if (jsonContact != null) {
+                contact = $.parseJSON(jsonContact);
+                if (contact.ItemTypeID == ItemTypes.Contact) {
+                    item = Item.Extend(contact);
+                }
+            }
+        }
+
+        item.SetFieldValue(field, value);
+        list.InsertItem(item);
+    }
+}
+// handler for updating text 
+Control.Text.update = function Control$Text$update($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var value = $input.val();
+    var currentValue = item.GetFieldValue(field);
+    if (value != currentValue) {
+        var updatedItem = item.Copy();
+        updatedItem.SetFieldValue(field, value);
+        item.Update(updatedItem);
+    }
+}
+// handler for updating address
+Control.Text.updateAddress = function Control$Text$updateAddress($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var value = $input.val();
+    var currentValue = item.GetFieldValue(field);
+    var updatedItem = item.Copy();
+    var latlong = $input.data(FieldNames.LatLong);
+    if (latlong != null) {
+        var currentLatLong = item.GetFieldValue(FieldNames.LatLong);
+        if (currentLatLong == null || currentLatLong != latlong) {
+            updatedItem.SetFieldValue(FieldNames.LatLong, latlong);
+            updatedItem.SetFieldValue(field, value);
+            item.Update(updatedItem);
+        }
+    } else if (value != currentValue) {
+        updatedItem.SetFieldValue(field, value);
+        item.Update(updatedItem);
+    } 
+}
+// base function for applying class, item, field, and value to element
+Control.Text.base = function Control$Text$base($element, item, field) {
+    $element.addClass(field.Class);
+    $element.data('item', item);
+    $element.data('field', field);
+    $element.val(item.GetFieldValue(field));
+    return $element;
+}
+
+// ---------------------------------------------------------
 // Control.Checkbox static object
 //
 Control.Checkbox = {};
-
 Control.Checkbox.render = function Control$Checkbox$render($element, item, field) {
     $checkbox = $('<input type="checkbox" class="checkbox" />').appendTo($element);
     $checkbox.addClass(field.Class);
@@ -131,8 +335,8 @@ Control.Checkbox.render = function Control$Checkbox$render($element, item, field
 Control.Checkbox.update = function Control$Checkbox$update($checkbox) {
     var item = $checkbox.data('item');
     var field = $checkbox.data('field');
-    var currentValue = item.GetFieldValue(field);
     var value = ($checkbox.attr('checked') == 'checked');
+    var currentValue = item.GetFieldValue(field);
     if (value != currentValue) {
         $checkbox.tooltip('hide');
         var updatedItem = item.Copy();
@@ -142,11 +346,307 @@ Control.Checkbox.update = function Control$Checkbox$update($checkbox) {
 }
 
 // ---------------------------------------------------------
-// Control.ItemTypePicker static object
+// Control.LinkArray static object
+//
+Control.LinkArray = {};
+Control.LinkArray.renderTextArea = function Control$LinkArray$renderInput($element, item, field) {
+    $text = $('<textarea></textarea>').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    var linkArray = new LinkArray(item.GetFieldValue(field));
+    $text.val(linkArray.ToText());
+    $text.change(function (e) { Control.LinkArray.update($(e.srcElement)); });
+    return $text;
+}
+
+Control.LinkArray.update = function Control$LinkArray$update($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var currentValue = item.GetFieldValue(field);
+    var linkArray = new LinkArray();
+    linkArray.Parse($input.val());
+    var value = linkArray.ToJson();
+    if (value != currentValue) {
+        var updatedItem = item.Copy();
+        updatedItem.SetFieldValue(field, value);
+        item.Update(updatedItem);
+    }
+}
+
+// ---------------------------------------------------------
+// Control.DateTime static object
+//
+Control.DateTime = {};
+Control.DateTime.renderDatePicker = function Control$DateTime$renderDatePicker($element, item, field) {
+    $date = $('<input type="text" />').appendTo($element);
+    $date.addClass(field.Class);
+    $date.data('item', item);
+    $date.data('field', field);
+    $date.val(item.GetFieldValue(field));
+    $date.datepicker({
+        numberOfMonths: 2,
+        onClose: function (value, picker) { Control.DateTime.update(picker.input); }
+    });
+    return $date;
+}
+
+Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTimePicker($element, item, field) {
+    $date = $('<input type="text" />').appendTo($element);
+    $date.addClass(field.Class);
+    $date.data('item', item);
+    $date.data('field', field);
+    $date.val(item.GetFieldValue(field));
+    $date.datetimepicker({
+        ampm: true,
+        timeFormat: 'h:mm TT',
+        hourGrid: 4,
+        minuteGrid: 15,
+        stepMinute: 15,
+        numberOfMonths: 2,
+        onClose: function (value, picker) { Control.DateTime.update(picker.input); }
+    });
+    return $date;
+}
+
+Control.DateTime.update = function Control$DateTime$update($input) {
+    Control.Text.update($input);
+}
+
+// ---------------------------------------------------------
+// Control.ContactList static object
+//
+Control.ContactList = {};
+Control.ContactList.renderInput = function Control$ContactList$renderInput($element, item, field) {
+    $input = $('<input type="text" />').appendTo($element);
+    $input.addClass(field.Class);
+    $input.data('item', item);
+    $input.data('field', field);
+    $input.keypress(function (e) { if (e.which == 13) { Control.ContactList.update($(e.srcElement)); return false; } });
+    var value = item.GetFieldValue(field);
+    var text = '';
+    if (value != null && value.IsList) {
+        var contacts = value.GetItems();
+        for (var id in contacts) {
+            var contactRef = contacts[id].GetFieldValue(FieldNames.EntityRef);
+            if (contactRef != null) {
+                text += contactRef.Name;
+                //text += '; ';                 // TODO: support multiple contacts
+            }
+            break;
+        }
+    }
+    $input.val(text);
+
+    var split = function (val) { return val.split(/;\s*/); }
+    var lastTerm = function (term) { return split(term).pop(); }
+    $input.autocomplete({
+        source: function (request, response) {
+            Service.InvokeController('UserInfo', 'PossibleSubjects',
+                { 'startsWith': lastTerm(request.term) },
+                function (responseState) {
+                    var result = responseState.result;
+                    var contacts = [];
+                    if (result.Count > 0) {
+                        for (var name in result.Subjects) {
+                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
+                        }
+                    }
+                    response(contacts);
+                });
+        },
+        select: function (event, ui) {
+            // multi-selection support
+            var terms = split(this.value);
+            terms.pop();                        // remove the current input
+            terms.push(ui.item.label);          // add the selected item
+            terms.push("");                     // placeholder for separator
+            this.value = terms.join("; ");      // add separator
+
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.Contacts, ui.item.json);
+            Control.ContactList.update($(this));
+            return false;
+        },
+        minLength: 1
+    });
+    return $input;
+}
+
+Control.ContactList.update = function Control$ContactList$update($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var contactName = $input.val();
+    if (contactName == null || contactName.length == 0) {
+        item.RemoveReferences(field);
+        return;
+    }
+
+    var contact;
+    var jsonContact = $input.data(FieldNames.Contacts);
+    if (jsonContact != null) {
+        contact = $.parseJSON(jsonContact);
+    }
+
+    if (contact != null && contact.ItemTypeID == ItemTypes.Reference) {
+        // add reference to existing contact
+        contact = { Name: contact.Name, ID: contact.FieldValues[0].Value };
+        item.AddReference(field, contact, true);
+    } else {
+        if (contact != null) {
+            contact = Item.Extend(contact);
+            var fbID = contact.GetFieldValue(FieldNames.FacebookID);
+            var existingContact = DataModel.FindContact(contact.Name, fbID);
+            if (existingContact != null) {
+                // add reference to existing contact
+                item.AddReference(field, contact, true);
+                return;
+            }
+        } else {
+            contact = Item.Extend({ Name: contactName, ItemTypeID: ItemTypes.Contact });
+        }
+        // create new contact and add reference
+        var contactList = DataModel.UserSettings.GetDefaultList(ItemTypes.Contact);
+        DataModel.InsertItem(contact, contactList, null, null, null,
+            function (insertedContact) {
+                item.AddReference(field, insertedContact, true);
+            });
+    }
+}
+
+// ---------------------------------------------------------
+// Control.LocationList static object
+//
+Control.LocationList = {};
+Control.LocationList.renderInput = function Control$LocationList$renderInput($element, item, field) {
+    $input = $('<input type="text" />').appendTo($element);
+    $input.addClass(field.Class);
+    $input.data('item', item);
+    $input.data('field', field);
+    $input.keypress(function (e) { if (e.which == 13) { Control.LocationList.update($(e.srcElement)); return false; } });
+    var value = item.GetFieldValue(field);
+    var text = '';
+    if (value != null && value.IsList) {
+        var locations = value.GetItems();
+        for (var id in locations) {
+            var locationRef = locations[id].GetFieldValue(FieldNames.EntityRef);
+            if (locationRef != null) {
+                var address = locationRef.GetFieldValue(FieldNames.Address);
+                text += address;
+                if (locationRef.Name != address) {
+                    text += ' ( ' + locationRef.Name + ' )';
+                }
+                //text += '; ';             // TODO: support multiple locations
+            }
+            break;
+        }
+    }
+    $input.val(text);
+
+    var split = function (val) { return val.split(/;\s*/); }
+    var lastTerm = function (term) { return split(term).pop(); }
+    $input.autocomplete({
+        source: function (request, response) {
+            Service.Geocoder().geocode({ 'address': lastTerm(request.term) },
+                function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        var addresses = $.map(results, function (addr) {
+                            return {
+                                label: addr.formatted_address,
+                                value: addr.formatted_address,
+                                latlong: addr.geometry.location.toUrlValue()
+                            }
+                        });
+                        response(addresses);
+                    }
+                });
+        },
+        select: function (event, ui) {
+            // multi-selection support
+            var terms = split(this.value);
+            terms.pop();                        // remove the current input
+            terms.push(ui.item.label);          // add the selected item
+            terms.push("");                     // placeholder for separator
+            this.value = terms.join("; ");      // add separator
+
+            $(this).val(ui.item.label);
+            $(this).data(FieldNames.LatLong, ui.item.latlong);
+            Control.LocationList.update($(this));
+            return false;
+        },
+        minLength: 2
+    });
+    return $input;
+}
+
+Control.LocationList.update = function Control$LocationList$update($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var address = $input.val();
+    if (address == null || address.length == 0) {
+        item.RemoveReferences(field);
+        return;
+    }
+
+    var latlong = $input.data(FieldNames.LatLong);
+    var existingLocation = DataModel.FindLocation(address, latlong);
+    if (existingLocation != null) {
+        // add reference to existing location
+        item.AddReference(field, existingLocation, true);
+    } else {
+        // create new location and add reference
+        var locationList = DataModel.UserSettings.GetDefaultList(ItemTypes.Location);
+        var newLocation = Item.Extend({ Name: address, ItemTypeID: ItemTypes.Location });
+        newLocation.SetFieldValue(FieldNames.Address, address);
+        if (latlong != null) {
+            newLocation.SetFieldValue(FieldNames.LatLong, latlong);
+        }
+        DataModel.InsertItem(newLocation, locationList, null, null, null,
+            function (insertedLocation) {
+                item.AddReference(field, insertedLocation, true);
+            });
+    }
+}
+
+// ---------------------------------------------------------
+// Control.List static object
+// static re-usable helper to support List elements <ul>
+//
+Control.List = {};
+
+// make a list of items sortable, apply to <ul> element
+// each <li> in list must have attached data('item')
+Control.List.sortable = function Control$List$sortable($element) {
+    $element.sortable({ 
+        revert: true,
+        start: function (e, ui) {
+            ui.item.addClass('sorting');
+        },
+        stop: function (e, ui) {
+            var $item = ui.item;
+            var item = $item.data('item');
+            $item.removeClass('sorting');
+            var liElements = $item.parent('ul').find('li');
+            for (var i in liElements) {
+                if (item.ID == $(liElements[i]).data('item').ID) {
+                    var liBefore = liElements[i].previousSibling;
+                    var before = Number((liBefore == null) ? 0 : $(liBefore).data('item').SortOrder);
+                    var liAfter = liElements[i].nextSibling;
+                    var after = Number((liAfter == null) ? before + 1000 : $(liAfter).data('item').SortOrder);
+                    var updatedItem = item.Copy();
+                    updatedItem.SortOrder = before + ((after - before) / 2);
+                    item.Update(updatedItem);
+                    break;
+                }
+            }
+        }
+    });
+}
+
+// ---------------------------------------------------------
+// Control.ItemType static object
 // static re-usable helper to display and update ItemTypeID on an item
 //
-Control.ItemTypePicker = {};
-Control.ItemTypePicker.render = function Control$ItemTypePicker$render($element, item) {
+Control.ItemType = {};
+Control.ItemType.renderDropdown = function Control$ItemType$renderDropdown($element, item) {
     var itemTypes = DataModel.Constants.ItemTypes;
     var currentItemTypeName = itemTypes[item.ItemTypeID].Name;
     var labelType = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
@@ -174,10 +674,11 @@ Control.ItemTypePicker.render = function Control$ItemTypePicker$render($element,
         item.Update(updatedItem);
         e.preventDefault();
     });
+    return $wrapper;
 }
 
 // ---------------------------------------------------------
-// Control.ItemTypePicker static object
+// Control.ThemePicker static object
 // static re-usable helper to display theme picker and update UserSettings
 //
 Control.ThemePicker = {};
@@ -201,4 +702,5 @@ Control.ThemePicker.render = function Control$ThemePicker$render($element) {
         $element.parents('.btn-group').find('.btn').first().html(theme);
         e.preventDefault();
     });
+    return $wrapper;
 }
