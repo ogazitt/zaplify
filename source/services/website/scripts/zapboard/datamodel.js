@@ -936,6 +936,7 @@ function LinkArray(json) {
 }
 
 LinkArray.prototype.Links = function () { return this.links; }
+LinkArray.prototype.Add = function (name, link) { this.links.push({ Name: name, Url: link }); return this.links; }
 LinkArray.prototype.ToJson = function () { return JSON.stringify(this.links); }
 LinkArray.prototype.ToText = function () {
     var text = '';
