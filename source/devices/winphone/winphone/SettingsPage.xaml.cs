@@ -36,6 +36,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // set up tabbing
             this.IsTabStop = true;
 
+            // if already connected, open to Settings tab
+            if (IsConnected)
+                MainPivot.SelectedIndex = 1;
+
             Loaded += new RoutedEventHandler(SettingsPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(SettingsPage_BackKeyPress);
         }
