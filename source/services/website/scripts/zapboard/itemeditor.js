@@ -68,32 +68,39 @@ ItemEditor.prototype.renderNextItem = function ($element) {
 
 ItemEditor.prototype.renderFields = function ($element) {
     this.renderNameField($element);
+    var $fields = $('<div />').appendTo($element);
     var fields = this.item.GetFields();
     for (var name in fields) {
         var field = fields[name];
         if (field.IsPrimary || this.expanded) {
-            this.renderField($element, field);
+            this.renderField($fields, field);
         }
     }
 }
 
 ItemEditor.prototype.renderNameField = function ($element) {
-    var inputClass = 'input-block-level';
+    var inputClass = 'span12';
     var fields = this.item.GetFields();
     var field = fields[FieldNames.Complete];
-    var $controls = $('<form class="form-inline"/>').appendTo($element);
+    var $form = $('<form class="form-inline well"/>').appendTo($element);
+    $controls = $('<div class="span10 inline-left" />').appendTo($form);
     if (field != null) {
-        // render complete field if exists 
-        var $prepend = $('<div class="input-prepend" />').appendTo($controls);
-        var $addon = $('<span class="add-on" />').appendTo($prepend);
-        Control.Checkbox.render($addon, this.item, field);
-        inputClass = 'input-inline-max';
+        var $checkbox = Control.Checkbox.render($controls, this.item, field);
+        $checkbox.addClass('inline-left');
+        inputClass = 'span11';
     }
 
     // render name field
     field = fields[FieldNames.Name];
     var $field = Control.Text.renderInput($controls, this.item, field);
     $field.addClass(inputClass);
+
+    // render item thumbnail
+    var $thumbnail = $('<div class="span2 thumbnail inline-right" />').appendTo($form);
+    // render item type picker
+    var $itemTypePicker = Control.ItemType.renderDropdown($form, this.item, true);
+    $itemTypePicker.addClass('span1');
+
     return $field;
 }
 

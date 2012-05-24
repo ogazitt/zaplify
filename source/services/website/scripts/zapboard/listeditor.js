@@ -231,18 +231,21 @@ PropertyEditor.prototype.render = function ($element, list, maxHeight) {
 
     // name property
     var $wrapper = $('<div class="control-group"><label class="control-label">Name of List</label></div>').appendTo($form);
-    var $property = $('<input type="text" class="" />').appendTo($wrapper);
-    $property.addClass('li-name');
-    $property.data('control', this);
-    $property.val(this.list.Name);
-    $property.change(function (e) { Control.get(this).handleChange($(e.srcElement)); });
-    $property.keypress(function (e) { return Control.get(this).handleEnterPress(e); });
+    $wrapper.addClass('inline-left');
+    var $nameInput = $('<input type="text" class="" />').appendTo($wrapper);
+    $nameInput.addClass('li-name');
+    $nameInput.data('control', this);
+    $nameInput.val(this.list.Name);
+    $nameInput.change(function (e) { Control.get(this).handleChange($(e.srcElement)); });
+    $nameInput.keypress(function (e) { return Control.get(this).handleEnterPress(e); });
 
     // itemtype property
-    var $dropdown = Control.ItemType.renderDropdown($form, this.list);
-    // display controls inline
-    $wrapper.addClass('inline-left');
-    $dropdown.addClass('inline-left');
+    var $itemTypePicker = Control.ItemType.renderDropdown($form, this.list);
+    $itemTypePicker.addClass('inline-left');
+
+    // actions dropdown
+    var $actions = this.renderListActions($form, this.list);
+    $actions.addClass('inline-left');
 }
 
 PropertyEditor.prototype.updateProperty = function ($element) {
@@ -266,4 +269,44 @@ PropertyEditor.prototype.handleEnterPress = function (e) {
         this.handleChange($(e.srcElement));
         return false;       // do not propogate event
     }
+}
+
+PropertyEditor.prototype.renderListActions = function ($element, list) {
+    var $wrapper = $('<div class="control-group"><label class="control-label">&nbsp;</label></div>').appendTo($element);
+    var $btnGroup = $('<div class="btn-group" />').appendTo($wrapper);
+    var $btn = $('<a class="btn">Action</a>').appendTo($btnGroup);
+    $btn = $('<a class="btn dropdown-toggle" data-toggle="dropdown"><span class="caret" /></a>').appendTo($btnGroup);
+
+    var $dropdown = $('<ul class="dropdown-menu" />').appendTo($btnGroup);
+    if (list.IsFolder()) {
+        $('<li><a href="newfolder"><i class="icon-align-justify"></i> New List</a></li>').appendTo($dropdown);
+        $('<li><a href="newlist"><i class="icon-list"></i> New Sublist</a></li>').appendTo($dropdown);
+    } else {
+        $('<li><a href="newlist"><i class="icon-align-justify"></i> New List</a></li>').appendTo($dropdown);
+    }
+    if (!list.IsDefault()) {
+        $('<li class="divider"></li>').appendTo($dropdown);
+        $('<li><a href="deletelist"><i class="icon-remove-sign"></i> Delete List</a></li>').appendTo($dropdown);
+    }
+    // action handler
+    $dropdown.click(function (e) {
+        var $element = $(e.target);
+        var action = $element.attr('href');
+        if (action == 'newfolder') {
+            var newFolder = { Name: 'New List', ItemTypeID: list.ItemTypeID };
+            DataModel.InsertFolder(newFolder);
+        }
+        if (action == 'newlist') {
+            var folder = (list.IsFolder()) ? list : list.GetFolder();
+            var newList = { Name: 'New List', ItemTypeID: list.ItemTypeID, IsList: true };
+            folder.Expand(true);
+            folder.InsertItem(newList);
+        }
+        if (action == 'deletelist') {
+            if (!list.IsDefault()) { list.Delete(); }
+        }
+        e.preventDefault();
+    });
+
+    return $wrapper;
 }

@@ -88,10 +88,18 @@ Control.Icons.forSources = function Control$Icons$forSources(item) {
 
 // return an element that is an icon for the item type
 Control.Icons.forItemType = function Control$Icons$forItemType(item) {
+    // allow parameter as Item or ItemTypeID
+    var itemType = item;
+    var isFolder = false;
+    if (typeof (item) == 'object') {
+        itemType = item.ItemTypeID;
+        isFolder = item.IsFolder();
+    }
+
     var $icon = $('<i></i>');
-    switch (item.ItemTypeID) {
+    switch (itemType) {
         case ItemTypes.Task:
-            (item.IsFolder()) ? $icon.addClass('icon-calendar') : $icon.addClass('icon-check');
+            (isFolder) ? $icon.addClass('icon-calendar') : $icon.addClass('icon-check');
             break;
         case ItemTypes.Contact:
             $icon.addClass('icon-user');
@@ -683,35 +691,50 @@ Control.List.sortable = function Control$List$sortable($element) {
 // static re-usable helper to display and update ItemTypeID on an item
 //
 Control.ItemType = {};
-Control.ItemType.renderDropdown = function Control$ItemType$renderDropdown($element, item) {
+Control.ItemType.renderDropdown = function Control$ItemType$renderDropdown($element, item, iconsOnly) {
     var itemTypes = DataModel.Constants.ItemTypes;
     var currentItemTypeName = itemTypes[item.ItemTypeID].Name;
-    var labelType = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
-    var label = '<label class="control-label">Type of ' + labelType + '</label>';
+
     var $wrapper = $('<div class="control-group"></div>').appendTo($element);
-    $(label).appendTo($wrapper);
+    if (iconsOnly != true) {
+        var labelType = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
+        var label = '<label class="control-label">Type of ' + labelType + '</label>';
+        $(label).appendTo($wrapper);
+    }
 
     var $btnGroup = $('<div class="btn-group" />').appendTo($wrapper);
-    var $btn = $('<a class="btn">' + currentItemTypeName + '</a>').appendTo($btnGroup);
-    $btn = $('<a class="btn dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
-    $('<span class="caret"></span>').appendTo($btn);
+    var $btn = $('<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
+    Control.Icons.forItemType(item).appendTo($btn);
+    if (iconsOnly != true) {
+        $btn.removeClass('btn-mini');
+        $('<span>&nbsp;&nbsp;' + currentItemTypeName + '</span>').appendTo($btn);
+        $('<span class="pull-right">&nbsp;&nbsp;<span class="caret" /></span>').appendTo($btn);
+    }
     var $dropdown = $('<ul class="dropdown-menu" />').appendTo($btnGroup);
+    $dropdown.data('item', item);
     for (var id in itemTypes) {
         var itemType = itemTypes[id];
         if (itemType.UserID == SystemUsers.User || itemType.UserID == DataModel.User.ID) {
-            var $menuitem = $('<li><a>' + itemTypes[id].Name + '</a></li>').appendTo($dropdown);
-            $menuitem.find('a').attr('value', id);
+            var $menuitem = $('<li><a></a></li>').appendTo($dropdown);
+            $menuitem.find('a').append(Control.Icons.forItemType(id));
+            $menuitem.find('a').append('<span>&nbsp;&nbsp;' + itemTypes[id].Name + '</span>');
+            $menuitem.data('value', id);
+            $menuitem.click(function (e) { Control.ItemType.update($(this)); e.preventDefault(); });
         }
     }
-    $dropdown.click(function (e) {
-        var $element = $(e.target);
-        var updatedItem = item.Copy();
-        updatedItem.ItemTypeID = $element.val();
-        $element.parents('.btn-group').find('.btn').first().html($element.html());
-        item.Update(updatedItem);
-        e.preventDefault();
-    });
+
     return $wrapper;
+}
+
+Control.ItemType.update = function Control$ItemType$update($menuitem) {
+    var item = $menuitem.parent().data('item');
+    var updatedItem = item.Copy();
+    updatedItem.ItemTypeID = $menuitem.data('value');
+    var $button = $menuitem.parents('.btn-group').first().find('.btn');
+    $button.find('i').replaceWith(Control.Icons.forItemType(updatedItem));
+    var $label = $menuitem.find('span').first();
+    if ($label.length > 0) { $button.find('span').first().html($label.html()); }
+    item.Update(updatedItem);
 }
 
 // ---------------------------------------------------------
@@ -725,9 +748,10 @@ Control.ThemePicker.render = function Control$ThemePicker$render($element) {
     var $wrapper = $('<div class="control-group"><label class="control-label">Theme</label></div>').appendTo($element);
 
     var $btnGroup = $('<div class="btn-group" />').appendTo($wrapper);
-    var $btn = $('<a class="btn">' + currentTheme + '</a>').appendTo($btnGroup);
-    $btn = $('<a class="btn dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
-    $('<span class="caret"></span>').appendTo($btn);
+    var $btn = $('<a class="btn dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
+    $('<span>' + currentTheme + '</span>').appendTo($btn);
+    $('<span class="pull-right">&nbsp;&nbsp;<span class="caret" /></span>').appendTo($btn);
+
     var $dropdown = $('<ul class="dropdown-menu" />').appendTo($btnGroup);
     for (var i in themes) {
         $('<li><a>' + themes[i] + '</a></li>').appendTo($dropdown);
@@ -736,7 +760,7 @@ Control.ThemePicker.render = function Control$ThemePicker$render($element) {
         var $element = $(e.target)
         var theme = $element.html();
         DataModel.UserSettings.UpdateTheme(theme);
-        $element.parents('.btn-group').find('.btn').first().html(theme);
+        $element.parents('.btn-group').find('span').first().html(theme);
         e.preventDefault();
     });
     return $wrapper;

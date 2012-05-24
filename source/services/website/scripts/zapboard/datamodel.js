@@ -58,13 +58,15 @@ DataModel.Refresh = function DataModel$Refresh(itemID) {
 
 // generic helper for finding folder or item for given ID
 DataModel.FindItem = function DataModel$FindItem(itemID) {
-    var folder = DataModel.Folders[itemID];
-    if (folder != null) { return folder; }
+    if (itemID != null) {
+        var folder = DataModel.Folders[itemID];
+        if (folder != null) { return folder; }
 
-    for (id in DataModel.Folders) {
-        folder = DataModel.Folders[id];
-        var item = folder.Items[itemID];
-        if (item != null) { return item; }
+        for (id in DataModel.Folders) {
+            folder = DataModel.Folders[id];
+            var item = folder.Items[itemID];
+            if (item != null) { return item; }
+        }
     }
     return null;
 }
@@ -324,7 +326,11 @@ DataModel.getFolder = function (folderID) {
 }
 
 DataModel.addFolder = function (newFolder, activeItem) {
-    newFolder = Folder.Extend(newFolder);              // extend with Folder functions
+    newFolder = Folder.Extend(newFolder);                       // extend with Folder functions
+    if (newFolder.ItemsMap == null) {
+        newFolder.ItemsMap = new ItemMap([]);
+        newFolder.Items = newFolder.ItemsMap.Items;
+    }
     DataModel.FoldersMap.append(newFolder);
     if (activeItem === undefined) {                             // default, fire event with new Folder
         DataModel.fireDataChanged(newFolder.ID);
@@ -582,6 +588,11 @@ Item.Extend = function Item$Extend(item) { return $.extend(new Item(), item); } 
 // Item public functions
 Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
 Item.prototype.IsFolder = function () { return false; };
+Item.prototype.IsDefault = function () {
+    var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
+    if (defaultList != null) { return (this.ID == defaultList.ID);  }
+    return false;
+};
 Item.prototype.Select = function () { return DataModel.UserSettings.Selection(this.FolderID, this.ID); };
 Item.prototype.IsSelected = function (includingChildren) { return DataModel.UserSettings.IsItemSelected(this.ID, includingChildren); };
 Item.prototype.GetFolder = function () { return (DataModel.getFolder(this.FolderID)); };
@@ -1014,7 +1025,7 @@ UserSettings.prototype.IsItemSelected = function (itemID, includingChildren) {
 UserSettings.prototype.ExpandFolder = function (folderID, expand) {
     if (this.ViewState.ExpandedFolders == null) { this.ViewState.ExpandedFolders = {}; }
     if (expand == true) { this.ViewState.ExpandedFolders[folderID] = true; }
-    else { this.ViewState.ExpandedFolders[folderID] = 'undefined'; }
+    else { delete this.ViewState.ExpandedFolders[folderID]; }
 }
 
 UserSettings.prototype.IsFolderExpanded = function (folderID) {
@@ -1022,6 +1033,12 @@ UserSettings.prototype.IsFolderExpanded = function (folderID) {
 }
 
 UserSettings.prototype.Save = function () {
+    // remove deleted folders from expanded folders list
+    var expanded = {};
+    for (var id in DataModel.Folders) {
+        if (DataModel.Folders[id].IsExpanded()) { expanded[id] = true; }
+    }
+    this.ViewState.ExpandedFolders = expanded;
     this.update(UserSettings.viewStateName, UserSettings.viewStateKey);
 }
 
