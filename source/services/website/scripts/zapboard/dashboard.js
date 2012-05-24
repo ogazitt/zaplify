@@ -163,10 +163,7 @@ Dashboard.showHeaderOptions = function Dashboard$showHeaderOptions() {
     });
 }
 
-Dashboard.showManager = function Dashboard$showManager(manager) {
-    if (manager == null) {
-        manager = (Dashboard.currentManager == null) ? Dashboard.helpManager : Dashboard.currentManager;
-    }
+Dashboard.showManager = function Dashboard$showManager(manager, forceRender) {
     if (Dashboard.currentManager != manager) {
         Dashboard.currentManager = manager;
         Dashboard.folderManager.hide();
@@ -175,7 +172,7 @@ Dashboard.showManager = function Dashboard$showManager(manager) {
         (manager.addWell == true) ? Dashboard.$center.addClass('well') : Dashboard.$center.removeClass('well');
     }
     // always show to force render if necessary
-    manager.show();
+    manager.show(forceRender);
 }
 
 Dashboard.resize = function Dashboard$resize() {
@@ -193,7 +190,7 @@ Dashboard.resize = function Dashboard$resize() {
     Dashboard.$center.height(dbHeight);
     Dashboard.$right.height(dbHeight);
 
-    Dashboard.showManager();
+    Dashboard.showManager(Dashboard.currentManager, true);
     Dashboard.folderList.render(Dashboard.$left);
     //Dashboard.folderManager.render();
 

@@ -137,6 +137,23 @@ Control.Icons.forMap = function Control$Icons$forMap(item) {
     return $('<i></i>');
 }
 
+// return an element that is an icon for deleting an item
+Control.Icons.deleteBtn = function Control$Icons$deleteBtn(item) {
+    var $icon = $('<i class="icon-remove-sign"></i>');
+    $icon.css('cursor', 'pointer');
+    $icon.data('item', item);
+    //$icon.attr('title', 'Delete Item').tooltip(Control.ttDelay);
+    $icon.attr('title', 'Delete Item').tooltip();
+    $icon.bind('click', function () {
+        $(this).tooltip('hide');
+        var item = $(this).data('item');
+        var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
+        item.Delete(activeItem);
+        return false;   // do not propogate event
+    });
+    return $icon;
+}
+
 // ---------------------------------------------------------
 // Control.Text static object
 //
@@ -691,25 +708,24 @@ Control.List.sortable = function Control$List$sortable($element) {
 // static re-usable helper to display and update ItemTypeID on an item
 //
 Control.ItemType = {};
-Control.ItemType.renderDropdown = function Control$ItemType$renderDropdown($element, item, iconsOnly) {
+Control.ItemType.renderDropdown = function Control$ItemType$renderDropdown($element, item, noLabel) {
     var itemTypes = DataModel.Constants.ItemTypes;
     var currentItemTypeName = itemTypes[item.ItemTypeID].Name;
-
-    var $wrapper = $('<div class="control-group"></div>').appendTo($element);
-    if (iconsOnly != true) {
+    var $wrapper = $wrapper = $('<div class="control-group"></div>').appendTo($element);
+    if (noLabel != true) {
         var labelType = (item.IsFolder() || item.IsList) ? 'List' : 'Item';
         var label = '<label class="control-label">Type of ' + labelType + '</label>';
         $(label).appendTo($wrapper);
     }
 
     var $btnGroup = $('<div class="btn-group" />').appendTo($wrapper);
-    var $btn = $('<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
+    var $btn = $('<a class="btn dropdown-toggle" data-toggle="dropdown" />').appendTo($btnGroup);
     Control.Icons.forItemType(item).appendTo($btn);
-    if (iconsOnly != true) {
-        $btn.removeClass('btn-mini');
+    if (noLabel != true) {
         $('<span>&nbsp;&nbsp;' + currentItemTypeName + '</span>').appendTo($btn);
         $('<span class="pull-right">&nbsp;&nbsp;<span class="caret" /></span>').appendTo($btn);
     }
+
     var $dropdown = $('<ul class="dropdown-menu" />').appendTo($btnGroup);
     $dropdown.data('item', item);
     for (var id in itemTypes) {

@@ -83,7 +83,7 @@ ItemEditor.prototype.renderNameField = function ($element) {
     var fields = this.item.GetFields();
     var field = fields[FieldNames.Complete];
     var $form = $('<form class="form-inline well"/>').appendTo($element);
-    $controls = $('<div class="span10 inline-left" />').appendTo($form);
+    $controls = $('<div class="span10" />').appendTo($form);
     if (field != null) {
         var $checkbox = Control.Checkbox.render($controls, this.item, field);
         $checkbox.addClass('inline-left');
@@ -95,11 +95,20 @@ ItemEditor.prototype.renderNameField = function ($element) {
     var $field = Control.Text.renderInput($controls, this.item, field);
     $field.addClass(inputClass);
 
-    // render item thumbnail
-    var $thumbnail = $('<div class="span2 thumbnail inline-right" />').appendTo($form);
-    // render item type picker
-    var $itemTypePicker = Control.ItemType.renderDropdown($form, this.item, true);
-    $itemTypePicker.addClass('span1');
+    // render toolbar
+    var $toolbar = $('<div class="btn-toolbar span12" />').prependTo($controls);
+    Control.Icons.deleteBtn(this.item).appendTo($toolbar);
+    var $itemTypePicker = Control.ItemType.renderDropdown($toolbar, this.item, true);
+    $itemTypePicker.addClass('pull-right');
+    $itemTypePicker.find('.btn').addClass('btn-mini').css('border-style', 'none');
+
+    // render thumbnail
+    var $thumbnail = $('<div class="span2 thumbnail" />').appendTo($form);
+    var imageUrl = this.item.GetFieldValue(FieldNames.Picture);
+    if (imageUrl != null) {
+        $image = $('<img />').appendTo($thumbnail);
+        $image.attr('src', imageUrl);
+    }
 
     return $field;
 }

@@ -1119,8 +1119,10 @@ var FieldNames = {
     Contacts: "Contacts",                   // Guid
     Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
 
-    FacebookID: "FacebookID",               // String
     Intent: "Intent",                       // String
+    FacebookID: "FacebookID",               // String
+    Gender: "Gender",                       // String
+    Picture: "Picture",                     // Url
     Sources: "Sources",                     // String
     LatLong: "LatLong"                      // String
 }

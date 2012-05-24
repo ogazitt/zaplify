@@ -14,10 +14,10 @@ function ListEditor(parentControl) {
 }
 
 ListEditor.prototype.render = function ($element, list, maxHeight) {
-    this.$element = $element;
-    var $newItem = this.newItemEditor.render($element, list);
+    if (this.$element == null) { this.$element = $element; }
+    var $newItem = this.newItemEditor.render(this.$element, list);
     var newItemHeight = ($newItem != null) ? $newItem.outerHeight() : 0;
-    this.listView.render($element, list, maxHeight - newItemHeight - 28);   // exclude top & bottom padding
+    this.listView.render(this.$element, list, maxHeight - newItemHeight - 28);   // exclude top & bottom padding
 }
 
 ListEditor.prototype.selectItem = function (item) {
@@ -76,11 +76,6 @@ function ListView(parentControl) {
     this.list = null;
 }
 
-// static helper for getting attached item from $element
-ListView.getItem = function ListView$getItem($element) {
-    return $element.parents('li').first().data('item');
-}
-
 ListView.prototype.hide = function () {
     if (this.$element != null) {
         this.$element.hide();
@@ -124,7 +119,9 @@ ListView.prototype.renderListItems = function (listItems) {
         if (item.IsSelected()) { $li.addClass('selected'); }
 
         var $item = $('<a class="form-inline" />').appendTo($li);
-        this.renderDeleteBtn($item);
+        var $deleteBtn = Control.Icons.deleteBtn(item).appendTo($item);
+        $deleteBtn.addClass('pull-right');
+
         this.renderNameField($item, item);
 
         // click item to select
@@ -160,18 +157,6 @@ ListView.prototype.renderNameField = function ($item, item) {
     $item.append(Control.Icons.forSources(item));
     field = fields[FieldNames.Name];
     Control.Text.renderLabel($item, item, field);
-}
-
-ListView.prototype.renderDeleteBtn = function ($element) {
-    var $button = $('<i class="icon-remove-sign pull-right"></i>').appendTo($element);
-    $button.attr('title', 'Delete Item').tooltip(Control.ttDelay);
-    $button.bind('click', function () {
-        var item = ListView.getItem($(this));
-        var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
-        $(this).tooltip('hide');
-        item.Delete(activeItem);
-        return false;   // do not propogate event
-    });
 }
 
 ListView.prototype.renderFields = function ($element, item) {

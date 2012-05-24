@@ -48,7 +48,7 @@ FolderManager.prototype.hide = function () {
     }
 }
 
-FolderManager.prototype.show = function () {
+FolderManager.prototype.show = function (forceRender) {
     if (this.$element == null) {
         this.$element = $('<div class="manager-folders" />').appendTo(this.$parentElement);
         // render tabs
@@ -78,7 +78,7 @@ FolderManager.prototype.show = function () {
             Control.get($tabs).viewChanged($(e.target)); ;
         });
     }
-    //this.render();
+    if (forceRender == true) { this.render(); }
     this.$element.show();
 }
 
@@ -176,8 +176,10 @@ FolderManager.prototype.activeView = function (viewName) {
     if (viewName === undefined) {       // get
         return (dataModel.UserSettings.ViewState.ActiveView != null) ? dataModel.UserSettings.ViewState.ActiveView : FolderManager.ListView;
     } else {                            // set
-        dataModel.UserSettings.ViewState.ActiveView = viewName;
-        this.render();
+        if (dataModel.UserSettings.ViewState.ActiveView != viewName) {
+            dataModel.UserSettings.ViewState.ActiveView = viewName;
+            this.render();
+        }
     }
 }
 
