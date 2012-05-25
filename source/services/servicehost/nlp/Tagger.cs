@@ -24,10 +24,18 @@ namespace BuiltSteady.Zaplify.ServiceHost.Nlp
 
         private static void LoadMappingTable()
         {
-            using (Stream stream = File.Open(HostEnvironment.LexiconFileName, FileMode.Open, FileAccess.Read))
+            try
             {
-                IFormatter formatter = new BinaryFormatter();
-                _mapping = formatter.Deserialize(stream) as Dictionary<string, string>;
+                using (Stream stream = File.Open(HostEnvironment.LexiconFileName, FileMode.Open, FileAccess.Read))
+                {
+                    IFormatter formatter = new BinaryFormatter();
+                    _mapping = formatter.Deserialize(stream) as Dictionary<string, string>;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("LoadMappingTable: could not open or deserialize lexicon file {0}", HostEnvironment.LexiconFileName), ex);
+                throw;
             }
         }
 
