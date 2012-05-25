@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost.Nlp;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
 using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
@@ -128,7 +129,20 @@ namespace BuiltSteady.Zaplify.ServiceHost
         
         protected override string ExtractIntent(Item item)
         {
-            // TODO: do NLP
+            try
+            {
+                Phrase phrase = new Phrase(item.Name);
+                if (phrase.Task != null)
+                {
+                    Intent intent = Storage.NewSuggestionsContext.Intents.FirstOrDefault(i => i.Verb == phrase.Task.Verb && i.Noun == phrase.Task.Article);
+                    if (intent != null)
+                        return intent.WorkflowType;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException("TaskProcessor.ExtractIntent: could not initialize NLP engine", ex);
+            }
             return base.ExtractIntent(item);
         }
     }
@@ -177,6 +191,12 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 return true;
             }
 
+            // get the "intent" which in this case is the normalized name 
+            var intentName = item.Name.ToLower();
+            var intentFV = item.GetFieldValue(FieldNames.Intent);
+            if (intentFV != null && intentFV.Value != null)
+                intentName = intentFV.Value;
+
             // set up the grocery API endpoint
             GroceryAPI gApi = new GroceryAPI();
             gApi.EndpointBaseUri = string.Format("{0}{1}/", HostEnvironment.DataServicesEndpoint, "Grocery");
@@ -185,7 +205,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             // try to find the category from the local Grocery Controller
             try
             {
-                var results = gApi.Query(GroceryQueries.GroceryCategory, item.Name).ToList();
+                var results = gApi.Query(GroceryQueries.GroceryCategory, intentName).ToList();
 
                 // this should only return one result
                 if (results.Count > 0)
@@ -194,6 +214,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     foreach (var entry in results)
                     {
                         categoryFV.Value = entry[GroceryQueryResult.Category];
+                        if (!String.IsNullOrEmpty(entry[GroceryQueryResult.ImageUrl]))
+                            item.GetFieldValue(FieldNames.Picture, true).Value = entry[GroceryQueryResult.ImageUrl];
                         // only grab the first category
                         break;
                     }
@@ -242,7 +264,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 #else
             try
             {
-                var results = smApi.Query(SupermarketQueries.SearchByProductName, item.Name);
+                var results = smApi.Query(SupermarketQueries.SearchByProductName, intentName);
 
                 // get the category and image
                 foreach (var entry in results)

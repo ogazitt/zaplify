@@ -16,6 +16,7 @@
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
+    using System.Web;
 
     [ServiceContract]
     [LogMessages]
@@ -216,7 +217,6 @@
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                
                 ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
                 if (ip != null)
                 {   // do itemtype-specific processing
@@ -345,7 +345,7 @@
                             this.StorageContext.ItemTags.Remove(tt);
                         changed = true;
                     }
-                                   
+
                     ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
                     if (ip != null)
                     {   // do itemtype-specific processing
