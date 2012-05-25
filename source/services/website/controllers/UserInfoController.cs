@@ -32,7 +32,7 @@
                         && item.FolderID == userFolder.ID
                         && item.ParentID == possibleSubjectList.ID
                         //&& item.Name.StartsWith(startsWith)           // entity framework does not support ignore case
-                        && System.Data.Objects.SqlClient.SqlFunctions.PatIndex(startsWith + "%", item.Name) == 1
+                        // && System.Data.Objects.SqlClient.SqlFunctions.PatIndex(startsWith + "%", item.Name) == 1     // not case-insensitive either
                     ).ToList<Item>();
 
                 foreach (var item in possibleSubjects)
