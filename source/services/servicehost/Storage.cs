@@ -462,14 +462,14 @@
             return operation;
         }
 
-        public Item GetOrCreateGroceryCategoriesList(User user)
+        public Item GetOrCreateUserItemTypeList(User user, Guid itemTypeID)
         {
-            return GetOrCreateUserFolderList(user, SystemEntities.GroceryCategories, SystemItemTypes.NameValue);
+            return GetOrCreateUserList(user, SystemItemTypes.Names[itemTypeID], SystemItemTypes.NameValue);
         }
 
         public Item GetOrCreatePossibleSubjectsList(User user)
         {
-            return GetOrCreateUserFolderList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
+            return GetOrCreateUserList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
         }
 
         public Item GetOrCreateShadowItem(User user, ServerEntity entity)
@@ -536,7 +536,7 @@
 
         public Item GetOrCreateShadowItemList(User user)
         {
-            return GetOrCreateUserFolderList(user, SystemEntities.ShadowItems, SystemItemTypes.Reference);
+            return GetOrCreateUserList(user, SystemEntities.ShadowItems, SystemItemTypes.Reference);
         }
 
         public Folder GetOrCreateUserFolder(User user)
@@ -573,7 +573,7 @@
             }
         }
 
-        public Item GetOrCreateUserFolderList(User user, string listName, Guid itemTypeID)
+        public Item GetOrCreateUserList(User user, string listName, Guid itemTypeID)
         {
             Folder userFolder = GetOrCreateUserFolder(user);
             if (userFolder == null)
