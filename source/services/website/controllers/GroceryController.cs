@@ -6,8 +6,6 @@
     using System.Net;
     using System.Web.Mvc;
     using BuiltSteady.Zaplify.GroceryService.Models;
-    using System.IO;
-    using BuiltSteady.Zaplify.ServiceHost;
 
     //[Authorize]
     public class GroceryController : Controller
@@ -32,14 +30,26 @@
             var context = new GroceryContext();
             List<GroceryReturnValue> groceries = new List<GroceryReturnValue>();
 
-            var possibleGroceryNames = context.Groceries.Include("Category").Where(g => g.Name.StartsWith(startsWith) || g.Name.Contains(contains)).ToList();
+            List<Grocery> possibleGroceryNames;
+            if (startsWith != null)
+            {   // filter by startsWith
+                startsWith = (startsWith != null) ? startsWith.ToLowerInvariant() : null;
+                possibleGroceryNames = context.Groceries.Include("Category").Where(g => g.Name.StartsWith(startsWith)).ToList();
+            }
+            else
+            {   // get all and post-filter
+                possibleGroceryNames = context.Groceries.Include("Category").ToList();
+            }
+
+            contains = (contains != null) ? contains.ToLowerInvariant() : null;
             foreach (var grocery in possibleGroceryNames)
             {
-                if (startsWith == null ||
-                    grocery.Name.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase) ||
-                    (contains != null && grocery.Name.Contains(contains)))
-                {
-                    groceries.Add(new GroceryReturnValue() { Name = grocery.Name, Category = grocery.Category.Name });
+                if (contains == null || grocery.Name.Contains(contains))
+                {   // upper-case each word in name and add to results
+                    var groceryName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(grocery.Name);
+                    var groceryValue = new GroceryReturnValue() { Name = groceryName, Category = grocery.Category.Name };
+                    groceryValue.ImageUrl = (!string.IsNullOrEmpty(grocery.ImageUrl)) ? grocery.ImageUrl : null;
+                    groceries.Add(groceryValue);
                 }
                 if (groceries.Count == maxCount) { break; }
             }

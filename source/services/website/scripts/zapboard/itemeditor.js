@@ -91,8 +91,15 @@ ItemEditor.prototype.renderNameField = function ($element) {
     }
 
     // render name field
+    var $field;
     field = fields[FieldNames.Name];
-    var $field = Control.Text.renderInput($controls, this.item, field);
+    if (this.item.ItemTypeID == ItemTypes.Location) {
+        $field = Control.Text.renderInputAddress($controls, this.item, field);
+    } else if (this.item.ItemTypeID == ItemTypes.ShoppingItem) {
+        $field = Control.Text.renderInputGrocery($controls, this.item, field);
+    } else {
+        $field = Control.Text.renderInput($controls, this.item, field);
+    }
     $field.addClass(inputClass);
 
     // render toolbar

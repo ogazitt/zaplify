@@ -214,6 +214,8 @@ Control.Text.renderInputNew = function Control$Text$renderInput($element, item, 
         Control.Text.autoCompletePlace($text, Control.Text.insert);
     } else if (item.ItemTypeID == ItemTypes.Contact) {
         Control.Text.autoCompleteContact($text, Control.Text.insert);
+    } else if (item.ItemTypeID == ItemTypes.ShoppingItem) {
+        Control.Text.autoCompleteGrocery($text, Control.Text.insert);
     } 
     return $text;
 }
@@ -231,6 +233,14 @@ Control.Text.renderInputAddress = function Control$Text$renderInputAddress($elem
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.updateAddress($(e.srcElement)); return false; } });
     //$text = Control.Text.autoCompleteAddress($text, Control.Text.updateAddress);
     $text = Control.Text.autoCompletePlace($text, Control.Text.updateAddress);
+    return $text;
+}
+// render input with update on keypress and autocomplete
+Control.Text.renderInputGrocery = function Control$Text$renderInputGrocery($element, item, field) {
+    $text = $('<input type="text" />').appendTo($element);
+    $text = Control.Text.base($text, item, field);
+    $text.keypress(function (e) { if (e.which == 13) { Control.Text.updateGrocery($(e.srcElement)); return false; } });
+    $text = Control.Text.autoCompleteGrocery($text, Control.Text.updateGrocery);
     return $text;
 }
 // attach place autocomplete behavior to input element
@@ -299,6 +309,35 @@ Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($in
     }); 
     return $input;
 }
+// attach grocery autocomplete behavior to input element
+Control.Text.autoCompleteGrocery = function Control$Text$autoCompleteGrocery($input, selectHandler) {
+    $input.autocomplete({
+        source: function (request, response) {
+            Service.InvokeController('Grocery', 'GroceryNames',
+                { 'startsWith': request.term },
+                function (responseState) {
+                    var result = responseState.result;
+                    var groceries = [];
+                    if (result.Count > 0) {
+                        for (var i in result.Groceries) {
+                            var item = result.Groceries[i];
+                            groceries.push({ label: item.Name, value: item.Name, json: item });
+                        }
+                    }
+                    response(groceries);
+                });
+        },
+        select: function (event, ui) {
+            $(this).val(ui.item.label);
+            $(this).data('grocery', ui.item.json);
+            selectHandler($(this));
+            return false;
+        },
+        minLength: 1
+    });
+    return $input;
+}
+
 // handler for inserting new item into list
 Control.Text.insert = function Control$Text$insert($input) {
     var field = $input.data('field');
@@ -330,6 +369,14 @@ Control.Text.insert = function Control$Text$insert($input) {
                 }
             }
         }
+        if (item.ItemTypeID == ItemTypes.ShoppingItem) {
+            // autocomplete for new ShoppingItems
+            var grocery = $input.data('grocery');
+            if (grocery != null) {
+                Control.Text.applyGrocery(item, grocery);
+                value = grocery.Name;
+            }
+        }
 
         item.SetFieldValue(field, value);
         list.InsertItem(item);
@@ -357,7 +404,7 @@ Control.Text.updateAddress = function Control$Text$updateAddress($input) {
     var place = $input.data('place');
     var latlong = $input.data(FieldNames.LatLong);
     if (place != null && place.geometry != null) {
-        updatedItem = Control.Text.applyPlace(updatedItem, place);
+        updatedItem = Control.Text.applyPlace(updatedItem, place, field.Name);
     } else if (latlong != null) {
         var currentLatLong = item.GetFieldValue(FieldNames.LatLong);
         if (currentLatLong == null || currentLatLong != latlong) {
@@ -370,8 +417,8 @@ Control.Text.updateAddress = function Control$Text$updateAddress($input) {
     item.Update(updatedItem);
 }
 // helper function for applying place properties to an item
-Control.Text.applyPlace = function Control$Text$applyPlace(item, place) {
-    if (item.Name == null) { item.SetFieldValue(FieldNames.Name, place.name); }
+Control.Text.applyPlace = function Control$Text$applyPlace(item, place, fieldName) {
+    if (item.Name == null || fieldName == FieldNames.Name) { item.SetFieldValue(FieldNames.Name, place.name); }
     item.SetFieldValue(FieldNames.LatLong, place.geometry.location.toUrlValue());
     item.SetFieldValue(FieldNames.Address, place.formatted_address);
     if (place.formatted_phone_number != null && item.GetFieldValue(FieldNames.Phone) == null) {
@@ -388,6 +435,28 @@ Control.Text.applyPlace = function Control$Text$applyPlace(item, place) {
         if (place.website != null) { weblinks.Add('Website', place.website); }
         item.SetFieldValue(FieldNames.WebLinks, weblinks.ToJson());
     }
+    return item;
+}
+// handler for updating grocery
+Control.Text.updateGrocery = function Control$Text$updateGrocery($input) {
+    var item = $input.data('item');
+    var field = $input.data('field');
+    var value = $input.val();
+    var currentValue = item.GetFieldValue(field);
+    var updatedItem = item.Copy();
+    var grocery = $input.data('grocery');
+    if (grocery != null) {
+        updatedItem = Control.Text.applyGrocery(updatedItem, grocery, field.Name);
+    } else if (value != currentValue) {
+        updatedItem.SetFieldValue(field, value);
+    }
+    item.Update(updatedItem);
+}
+// helper function for applying grocery properties to an item
+Control.Text.applyGrocery = function Control$Text$applyGrocery(item, grocery, fieldName) {
+    if (item.Name == null || fieldName == FieldNames.Name) { item.SetFieldValue(FieldNames.Name, grocery.Name); }
+    item.SetFieldValue(FieldNames.Category, grocery.Category);
+    item.SetFieldValue(FieldNames.Picture, grocery.ImageUrl);
     return item;
 }
 // base function for applying class, item, field, and value to element
@@ -520,38 +589,8 @@ Control.ContactList.renderInput = function Control$ContactList$renderInput($elem
     }
     $input.val(text);
 
-    var split = function (val) { return val.split(/;\s*/); }
-    var lastTerm = function (term) { return split(term).pop(); }
-    $input.autocomplete({
-        source: function (request, response) {
-            Service.InvokeController('UserInfo', 'PossibleSubjects',
-                { 'startsWith': lastTerm(request.term) },
-                function (responseState) {
-                    var result = responseState.result;
-                    var contacts = [];
-                    if (result.Count > 0) {
-                        for (var name in result.Subjects) {
-                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
-                        }
-                    }
-                    response(contacts);
-                });
-        },
-        select: function (event, ui) {
-            // multi-selection support
-            var terms = split(this.value);
-            terms.pop();                        // remove the current input
-            terms.push(ui.item.label);          // add the selected item
-            terms.push("");                     // placeholder for separator
-            this.value = terms.join("; ");      // add separator
+    Control.Text.autoCompleteContact($input, Control.ContactList.update);
 
-            $(this).val(ui.item.label);
-            $(this).data(FieldNames.Contacts, ui.item.json);
-            Control.ContactList.update($(this));
-            return false;
-        },
-        minLength: 1
-    });
     return $input;
 }
 
