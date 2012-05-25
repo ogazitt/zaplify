@@ -90,7 +90,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         protected void CreateIntentFieldValue(Item item, string intent)
         {
             item.GetFieldValue(FieldNames.Intent, true).Value = intent;
-            //userContext.SaveChanges();
+            TraceLog.TraceDetail(String.Format("CreateIntentFieldValue: assigned {0} intent to item {1}", intent, item.Name));
         }
 
         /// <summary>
@@ -174,7 +174,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     return false;
 
                 groceryCategoryFV.Value = categoryFV.Value;
-                //userContext.SaveChanges();
                 return true;
             }
 
@@ -277,7 +276,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     BlobStore.WriteBlobData(BlobStore.GroceryContainerName, entry[SupermarketQueryResult.Name], entry.ToString());
 
                     // only grab the first category
-                    //userContext.SaveChanges();
                     TraceLog.TraceInfo(String.Format("ProcessCreate: Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return true;
                 }
