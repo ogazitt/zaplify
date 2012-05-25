@@ -163,30 +163,15 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
             // assign category to the shopping item
 
-            // check if the user already set a category in the incoming item
-            // in this case, simply overwrite the current category that's saved in $User/GroceryCategories
-            FieldValue groceryCategoryFV = null;
-            var categoryFV = item.GetFieldValue(FieldNames.Category);
-            if (categoryFV != null)
-            {
-                groceryCategoryFV = GetGroceryCategoryItemFieldValue(item, true);
-                if (groceryCategoryFV == null)
-                    return false;
-
-                groceryCategoryFV.Value = categoryFV.Value;
-                return true;
-            }
-
             // create a new category fieldvalue in the item to process
-            categoryFV = item.GetFieldValue(FieldNames.Category, true);
+            var categoryFV = item.GetFieldValue(FieldNames.Category, true);
 
             // check if the grocery category has already been saved in $User/GroceryCategories
             // in this case, store the category in the incoming item
-            groceryCategoryFV = GetGroceryCategoryItemFieldValue(item);
+            var groceryCategoryFV = GetGroceryCategoryItemFieldValue(item);
             if (groceryCategoryFV != null && groceryCategoryFV.Value != null)
             {
                 categoryFV.Value = groceryCategoryFV.Value;
-                userContext.SaveChanges();
                 return true;
             }
 
@@ -218,7 +203,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         // only grab the first category
                         break;
                     }
-                    userContext.SaveChanges();
                     TraceLog.TraceInfo(String.Format("ProcessCreate: Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return true;
                 }
@@ -250,7 +234,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     {
                         categoryFV.Value = entry[SupermarketQueryResult.Category];
                         // only grab the first category
-                        userContext.SaveChanges();
                         TraceLog.TraceInfo(String.Format("ProcessCreate: assigned {0} category to item {1}", categoryFV.Value, item.Name));
                         return true;
                     }
@@ -308,7 +291,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         return false;
 
                     groceryCategoryFV.Value = categoryFV.Value;
-                    //userContext.SaveChanges();
                     return true;
                 }
             }
