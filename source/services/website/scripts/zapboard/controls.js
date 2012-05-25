@@ -110,6 +110,25 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
     return $icon;
 }
 
+// return an element that is an icon for a map link
+Control.Icons.forMap = function Control$Icons$forMap(item) {
+    var json = item.GetFieldValue(FieldNames.WebLinks);
+    if (json != null && json.length > 0) {
+        var links = new LinkArray(json).Links();
+        for (var i in links) {
+            var link = links[i];
+            if (link.Name == 'Map' && link.Url != null) {
+                var $link = $('<i class="icon-map-marker"></i>');
+                $link.attr('href', link.Url);
+                $link.attr('title', 'Map').tooltip(Control.ttDelay);
+                $link.click(function () { window.open($(this).attr('href')); return false; });
+                return $link;
+            }
+        }
+    }
+    return $('<i></i>');
+}
+
 // ---------------------------------------------------------
 // Control.Text static object
 //
@@ -166,7 +185,8 @@ Control.Text.renderInputNew = function Control$Text$renderInput($element, item, 
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.insert($(e.srcElement)); return false; } });
     // support autocomplete for new Locations and Contacts
     if (item.ItemTypeID == ItemTypes.Location) {
-        Control.Text.autoCompleteAddress($text, Control.Text.insert);
+        //Control.Text.autoCompleteAddress($text, Control.Text.insert);
+        Control.Text.autoCompletePlace($text, Control.Text.insert);
     } else if (item.ItemTypeID == ItemTypes.Contact) {
         Control.Text.autoCompleteContact($text, Control.Text.insert);
     } 
@@ -184,8 +204,20 @@ Control.Text.renderInputAddress = function Control$Text$renderInputAddress($elem
     $text = $('<input type="text" />').appendTo($element);
     $text = Control.Text.base($text, item, field);
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.updateAddress($(e.srcElement)); return false; } });
-    $text = Control.Text.autoCompleteAddress($text, Control.Text.updateAddress);
+    //$text = Control.Text.autoCompleteAddress($text, Control.Text.updateAddress);
+    $text = Control.Text.autoCompletePlace($text, Control.Text.updateAddress);
     return $text;
+}
+// attach place autocomplete behavior to input element
+Control.Text.autoCompletePlace = function Control$Text$autoCompletePlace($input, selectHandler) {
+    $input.unbind('keypress');
+    $text.keypress(function (e) { if (e.which == 13) { return false; } });
+    var autoComplete = new google.maps.places.Autocomplete($input[0]);
+    google.maps.event.addListener(autoComplete, 'place_changed', function () {
+        $input.data('place', autoComplete.getPlace());
+        selectHandler($input);
+    });
+    return $input;
 }
 // attach address autocomplete behavior to input element
 Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($input, selectHandler) {
@@ -253,8 +285,12 @@ Control.Text.insert = function Control$Text$insert($input) {
         var list = $input.data('list');         // list to insert into
         if (item.ItemTypeID == ItemTypes.Location) {
             // autocomplete for new Locations
+            var place = $input.data('place');
             var latlong = $input.data(FieldNames.LatLong);
-            if (latlong != null) {
+            if (place != null && place.geometry != null) {
+                item = Control.Text.applyPlace(item, place);
+                value = place.name;
+            } else if (latlong != null) {
                 item.SetFieldValue(FieldNames.LatLong, latlong);
                 item.SetFieldValue(FieldNames.Address, value);
             }
@@ -293,18 +329,41 @@ Control.Text.updateAddress = function Control$Text$updateAddress($input) {
     var value = $input.val();
     var currentValue = item.GetFieldValue(field);
     var updatedItem = item.Copy();
+    var place = $input.data('place');
     var latlong = $input.data(FieldNames.LatLong);
-    if (latlong != null) {
+    if (place != null && place.geometry != null) {
+        updatedItem = Control.Text.applyPlace(updatedItem, place);
+    } else if (latlong != null) {
         var currentLatLong = item.GetFieldValue(FieldNames.LatLong);
         if (currentLatLong == null || currentLatLong != latlong) {
             updatedItem.SetFieldValue(FieldNames.LatLong, latlong);
             updatedItem.SetFieldValue(field, value);
-            item.Update(updatedItem);
         }
     } else if (value != currentValue) {
         updatedItem.SetFieldValue(field, value);
-        item.Update(updatedItem);
-    } 
+    }
+    item.Update(updatedItem);
+}
+// helper function for applying place properties to an item
+Control.Text.applyPlace = function Control$Text$applyPlace(item, place) {
+    if (item.Name == null) { item.SetFieldValue(FieldNames.Name, place.name); }
+    item.SetFieldValue(FieldNames.LatLong, place.geometry.location.toUrlValue());
+    item.SetFieldValue(FieldNames.Address, place.formatted_address);
+    if (place.formatted_phone_number != null && item.GetFieldValue(FieldNames.Phone) == null) {
+        item.SetFieldValue(FieldNames.Phone, place.formatted_phone_number);
+    }
+    var links = item.GetFieldValue(FieldNames.WebLinks);
+    if (links == null || links == '[]') {
+        var weblinks = new LinkArray();
+        if (place.types[0] == 'street_address') {
+            weblinks.Add('Map', 'http://maps.google.com/maps?z=15&t=m&q=' + place.formatted_address);
+        } else {
+            weblinks.Add('Map', place.url);
+        }
+        if (place.website != null) { weblinks.Add('Website', place.website); }
+        item.SetFieldValue(FieldNames.WebLinks, weblinks.ToJson());
+    }
+    return item;
 }
 // base function for applying class, item, field, and value to element
 Control.Text.base = function Control$Text$base($element, item, field) {
@@ -541,39 +600,9 @@ Control.LocationList.renderInput = function Control$LocationList$renderInput($el
     }
     $input.val(text);
 
-    var split = function (val) { return val.split(/;\s*/); }
-    var lastTerm = function (term) { return split(term).pop(); }
-    $input.autocomplete({
-        source: function (request, response) {
-            Service.Geocoder().geocode({ 'address': lastTerm(request.term) },
-                function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        var addresses = $.map(results, function (addr) {
-                            return {
-                                label: addr.formatted_address,
-                                value: addr.formatted_address,
-                                latlong: addr.geometry.location.toUrlValue()
-                            }
-                        });
-                        response(addresses);
-                    }
-                });
-        },
-        select: function (event, ui) {
-            // multi-selection support
-            var terms = split(this.value);
-            terms.pop();                        // remove the current input
-            terms.push(ui.item.label);          // add the selected item
-            terms.push("");                     // placeholder for separator
-            this.value = terms.join("; ");      // add separator
+    //Control.Text.autoCompleteAddress($input, Control.LocationList.update);
+    Control.Text.autoCompletePlace($input, Control.LocationList.update);
 
-            $(this).val(ui.item.label);
-            $(this).data(FieldNames.LatLong, ui.item.latlong);
-            Control.LocationList.update($(this));
-            return false;
-        },
-        minLength: 2
-    });
     return $input;
 }
 
@@ -587,6 +616,10 @@ Control.LocationList.update = function Control$LocationList$update($input) {
     }
 
     var latlong = $input.data(FieldNames.LatLong);
+    var place = $input.data('place');
+    if (place != null && place.geometry != null) {
+        latlong = place.geometry.location.toUrlValue();
+    }
     var existingLocation = DataModel.FindLocation(address, latlong);
     if (existingLocation != null) {
         // add reference to existing location
@@ -595,9 +628,13 @@ Control.LocationList.update = function Control$LocationList$update($input) {
         // create new location and add reference
         var locationList = DataModel.UserSettings.GetDefaultList(ItemTypes.Location);
         var newLocation = Item.Extend({ Name: address, ItemTypeID: ItemTypes.Location });
-        newLocation.SetFieldValue(FieldNames.Address, address);
-        if (latlong != null) {
-            newLocation.SetFieldValue(FieldNames.LatLong, latlong);
+        if (place != null && place.geometry != null) {
+            Control.Text.applyPlace(newLocation, place);
+        } else {
+            newLocation.SetFieldValue(FieldNames.Address, address);
+            if (latlong != null) {
+                newLocation.SetFieldValue(FieldNames.LatLong, latlong);
+            }
         }
         DataModel.InsertItem(newLocation, locationList, null, null, null,
             function (insertedLocation) {
@@ -624,13 +661,13 @@ Control.List.sortable = function Control$List$sortable($element) {
             var $item = ui.item;
             var item = $item.data('item');
             $item.removeClass('sorting');
-            var liElements = $item.parent('ul').find('li');
+            var liElements = $item.parent('ul').children('li');
             for (var i in liElements) {
                 if (item.ID == $(liElements[i]).data('item').ID) {
-                    var liBefore = liElements[i].previousSibling;
-                    var before = Number((liBefore == null) ? 0 : $(liBefore).data('item').SortOrder);
-                    var liAfter = liElements[i].nextSibling;
-                    var after = Number((liAfter == null) ? before + 1000 : $(liAfter).data('item').SortOrder);
+                    var $liBefore = $(liElements[i]).prevAll('li').first();
+                    var before = Number(($liBefore.length == 0) ? 0 : $liBefore.data('item').SortOrder);
+                    var $liAfter = $(liElements[i]).nextAll('li').first();
+                    var after = Number(($liAfter.length == 0) ? before + 1000 : $liAfter.data('item').SortOrder);
                     var updatedItem = item.Copy();
                     updatedItem.SortOrder = before + ((after - before) / 2);
                     item.Update(updatedItem);

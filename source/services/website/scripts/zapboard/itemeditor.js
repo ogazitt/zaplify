@@ -46,30 +46,11 @@ ItemEditor.prototype.render = function ($element, item) {
             this.$element.find('.carousel-control').dblclick(function (e) { e.preventDefault(); });
         }
 
-        // display field expander
-        /*
-        var $expander = $('<div class="btn expander pull-right"><i></i></div>').appendTo(this.$element);
-        if (this.expanded) {
-        $expander.addClass('expanded');
-        $expander.find('i').addClass('icon-chevron-up');
-        } else {
-        $expander.find('i').addClass('icon-chevron-down');
-        }
-        $expander.data('control', this);
-        $expander.click(this.expandEditor);
-        */
-
         // TODO: handle focus properly
-        var $fldActive = this.$element.find('.fn-name');
-        $fldActive.focus();
+        //var $fldActive = this.$element.find('.fn-name');
+        //$fldActive.focus();
         //$fldActive.select();
     }
-}
-
-ItemEditor.prototype.expandEditor = function () {
-    var editor = Control.get(this);
-    editor.expanded = !$(this).hasClass('expanded');
-    editor.render(null, editor.item);
 }
 
 ItemEditor.prototype.renderNextItem = function ($element) {

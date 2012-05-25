@@ -60,8 +60,17 @@ i { font-size: 16px; }
 .dashboard-center .manager-folders .tab-content .nav-list { overflow-y: auto; overflow-x: hidden; padding: 0; }
 .dashboard-center .manager-folders .tab-content .nav-list li { border-top: 1px solid #dddddd; padding: 0 0 0 8px; }
 .dashboard-center .manager-folders .tab-content .nav-list li.selected { background-color: #eeeeee; }  /* use @btnBackgroundHighlight */
-.dashboard-center .manager-folders .tab-content textarea { height: 56px; }
+.dashboard-center .manager-folders .tab-content textarea { height: 60px; }
 .dashboard-center .manager-folders .tab-content .input-inline-max { display:inline-block; width: 90%; }
+
+.dashboard-center .manager-folders .tab-content .carousel .input-block-level {
+    border-left-color: transparent; border-bottom-color: transparent; border-right-color: transparent; 
+    overflow-y: hidden;
+}
+.dashboard-center .manager-folders .tab-content .carousel .input-block-level:focus { overflow-y: auto; }
+.dashboard-center .manager-folders .tab-content .carousel .fn-name { color: black; font-weight: bold; }
+.dashboard-center .manager-folders .tab-content .carousel .fn-name:focus { color: black; font-weight: normal; }
+.dashboard-center .manager-folders .tab-content .carousel .add-on { background-color: transparent; }
 
 .inline-left { display: inline-block; float: left; }
 .inline-right { display: inline-block; float: right; }

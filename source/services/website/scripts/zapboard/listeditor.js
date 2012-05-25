@@ -151,6 +151,11 @@ ListView.prototype.renderNameField = function ($item, item) {
     if (field != null) {
         Control.Checkbox.render($item, item, field);
     }
+    // render map icon if weblinks exists 
+    var field = fields[FieldNames.WebLinks];
+    if (field != null) {
+        $item.append(Control.Icons.forMap(item));
+    }
     // render name field
     $item.append(Control.Icons.forSources(item));
     field = fields[FieldNames.Name];
