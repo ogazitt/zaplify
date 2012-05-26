@@ -7,6 +7,7 @@ using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.ADGraph;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.ServiceHost.Nlp;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
 {
@@ -139,11 +140,30 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 }
             }
 
+            // extract a subject hint if one hasn't been discovered yet
+            string subjectHint = GetInstanceData(workflowInstance, ActivityVariables.SubjectHint);
+            if (String.IsNullOrEmpty(subjectHint))
+            {
+                try
+                {
+                    Phrase phrase = new Phrase(item.Name);
+                    if (phrase.Task != null)
+                    {
+                        subjectHint = phrase.Task.Subject;
+                        if (!String.IsNullOrWhiteSpace(subjectHint))
+                            StoreInstanceData(workflowInstance, ActivityVariables.SubjectHint, subjectHint);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException("GenerateSuggestions: could not initialize NLP engine", ex);
+                }
+            }
+
             // get contacts from Cloud AD and Facebook via the AD Graph Person service
             // TODO: also get local contacts from the Contacts folder
             try
             {
-                string subjectHint = GetInstanceData(workflowInstance, ActivityVariables.SubjectHint);
                 var results = adApi.Query(subjectHint ?? "");  
                 foreach (var subject in results)
                 {

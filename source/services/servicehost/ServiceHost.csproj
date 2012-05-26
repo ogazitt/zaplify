@@ -71,6 +71,10 @@
     <Compile Include="ItemProcessor.cs" />
     <Compile Include="GroceryServiceModels.cs" />
     <Compile Include="IWorker.cs" />
+    <Compile Include="nlp\Phrase.cs" />
+    <Compile Include="nlp\Tagger.cs" />
+    <Compile Include="nlp\Task.cs" />
+    <Compile Include="nlp\Tokenizer.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />
     <Compile Include="ConfigurationSettings.cs" />
@@ -88,8 +92,14 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="nlp\Brill_license.txt" />
+    <Content Include="nlp\lex.dat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="nlp\LGPL.txt" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>rd "$(ProjectDir)obj" /S /Q

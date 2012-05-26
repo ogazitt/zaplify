@@ -36,6 +36,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // set up tabbing
             this.IsTabStop = true;
 
+            // if already connected, open to Settings tab
+            if (IsConnected)
+                MainPivot.SelectedIndex = 1;
+
             Loaded += new RoutedEventHandler(SettingsPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(SettingsPage_BackKeyPress);
         }
@@ -102,6 +106,24 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         #region Event handlers
 
+        private void ConnectUserButton_Click(object sender, RoutedEventArgs e)
+        {
+            // validate account info
+            if (String.IsNullOrWhiteSpace(Email.Text) ||
+                String.IsNullOrWhiteSpace(Password.Password))
+            {
+                MessageBox.Show("please enter a valid email address and password");
+                return;
+            }
+
+            // process an account connect request
+            User user = new User() { Email = Email.Text, Password = Password.Password };
+            WebServiceHelper.VerifyUserCredentials(
+                user,
+                new VerifyUserCallbackDelegate(VerifyUserCallback),
+                new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
+        }
+
         private void CreateUserButton_Click(object sender, RoutedEventArgs e)
         {
             // if we're connected, this is a disconnect request
@@ -145,17 +167,16 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return;
             }
             
-            // process an account creation request
-            if (Email.Text == null || Email.Text == "" ||
-                Password.Password == null || Password.Password == "")
+            // validate account info
+            if (String.IsNullOrWhiteSpace(Email.Text) ||
+                String.IsNullOrWhiteSpace(Password.Password))
             {
                 MessageBox.Show("please enter a valid email address and password");
                 return;
             }
 
+            // process an account creation request
             User user = new User() { Email = Email.Text, Password = Password.Password };
-            App.ViewModel.User = user;
-
             WebServiceHelper.CreateUser(
                 user,
                 new CreateUserCallbackDelegate(CreateUserCallback),
@@ -280,17 +301,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             NavigationService.GoBack();
         }
 
-        private void ConnectUserButton_Click(object sender, RoutedEventArgs e)
-        {
-            User user = new User() { Email = Email.Text, Password = Password.Password };
-            App.ViewModel.User = user;
-
-            WebServiceHelper.VerifyUserCredentials(
-                user,
-                new VerifyUserCallbackDelegate(VerifyUserCallback),
-                new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
-        }
-
         #endregion
 
         #region Authentication callback methods
@@ -307,6 +317,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         MessageBox.Show(String.Format("successfully connected to account {0}; data sync will start automatically.", Email.Text));
                         accountOperationSuccessful = true;
                         user.Synced = true;
+                        // the server no longer echos the password in the payload so keep the local value when successful
+                        if (user.Password == null)
+                            user.Password = Password.Password;
                         App.ViewModel.User = user;
                         RequestQueue.PrepareQueueForAccountConnect();
                         App.ViewModel.SyncWithService();
@@ -357,6 +370,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         MessageBox.Show(String.Format("user account {0} successfully created", Email.Text));
                         accountOperationSuccessful = true;
                         user.Synced = true;
+                        // the server no longer echos the password in the payload so keep the local value when successful
+                        if (user.Password == null)
+                            user.Password = Password.Password;
                         App.ViewModel.User = user;
                         App.ViewModel.SyncWithService();
                         break;

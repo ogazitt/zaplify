@@ -1,7 +1,7 @@
 @echo off
 
-cd models
-icacls groceries.txt /grant Everyone:F
+cd nlp
+icacls lex.dat /grant Everyone:R
 cd ..
 
 if "%EMULATED%"=="true" goto :EOF

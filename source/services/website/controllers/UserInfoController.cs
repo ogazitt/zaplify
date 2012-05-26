@@ -31,7 +31,8 @@
                     Where(item => item.UserID == CurrentUser.ID
                         && item.FolderID == userFolder.ID
                         && item.ParentID == possibleSubjectList.ID
-                        && item.Name.StartsWith(startsWith)
+                        //&& item.Name.StartsWith(startsWith)           // entity framework does not support ignore case
+                        // && System.Data.Objects.SqlClient.SqlFunctions.PatIndex(startsWith + "%", item.Name) == 1     // not case-insensitive either
                     ).ToList<Item>();
 
                 foreach (var item in possibleSubjects)
@@ -43,6 +44,10 @@
                         FieldValue fv = item.GetFieldValue(FieldNames.Value);
                         if (fv != null)
                         {
+                            if (subjects.ContainsKey(item.Name))
+                            {   // disambiguate duplicate names
+                                item.Name = string.Format("{0} ({1})", item.Name, subjects.Count.ToString());
+                            }
                             subjects.Add(item.Name, fv.Value);
                         }
                         if (subjects.Count == maxCount) { break; }

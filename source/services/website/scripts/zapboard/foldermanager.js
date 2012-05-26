@@ -48,7 +48,7 @@ FolderManager.prototype.hide = function () {
     }
 }
 
-FolderManager.prototype.show = function () {
+FolderManager.prototype.show = function (forceRender) {
     if (this.$element == null) {
         this.$element = $('<div class="manager-folders" />').appendTo(this.$parentElement);
         // render tabs
@@ -58,7 +58,8 @@ FolderManager.prototype.show = function () {
         $tab.find('a').attr('href', '.' + FolderManager.ListView);
         $tab = $('<li><a data-toggle="tab"><i class="icon-edit"></i> Item</a></li>').appendTo($tabs);
         $tab.find('a').attr('href', '.' + FolderManager.ItemView);
-        $tab = $('<li><a data-toggle="tab"><i class="icon-info-sign"></i> List Properties</a></li>').appendTo($tabs);
+        $tab = $('<li class="pull-right"><a data-toggle="tab"><i class="icon-cog"></i></a></li>').appendTo($tabs);
+        $tab.attr('title', 'List Settings').tooltip({ placement: 'bottom' });
         $tab.find('a').attr('href', '.' + FolderManager.PropertyView);
         // render views
         var $tabContent = $('<div class="tab-content" />').appendTo(this.$element);
@@ -77,7 +78,7 @@ FolderManager.prototype.show = function () {
             Control.get($tabs).viewChanged($(e.target)); ;
         });
     }
-    //this.render();
+    if (forceRender == true) { this.render(); }
     this.$element.show();
 }
 
@@ -175,8 +176,10 @@ FolderManager.prototype.activeView = function (viewName) {
     if (viewName === undefined) {       // get
         return (dataModel.UserSettings.ViewState.ActiveView != null) ? dataModel.UserSettings.ViewState.ActiveView : FolderManager.ListView;
     } else {                            // set
-        dataModel.UserSettings.ViewState.ActiveView = viewName;
-        this.render();
+        if (dataModel.UserSettings.ViewState.ActiveView != viewName) {
+            dataModel.UserSettings.ViewState.ActiveView = viewName;
+            this.render();
+        }
     }
 }
 

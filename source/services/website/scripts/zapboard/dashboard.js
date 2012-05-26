@@ -79,8 +79,8 @@ Dashboard.Close = function Dashboard$Close(event) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
-    Dashboard.folderList.render(Dashboard.$left, Dashboard.dataModel.Folders);
     Dashboard.ManageFolder(folderID, itemID);
+    Dashboard.folderList.render(Dashboard.$left, Dashboard.dataModel.Folders);
 }
 
 // event handler, do not reference 'this' to access static Dashboard
@@ -89,8 +89,12 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     if (itemID == null) {
         Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
-        Dashboard.showManager(Dashboard.folderManager);
-        Dashboard.folderManager.selectFolder(folder);
+        if (folder != null) {
+            Dashboard.showManager(Dashboard.folderManager);
+            Dashboard.folderManager.selectFolder(folder);
+        } else {
+            Dashboard.showManager(Dashboard.helpManager);
+        }
     } else {
         item = (folder != null && itemID != null) ? folder.Items[itemID] : null;
         Dashboard.dataModel.UserSettings.Selection(folderID, itemID);
@@ -159,16 +163,16 @@ Dashboard.showHeaderOptions = function Dashboard$showHeaderOptions() {
     });
 }
 
-Dashboard.showManager = function Dashboard$showManager(manager) {
+Dashboard.showManager = function Dashboard$showManager(manager, forceRender) {
     if (Dashboard.currentManager != manager) {
         Dashboard.currentManager = manager;
         Dashboard.folderManager.hide();
         Dashboard.settingsManager.hide();
         Dashboard.helpManager.hide();
-        (manager.addWell == true) ? Dashboard.$center.addClass('well') : Dashboard.$center.removeClass('well'); 
+        (manager.addWell == true) ? Dashboard.$center.addClass('well') : Dashboard.$center.removeClass('well');
     }
     // always show to force render if necessary
-    manager.show();
+    manager.show(forceRender);
 }
 
 Dashboard.resize = function Dashboard$resize() {
@@ -186,8 +190,9 @@ Dashboard.resize = function Dashboard$resize() {
     Dashboard.$center.height(dbHeight);
     Dashboard.$right.height(dbHeight);
 
+    Dashboard.showManager(Dashboard.currentManager, true);
     Dashboard.folderList.render(Dashboard.$left);
-    Dashboard.folderManager.render();
+    //Dashboard.folderManager.render();
 
     $(window).bind('resize', Dashboard.resize);
     Dashboard.resizing = false;

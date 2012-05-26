@@ -39,11 +39,12 @@ FolderList.prototype.render = function ($element, folders) {
     }
     $element.empty();
     this.$element = $('<ul class="nav nav-pills nav-stacked" />').appendTo($element);
+    Control.List.sortable(this.$element);
     for (var id in this.folders) {
         var folder = this.folders[id];
         $folder = $('<li><a><strong>&nbsp;' + folder.Name + '</strong></a></li>').appendTo(this.$element);
         $folder.data('control', this);
-        $folder.data('folder', folder);
+        $folder.data('item', folder);
         $folder.click(function () { Control.get(this).folderClicked($(this)); });
         $folder.find('strong').prepend(Control.Icons.forItemType(folder));
         if (folder.IsSelected()) { this.select($folder, folder); }
@@ -54,6 +55,7 @@ FolderList.prototype.render = function ($element, folders) {
 FolderList.prototype.renderItems = function ($folder, folder) {
     var items = folder.GetItems();
     $itemList = $('<ul class="itemlist nav nav-pills nav-stacked" />').appendTo($folder.parent());
+    Control.List.sortable($itemList);
     for (var id in items) {
         var item = items[id];
         if (item.IsList) {
@@ -70,7 +72,7 @@ FolderList.prototype.renderItems = function ($folder, folder) {
 }
 
 FolderList.prototype.folderClicked = function ($folder) {
-    var folder = $folder.data('folder');
+    var folder = $folder.data('item');
     this.toggle($folder);
     this.select($folder, folder);
     this.fireSelectionChanged(folder.ID);
@@ -93,14 +95,14 @@ FolderList.prototype.deselect = function () {
 }
 
 FolderList.prototype.expand = function ($folder) {
-    var folder = $folder.data('folder');
+    var folder = $folder.data('item');
     $folder.addClass('expanded');
     folder.Expand(true);
     Control.expand($folder.next('.itemlist'));
 }
 
 FolderList.prototype.collapse = function ($folder) {
-    var folder = $folder.data('folder');
+    var folder = $folder.data('item');
     $folder.removeClass('expanded');
     folder.Expand(false);
     Control.collapse($folder.next('.itemlist'));

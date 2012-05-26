@@ -25,6 +25,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         static string suggestionsConnection;
         static string dataServicesConnection;
         static string dataServicesEndpoint;
+        static string lexiconFileName;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -129,6 +130,46 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     }
                 }
                 return dataServicesEndpoint;
+            }
+        }
+
+        public static string LexiconFileName
+        {
+            get
+            {
+                if (lexiconFileName == null)
+                {
+                    if (IsAzure && !IsAzureDevFabric)
+                    {
+                        // Azure (deployed)
+                        if (HttpContext.Current != null)
+                        {
+                            // web role
+                            string driveLetter = HttpContext.Current.Server.MapPath(@"~").Substring(0, 1);
+                            lexiconFileName = driveLetter + @":\approot\bin\nlp\lex.dat";
+                        }
+                        else
+                        {
+                            // worker role
+                            lexiconFileName = @"nlp\lex.dat";
+                        }
+                    }
+                    else
+                    {
+                        // local (either dev fabric or cassini)
+                        if (HttpContext.Current != null)
+                        {
+                            // web role - azure dev fabric OR cassini
+                            lexiconFileName = HttpContext.Current.Server.MapPath(@"bin\nlp\lex.dat");
+                        }
+                        else
+                        {
+                            // azure worker role (dev fabric)
+                            lexiconFileName = @"nlp\lex.dat";
+                        }
+                    }
+                }
+                return lexiconFileName;
             }
         }
 

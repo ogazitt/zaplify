@@ -4,8 +4,6 @@ tmp/
 build/
 .DS_Store
 source/services/website/bin/
-*.generated.min.css
-*.generated.min.js
 source/devices/winphone/winphone/PerformanceLogs/
 source/services/azure/csx/
 XapCacheFile.xml
