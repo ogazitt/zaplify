@@ -454,6 +454,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             return fieldValue;
         }
 
+        public void RemoveFieldValue(FieldValue fv)
+        {
+            fieldValues.Remove(fv);
+            fieldValueDict.Remove(fv.FieldName);
+        }
+
         // local-only properties used for databinding
 
         public string Address

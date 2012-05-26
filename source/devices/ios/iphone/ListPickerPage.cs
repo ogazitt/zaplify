@@ -4,18 +4,20 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using MonoTouch.AddressBookUI;
+using MonoTouch.Dialog;
+using MonoTouch.UIKit;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using BuiltSteady.Zaplify.Shared.Entities;
-using MonoTouch.Dialog;
-using MonoTouch.UIKit;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public class ListPickerPage 
 	{
         private UINavigationController controller;
+        private DialogViewController dvc;
         private Item valueList;
         private Item pickList;
         private string caption;
@@ -66,18 +68,19 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // add the list to the folder
                 Folder folder = App.ViewModel.Folders.Single(f => f.ID == valueList.FolderID);
                 folder.Items.Add(valueList);
+                StorageHelper.WriteFolder(folder);
 
                 // store the list's Guid in the item's property 
                 pi.SetValue(container, id.ToString(), null);
     
                 // save the item change, which will queue up the update item operation
-                itemPage.SaveButton_Click(null, null);
+                //itemPage.SaveButton_Click(null, null);
             }
          
             // build the current picker list and render it
             currentList = BuildCurrentList(valueList, pickList);
             root = RenderPicker(valueList, pickList);            
-            var dvc = new DialogViewController (root, true);
+            dvc = new DialogViewController (root, true);
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
             controller.PushViewController (dvc, true);
         }
@@ -118,10 +121,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
-                        {
-                            ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                            Body = currentItem
-                        });
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = currentItem
+                    });
             }
             else
             {
@@ -133,10 +136,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(
                     new RequestQueue.RequestRecord()
-                        {
-                            ReqType = RequestQueue.RequestRecord.RequestType.Delete,
-                            Body = currentItem
-                        });
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Delete,
+                        Body = currentItem
+                    });
             }
             
             // re-render the comma-delimited list in the Element that was passed in
@@ -158,21 +161,60 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // add all the valid picker values excluding the already selected values
             foreach (var item in pickerValues.Items)
             {
-                try
-                {
-                    // try to match the current item against the list of currently selected items
-                    values.Items.Single(it => it.ItemTypeID == SystemItemTypes.Contact && it.ID == item.ItemRef ||
-                                              it.ItemTypeID == SystemItemTypes.Reference && it.ItemRef == item.ItemRef);
-                }
-                catch
-                {
-                    // an exception indicates this item wasn't found - therefore we need to add it
+                if (!values.Items.Any(it => it.ItemTypeID == SystemItemTypes.Contact && it.ID == item.ItemRef ||
+                                      it.ItemTypeID == SystemItemTypes.Reference && it.ItemRef == item.ItemRef))
                     curr.Add(item);
-                }
             }            
             return curr;
         }
-        
+
+        private void HandleAddedContact(Item contact)
+        {
+            // if this contact was found and already selected, nothing more to do (and don't need to refresh the display)
+            if (valueList.Items.Any(i => i.ItemRef == contact.ID))
+                return;
+
+            // create a new itemref 
+            var itemRef = new Item()
+            {
+                Name = contact.Name,
+                FolderID = valueList.FolderID, 
+                ItemTypeID = SystemItemTypes.Reference, 
+                ParentID = valueList.ID, 
+                ItemRef = contact.ID
+            };
+
+            // add the itemref to the folder
+            Folder folder = App.ViewModel.Folders.FirstOrDefault(f => f.ID == valueList.FolderID);
+            if (folder == null)
+                return;
+            folder.Items.Add(itemRef);
+
+            // save the current state of the folder
+            StorageHelper.WriteFolder(folder);
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = itemRef,
+                });
+
+            // add the new item reference to the selected value list
+            valueList.Items.Add(itemRef);
+
+            // build the current picker list and render it
+            currentList = BuildCurrentList(valueList, pickList);
+            root = RenderPicker(valueList, pickList);            
+            dvc.Root = root;
+            dvc.TableView.ReloadData();
+
+            // re-render the comma-delimited list in the Element that was passed in
+            RenderCommaList(stringElement, valueList);
+            stringElement.GetImmediateRootElement().Reload(stringElement, UITableViewRowAnimation.None);
+        }
+
         private void NavigateBack()
         {
             // since we're in the edit page, we need to pop twice
@@ -200,23 +242,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
         private RootElement RenderPicker(Item values, Item pickerValues)
         {
-            // build a list of selections excluding the already selected values
-            Item selections = new Item(pickerValues);
-            selections.Items = new ObservableCollection<Item>();
-            foreach (var item in pickerValues.Items)
-            {
-                try
-                {
-                    // try to match the current item against the list of currently selected items
-                    values.Items.Single(it => it.ItemRef == item.ItemRef);
-                }
-                catch
-                {
-                    // an exception indicates this item wasn't found - therefore we need to add it
-                    selections.Items.Add(item);
-                }
-            }
-            
             // build a section with all the items in the current list 
             section = new Section();
             foreach (var item in currentList)
@@ -228,9 +253,32 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 section.Add(ce);
             }
             
-            return new RootElement(caption) { section };
+            return new RootElement(caption) 
+            {
+                new Section()
+                {
+                    new StringElement("Add contact", delegate {
+                        var picker = new ABPeoplePickerNavigationController();
+                        picker.SelectPerson += delegate(object sender, ABPeoplePickerSelectPersonEventArgs e) {
+                            // process the contact - if it's not null, handle adding the new contact to the ListPicker
+                            var contact = ContactPickerHelper.ProcessContact(e.Person);
+                            if (contact != null)
+                                HandleAddedContact(contact);
+                            picker.DismissModalViewControllerAnimated(true);
+                        };
+
+                        picker.Cancelled += delegate {
+                            picker.DismissModalViewControllerAnimated(true);
+                        };
+
+                        // present the contact picker
+                        controller.PresentModalViewController(picker, true);
+                    }),
+                },
+                section 
+            };
         }
-        
+
         #endregion
     }
 }

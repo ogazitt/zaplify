@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Text;
+using MonoTouch.AddressBookUI;
+using MonoTouch.Dialog;
 using MonoTouch.Dialog.Utilities;
 using MonoTouch.Foundation;
 using MonoTouch.UIKit;
@@ -10,7 +13,6 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
 using BuiltSteady.Zaplify.Shared.Entities;
-using MonoTouch.Dialog;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -26,6 +28,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private UITableView TableView;
         private UIToolbar Toolbar;
         
+        private static UIImage editButtonImage;
+        private static UIImage emailButtonImage;
         private static UIImage sortButtonImage;
         private string OrderBy;
 
@@ -272,6 +276,25 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
         }
   
+        private UIBarButtonItem CreateEmailButton()
+        {
+            // if haven't loaded the email image yet, do so now
+            if (emailButtonImage == null)
+                emailButtonImage = new UIImage("Images/18-envelope.png");
+            
+            // clicking the sort button and its event handler, which creates a new DialogViewController to host the sort picker
+            var emailButton = new UIBarButtonItem(emailButtonImage, UIBarButtonItemStyle.Plain, delegate {
+                var mailHelper = new MailHelper(this)
+                {
+                    Subject = "Zaplify List: " + List.Name,
+                    Body = GetListAsText()
+                };
+                mailHelper.SendMail();
+            });
+
+            return emailButton;
+        }
+
         private UIBarButtonItem CreateSortButton()
         {
             // if haven't loaded the sort image yet, do so now
@@ -358,7 +381,51 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             
             return sortButton;
         }
-        
+
+        public string GetListAsText()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(List.Name);
+            sb.AppendLine();
+
+            foreach (var section in Sections)
+            {
+                // render a separator (section heading)
+                sb.AppendLine(section.Name);
+
+                foreach (var item in section.Items)
+                {
+                    // skip lists
+                    if (item.IsList)
+                        continue;
+    
+                    // indent item
+                    sb.Append("    ");
+    
+                    // render a unicode checkbox (checked or unchecked) if the item has a complete field
+                    if (App.ViewModel.ItemTypes.Any(it => it.ID == item.ItemTypeID && it.Fields.Any(f => f.Name == FieldNames.Complete)))
+                    {
+                        var complete = item.GetFieldValue(FieldNames.Complete);
+                        if (complete != null && Convert.ToBoolean(complete.Value) == true)
+                            sb.Append("\u2612 ");
+                        else
+                            sb.Append("\u2610 ");
+                    }
+    
+                    // render the item name
+                    sb.Append(item.Name);
+    
+                    var duedate = item.GetFieldValue(FieldNames.DueDate);
+                    if (duedate != null && duedate.Value != null)
+                        sb.Append(", due on " + Convert.ToDateTime(duedate.Value).ToString("d"));
+    
+                    sb.AppendLine();
+                }
+            }
+
+            return sb.ToString();
+        }
+
         private string FormatSectionHeading(string displayType, string value)
         {
             switch (displayType)
@@ -416,25 +483,29 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             Toolbar = new UIToolbar() { Frame = new RectangleF(0, tableHeight, View.Bounds.Width, toolbarHeight) };                            
             var flexSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);            
 
-            //var addButton = new UIBarButtonItem("\u2795" /* big plus */ + "List", UIBarButtonItemStyle.Plain, delegate { 
-            var addButton = new UIBarButtonItem(UIBarButtonSystemItem.Add, delegate { 
-                ListEditor listEditor = new ListEditor(this.NavigationController, Folder, null, List.ID);
-                listEditor.PushViewController();
-            });
+            var addButton = new UIBarButtonItem(UIBarButtonSystemItem.Add, delegate { AddButton_Click(); });
+
+            // create the email button
+            var emailButton = CreateEmailButton();
 
             // create the sort button along with the action, which will instantiate a new DialogViewController
             var sortButton = CreateSortButton();
                       
             // create the edit and done buttons
             // the edit button puts the table in edit mode, and the done button returns to normal mode
-            var editButton = new UIBarButtonItem(UIBarButtonSystemItem.Edit);
+            //var editButton = new UIBarButtonItem(UIBarButtonSystemItem.Edit);
+            if (editButtonImage == null)
+                editButtonImage = new UIImage("Images/187-pencil.png");
+            //var editButton = new UIBarButtonItem(editButtonImage, UIBarButtonItemStyle.Plain);
+            var editButton = new UIBarButtonItem(editButtonImage, UIBarButtonItemStyle.Plain, null);
+
             var doneButton = new UIBarButtonItem(UIBarButtonSystemItem.Done);           
             editButton.Clicked += delegate
             { 
                 if (TableView.Editing == false)
                 {
                     TableView.SetEditing(true, true);
-                    Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, emailButton, flexSpace, doneButton, flexSpace }, false);
                 }
             };
             doneButton.Clicked += delegate
@@ -442,7 +513,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (TableView.Editing == true)
                 {
                     TableView.SetEditing(false, true);
-                    Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+                    Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, emailButton, flexSpace, editButton, flexSpace  }, false);
 
                     // trigger a sync with the Service 
                     App.ViewModel.SyncWithService();   
@@ -451,7 +522,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }
             };
 
-            Toolbar.SetItems(new UIBarButtonItem[] { /*flexSpace, addButton,*/ flexSpace, sortButton, flexSpace, editButton, flexSpace }, false);
+            Toolbar.SetItems(new UIBarButtonItem[] { flexSpace, addButton, flexSpace, sortButton, flexSpace, emailButton, flexSpace, editButton, flexSpace }, false);
             this.View.AddSubview(Toolbar);
         }
         
@@ -459,6 +530,33 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
              
 		#region Event Handlers
 		
+        private void AddButton_Click()
+        {
+            if (List.ItemTypeID == SystemItemTypes.Contact)
+            {
+                var picker = new ABPeoplePickerNavigationController();
+                picker.SelectPerson += delegate(object sender, ABPeoplePickerSelectPersonEventArgs e) {
+                    // process the contact - add the new contact or update the existing contact's info from the address book
+                    ContactPickerHelper.ProcessContact(e.Person);
+                    picker.DismissModalViewControllerAnimated(true);
+                };
+
+                picker.Cancelled += delegate {
+                    picker.DismissModalViewControllerAnimated(true);
+                };
+
+                // present the contact picker
+                NavigationController.PresentModalViewController(picker, true);
+                return;
+            }
+
+            // if there is no itemtype-specific action, navigate to the generic Add page
+            var addController = App.TabBarController.ViewControllers[0] as UINavigationController;
+            if (addController != null)
+                addController.PopToRootViewController(false);
+            App.TabBarController.SelectedIndex = 0;
+        }
+
 		/// <summary>
         /// Handle click event on Complete checkbox
         /// </summary>
@@ -617,7 +715,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				ItemType itemType = ItemType.ItemTypes[item.ItemTypeID];
 				
 				// note that item types with "Complete" fields are complicated to cache - bad behavior happens when we reuse a cell
-				UITableViewCell cell = itemType.HasField(FieldNames.Complete) ? null : tableView.DequeueReusableCell (itemType.Name);
+				UITableViewCell cell = itemType.HasField(FieldNames.Complete) ? null : tableView.DequeueReusableCell(itemType.Name);
+                cell = null;  // update: with pictures, other cells are too hard to cache as well.  give up on caching cells.
 				if (cell == null) 
                 {
 					cell = new UITableViewCell (UITableViewCellStyle.Subtitle, itemType.Name);
@@ -690,7 +789,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // render a picture if one exists 
                 // this picture will layer on top of the existing icon - in case the picture is unavailable (e.g. disconnected)
                 var picFV = item.GetFieldValue(FieldNames.Picture, false);
-                if (picFV != null && !String.IsNullOrEmpty(picFV.Value))
+                if (item.IsList == false && 
+                    !itemType.HasField(FieldNames.Complete) && 
+                    picFV != null && !String.IsNullOrEmpty(picFV.Value))
                 {
                     var callback = new ImageLoaderCallback(controller, cell.ImageView, indexPath);
                     //var image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), callback);

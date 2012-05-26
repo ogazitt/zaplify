@@ -118,10 +118,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 
                 entry.Changed += delegate {
 					FetchValue ();
+                    if (Changed != null)
+                        Changed(this, new EventArgs());   
 				};
 				entry.Ended += delegate {
 					FetchValue ();
-					entry.ResignFirstResponder();
+                    if (Changed != null)
+                        Changed(this, new EventArgs());
+   					entry.ResignFirstResponder();
 				};
 
 				entry.Started += delegate {
@@ -161,9 +165,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			if (newValue == Value)
 				return;
 
-            if (Changed != null)
-                Changed(this, new EventArgs());
-   
             // check for return key and resign responder if it is
             if (newValue.IndexOf('\n') >= 0)
             {
