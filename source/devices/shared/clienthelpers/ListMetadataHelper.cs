@@ -151,7 +151,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             StoreListMetadataValue(clientSettings, list, FieldNames.SortBy, listSortOrder);
         }
 
+        public static Item GetDefaultList(Folder clientSettings, Guid itemType)
+        {
+            var defaultLists = GetDefaultListsItem(clientSettings);
+            if (defaultLists == null) 
+                return null;
+            return clientSettings.Items.FirstOrDefault(i => i.ParentID == defaultLists.ID && i.Name == itemType.ToString());
+        }
+
         #region Helpers
+
+        private static Item GetDefaultListsItem(Folder clientSettings)
+        {
+            if (clientSettings == null)
+                return null;
+
+            // get the list of list sort orders
+            Item defaultLists = null;
+            if (clientSettings.Items.Any(i => i.Name == SystemEntities.DefaultLists))
+                defaultLists = clientSettings.Items.Single(i => i.Name == SystemEntities.DefaultLists);
+
+            return defaultLists;
+        }
 
         private static Item GetListMetadataList(Folder clientSettings)
         {

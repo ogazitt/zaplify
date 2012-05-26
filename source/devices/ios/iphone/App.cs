@@ -16,7 +16,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	{
 		// class-level declarations
 		UIWindow window;
-		UITabBarController tabBarController;
+		static UITabBarController tabBarController;
 		
         private static MainViewModel viewModel = null;
 		private bool initialSyncAlreadyHappened = false;
@@ -36,6 +36,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return viewModel;
             }
         }
+
+        public static UITabBarController TabBarController { get { return tabBarController; } }
 		
 		//
 		// This method is invoked when the application has loaded and is ready to run. In this 

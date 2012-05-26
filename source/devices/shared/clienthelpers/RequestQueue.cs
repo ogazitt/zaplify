@@ -129,7 +129,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 lock (fileLock)
                 {
-                    file.DeleteFile(@"RequestRecords.xml");
+                    try 
+                    {
+                        file.DeleteFile(@"RequestRecords.xml");
+                    } 
+                    catch (Exception ex) 
+                    {
+                        TraceHelper.AddMessage("DeleteQueue: could not delete the Request queue file");
+                    }
                 }
             }
         }
@@ -337,7 +344,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             bool deleteQueue = true;
             var requests = GetAllRequestRecords();
             if (requests != null)
-                foreach (var r in GetAllRequestRecords())
+                foreach (var r in requests)
                     if (r.IsDefaultObject == false)
                     {
                         deleteQueue = false;
