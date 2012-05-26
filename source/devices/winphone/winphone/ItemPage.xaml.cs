@@ -866,23 +866,41 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType) == false)
                 return;
 
-            int row = 0;
+            // create a list of all the first subitems in each of the sublists of the item (e.g. Contacts, Places, etc)
+            var subLists = App.ViewModel.Items.Where(i => i.ParentID == item.ID && i.IsList == true).ToList();
+            var subItems = new List<Item>();
+            foreach (var subList in subLists)
+            {
+                var itemRef = App.ViewModel.Items.FirstOrDefault(i => i.ParentID == subList.ID && i.ItemTypeID == SystemItemTypes.Reference);
+                if (itemRef != null)
+                {
+                    var target = App.ViewModel.Items.FirstOrDefault(i => i.ID == itemRef.ItemRef);
+                    if (target != null)
+                        subItems.Add(target);
+                }
+            }
 
             // render fields
+            int row = 0;
             foreach (ActionType action in App.ViewModel.Constants.ActionTypes.OrderBy(a => a.SortOrder))
             {
-                FieldValue fieldValue = null;
-                
-                // find out if the property exists on the current item
-                try
+                FieldValue fieldValue = item.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                if (fieldValue == null)
                 {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == action.FieldName);
-                }
-                catch (Exception)
-                {
-                    // we can't do anything with this field since we don't have it on the local type
-                    // but that's ok - we can keep going
-                    continue;
+                    bool found = false;
+                    foreach (var i in subItems)
+                    {
+                        fieldValue = i.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                        if (fieldValue != null)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // if fieldvalue isn't found on this item or other subitems, don't process the action
+                    if (found == false)
+                        continue;
                 }
 
                 // get the value of the property
