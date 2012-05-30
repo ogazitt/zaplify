@@ -202,16 +202,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        public int IncompleteCount
+        public int ChildrenCount
         {
             get
             {
                 int i = 0;
-                foreach (var item in Items)
-                {
-                    if (item.Complete == false)
+                foreach (var item in items)
+                    if (item.ParentID == null || item.ParentID == Guid.Empty)
                         i++;
-                }
                 return i;
             }
         }

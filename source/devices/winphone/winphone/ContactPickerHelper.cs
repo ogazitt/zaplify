@@ -1,15 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using MonoTouch.AddressBook;
-using Xamarin.Contacts;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Shared.Entities;
-using MonoTouch.Foundation;
+using Microsoft.Phone.UserData;
 
-namespace BuiltSteady.Zaplify.Devices.IPhone
+namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public class ContactPickerHelper
     {
@@ -25,7 +23,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         /// <param name='selectedPerson'>
         /// Selected person from the people picker
         /// </param>
-        public static Item ProcessContact(ABPerson selectedPerson)
+        public static Item ProcessContact(Contact selectedPerson)
         {
             var contact = GetExistingContact(selectedPerson);
             if (contact == null)
@@ -37,12 +35,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             return contact;
         }
 
-        private static void AddContactInfo(ABPerson selectedPerson, Item item)
+        public static void AddContactInfo(Contact contact, Item item)
         {
-            // find the contact in the address book
-            var book = new AddressBook(); 
-            var contact = book.FirstOrDefault(c => c.Id == selectedPerson.Id.ToString());
-
             if (contact == null)
                 return;
 
@@ -50,26 +44,29 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             var itemCopy = new Item(item, true);
 
             // get more info from the address book
-            var mobile = (from p in contact.Phones where 
-                p.Type == Xamarin.Contacts.PhoneType.Mobile
-                select p.Number).FirstOrDefault();
-            var home = (from p in contact.Phones where 
-                p.Type == Xamarin.Contacts.PhoneType.Home
-                select p.Number).FirstOrDefault();
-            var work = (from p in contact.Phones where 
-                p.Type == Xamarin.Contacts.PhoneType.Work
-                select p.Number).FirstOrDefault();
-            var email = (from em in contact.Emails  
-                select em.Address).FirstOrDefault();
+            var mobile = (from p in contact.PhoneNumbers where 
+                p.Kind == PhoneNumberKind.Mobile
+                select p.PhoneNumber).FirstOrDefault();
+            var home = (from p in contact.PhoneNumbers where
+                p.Kind == PhoneNumberKind.Home
+                select p.PhoneNumber).FirstOrDefault();
+            var work = (from p in contact.PhoneNumbers where
+                p.Kind == PhoneNumberKind.Work
+                select p.PhoneNumber).FirstOrDefault();
+            var email = (from em in contact.EmailAddresses  
+                select em.EmailAddress).FirstOrDefault();
             var website = (from w in contact.Websites  
-                select w.Address).FirstOrDefault();
+                select w).FirstOrDefault();
+            var birthday = (from b in contact.Birthdays
+                            select b).FirstOrDefault();
+            string FacebookPrefix = "fb://profile/";
+            var facebook = (from w in contact.Websites
+                            where w.Contains(FacebookPrefix)
+                            select w).FirstOrDefault();
+            var fbid = !String.IsNullOrWhiteSpace(facebook) ? facebook.Substring(facebook.IndexOf(FacebookPrefix) + FacebookPrefix.Length) : null;
 
-            string birthday = null;
-            if (selectedPerson.Birthday != null)
-                birthday = ((DateTime)selectedPerson.Birthday).ToString("d");    
-
-            if (birthday != null)
-                item.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
+            if (birthday != null && birthday.Ticks != 0)
+                item.GetFieldValue(FieldNames.Birthday, true).Value = birthday.ToString("d");
             if (mobile != null)
                 item.GetFieldValue(FieldNames.Phone, true).Value = mobile;
             if (home != null)
@@ -78,10 +75,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 item.GetFieldValue(FieldNames.WorkPhone, true).Value = work;
             if (email != null)
                 item.GetFieldValue(FieldNames.Email, true).Value = email;
-            /*
-            if (website != null)
-                item.GetFieldValue(FieldNames.Website, true).Value = website
-                */
+            //if (website != null)
+            //    item.GetFieldValue(FieldNames.Website, true).Value = website;
+            if (fbid != null)
+            {
+                item.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
+                var sourcesFV = item.GetFieldValue(FieldNames.Sources, true);
+                if (!String.IsNullOrEmpty(sourcesFV.Value))
+                {
+                    if (!sourcesFV.Value.Contains(Sources.Facebook))
+                        sourcesFV.Value = String.Format("{0},{1}", sourcesFV.Value, Sources.Facebook);
+                }
+                else
+                    sourcesFV.Value = Sources.Facebook;
+            }
 
             // save changes to local storage
             Folder folder = App.ViewModel.LoadFolder(item.FolderID);
@@ -97,26 +104,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     ID = item.ID
                 });
 
-            // add the zaplify contact header to a special Zaplify "related name" field 
-            // use the native address book because the cross-platform AddressBook class is read-only
-            var ab = new ABAddressBook();
-            var contactToModify = ab.GetPerson(selectedPerson.Id);
-            var relatedNames = contactToModify.GetRelatedNames().ToMutableMultiValue();
-            if (relatedNames.Any(name => name.Label == ZaplifyContactHeader))
-            {
-                // remove the existing one (can't figure out a way to get a mutable ABMultiValueEntry out of zapField)
-                var zapField = relatedNames.Single(name => name.Label == ZaplifyContactHeader);
-                relatedNames.RemoveAt(relatedNames.GetIndexForIdentifier(zapField.Identifier));
-            }
-            // add the Zaplify related name field with the itemID value
-            relatedNames.Add(item.ID.ToString(), new MonoTouch.Foundation.NSString(ZaplifyContactHeader));
-            contactToModify.SetRelatedNames(relatedNames);
-
-            // save changes to the address book
-            ab.Save();
+            // TODO: add the zaplify contact header to a special Zaplify Note field 
+            // can't find a way to do this currently :-(
         }
 
-        private static Item CreateNewContact(ABPerson selectedPerson)
+        private static Item CreateNewContact(Contact selectedPerson)
         {
             Guid id = Guid.NewGuid();
             // get the default list for contacts
@@ -172,13 +164,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             return newContact;
         }
 
-        private static Item GetExistingContact(ABPerson selectedPerson)
+        private static Item GetExistingContact(Contact selectedPerson)
         {
-            var list = selectedPerson.GetRelatedNames().ToList();
-            if (list.Any(name => name.Label == ZaplifyContactHeader))
+            if (selectedPerson == null || selectedPerson.Notes == null)
+                return null;
+            if (selectedPerson.Notes.Any(name => name.Contains(ZaplifyContactHeader)))
             {
-                var zapField = list.Single(name => name.Label == ZaplifyContactHeader);
-                Guid id = new Guid(zapField.Value);
+                var zapField = selectedPerson.Notes.Single(name => name.Contains(ZaplifyContactHeader));
+                var index = zapField.IndexOf(ZaplifyContactHeader);
+                var idstring = zapField.Substring(index + ZaplifyContactHeader.Length, Guid.Empty.ToString().Length);
+                Guid id = new Guid(idstring);
                 return App.ViewModel.Items.FirstOrDefault(i => i.ID == id);
             }
             return null;

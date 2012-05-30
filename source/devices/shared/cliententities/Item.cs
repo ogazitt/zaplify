@@ -525,6 +525,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        public string CompletedOn
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.CompletedOn, false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.CompletedOn, true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged(FieldNames.CompletedOn);
+                }
+            }
+        }
+
         public string Description
         {
             get
@@ -589,19 +610,28 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         }
 
         // display property for Due
-        public string DueDisplay { get { return Due == null ? null : String.Format("{0}", ((DateTime)Due).ToString("d")); } }
+        public string DueDisplay 
+        { 
+            get 
+            { 
+                if (Complete == true)
+                    return CompletedOn == null ? null : String.Format("completed {0}", Convert.ToDateTime(CompletedOn).ToString("d")); 
+                else
+                    return Due == null ? null : String.Format("due {0}", ((DateTime)Due).ToString("d")); 
+            } 
+        }
 
         // color property for Due
         public string DueDisplayColor
         {
             get
-            {
-                if (Due == null)
-                    return null;
-                
+            {                
                 // if the item is already completed, no need to alert past-due items
                 if (Complete == true)
                     return "#ffa0a0a0";
+
+                if (Due == null)
+                    return null;
 
                 // return red for past-due items, yellow for items due today, gray for items due in future
                 DateTime dueDatePart = ((DateTime)Due).Date;
@@ -685,7 +715,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 #else
         public string NameDisplayColor { get { return Complete == true ? "Gray" : "White"; } }
 #endif
-        
+
         public string Phone
         {
             get
@@ -703,6 +733,27 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 {
                     fv.Value = value;
                     NotifyPropertyChanged(FieldNames.Phone);
+                }
+            }
+        }
+
+        public string Picture
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Picture, false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {
+                FieldValue fv = GetFieldValue(FieldNames.Picture, true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged(FieldNames.Picture);
                 }
             }
         }

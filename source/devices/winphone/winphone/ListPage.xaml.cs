@@ -5,30 +5,19 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
-    using System.Net;
-    using System.Threading;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Data;
-    using System.Windows.Documents;
-    using System.Windows.Input;
-    using System.Windows.Media;
-    using System.Windows.Media.Animation;
-    using System.Windows.Media.Imaging;
     using System.Windows.Navigation;
-    using System.Windows.Shapes;
-
     using Microsoft.Phone.Controls;
     using Microsoft.Phone.Net.NetworkInformation;
     using Microsoft.Phone.Shell;
-    using Microsoft.Xna.Framework.Audio;
-    using BuiltSteady.Zaplify.Devices.ClientEntities;
-    using BuiltSteady.Zaplify.Devices.ClientViewModels;
-    using BuiltSteady.Zaplify.Devices.ClientHelpers;
-    using BuiltSteady.Zaplify.Shared.Entities;
-    using System.Text;
-using System.Reflection;
     using Microsoft.Phone.Tasks;
+    using Microsoft.Phone.UserData;
+    using BuiltSteady.Zaplify.Devices.ClientEntities;
+    using BuiltSteady.Zaplify.Devices.ClientHelpers;
+    using BuiltSteady.Zaplify.Devices.ClientViewModels;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     public partial class ListPage : PhoneApplicationPage, INotifyPropertyChanged
     {
@@ -39,6 +28,9 @@ using System.Reflection;
         private ListHelper ListHelper;
         private Tag tag;
         private string typeString;
+
+        private bool importPopupOpen = false;
+        private bool sortPopupOpen = false;
 
         private NuanceHelper.SpeechState speechState;
         private string speechDebugString = null;
@@ -205,6 +197,18 @@ using System.Reflection;
         {
             // trace data
             TraceHelper.AddMessage("ListPage: OnNavigatedTo");
+
+            // handle list picker navigation cases
+            if (sortPopupOpen == true)
+            {
+                SortPopup.IsOpen = true;
+                return;
+            }
+            if (importPopupOpen == true)
+            {
+                ImportListPopup.IsOpen = true;
+                return;
+            }
 
             string IDString = "";
             Guid id;
@@ -386,8 +390,41 @@ using System.Reflection;
 
         private void AddItemButton_Click(object sender, EventArgs e)
         {
+            // check for itemtype-specific processing
+            if (list.ItemTypeID == SystemItemTypes.Contact)
+            {
+                // put up the contact picker 
+                EmailAddressChooserTask chooser = new EmailAddressChooserTask();
+                chooser.Completed += new EventHandler<EmailResult>((s, ea) =>
+                {
+                    if (ea.TaskResult == TaskResult.OK && !String.IsNullOrEmpty(ea.Email))
+                    {
+                        // find the contact using the email address
+                        Contacts contacts = new Contacts();
+                        contacts.SearchCompleted += new EventHandler<ContactsSearchEventArgs>((sen, ev) =>
+                        {
+                            // save the contact info as a new contact
+                            var contact = ev.Results.FirstOrDefault();
+                            if (contact == null)
+                                return;
+                            var newItem = ContactPickerHelper.ProcessContact(contact);
+
+                            // sync with the service
+                            App.ViewModel.SyncWithService();
+
+                            // add the contact and re-render the List
+                            list.Items.Add(newItem);
+                            ListHelper.RenderList(list);
+                        });
+                        contacts.SearchAsync(ea.Email, FilterKind.EmailAddress, null);
+                    }
+                });
+                chooser.Show();
+                return;
+            }
+
             // trace page navigation
-            TraceHelper.StartMessage("ListPage: Navigate to List Editor");
+            TraceHelper.StartMessage("ListPage: Navigate to Main Add Page");
 
             // Navigate to the main page's add tab
             NavigationService.Navigate(
@@ -450,7 +487,8 @@ using System.Reflection;
             SortViewSource.Source = itemType.Fields;
             SortPopupListPicker.DataContext = this;
 
-            // open the popup, disable folder selection bug
+            // open the popup and save this state
+            sortPopupOpen = true;
             SortPopup.IsOpen = true;
         }
 
@@ -480,6 +518,7 @@ using System.Reflection;
             App.ViewModel.SyncWithService();
 
             // close the popup 
+            sortPopupOpen = false;
             SortPopup.IsOpen = false;
         }
 
@@ -499,6 +538,7 @@ using System.Reflection;
             App.ViewModel.SyncWithService();
 
             // close the popup 
+            sortPopupOpen = false;
             SortPopup.IsOpen = false;
         }
 
@@ -575,7 +615,13 @@ using System.Reflection;
         private void ImportList_Filter(object sender, FilterEventArgs e)
         {
             Item i = e.Item as Item;
-            e.Accepted = i.IsList;
+            ItemType itemType = App.ViewModel.ItemTypes.FirstOrDefault(it => it.ID == i.ItemTypeID);
+            if (itemType == null)
+            {
+                e.Accepted = false;
+                return;
+            }
+            e.Accepted = i.IsList && itemType.UserID != SystemUsers.System;
         }
 
         private void ImportListMenuItem_Click(object sender, EventArgs e)
@@ -584,7 +630,8 @@ using System.Reflection;
             ImportListViewSource.Source = App.ViewModel.Items;
             ImportListPopupListPicker.DataContext = this;
 
-            // open the popup, disable folder selection bug
+            // open the popup, save the state
+            importPopupOpen = true;
             ImportListPopup.IsOpen = true;
         }
 
@@ -637,12 +684,14 @@ using System.Reflection;
             App.ViewModel.SyncWithService();
 
             // close the popup 
+            importPopupOpen = false;
             ImportListPopup.IsOpen = false;
         }
 
         private void ImportListPopup_CancelButton_Click(object sender, RoutedEventArgs e)
         {
             // close the popup 
+            importPopupOpen = false;
             ImportListPopup.IsOpen = false;
         }
 
@@ -675,6 +724,11 @@ using System.Reflection;
             // bump the last modified timestamp
             item.LastModified = DateTime.UtcNow;
 
+            if (item.Complete == true)
+                item.CompletedOn = item.LastModified.ToString("d");
+            else
+                item.CompletedOn = null;
+            
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
                 new RequestQueue.RequestRecord()
@@ -737,6 +791,13 @@ using System.Reflection;
             }
             else
             {
+                // chase down any references
+                while (item.ItemTypeID == SystemItemTypes.Reference)
+                {
+                    item = App.ViewModel.Items.FirstOrDefault(i => i.ID == item.ItemRef);
+                    if (item == null)
+                        return;
+                }
                 // Navigate to the item page
                 NavigationService.Navigate(
                     new Uri(String.Format("/ItemPage.xaml?ID={0}&folderID={1}", item.ID, item.FolderID),

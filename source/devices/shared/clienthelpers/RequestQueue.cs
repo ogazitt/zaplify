@@ -135,7 +135,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     } 
                     catch (Exception ex) 
                     {
-                        TraceHelper.AddMessage("DeleteQueue: could not delete the Request queue file");
+                        TraceHelper.AddMessage("DeleteQueue: could not delete the Request queue file; ex: " + ex.Message);
                     }
                 }
             }

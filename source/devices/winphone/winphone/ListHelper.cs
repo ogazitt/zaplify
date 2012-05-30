@@ -130,27 +130,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // order by correct fields
             list.Items = OrderItems();
 
-            /*
-            // create the top-level grid
-            FrameworkElement element;
-            Grid grid = new Grid();
-            grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(40d) });
-            grid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(1, GridUnitType.Star) });
-            grid.Children.Add(element = new TextBlock() 
-            { 
-                Text = folder.Name, 
-                Margin = new Thickness(10, -28, 0, 10),
-                Style = (Style)App.Current.Resources["PhoneTextAccentStyle"],
-                FontSize = (double)App.Current.Resources["PhoneFontSizeExtraLarge"],
-                FontFamily = (FontFamily)App.Current.Resources["PhoneFontFamilySemiLight"]
-            });
-            element.SetValue(Grid.RowProperty, 0);
-            ListBox lb = new ListBox() { Margin = new Thickness(0, 0, 0, 0) };
-            lb.SetValue(Grid.RowProperty, 1);
-            lb.SelectionChanged += new SelectionChangedEventHandler(ListBox_SelectionChanged);
-            grid.Children.Add(lb);
-            */
-
             // clear the listbox
             ListBox.Items.Clear();
 
@@ -174,9 +153,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         ListBox.Items.Add(RenderItem(i));
                 });
             }
-
-            // set the content for the pivot item (which will trigger the rendering)
-            //((PivotItem)PivotControl.SelectedItem).Content = grid;
 
             // trace the event
             TraceHelper.AddMessage("Finished List RenderList");
@@ -333,34 +309,34 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             switch (OrderBy)
             {
                 case FieldNames.DueDate:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Priority:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Name:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Address:
-                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Phone:
-                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Email:
-                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Complete:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Category:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case null:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.SortOrder).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.SortOrder).ToObservableCollection();
                     break;
                 default:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
                     break;
             }
 
@@ -384,6 +360,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     value = fv != null ? fv.Value : null;
                 }
                 string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(displayType, value);
+                currentSectionHeading = item.IsList == true ? "lists" : currentSectionHeading;
                 if (currentSectionHeading != separator)
                 {
                     finalList.Add(new Item() { Name = currentSectionHeading, ItemTypeID = SystemItemTypes.System }); // System itemtype designates separator
