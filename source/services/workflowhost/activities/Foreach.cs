@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class Foreach : WorkflowActivity
     {

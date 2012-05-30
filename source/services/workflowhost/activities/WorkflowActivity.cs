@@ -6,9 +6,9 @@ using Newtonsoft.Json.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.WorkflowWorker.Activities;
+using BuiltSteady.Zaplify.WorkflowHost.Activities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     /// <summary>
     /// These variables flow between activities

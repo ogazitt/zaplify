@@ -51,7 +51,7 @@
                     <TextBlock Text="name" Style="{StaticResource PhoneTextNormalStyle}" />
                     <TextBox x:Name="ListName" Text="{Binding Name, Mode=TwoWay}" InputScope="Text" IsTabStop="True" TabIndex="1" />
                     <TextBlock Text="item type" Style="{StaticResource PhoneTextNormalStyle}" />
-                    <toolkit:ListPicker x:Name="ItemTypePicker" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" Margin="12,5,12,0" IsTabStop="True" TabIndex="2"/>
+                    <toolkit:ListPicker x:Name="ItemTypePicker" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ExpansionMode="FullScreenOnly" Margin="12,5,12,0" IsTabStop="True" TabIndex="2"/>
                 </StackPanel>
             </ScrollViewer>
         </StackPanel>        

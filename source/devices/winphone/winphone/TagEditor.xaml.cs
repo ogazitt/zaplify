@@ -93,7 +93,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             catch (Exception)
             {
             }
-            //ColorListPicker.ItemCountThreshold = App.ViewModel.Constants.Colors.Count;
+            //ColorListPicker.ExpansionMode = ExpansionMode.FullScreenOnly;
         }
 
         private void CancelButton_Click(object sender, EventArgs e)

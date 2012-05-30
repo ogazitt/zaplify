@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
@@ -32,6 +32,50 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             this.Loaded += new RoutedEventHandler(FolderEditor_Loaded);
             this.BackKeyPress += new EventHandler<CancelEventArgs>(FolderEditor_BackKeyPress);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            // trace event
+            TraceHelper.AddMessage("FolderEditor: OnNavigatedTo");
+
+            if (e.NavigationMode == NavigationMode.Back)
+                return;
+
+            string folderIDString = "";
+
+            if (NavigationContext.QueryString.TryGetValue("ID", out folderIDString))
+            {
+                if (folderIDString == "new")
+                {
+                    // new folder
+                    folderCopy = new Folder();
+                    TitlePanel.DataContext = folderCopy;
+                }
+                else
+                {
+                    Guid folderID = new Guid(folderIDString);
+                    folder = App.ViewModel.Folders.Single<Folder>(tl => tl.ID == folderID);
+
+                    // make a deep copy of the item for local binding
+                    folderCopy = new Folder(folder);
+                    TitlePanel.DataContext = folderCopy;
+
+                    // add the delete button to the ApplicationBar
+                    var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
+                    button.Click += new EventHandler(DeleteButton_Click);
+
+                    // insert after the save button but before the cancel button
+                    ApplicationBar.Buttons.Add(button);
+                }
+
+                // set up the item type listpicker
+                var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
+                ItemTypePicker.ItemsSource = itemTypes;
+                ItemTypePicker.DisplayMemberPath = "Name";
+                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == folderCopy.ItemTypeID);
+                ItemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
+            }
         }
 
         #region Event Handlers
@@ -165,41 +209,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // trace event
             TraceHelper.AddMessage("FolderEditor: Loaded");
-
-            string folderIDString = "";
-
-            if (NavigationContext.QueryString.TryGetValue("ID", out folderIDString))
-            {
-                if (folderIDString == "new")
-                {
-                    // new folder
-                    folderCopy = new Folder();
-                    TitlePanel.DataContext = folderCopy;
-                }
-                else
-                {
-                    Guid folderID = new Guid(folderIDString);
-                    folder = App.ViewModel.Folders.Single<Folder>(tl => tl.ID == folderID);
-
-                    // make a deep copy of the item for local binding
-                    folderCopy = new Folder(folder);
-                    TitlePanel.DataContext = folderCopy;
-
-                    // add the delete button to the ApplicationBar
-                    var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
-                    button.Click += new EventHandler(DeleteButton_Click);
-
-                    // insert after the save button but before the cancel button
-                    ApplicationBar.Buttons.Add(button);
-                }
-
-                // set up the item type listpicker
-                var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
-                ItemTypePicker.ItemsSource = itemTypes;
-                ItemTypePicker.DisplayMemberPath = "Name";
-                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == folderCopy.ItemTypeID);
-                ItemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
-            }
         }
 
         #endregion

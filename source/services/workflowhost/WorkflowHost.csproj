@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4260F56A-0BA1-4D96-9BD1-A0A4FBB8B95A}</ProjectGuid>
+    <ProjectGuid>{39248A70-B838-4A7C-AC1A-5C0B37EB39E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BuiltSteady.Zaplify.WorkflowWorker</RootNamespace>
-    <AssemblyName>BuiltSteady.Zaplify.WorkflowWorker</AssemblyName>
+    <RootNamespace>BuiltSteady.Zaplify.WorkflowHost</RootNamespace>
+    <AssemblyName>BuiltSteady.Zaplify.WorkflowHost</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -68,7 +68,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WorkflowWorker.cs" />
+    <Compile Include="activities\ConnectToFacebook.cs" />
+    <Compile Include="activities\ConnectToActiveDirectory.cs" />
+    <Compile Include="activities\AddContactToPossibleSubjects.cs" />
+    <Compile Include="activities\GetGroceryCategory.cs" />
+    <Compile Include="activities\GetContactInfoFromFacebook.cs" />
+    <Compile Include="activities\ImportFromFacebook.cs" />
+    <Compile Include="activities\Foreach.cs" />
+    <Compile Include="activities\GenerateSubjectLikes.cs" />
+    <Compile Include="activities\FakeGetPossibleSubjects.cs" />
+    <Compile Include="activities\FakeGetSubjectLikes.cs" />
+    <Compile Include="activities\GetSubjectLikes.cs" />
+    <Compile Include="activities\GetSubjectAttributes.cs" />
+    <Compile Include="activities\NoOp.cs" />
+    <Compile Include="activities\GetPossibleSubjects.cs" />
+    <Compile Include="activities\GetPossibleIntents.cs" />
+    <Compile Include="activities\StartWorkflow.cs" />
+    <Compile Include="activities\GetBingSuggestions.cs" />
+    <Compile Include="activities\WorkflowActivity.cs" />
+    <Compile Include="WorkflowHost.cs" />
+    <Compile Include="WorkflowState.cs" />
+    <Compile Include="Workflow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -80,10 +100,41 @@
       <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
       <Name>ServiceHost</Name>
     </ProjectReference>
-    <ProjectReference Include="..\workflowhost\WorkflowHost.csproj">
-      <Project>{39248A70-B838-4A7C-AC1A-5C0B37EB39E2}</Project>
-      <Name>WorkflowHost</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Content Include="workflows\BuyGift.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\NewBuyGift.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\FakeBuyGift.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\ConnectToFacebook.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\ConnectToActiveDirectory.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\NewContact.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\NewShoppingItem.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\NewTask.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\NewUser.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="workflows\Intents.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

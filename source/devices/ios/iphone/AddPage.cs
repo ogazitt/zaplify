@@ -65,7 +65,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // populate the lists section dynamically
             listsSection.Clear();
             CreateAddButtons();
-            listsSection.AddAll(AddButtons);
+            // add the buttons by using Insert instead of AddAll, which allows disabling the animation
+            foreach (var b in AddButtons)
+                if (b != null)
+                    listsSection.Insert(listsSection.Count, UITableViewRowAnimation.None, b);
 
             base.ViewDidAppear(animated);
 		}
@@ -263,6 +266,19 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private void InitializeComponent()
         {
             // initialize controls 
+            Name = new MultilineEntryElement("Name", "") { Lines = 3 };
+            Name.Changed += (sender, e) => 
+            {
+                Name.FetchValue();
+                if (String.IsNullOrWhiteSpace(Name.Value))
+                    listsSection.Caption = "Navigate to list:";
+                else
+                    listsSection.Caption = "Add to list:";
+                Name.GetImmediateRootElement().Reload(listsSection, UITableViewRowAnimation.None);
+            };
+
+            listsSection = new Section("Navigate to list:");
+                
             var pushToTalkButton = new ButtonListElement() 
             { 
                 new Button() 
@@ -273,22 +289,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }, 
             };
             pushToTalkButton.Margin = 0f;
-            
-            var addButton = new ButtonListElement() 
-            { 
-                new Button() 
-                { 
-                    Background = "Images/darkgreybutton.png", 
-                    Caption = "Add", 
-                    Clicked = AddButton_Click 
-                }, 
-            };
-            addButton.Margin = 0f;
-            
-            Name = new MultilineEntryElement("Name", "") { Lines = 3 };
-        
-            listsSection = new Section("Add to list:");
-                
+
             // create the dialog
             var root = new RootElement("Add Item")
             {

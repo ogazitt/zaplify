@@ -68,7 +68,7 @@
                 <StackPanel Width="480">
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,15,0,0">
                         <CheckBox x:Name="QuickAddPopupIsListCheckbox" Content="list" />
-                        <toolkit:ListPicker x:Name="QuickAddPopupItemTypePicker" Width="300" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding ItemTypes}"/>
+                        <toolkit:ListPicker x:Name="QuickAddPopupItemTypePicker" Width="300" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ExpansionMode="FullScreenOnly" ItemsSource="{Binding ItemTypes}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,15,0,0">
                         <TextBox x:Name="QuickAddPopupTextBox" InputScope="Text" Width="396" />
@@ -87,7 +87,7 @@
             <Grid>
                 <Border Background="#FF1F1F1F" Height="200"/>
                 <StackPanel Width="480">
-                    <toolkit:ListPicker x:Name="ImportListPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding ImportListViewSource.View}" DisplayMemberPath="Name" />
+                    <toolkit:ListPicker x:Name="ImportListPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ExpansionMode="FullScreenOnly" ItemsSource="{Binding ImportListViewSource.View}" DisplayMemberPath="Name" />
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
                         <Button x:Name="ImportListPopup_ImportButton" Content="import" Click="ImportListPopup_ImportButton_Click" Width="230"/>
                         <Button x:Name="ImportListPopup_CancelButton" Content="cancel" Click="ImportListPopup_CancelButton_Click" Width="230"/>
@@ -101,7 +101,7 @@
             <Grid>
                 <Border Background="#FF1F1F1F" Height="200"/>
                 <StackPanel Width="480">
-                    <toolkit:ListPicker x:Name="SortPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ItemCountThreshold="1" ItemsSource="{Binding SortViewSource.View}" DisplayMemberPath="Name" />
+                    <toolkit:ListPicker x:Name="SortPopupListPicker" Width="460" Margin="0,15,0,0" FullModeItemTemplate="{StaticResource FullListPickerTemplate}" ExpansionMode="FullScreenOnly" ItemsSource="{Binding SortViewSource.View}" DisplayMemberPath="Name" />
                     <StackPanel Orientation="Horizontal" Width="460" Margin="0,8,0,0">
                         <Button x:Name="SortPopup_SortButton" Content="sort" Click="SortPopup_SortButton_Click" Width="230"/>
                         <Button x:Name="SortPopup_RemoveButton" Content="remove" Click="SortPopup_RemoveButton_Click" Width="230"/>

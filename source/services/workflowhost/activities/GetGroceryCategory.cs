@@ -6,7 +6,7 @@ using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
 using BuiltSteady.Zaplify.Shared.Entities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GetGroceryCategory : WorkflowActivity
     {

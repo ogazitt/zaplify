@@ -129,6 +129,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Gender = "Gender";              // String
         public const string Picture = "Picture";            // ImageUrl
         public const string Sources = "Sources";            // String (comma-delimited) 
+        public const string Location = "Location";          // String
 
         // Hidden FieldName extensions for Location
         public const string LatLong = "LatLong";            // String (comma-delimited)

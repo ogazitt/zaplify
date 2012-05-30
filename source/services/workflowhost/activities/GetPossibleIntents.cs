@@ -7,7 +7,7 @@ using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceHost.Nlp;
 using BuiltSteady.Zaplify.Shared.Entities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GetPossibleIntents : WorkflowActivity
     {
@@ -61,8 +61,8 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 Phrase phrase = new Phrase(name);
                 if (phrase.Task != null)
                 {
-                    verb = phrase.Task.Verb;
-                    noun = phrase.Task.Article;
+                    verb = phrase.Task.Verb.ToLower();
+                    noun = phrase.Task.Article.ToLower();
                     subject = phrase.Task.Subject;
                     if (!String.IsNullOrWhiteSpace(subject))
                         StoreInstanceData(workflowInstance, ActivityVariables.SubjectHint, subject);
@@ -129,7 +129,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             // get a list of all approximate matches and surface as suggestions to the user
             var intentList = SuggestionsContext.Intents.Where(i => i.Verb == verb || i.Noun == noun);
             foreach (var i in intentList)
-                suggestionList[i.WorkflowType] = intent.WorkflowType;
+                suggestionList[i.WorkflowType] = i.WorkflowType;
 
             // if there are no suggestions, we can terminate this workflow
             if (suggestionList.Count == 0)

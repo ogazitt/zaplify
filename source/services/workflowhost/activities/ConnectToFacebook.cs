@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.ServiceHost;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
-    public class ConnectToActiveDirectory : WorkflowActivity
+    public class ConnectToFacebook : WorkflowActivity
     {
         public override string GroupDisplayName { get { return "Get Connected"; } }
-        public override string SuggestionType { get { return SuggestionTypes.GetADConsent; } }
+        //public override string OutputParameterName { get { return ActivityParameters.FacebookID; } }
+        public override string SuggestionType { get { return SuggestionTypes.GetFBConsent; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
@@ -37,7 +38,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         return Status.Error;
                     }
 
-                    // create a single suggestion to connect to AD
+                    // create a single suggestion to connect to FB
                     var sugg = new Suggestion()
                     {
                         ID = Guid.NewGuid(),
@@ -47,9 +48,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         WorkflowInstanceID = workflowInstance.ID,
                         State = workflowInstance.State,
                         SuggestionType = SuggestionType,
-                        DisplayName = "Connect to Active Directory",
+                        DisplayName = "Connect to Facebook",
                         GroupDisplayName = "Get Connected",
-                        SortOrder = 2,
+                        SortOrder = 1,
                     };
                     SuggestionsContext.Suggestions.Add(sugg);
 

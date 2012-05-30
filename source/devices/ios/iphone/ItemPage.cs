@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using MonoTouch.UIKit;
+using System.Text;
+using System.Text.RegularExpressions;
 using MonoTouch.Dialog;
+using MonoTouch.Dialog.Utilities;
+using MonoTouch.Foundation;
+using MonoTouch.UIKit;
+using Newtonsoft.Json;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.IPhone.Controls;
-using System.Text.RegularExpressions;
-using MonoTouch.Foundation;
-using System.Text;
 using BuiltSteady.Zaplify.Shared.Entities;
-using Newtonsoft.Json;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
@@ -163,7 +165,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             List<FieldValue> fieldValues = new List<FieldValue>(ThisItem.FieldValues);
             foreach (var fv in fieldValues)
                 if (fv.Value == null && (ItemCopy == null || ItemCopy.GetFieldValue(fv.FieldName, false) == null))
-                    ThisItem.FieldValues.Remove(fv);                       
+                    ThisItem.RemoveFieldValue(fv);
 
             // enqueue the Web Request Record
             RequestQueue.EnqueueRequestRecord(
@@ -176,13 +178,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 });
 
             // create a copy of the new baseline
-            ItemCopy = new Item(ThisItem);
-            
+            ItemCopy = new Item(ThisItem, true);
+
+            // reload the folder in case it changed
+            folder = App.ViewModel.Folders.Single(f => f.ID == folder.ID);
+
             // save the changes to local storage
             if (folder.Items.Any(i => i.ID == ThisItem.ID))
             {
                 var existingItem = folder.Items.Single(i => i.ID == ThisItem.ID);
-                existingItem.Copy(ThisItem, true);
+                if (existingItem != ThisItem)
+                    existingItem.Copy(ThisItem, true);
             }
             else
             {
@@ -333,7 +339,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 
             // render the primary fields
-			Section primarySection = RenderEditItemFields(item, itemType, true, renderListInfo);
+			Section primarySection = RenderEditItemFields(item, itemType, true);
 
 			// render more button
             var moreButton = new Button() { Background = "Images/darkgreybutton.png", Caption = "more details" };
@@ -357,17 +363,25 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 new Section() { actionButtons },
 			};
 
-            //sse.Tapped += delegate 
             moreButton.Clicked += (s, e) => 
 			{
                 // remove the "more" button
             	editRoot.Remove(moreSection);
 
                 // render the non-primary fields as a new section
-                editRoot.Insert(1, RenderEditItemFields(item, itemType, false, !renderListInfo));
+                editRoot.Insert(1, RenderEditItemFields(item, itemType, false));
 				
-				//primarySection.Remove (sse);
-			};			
+                // create a separate section with the advanced information (parent, type)
+                var advancedSection = new Section();
+
+                Field field = new Field() { Name = "ParentID", DisplayName = "List", DisplayType = DisplayTypes.Lists };
+                advancedSection.Add(RenderEditItemField(item, field));
+
+                field = new Field() { Name = "ItemTypeID", DisplayName = "Type", DisplayType = DisplayTypes.ItemTypes };
+                advancedSection.Add(RenderEditItemField(item, field));
+
+                editRoot.Insert(2, advancedSection);
+            };
 			
 			return editRoot;
         }
@@ -527,7 +541,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					dateElement.ValueSelected += delegate 
                     {
                         pi.SetValue(container, ((DateTime)dateElement.DateValue).ToString("yyyy/MM/dd"), null);
-                        //SaveButton_Click(null, null);
                         folder.NotifyPropertyChanged("FirstDue");
                         folder.NotifyPropertyChanged("FirstDueColor");
                     };
@@ -552,7 +565,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					element = boolElement;
 					*/
 					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
-                    //checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); SaveButton_Click(null, null); };
                     checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
 					element = checkboxElement;
                     break;
@@ -704,7 +716,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			return element;
         }
         
-        private Section RenderEditItemFields(Item item, ItemType itemtype, bool primary, bool renderListField)
+        private Section RenderEditItemFields(Item item, ItemType itemtype, bool primary)
         {
             Section section = new Section();
 			
@@ -716,15 +728,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     section.Add(e);
             }
             
-			if (renderListField == true)
-            {
-                Field field = new Field() { Name = "ParentID", DisplayName = "List", DisplayType = DisplayTypes.Lists };
-                section.Add(RenderEditItemField(item, field));
-
-                field = new Field() { Name = "ItemTypeID", DisplayName = "Type", DisplayType = DisplayTypes.ItemTypes };
-                section.Add(RenderEditItemField(item, field));
-            }
-
 			return section;
         }
 		
@@ -819,24 +822,53 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType) == false)
                 return null;
 			
-			Section name = new Section(item.Name);
-			Section section = new Section(item.Description);
-			
+            Section name = new Section(item.Name);
+            Section section = new Section(item.Description);
+
+            var picFV = item.GetFieldValue(FieldNames.Picture);
+            if (picFV != null && !String.IsNullOrWhiteSpace(picFV.Value))
+            {
+                var image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), null);
+                var width = controller.View.Frame.Width;
+                var wrapperView = new UIView(new RectangleF(0, 0, 60, 60)) { AutosizesSubviews = false };
+                wrapperView.AddSubview(new UIImageView(image) { Frame = new RectangleF(width - 70, -35, 60, 60) });
+                name.FooterView = wrapperView;
+            }
+
+            // create a list of all the first subitems in each of the sublists of the item (e.g. Contacts, Places, etc)
+            var subLists = App.ViewModel.Items.Where(i => i.ParentID == item.ID && i.IsList == true).ToList();
+            var subItems = new List<Item>();
+            foreach (var subList in subLists)
+            {
+                var itemRef = App.ViewModel.Items.FirstOrDefault(i => i.ParentID == subList.ID && i.ItemTypeID == SystemItemTypes.Reference);
+                if (itemRef != null)
+                {
+                    var target = App.ViewModel.Items.FirstOrDefault(i => i.ID == itemRef.ItemRef);
+                    if (target != null)
+                        subItems.Add(target);
+                }
+            }
+
             // render fields
             foreach (ActionType action in App.ViewModel.Constants.ActionTypes.OrderBy(a => a.SortOrder))
             {
-                FieldValue fieldValue = null;
-                
-                // find out if the property exists on the current item
-                try
+                FieldValue fieldValue = item.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                if (fieldValue == null)
                 {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == action.FieldName);
-                }
-                catch (Exception)
-                {
-                    // we can't do anything with this field since we don't have it on the local type
-                    // but that's ok - we can keep going
-                    continue;
+                    bool found = false;
+                    foreach (var i in subItems)
+                    {
+                        fieldValue = i.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                        if (fieldValue != null)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // if fieldvalue isn't found on this item or other subitems, don't process the action
+                    if (found == false)
+                        continue;
                 }
 
                 // get the value of the property

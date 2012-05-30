@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using MonoTouch.Dialog;
 using MonoTouch.Foundation;
@@ -17,12 +18,21 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	public class SettingsPage : UINavigationController
 	{
 		private User user;
-		private EntryElement Username;
-		private EntryElement Password;
-		private CheckboxElement MergeCheckbox;
+		private Element Email;
+		private Element Password;
+        private ThemedRootElement Root;
+        private ThemedRootElement AccountRootElement;
         private bool accountOperationSuccessful = false;
         private DialogViewController dvc = null;
-				
+
+        private bool IsConnected
+        {
+            get
+            {
+                return App.ViewModel.User != null && App.ViewModel.User.Synced;
+            }
+        }
+
 		public SettingsPage()
 		{
 			// trace event
@@ -32,26 +42,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/20-gear2.png");
 		}
 		
-		public override void ViewDidAppear (bool animated)
+		public override void ViewDidAppear(bool animated)
 		{
 			// trace event
             TraceHelper.AddMessage("Settings: ViewDidAppear");
 			
             if (dvc == null)
                 InitializeComponent();
-   
+            else
+                InitializeRoot();
+
             // set the background
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
-
-            // initialize controls
-            user = App.ViewModel.User;  
-            Username.Value = user != null ? user.Name : "";
-            Password.Value = user != null ? user.Password : "";
 			
-			base.ViewDidAppear (animated);
+			base.ViewDidAppear(animated);
 		}
 		
-	 	public override void ViewDidDisappear (bool animated)
+	 	public override void ViewDidDisappear(bool animated)
 		{
 			if (accountOperationSuccessful)
 			{
@@ -59,77 +66,78 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			base.ViewDidDisappear(animated);
 		}
 		
-		void CreateUserButton_Click (object sender, EventArgs e)
+        void ConnectUserButton_Click (object sender, EventArgs e)
         {
-            // make sure the values are updated
-			Username.FetchValue();
-			Password.FetchValue();
-			if (Username.Value == null || Username.Value == "" ||
-                Password.Value == null || Password.Value == "")
+            // validate account info
+            var email = ((EntryElement) Email).Value;
+            var pswd = ((EntryElement) Password).Value;
+            if (String.IsNullOrWhiteSpace(email) ||
+                String.IsNullOrWhiteSpace(pswd))
             {
-                MessageBox.Show("please enter a username, password, and email address");
+                MessageBox.Show("please enter a valid email address and password");
                 return;
             }
 
-            if (MergeCheckbox.Value == false)
-            {
-                MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox unchecked will cause any new items you've added to be lost.  " +
-                    "click ok to create the account without the local data, or cancel the operation.",
-                    "erase local data?",
-                    MessageBoxButton.OKCancel);
-                if (result == MessageBoxResult.Cancel)
-                    return;
-
-                // clear the record queue
-                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-                while (record != null)
-                {
-                    record = RequestQueue.DequeueRequestRecord();
-                }
-            }
-
-            WebServiceHelper.CreateUser(
-                new User() { Name = Username.Value, Password = Password.Value, Email = Username.Value },
-                new CreateUserCallbackDelegate(CreateUserCallback),
-                new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
-        }
-		
-	 	void SyncUserButton_Click (object sender, EventArgs e)
-		{
-            // make sure the values are updated
-			Username.FetchValue();
-			Password.FetchValue();
-			//Email.FetchValue();
-			if (MergeCheckbox.Value == true)
-            {
-				MessageBoxResult result = MessageBox.Show(
-                    "leaving the 'merge' checkbox checked will merge the new data on the phone with existing data in the account, potentially creating duplicate data.  " +
-                    "click ok to sync the account and merge the phone data, or cancel the operation.",
-                    "merge local data?",
-					MessageBoxButton.OKCancel);
-
-				if (result == MessageBoxResult.Cancel) 
-					return;
-            }
-            else
-            {
-                // clear the record queue
-                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-                while (record != null)
-                {
-                    record = RequestQueue.DequeueRequestRecord();
-                }
-            }
-
-            User user = new User() { Name = Username.Value, Password = Password.Value, Email = Username.Value };
-
+            // process an account connect request
+            User user = new User() { Email = email, Password = pswd };
             WebServiceHelper.VerifyUserCredentials(
                 user,
                 new VerifyUserCallbackDelegate(VerifyUserCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
 
-		}
+        }
+
+		void CreateUserButton_Click(object sender, EventArgs e)
+        {
+            // validate account info
+            ((EntryElement)Email).FetchValue();
+            ((EntryElement)Password).FetchValue();
+            var email = ((EntryElement) Email).Value;
+            var pswd = ((EntryElement) Password).Value;
+            if (String.IsNullOrWhiteSpace(email) ||
+                String.IsNullOrWhiteSpace(pswd))
+            {
+                MessageBox.Show("please enter a valid email address and password");
+                return;
+            }
+
+            // process an account creation request
+            User user = new User() { Email = email, Password = pswd };
+            WebServiceHelper.CreateUser(
+                user,
+                new CreateUserCallbackDelegate(CreateUserCallback),
+                new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
+        }
+		
+        void DisconnectUserButton_Click(object sender, EventArgs e)
+        {
+            // if we're connected, this is a disconnect request
+            if (IsConnected)
+            {
+                // if the request queue isn't empty, warn the user
+                if (RequestQueue.GetRequestRecord() != null)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                        "some of the changes you made on the phone haven't made it to your Zaplify account yet.  " +
+                        "click ok to disconnect now and potentially lose these changes, or cancel the operation",
+                        "disconnect now?",
+                        MessageBoxButton.OKCancel);
+                    if (result == MessageBoxResult.Cancel)
+                        return;
+                }
+
+                // process the disconnect
+                App.ViewModel.User = null;
+                App.ViewModel.EraseAllData();
+                WebServiceHelper.Disconnect();
+
+                // reset the settings page
+                accountOperationSuccessful = false;
+                dvc.NavigationController.PopViewControllerAnimated(true);
+                InitializeRoot();
+                dvc.ReloadData();
+            }
+        }
 
 		#region Authentication callback methods
 
@@ -138,20 +146,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         {
 			this.BeginInvokeOnMainThread(() =>
 			{
+                string email = ((EntryElement)Email).Value;
+                string pswd = ((EntryElement)Password).Value;
 				switch (code)
 	            {
 	                case HttpStatusCode.OK:
-	                    MessageBox.Show(String.Format("successfully linked with {0} account; data sync will start automatically.", Username.Value));
+	                    MessageBox.Show(String.Format("successfully connected to account {0}; data sync will start automatically.", email));
 	                    accountOperationSuccessful = true;
 	                    user.Synced = true;
 						// the server no longer echos the password in the payload so keep the local value when successful
 						if (user.Password == null)
-							user.Password = Password.Value;
-	                    App.ViewModel.User = user;
+                            user.Password = pswd;
+                        App.ViewModel.User = user;
+                        RequestQueue.PrepareQueueForAccountConnect();
 	                    App.ViewModel.SyncWithService();
 	                    break;
 	                case HttpStatusCode.NotFound:
-	                    MessageBox.Show(String.Format("user {0} not found", Username.Value));
+	                    MessageBox.Show(String.Format("user {0} not found", email));
 	                    accountOperationSuccessful = false;
 	                    break;
 	                case HttpStatusCode.Forbidden:
@@ -163,64 +174,181 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	                default:
-	                    MessageBox.Show(String.Format("account {0} was not successfully paired", Username.Value));
+	                    MessageBox.Show(String.Format("account {0} was not successfully paired", email));
 	                    accountOperationSuccessful = false;
 	                    break;
 	            }
+
+                // update UI if successful
+                if (accountOperationSuccessful)
+                {
+                    dvc.NavigationController.PopViewControllerAnimated(true);
+                    InitializeRoot();
+                    dvc.ReloadData();
+                }
             });
         }
 
         public delegate void CreateUserCallbackDelegate(User user, HttpStatusCode? code);
         private void CreateUserCallback(User user, HttpStatusCode? code)
         {
-            switch (code)
+            this.BeginInvokeOnMainThread(() =>
             {
-                case HttpStatusCode.OK:
-                case HttpStatusCode.Created:
-                    MessageBox.Show(String.Format("user account {0} successfully created", Username.Value));
-                    accountOperationSuccessful = true;
-                    user.Synced = true;
-					// the server no longer echos the password in the payload so keep the local value when successful
-					if (user.Password == null)
-						user.Password = Password.Value;
-                    App.ViewModel.User = user;
-                    App.ViewModel.SyncWithService();
-                    break;
-                case HttpStatusCode.NotFound:
-                    MessageBox.Show(String.Format("user {0} not found", Username.Value));
-                    accountOperationSuccessful = false;
-                    break;
-                case HttpStatusCode.Conflict:
-                    MessageBox.Show(String.Format("user {0} already exists", Username.Value));
-                    accountOperationSuccessful = false;
-                    break;
-                case HttpStatusCode.InternalServerError:
-                    MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", Username.Value));
-                    accountOperationSuccessful = false;
-                    break;
-                case null:
-                    MessageBox.Show(String.Format("couldn't reach the server"));
-                    accountOperationSuccessful = false;
-                    break;
-                default:
-                    MessageBox.Show(String.Format("user {0} was not created", Username.Value));
-                    accountOperationSuccessful = false;
-                    break;
-            }
+                string email = ((EntryElement)Email).Value;
+                string pswd = ((EntryElement)Password).Value;
+                switch (code)
+                {
+                    case HttpStatusCode.OK:
+                    case HttpStatusCode.Created:
+                        MessageBox.Show(String.Format("user account {0} successfully created", email));
+                        accountOperationSuccessful = true;
+                        user.Synced = true;
+    					// the server no longer echos the password in the payload so keep the local value when successful
+    					if (user.Password == null)
+    						user.Password = pswd;
+                        App.ViewModel.User = user;
+                        App.ViewModel.SyncWithService();
+                        break;
+                    case HttpStatusCode.NotFound:
+                        MessageBox.Show(String.Format("user {0} not found", email));
+                        accountOperationSuccessful = false;
+                        break;
+                    case HttpStatusCode.Conflict:
+                        MessageBox.Show(String.Format("user {0} already exists", email));
+                        accountOperationSuccessful = false;
+                        break;
+                    case HttpStatusCode.NotAcceptable:
+                        MessageBox.Show(String.Format("email address {0} is invalid or password is not strong enough", email));
+                        accountOperationSuccessful = false;
+                        break;
+                    case HttpStatusCode.InternalServerError:
+                        MessageBox.Show(String.Format("user {0} was not created successfully (missing a field?)", email));
+                        accountOperationSuccessful = false;
+                        break;
+                    case null:
+                        MessageBox.Show(String.Format("couldn't reach the server"));
+                        accountOperationSuccessful = false;
+                        break;
+                    default:
+                        MessageBox.Show(String.Format("user {0} was not created", email));
+                        accountOperationSuccessful = false;
+                        break;
+                }
+    
+                // update UI if successful
+                if (accountOperationSuccessful)
+                {
+                    dvc.NavigationController.PopViewControllerAnimated(true);
+                    InitializeRoot();
+                    dvc.ReloadData();
+                }
+            });
         }
 		
 		#endregion
             
         #region Helpers
-        
+
+        private void InitializeAccountSettings()
+        {
+            user = App.ViewModel.User;  
+
+            // initialize the Account element based on whether connected or disconnected
+            if (IsConnected)
+            {
+                // initialize account controls
+                Email = new StringElement("Email", user.Email);
+                // create unicode bullet characters for every character in the password
+                var sb = new StringBuilder();
+                if (user != null && user.Password != null)
+                    foreach (var c in user.Password)
+                        sb.Append("\u25CF"); // \u2022
+                Password = new StringElement("Password", sb.ToString());
+
+                // create buttons
+                var button = new ButtonListElement() 
+                {
+                    new Button() { Caption = "Disconnect",  Background = "Images/darkgreybutton.png", Clicked = DisconnectUserButton_Click },
+                };
+                button.Margin = 0f;
+
+                // create the account root element
+                AccountRootElement = new ThemedRootElement("Account")
+                {
+                    new Section()
+                    {
+                        Email,
+                        Password,
+                    },     
+                    new Section()
+                    { 
+                        button 
+                    }
+                };
+            }
+            else
+            {
+                // initialize account controls
+                Email = new EntryElement("Email", "Enter email", user != null ? user.Email : null);
+                Password = new EntryElement("Password", "Enter password", user != null ? user.Password : null, true);
+
+                var createButton = new ButtonListElement() 
+                {
+                    new Button() { Caption = "Create a new account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
+                };
+                createButton.Margin = 0f;
+                var connectButton = new ButtonListElement() 
+                {
+                    new Button() { Caption = "Connect to an existing account", Background = "Images/darkgreybutton.png", Clicked = ConnectUserButton_Click }, 
+                };
+                connectButton.Margin = 0f;
+
+                // create the account root element
+                AccountRootElement = new ThemedRootElement("Account")
+                {
+                    new Section()
+                    {
+                        Email,
+                        Password,
+                    },     
+                    new Section()
+                    { 
+                        createButton,
+                    },
+                    new Section()
+                    { 
+                        connectButton
+                    }
+                };
+            }   
+
+            Root[0].Insert(0, UITableViewRowAnimation.None, AccountRootElement);
+        }
+
         private void InitializeComponent()
         {
-            // initialize account controls
-            user = App.ViewModel.User;  
-            Username = new EntryElement("Email", "Enter email", "");
-            Password = new EntryElement("Password", "Enter password", "", true);
-            MergeCheckbox = new CheckboxElement("Merge local data?", true);
-            
+            InitializeRoot();
+
+            // push the view onto the nav stack
+            dvc = new DialogViewController(Root);
+            dvc.NavigationItem.HidesBackButton = true;  
+            dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
+            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
+            this.PushViewController(dvc, false);
+        }
+
+        private void InitializeRoot()
+        {
+            // create the root for all settings 
+            if (Root == null)
+                Root = new ThemedRootElement("Settings");
+            else
+                Root.Clear();
+            Root.Add(new Section());
+
+            // create the account root element
+            InitializeAccountSettings();
+
             // initialize other phone settings by creating a radio element list for each phone setting
             var elements = (from ps in PhoneSettings.Settings.Keys select (Element) new ThemedRootElement(ps, new RadioGroup(null, 0))).ToList();
 
@@ -289,37 +417,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 }
             };
 
-            var root = new RootElement("Settings")
-            {
-                new Section()
-                {
-                    new ThemedRootElement("Account")
-                    {
-                        new Section()
-                        {
-                            Username,
-                            Password,
-                            MergeCheckbox,
-                        },
-                        new Section()
-                        {
-                            new ButtonListElement() 
-                            {
-                                new Button() { Caption = "Create Account",  Background = "Images/darkgreybutton.png", Clicked = CreateUserButton_Click },
-                                new Button() { Caption = "Pair Account", Background = "Images/darkgreybutton.png", Clicked = SyncUserButton_Click }, 
-                            },
-                        },
-                    },                    
-                },
-            };
-            root[0].AddAll(elements);
-
-            // push the view onto the nav stack
-            dvc = new DialogViewController(root);
-            dvc.NavigationItem.HidesBackButton = true;  
-            dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
-            dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
-            this.PushViewController(dvc, false);
+            // attach the other settings pages to the root element using Insert instead of AddAll so as to disable animation
+            foreach (var e in elements)
+                Root[0].Insert(Root[0].Count, UITableViewRowAnimation.None, e);
         }
         
         #endregion Helpers

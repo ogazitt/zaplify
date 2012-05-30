@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
@@ -33,6 +33,81 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             this.Loaded += new RoutedEventHandler(ListEditor_Loaded);
             this.BackKeyPress += new EventHandler<CancelEventArgs>(ListEditor_BackKeyPress);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            // trace event
+            TraceHelper.AddMessage("ListEditor: OnNavigatedTo");
+
+            if (e.NavigationMode == NavigationMode.Back)
+                return;
+
+            string folderIDString = "";
+            string listIDString = "";
+
+            if (NavigationContext.QueryString.TryGetValue("FolderID", out folderIDString) == false)
+            {
+                TraceHelper.AddMessage("ListEditor: no folder ID passed in");
+                NavigationService.GoBack();
+                return;
+            }
+
+            Guid folderID = new Guid(folderIDString);
+            folder = App.ViewModel.Folders.Single<Folder>(f => f.ID == folderID);
+
+            if (NavigationContext.QueryString.TryGetValue("ID", out listIDString))
+            {
+                if (listIDString == "new")
+                {
+                    string parentIDString = "";
+                    if (NavigationContext.QueryString.TryGetValue("ParentID", out parentIDString) == false)
+                    {
+                        TraceHelper.AddMessage("ListEditor: no parent ID passed in");
+                        NavigationService.GoBack();
+                        return;
+                    }
+
+                    // new list
+                    DateTime now = DateTime.UtcNow;
+                    Guid? parentID = String.IsNullOrEmpty(parentIDString) ? (Guid?)null : new Guid(parentIDString);
+                    Item parent = parentID != null ? App.ViewModel.Items.FirstOrDefault(i => i.ParentID == parentID) : null;
+
+                    listCopy = new Item()
+                    {
+                        FolderID = folderID,
+                        ParentID = String.IsNullOrEmpty(parentIDString) ? (Guid?)null : new Guid(parentIDString),
+                        IsList = true,
+                        ItemTypeID = parent != null ? parent.ItemTypeID : folder.ItemTypeID,
+                        Created = now,
+                        LastModified = now
+                    };
+                    TitlePanel.DataContext = listCopy;
+                }
+                else
+                {
+                    Guid listID = new Guid(listIDString);
+                    list = folder.Items.Single<Item>(l => l.ID == listID);
+
+                    // make a deep copy of the item for local binding
+                    listCopy = new Item(list);
+                    TitlePanel.DataContext = listCopy;
+
+                    // add the delete button to the ApplicationBar
+                    var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
+                    button.Click += new EventHandler(DeleteButton_Click);
+
+                    // insert after the save button but before the cancel button
+                    ApplicationBar.Buttons.Add(button);
+                }
+
+                // set up the item type listpicker
+                var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
+                ItemTypePicker.ItemsSource = itemTypes;
+                ItemTypePicker.DisplayMemberPath = "Name";
+                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == listCopy.ItemTypeID);
+                ItemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
+            }
         }
 
         #region Event Handlers
@@ -167,69 +242,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             // trace event
             TraceHelper.AddMessage("ListEditor: Loaded");
-
-            string folderIDString = "";
-            string listIDString = "";
-
-            if (NavigationContext.QueryString.TryGetValue("FolderID", out folderIDString) == false)
-            {
-                TraceHelper.AddMessage("ListEditor: no folder ID passed in");
-                NavigationService.GoBack();
-                return;
-            }
-
-            Guid folderID = new Guid(folderIDString);
-            folder = App.ViewModel.Folders.Single<Folder>(f => f.ID == folderID);
-
-            if (NavigationContext.QueryString.TryGetValue("ID", out listIDString))
-            {
-                if (listIDString == "new")
-                {
-                    string parentIDString = "";
-                    if (NavigationContext.QueryString.TryGetValue("ParentID", out parentIDString) == false)
-                    {
-                        TraceHelper.AddMessage("ListEditor: no parent ID passed in");
-                        NavigationService.GoBack();
-                        return;
-                    }
-
-                    // new list
-                    DateTime now = DateTime.UtcNow;
-                    listCopy = new Item()
-                    {
-                        FolderID = folderID,
-                        ParentID = String.IsNullOrEmpty(parentIDString) ? (Guid?) null : new Guid(parentIDString),
-                        IsList = true,
-                        ItemTypeID = folder.ItemTypeID,
-                        Created = now,
-                        LastModified = now
-                    };
-                    TitlePanel.DataContext = listCopy;
-                }
-                else
-                {
-                    Guid listID = new Guid(listIDString);
-                    list = folder.Items.Single<Item>(l => l.ID == listID);
-
-                    // make a deep copy of the item for local binding
-                    listCopy = new Item(list);
-                    TitlePanel.DataContext = listCopy;
-
-                    // add the delete button to the ApplicationBar
-                    var button = new ApplicationBarIconButton() { Text = "Delete", IconUri = new Uri("/Images/appbar.delete.rest.png", UriKind.Relative) };
-                    button.Click += new EventHandler(DeleteButton_Click);
-
-                    // insert after the save button but before the cancel button
-                    ApplicationBar.Buttons.Add(button);
-                }
-
-                // set up the item type listpicker
-                var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
-                ItemTypePicker.ItemsSource = itemTypes;
-                ItemTypePicker.DisplayMemberPath = "Name";
-                ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == listCopy.ItemTypeID);
-                ItemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
-            }
         }
 
         #endregion

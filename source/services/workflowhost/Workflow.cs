@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.WorkflowWorker.Activities;
+using BuiltSteady.Zaplify.WorkflowHost.Activities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker
+namespace BuiltSteady.Zaplify.WorkflowHost
 {
     // some well-known workflow names
     public class WorkflowNames
@@ -153,71 +153,6 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 catch (Exception ex)
                 {
                     TraceLog.TraceException("Workflow.Run: could not remove workflow instance", ex);
-                }
-            }
-        }
-
-        public static void StartWorkflow(string type, ServerEntity entity, string instanceData, UserStorageContext userContext, SuggestionsStorageContext suggestionsContext)
-        {
-            WorkflowInstance instance = null;
-            try
-            {
-                Workflow workflow = null;
-
-                // get the workflow definition out of the database
-                try
-                {
-                    var wt = suggestionsContext.WorkflowTypes.Single(t => t.Type == type);
-                    workflow = JsonSerializer.Deserialize<Workflow>(wt.Definition);
-                }
-                catch (Exception ex)
-                {
-                    TraceLog.TraceException("StartWorkflow: could not find or deserialize workflow definition", ex);
-                    return;
-                }
-
-                // don't start a workflow with no states
-                if (workflow.States.Count == 0)
-                    return;
-
-                // store the database contexts
-                workflow.UserContext = userContext;
-                workflow.SuggestionsContext = suggestionsContext;
-
-                // create the new workflow instance and store in the workflow DB
-                DateTime now = DateTime.Now;
-                instance = new WorkflowInstance()
-                {
-                    ID = Guid.NewGuid(),
-                    EntityID = entity.ID,
-                    EntityName = entity.Name,
-                    WorkflowType = type,
-                    State = workflow.States[0].Name,
-                    InstanceData = instanceData ?? "{}",
-                    Created = now,
-                    LastModified = now,
-                    LockedBy = WorkflowWorker.Me,
-                };
-                suggestionsContext.WorkflowInstances.Add(instance);
-                suggestionsContext.SaveChanges();
-
-                TraceLog.TraceInfo("Workflow.StartWorkflow: starting workflow " + type);
-
-                // invoke the workflow and process steps until workflow is blocked for user input or is done
-                workflow.Run(instance, entity);
-
-                // unlock the workflowinstance
-                instance.LockedBy = null;
-                suggestionsContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                TraceLog.TraceException("StartWorkflow failed", ex);
-                if (instance != null && instance.LockedBy == WorkflowWorker.Me)
-                {
-                    // unlock the workflowinstance
-                    instance.LockedBy = null;
-                    suggestionsContext.SaveChanges();
                 }
             }
         }

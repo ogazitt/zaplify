@@ -15,12 +15,13 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
+using Newtonsoft.Json;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
+using BuiltSteady.Zaplify.Devices.WinPhone.Controls;
 using BuiltSteady.Zaplify.Shared.Entities;
 using WPKeyboardHelper;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using Microsoft.Phone.UserData;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -129,7 +130,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 Guid id = new Guid(itemIDString);
                 //thisItem = App.ViewModel.Items.Single(t => t.ID == id);
                 //folder = App.ViewModel.Folders.Single(folder => folder.ID == thisItem.FolderID);
-                thisItem = folder.Items.Single(t => t.ID == id);
+
+                thisItem = folder.Items.FirstOrDefault(t => t.ID == id);
+                if (thisItem == null)
+                {                
+                    // trace page navigation
+                    TraceHelper.StartMessage("Item: Navigate back");
+                    NavigationService.GoBack();
+                    return;
+                }
 
                 // make a deep copy of the item for local binding
                 itemCopy = new Item(thisItem);
@@ -298,6 +307,36 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
         #region Helpers
 
+        private Item CreateItemCopyWithChildren(Guid itemID)
+        {
+            Item item = new Item(App.ViewModel.Items.Single(it => it.ID == itemID));
+            item.Items = App.ViewModel.Items.Where(it => it.ParentID == itemID).ToObservableCollection();
+            return item;
+        }
+
+        private Item CreateValueList(Item item, Field field, Guid itemID)
+        {
+            Item list;
+            if (itemID == Guid.Empty)
+            {
+                list = new Item()
+                {
+                    ID = itemID, // signal new list
+                    Name = field.Name,
+                    IsList = true,
+                    FolderID = folder.ID,
+                    ParentID = item.ID,
+                    ItemTypeID = SystemItemTypes.Reference,
+                };
+            }
+            else
+            {
+                // get the current value list
+                list = CreateItemCopyWithChildren((Guid)itemID);
+            }
+            return list;
+        }
+
         /// <summary>
         /// Find a item by ID and then return its index 
         /// </summary>
@@ -448,7 +487,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
                     tb.AcceptsReturn = true;
                     tb.TextWrapping = TextWrapping.Wrap;
-                    tb.Height = 300;
+                    tb.Height = 150;
                     tb.TabIndex = tabIndex++;
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     EditStackPanel.Children.Add(tb);
@@ -488,10 +527,23 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     imageButton.Click += new RoutedEventHandler(delegate
                     {
                         EmailAddressChooserTask chooser = new EmailAddressChooserTask();
-                        chooser.Completed += new EventHandler<EmailResult>((sender, e) =>
+                        chooser.Completed += new EventHandler<EmailResult>((s, e) =>
                         {
-                            if (e.TaskResult == TaskResult.OK && e.Email != null && e.Email != "")
+                            if (e.TaskResult == TaskResult.OK && !String.IsNullOrEmpty(e.Email))
+                            {
                                 pi.SetValue(container, e.Email, null);
+                                // find the contact using the email address
+                                Contacts contacts = new Contacts();
+                                contacts.SearchCompleted += new EventHandler<ContactsSearchEventArgs>((sen, ev) =>
+                                {
+                                    // save the contact info as a new contact
+                                    var contact = ev.Results.FirstOrDefault();
+                                    if (contact == null)
+                                        return;
+                                    ContactPickerHelper.AddContactInfo(contact, item);
+                                });
+                                contacts.SearchAsync(e.Email, FilterKind.EmailAddress, null);
+                            }
                         });
                         chooser.Show();
                     });
@@ -570,7 +622,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     {
                         MinWidth = minWidth,
                         FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                        ItemCountThreshold = 4,
+                        ExpansionMode = ExpansionMode.FullScreenOnly,
                         IsTabStop = true
                     };
                     var lists = App.ViewModel.Items.
@@ -594,7 +646,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     break;
                 case DisplayTypes.DatePicker:
                     DatePicker dp = new DatePicker() { DataContext = container, MinWidth = minWidth, IsTabStop = true };
-                    dp.SetBinding(DatePicker.ValueProperty, new Binding(pi.Name) { /* Mode = BindingMode.TwoWay */ });
+                    DateTime date = Convert.ToDateTime((string)currentValue);
+                    if (date.Ticks == 0)
+                        date = DateTime.Now.Date;
+                    dp.Value = date;
                     dp.ValueChanged += new EventHandler<DateTimeValueChangedEventArgs>(delegate
                     {
                         //pi.SetValue(container, dp.Value, null);
@@ -649,7 +704,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Url } } };
                     tb.AcceptsReturn = true;
                     tb.TextWrapping = TextWrapping.Wrap;
-                    tb.Height = 300;
+                    tb.Height = 150;
                     tb.TabIndex = tabIndex++;
                     tb.ClearValue(TextBox.TextProperty);
                     if (!String.IsNullOrEmpty((string) currentValue))
@@ -687,15 +742,31 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     // skip rendering
                     break;
                 case DisplayTypes.ContactList:
+                    Item currentContacts = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
+                    var contactPicker = new ItemRefListPicker(folder, currentContacts, SystemItemTypes.Contact, pi, container)
+                    {
+                        MinWidth = minWidth,
+                        IsTabStop = true
+                    };
+                    contactPicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(contactPicker);
                     break;
                 case DisplayTypes.LocationList:
+                    Item currentLocations = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
+                    var locationPicker = new ItemRefListPicker(folder, currentLocations, SystemItemTypes.Location, pi, container)
+                    {
+                        MinWidth = minWidth,
+                        IsTabStop = true
+                    };
+                    locationPicker.TabIndex = tabIndex++;
+                    EditStackPanel.Children.Add(locationPicker);
                     break;
                 case DisplayTypes.ItemTypes:
                     ListPicker itemTypePicker = new ListPicker()
                     {
                         MinWidth = minWidth,
                         FullModeItemTemplate = (DataTemplate)App.Current.Resources["FullListPickerTemplate"],
-                        ItemCountThreshold = 1,
+                        ExpansionMode = ExpansionMode.FullScreenOnly,
                         IsTabStop = true
                     };
                     var itemTypes = App.ViewModel.ItemTypes.Where(i => i.UserID != SystemUsers.System).OrderBy(i => i.Name).ToList();
@@ -704,6 +775,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     ItemType thisItemType = itemTypes.FirstOrDefault(i => i.ID == (Guid) currentValue);
                     itemTypePicker.SelectedIndex = Math.Max(itemTypes.IndexOf(thisItemType), 0);
                     itemTypePicker.SelectionChanged += new SelectionChangedEventHandler(delegate { pi.SetValue(container, itemTypes[itemTypePicker.SelectedIndex].ID, null); });
+                    itemTypePicker.TabIndex = tabIndex++;
                     EditStackPanel.Children.Add(itemTypePicker);
                     break;
                 default:
@@ -866,23 +938,41 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (ItemType.ItemTypes.TryGetValue(item.ItemTypeID, out itemType) == false)
                 return;
 
-            int row = 0;
+            // create a list of all the first subitems in each of the sublists of the item (e.g. Contacts, Places, etc)
+            var subLists = App.ViewModel.Items.Where(i => i.ParentID == item.ID && i.IsList == true).ToList();
+            var subItems = new List<Item>();
+            foreach (var subList in subLists)
+            {
+                var itemRef = App.ViewModel.Items.FirstOrDefault(i => i.ParentID == subList.ID && i.ItemTypeID == SystemItemTypes.Reference);
+                if (itemRef != null)
+                {
+                    var target = App.ViewModel.Items.FirstOrDefault(i => i.ID == itemRef.ItemRef);
+                    if (target != null)
+                        subItems.Add(target);
+                }
+            }
 
             // render fields
+            int row = 0;
             foreach (ActionType action in App.ViewModel.Constants.ActionTypes.OrderBy(a => a.SortOrder))
             {
-                FieldValue fieldValue = null;
-                
-                // find out if the property exists on the current item
-                try
+                FieldValue fieldValue = item.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                if (fieldValue == null)
                 {
-                    fieldValue = item.FieldValues.Single(fv => fv.FieldName == action.FieldName);
-                }
-                catch (Exception)
-                {
-                    // we can't do anything with this field since we don't have it on the local type
-                    // but that's ok - we can keep going
-                    continue;
+                    bool found = false;
+                    foreach (var i in subItems)
+                    {
+                        fieldValue = i.FieldValues.FirstOrDefault(fv => fv.FieldName == action.FieldName);
+                        if (fieldValue != null)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    // if fieldvalue isn't found on this item or other subitems, don't process the action
+                    if (found == false)
+                        continue;
                 }
 
                 // get the value of the property
