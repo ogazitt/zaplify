@@ -6,7 +6,7 @@
     <DeployScriptFileName>DataServicesDatabase.sql</DeployScriptFileName>
     <BlockWhenDriftDetected>True</BlockWhenDriftDetected>
     <RegisterDataTierApplication>True</RegisterDataTierApplication>
-    <TargetConnectionString>Data Source=raobsl4g40.database.windows.net;Persist Security Info=True;User ID=builtsteady;Pooling=False</TargetConnectionString>
+    <TargetConnectionString>Data Source=qs07tzqe2v.database.windows.net;Persist Security Info=True;User ID=builtsteady;Pooling=False</TargetConnectionString>
     <ProfileVersionNumber>1</ProfileVersionNumber>
   </PropertyGroup>
 </Project>

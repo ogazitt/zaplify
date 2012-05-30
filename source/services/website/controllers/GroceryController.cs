@@ -33,7 +33,6 @@
             List<Grocery> possibleGroceryNames;
             if (startsWith != null)
             {   // filter by startsWith
-                startsWith = (startsWith != null) ? startsWith.ToLowerInvariant() : null;
                 possibleGroceryNames = context.Groceries.Include("Category").Where(g => g.Name.StartsWith(startsWith)).ToList();
             }
             else

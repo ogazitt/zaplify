@@ -7,8 +7,8 @@
       <!-- SQL Azure databases for Production deployment -->
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
-      <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLUsers" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLSuggestions" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
 
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="2" />
@@ -32,9 +32,9 @@
       <Setting name="UsersConnection" value="SQLUsers" />
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="DataServicesConnection" value="SQLDataServices" />
-      <Setting name="SQLUsers" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLSuggestions" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="SQLDataServices" value="data source=raobsl4g40.database.windows.net;Initial Catalog=ZapDataServices;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLUsers" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLSuggestions" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
+      <Setting name="SQLDataServices" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapDataServices;User Id=builtsteady;Password=zrc022.." />
       <!-- DataServices Endpoint for Production -->
       <Setting name="DataServicesEndpoint" value="http://api.zaplify.com/"/>
       <!-- Facebook Application 'Zaplify' -->

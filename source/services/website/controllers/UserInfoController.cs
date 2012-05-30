@@ -31,15 +31,13 @@
                     Where(item => item.UserID == CurrentUser.ID
                         && item.FolderID == userFolder.ID
                         && item.ParentID == possibleSubjectList.ID
-                        //&& item.Name.StartsWith(startsWith)           // entity framework does not support ignore case
-                        // && System.Data.Objects.SqlClient.SqlFunctions.PatIndex(startsWith + "%", item.Name) == 1     // not case-insensitive either
+                        && item.Name.StartsWith(startsWith)       
+                        // && System.Data.Objects.SqlClient.SqlFunctions.PatIndex("%" + contains + "%", item.Name) == 1     // TODO: test if this works
                     ).ToList<Item>();
 
                 foreach (var item in possibleSubjects)
                 {
-                    if (startsWith == null || 
-                        item.Name.StartsWith(startsWith, StringComparison.OrdinalIgnoreCase) ||
-                        (contains != null && item.Name.Contains(contains)))
+                    if (contains == null || item.Name.Contains(contains))
                     {
                         FieldValue fv = item.GetFieldValue(FieldNames.Value);
                         if (fv != null)
