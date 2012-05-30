@@ -2,7 +2,7 @@
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class StartWorkflow : WorkflowActivity
     {
@@ -31,7 +31,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         workflowName = ExpandVariables(workflowInstance, workflowName);
 
                         if (workflowName != null)
-                            Workflow.StartWorkflow(workflowName, entity, workflowInstance.InstanceData, UserContext, SuggestionsContext);
+                            WorkflowHost.StartWorkflow(UserContext, SuggestionsContext, workflowName, entity, workflowInstance.InstanceData);
                     }
                     catch (Exception ex)
                     {

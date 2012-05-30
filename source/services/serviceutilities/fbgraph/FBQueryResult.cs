@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
 {
@@ -10,6 +11,7 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
         public const string Link = "link";
         public const string Name = "name";
         public const string Website = "website";
+        public const string Location = "location";
 
         JObject jobject = null;
 
@@ -31,11 +33,18 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.FBGraph
             return new FBQueryResult(JObject.Parse(str));
         }
 
-        public string this[string key]
+        public object this[string key]
         {
             get
             {
-                return (string) jobject[key];
+                try
+                {
+                    return (string)jobject[key];
+                }
+                catch (Exception)
+                {
+                    return new FBQueryResult((JObject)jobject[key]);
+                }
             }
         }
 

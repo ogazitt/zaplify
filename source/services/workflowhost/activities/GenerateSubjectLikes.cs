@@ -6,7 +6,7 @@ using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 using BuiltSteady.Zaplify.Shared.Entities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GenerateSubjectLikes : WorkflowActivity
     {
@@ -179,7 +179,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 var results = fbApi.Query(fbID.Value, FBQueries.Likes);
                 foreach (var like in results)
                 {
-                    string name = like[FBQueryResult.Name];
+                    string name = (string) like[FBQueryResult.Name];
                     suggestionList[name] = name;
                 }
             }

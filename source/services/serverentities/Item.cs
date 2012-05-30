@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace BuiltSteady.Zaplify.ServerEntities
@@ -79,10 +80,43 @@ namespace BuiltSteady.Zaplify.ServerEntities
             return null;
         }
 
+        public object GetFieldValue(Field field)
+        {
+            PropertyInfo pi = null;
+            object currentValue = null;
+
+            // get the current field value.
+            // the value can either be in a strongly-typed property on the item (e.g. Name),
+            // or in one of the FieldValues 
+            try
+            {
+                // get the strongly typed property
+                pi = this.GetType().GetProperty(field.Name);
+                if (pi != null)
+                    currentValue = pi.GetValue(this, null);
+            }
+            catch (Exception)
+            {
+                // an exception indicates this isn't a strongly typed property on the Item
+                // this is NOT an error condition
+            }
+
+            // if couldn't find a strongly typed property, this property could be stored as a 
+            // FieldValue on the item
+            if (pi == null)
+            {
+                // get current item's value for this field
+                FieldValue fieldValue = this.FieldValues.FirstOrDefault(fv => fv.FieldName == field.Name);
+                if (fieldValue != null)
+                    currentValue = fieldValue.Value;
+            }
+
+            return currentValue;
+        }
+
         public static FieldValue CreateFieldValue(Guid itemID, string fieldName, string value)
         {
             return new FieldValue() { /*ID = Guid.NewGuid(),*/ ItemID = itemID, FieldName = fieldName, Value = value };
         }
-
     }
 }

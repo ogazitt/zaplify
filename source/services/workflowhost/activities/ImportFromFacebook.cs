@@ -6,7 +6,7 @@ using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 using BuiltSteady.Zaplify.ServiceHost;
 using System.Collections.Generic;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class ImportFromFacebook : WorkflowActivity
     {
@@ -69,7 +69,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         foreach (var userInfo in fbApi.Query("me", FBQueries.BasicInformation))
                         {
                             // store the facebook ID
-                            var fbid = userInfo[FBQueryResult.ID];
+                            var fbid = (string) userInfo[FBQueryResult.ID];
                             shadowItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
                             // augment the sources field with Facebook as a source
                             var sourcesFV = shadowItem.GetFieldValue(FieldNames.Sources, true);
@@ -81,12 +81,15 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                             // store the picture URL
                             shadowItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbid);
                             // augment with birthday and gender information if they don't yet exist
-                            var birthday = userInfo[FBQueryResult.Birthday];
+                            var birthday = (string) userInfo[FBQueryResult.Birthday];
                             if (birthday != null)
                                 shadowItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
-                            var gender = userInfo[FBQueryResult.Gender];
+                            var gender = (string) userInfo[FBQueryResult.Gender];
                             if (gender != null)
                                 shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
+                            var location = (string) ((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
+                            if (location != null)
+                                shadowItem.GetFieldValue(FieldNames.Location, true).Value = location;
                         }
                     }
                     catch (Exception ex)
@@ -115,27 +118,27 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         foreach (var friend in results)
                         {
                             // check if a possible subject by this name and with this FBID already exists - and if so, skip it
-                            if (currentPossibleSubjects.Any(ps => ps.Name == friend[FBQueryResult.Name] &&
-                                    ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == friend[FBQueryResult.ID])))
+                            if (currentPossibleSubjects.Any(ps => ps.Name == (string) friend[FBQueryResult.Name] &&
+                                    ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == (string) friend[FBQueryResult.ID])))
                                 continue;
 
                             bool process = true;
                             
                             // check if a contact by this name already exists
-                            var existingContacts = currentContacts.Where(c => c.Name == friend[FBQueryResult.Name]).ToList();
+                            var existingContacts = currentContacts.Where(c => c.Name == (string) friend[FBQueryResult.Name]).ToList();
                             foreach (var existingContact in existingContacts)
                             {
                                 var fbFV = existingContact.GetFieldValue(FieldNames.FacebookID, true);
                                 if (fbFV.Value == null)
                                 {
                                     // contact by this name exists but facebook ID isn't set; assume this is a duplicate and set the FBID
-                                    fbFV.Value = friend[FBQueryResult.ID];
+                                    fbFV.Value = (string) friend[FBQueryResult.ID];
                                     var sourcesFV = existingContact.GetFieldValue(FieldNames.Sources, true);
                                     sourcesFV.Value = string.IsNullOrEmpty(sourcesFV.Value) ? Sources.Facebook : string.Concat(sourcesFV.Value, ",", Sources.Facebook);
                                     process = false;
                                     break;
                                 }
-                                if (fbFV.Value == friend[FBQueryResult.ID])
+                                if (fbFV.Value == (string) friend[FBQueryResult.ID])
                                 {
                                     // this is definitely a duplicate - don't add it
                                     process = false;
@@ -150,7 +153,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 var contact = new Item()
                                 {
                                     ID = Guid.NewGuid(),
-                                    Name = friend[FBQueryResult.Name],
+                                    Name = (string) friend[FBQueryResult.Name],
                                     ParentID = null,
                                     UserID = user.ID,
                                     FolderID = folder.ID,
@@ -160,7 +163,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                     LastModified = now,
                                     FieldValues = new List<FieldValue>(),
                                 };
-                                contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = friend[FBQueryResult.ID] });
+                                contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = (string) friend[FBQueryResult.ID] });
                                 contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.Sources, Value = Sources.Facebook });
                                 string jsonContact = JsonSerializer.Serialize(contact);
 
@@ -168,7 +171,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 var nameValItem = new Item()
                                 {
                                     ID = Guid.NewGuid(),
-                                    Name = friend[FBQueryResult.Name],
+                                    Name = (string) friend[FBQueryResult.Name],
                                     FolderID = possibleSubjectList.FolderID,
                                     ParentID = possibleSubjectList.ID,
                                     UserID = user.ID,
@@ -179,7 +182,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                                 };
                                 nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.Value, ItemID = nameValItem.ID, Value = jsonContact });
                                 // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible subject, for easier dup handling
-                                nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = friend[FBQueryResult.ID] });
+                                nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = (string) friend[FBQueryResult.ID] });
 
                                 // add this new possible subject to the DB and to the working list of possible subjects
                                 UserContext.Items.Add(nameValItem);

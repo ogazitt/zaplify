@@ -5,7 +5,7 @@ using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GetContactInfoFromFacebook : WorkflowActivity
     {
@@ -62,10 +62,10 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                         foreach (var contact in fbApi.Query(fbfv.Value, FBQueries.BasicInformation))
                         {
                             item.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbfv.Value);
-                            var birthday = contact[FBQueryResult.Birthday];
+                            var birthday = (string) contact[FBQueryResult.Birthday];
                             if (birthday != null)
                                 item.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
-                            var gender = contact[FBQueryResult.Gender];
+                            var gender = (string) contact[FBQueryResult.Gender];
                             if (gender != null)
                                 shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                         }

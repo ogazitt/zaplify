@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker
+namespace BuiltSteady.Zaplify.WorkflowHost
 {
     public class WorkflowState
     {

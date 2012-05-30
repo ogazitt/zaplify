@@ -9,7 +9,7 @@ using BuiltSteady.Zaplify.ServiceUtilities.ADGraph;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceHost.Nlp;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GetPossibleSubjects : WorkflowActivity
     {

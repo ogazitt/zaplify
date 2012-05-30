@@ -4,13 +4,14 @@ using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
-    public class FakeGetSubjectLikes : WorkflowActivity
+    public class GetSubjectAttributes : WorkflowActivity
     {
-        public override string GroupDisplayName { get { return JsonSerializer.Serialize(new List<string>() { "Choose from", "$(" + ActivityVariables.SubjectHint + ")'s", "Facebook interests" }); } }
-        public override string OutputParameterName { get { return ActivityVariables.Likes; } }
+        public override string GroupDisplayName { get { return "Contact attributes"; } }
+        public override string OutputParameterName { get { return ActivityVariables.Contact; } }
         public override string SuggestionType { get { return SuggestionTypes.ChooseOne; } }
+        public override string TargetFieldName { get { return FieldNames.Contacts; } }
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
             get
@@ -18,7 +19,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
                 return ((workflowInstance, entity, data) =>
                 {
                     return Execute(
-                        workflowInstance, 
+                        workflowInstance,
                         entity,
                         data,
                         SystemItemTypes.Task,
@@ -33,15 +34,13 @@ namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
             if (item == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
-                return Status.Error;
+                return Status.Error;  
             }
 
-            // HACK: hardcode names for now until the graph queries are in place
-            foreach (var like in "Golf;Seattle Sounders;Malcolm Gladwell".Split(';'))
-            {
-                suggestionList[like] = like;
-            }
-            
+            // TODO: get subject attributes from the Contacts folder, Facebook, and Cloud AD
+            // these will hang off of the contact as well as in the workflow InstanceData
+
+            // inexact match
             return Status.Pending;
         }
     }

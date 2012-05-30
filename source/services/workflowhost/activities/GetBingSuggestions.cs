@@ -6,7 +6,7 @@ using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceUtilities.Bing;
 
-namespace BuiltSteady.Zaplify.WorkflowWorker.Activities
+namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
     public class GetBingSuggestions : WorkflowActivity
     {
