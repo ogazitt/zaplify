@@ -225,10 +225,8 @@ namespace BuiltSteady.Zaplify.Website
                         tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
                     }
 
-                    // enqueue a message for the Worker that will wake up the Connect to Active Directory workflow
-                    if (HostEnvironment.IsAzure)
-                        MessageQueue.EnqueueMessage(operation.ID);
-
+                    // wake up the Connect to Active Directory workflow
+                    WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(userStorage, suggestionsContext, operation);
                 }
                 catch (Exception ex) 
                 {

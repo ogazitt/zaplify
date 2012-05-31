@@ -46,11 +46,11 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    // get or create a shadow item for the user in the $User folder
-                    var shadowItem = UserContext.GetOrCreateShadowItem(user, user);
-                    if (shadowItem == null)
+                    // get or create a entity ref item for the user in the $User folder
+                    var entityRefItem = UserContext.GetOrCreateEntityRef(user, user);
+                    if (entityRefItem == null)
                     {
-                        TraceLog.TraceError("ImportFromFacebook: could not retrieve or create a shadow item for this user");
+                        TraceLog.TraceError("ImportFromFacebook: could not retrieve or create a entity ref item for this user");
                         return Status.Error;
                     }
 
@@ -70,26 +70,26 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         {
                             // store the facebook ID
                             var fbid = (string) userInfo[FBQueryResult.ID];
-                            shadowItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
+                            entityRefItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
                             // augment the sources field with Facebook as a source
-                            var sourcesFV = shadowItem.GetFieldValue(FieldNames.Sources, true);
+                            var sourcesFV = entityRefItem.GetFieldValue(FieldNames.Sources, true);
                             sourcesFV.Value = String.IsNullOrEmpty(sourcesFV.Value) ? 
                                 Sources.Facebook : 
                                 sourcesFV.Value.Contains(Sources.Facebook) ? 
                                     sourcesFV.Value : 
                                     String.Format("{0}:{1}", sourcesFV.Value, Sources.Facebook);
                             // store the picture URL
-                            shadowItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbid);
+                            entityRefItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbid);
                             // augment with birthday and gender information if they don't yet exist
                             var birthday = (string) userInfo[FBQueryResult.Birthday];
                             if (birthday != null)
-                                shadowItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
+                                entityRefItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
                             var gender = (string) userInfo[FBQueryResult.Gender];
                             if (gender != null)
-                                shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
+                                entityRefItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                             var location = (string) ((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
                             if (location != null)
-                                shadowItem.GetFieldValue(FieldNames.Location, true).Value = location;
+                                entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
                         }
                     }
                     catch (Exception ex)

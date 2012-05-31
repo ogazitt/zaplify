@@ -108,8 +108,7 @@
                     else
                     {
                         if (folder.Name.StartsWith("$") == false)
-                            if (HostEnvironment.IsAzure)
-                                MessageQueue.EnqueueMessage(operation.ID);
+                            WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
                         TraceLog.TraceInfo("ItemResource.Delete: Accepted");
                         return ReturnResult<Item>(req, operation, requestedItem, HttpStatusCode.Accepted);
                     }
@@ -234,10 +233,9 @@
                     }
                     else
                     {
-                        // queue up the item for processing by the workflow worker
+                        // invoke any workflows associated with this item
                         if (folder.Name.StartsWith("$") == false)
-                            if (HostEnvironment.IsAzure)
-                                MessageQueue.EnqueueMessage(operation.ID);
+                            WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
                         TraceLog.TraceInfo("ItemResource.Insert: Created");
                         return ReturnResult<Item>(req, operation, item, HttpStatusCode.Created);     // return 201 Created
                     }
@@ -367,8 +365,7 @@
                             if (rows == 0)
                                 TraceLog.TraceInfo("ItemResource.Update: inconsistency between the results of Update and zero rows affected");
                             if (newFolder.Name.StartsWith("$") == false)
-                                if (HostEnvironment.IsAzure)
-                                    MessageQueue.EnqueueMessage(operation.ID);
+                                WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
                             TraceLog.TraceInfo("ItemResource.Update: Accepted");
                             return ReturnResult<Item>(req, operation, requestedItem, HttpStatusCode.Accepted);
                         }

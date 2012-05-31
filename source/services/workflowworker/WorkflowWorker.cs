@@ -6,7 +6,7 @@ using System.Threading;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using WFH = BuiltSteady.Zaplify.WorkflowHost;
+using BuiltSteady.Zaplify.WorkflowHost;
 
 namespace BuiltSteady.Zaplify.WorkflowWorker
 {
@@ -21,6 +21,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
             // run an infinite loop doing the following:
             //   read a message off the queue
             //   dispatch the message appropriately
+            //   remove the message but reenqueue it if processing failed
             //   sleep for the timeout period
             Guid lastOperationID = Guid.Empty;
             while (true)
@@ -32,14 +33,9 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                     MQMessage<Guid> msg = MessageQueue.DequeueMessage<Guid>();
                     while (msg != null)
                     {
-                        bool reenqueue = false;
-
                         // make sure we get fresh database contexts to avoid EF caching stale data
                         var UserContext = Storage.NewUserContext;
                         var SuggestionsContext = Storage.NewSuggestionsContext;
-
-                        // create a new workflow host
-                        var workflowHost = new WFH.WorkflowHost(UserContext, SuggestionsContext);
 
                         // get the operation ID passed in as the message content
                         Guid operationID = msg.Content;
@@ -64,93 +60,14 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                             throw;  // caught by the outer try block so as to hit the sleep call
                         }
 
-                        Guid entityID = operation.EntityID;
-                        string entityType = operation.EntityType.Trim();
-                        string operationType = operation.OperationType.Trim();
-
-                        // try to get a strongly-typed entity (item, folder, user...)
-                        ServerEntity entity = null, oldEntity = null;
-                        bool process = true;
-                        try
-                        {
-                            switch (entityType)
-                            {
-                                case "Item":
-                                    Item item = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
-                                    Item oldItem = JsonSerializer.Deserialize<Item>(operation.OldBody);
-                                    entity = item;
-                                    oldEntity = oldItem;
-                                    break;
-                                case "Folder":
-                                    Folder folder = UserContext.Folders.Single(i => i.ID == entityID);
-                                    entity = folder;
-                                    break;
-                                case "User":
-                                    User user = UserContext.Users.Single(i => i.ID == entityID);
-                                    entity = user;
-                                    break;
-                                case "Suggestion":
-                                    // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
-                                    // ID and type
-                                    Suggestion suggestion = SuggestionsContext.Suggestions.Single(s => s.ID == entityID);
-                                    entityID = suggestion.EntityID;
-                                    entityType = suggestion.EntityType;
-                                    switch (entityType)
-                                    {
-                                        case "Item":
-                                            entity = UserContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
-                                            break;
-                                        case "Folder":
-                                            entity = UserContext.Folders.Single(i => i.ID == entityID);
-                                            break;
-                                        case "User":
-                                            entity = UserContext.Users.Single(i => i.ID == entityID);
-                                            break;
-                                    }
-                                    operationType = "SUGGESTION";
-                                    break;
-                                default:
-                                    TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
-                                    process = false;
-                                    break;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            TraceLog.TraceException(String.Format("WorkflowWorker: could not retrieve {0}", entityType), ex);
-                            process = false;
-                        }                        
-
-                        // launch new workflows based on the changes to the item
-                        if (process)
-                        {
-                            switch (operationType)
-                            {
-                                case "DELETE":
-                                    workflowHost.DeleteWorkflows(entity);
-                                    break;
-                                case "POST":
-                                    workflowHost.StartNewWorkflows(entity);
-                                    reenqueue = workflowHost.ExecuteWorkflows(entity);
-                                    break;
-                                case "PUT":
-                                    workflowHost.StartTriggerWorkflows(entity, oldEntity);
-                                    reenqueue = workflowHost.ExecuteWorkflows(entity);
-                                    break;
-                                case "SUGGESTION":
-                                    reenqueue = workflowHost.ExecuteWorkflows(entity);
-                                    break;
-                                default:
-                                    TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
-                                    break;
-                            }
-                        }
+                        // process the operation (invoking workflows as necessary)
+                        bool processed = WorkflowHost.WorkflowHost.ProcessOperation(UserContext, SuggestionsContext, operation);
 
                         // remove the message from the queue
                         bool deleted = MessageQueue.DeleteMessage(msg.MessageRef);
 
                         // reenqueue and sleep if the processing failed
-                        if (deleted && reenqueue)
+                        if (deleted && !processed)
                         {
                             Thread.Sleep(Timeout);
                             MessageQueue.EnqueueMessage(operationID);

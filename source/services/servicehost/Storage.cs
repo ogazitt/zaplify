@@ -472,71 +472,71 @@
             return GetOrCreateUserList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
         }
 
-        public Item GetOrCreateShadowItem(User user, ServerEntity entity)
+        public Item GetOrCreateEntityRef(User user, ServerEntity entity)
         {
-            Item shadowItemList = GetOrCreateShadowItemList(user);
-            if (shadowItemList == null)
+            Item entityRefList = GetOrCreateEntityRefList(user);
+            if (entityRefList == null)
                 return null;
 
             var entityID = entity.ID.ToString();
 
-            // retrieve the shadow item inside the $User folder
+            // retrieve the entity ref item inside the $User folder
             try
             {
-                // get the shadow item
-                if (Items.Include("FieldValues").Any(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                // get the entity ref item
+                if (Items.Include("FieldValues").Any(i => i.UserID == user.ID && i.FolderID == entityRefList.FolderID && i.ParentID == entityRefList.ID &&
                     i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID)))
                 {
-                    return Items.Include("FieldValues").Single(i => i.UserID == user.ID && i.FolderID == shadowItemList.FolderID && i.ParentID == shadowItemList.ID &&
+                    return Items.Include("FieldValues").Single(i => i.UserID == user.ID && i.FolderID == entityRefList.FolderID && i.ParentID == entityRefList.ID &&
                         i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == entityID));
                 }
                 else
                 {
-                    // create shadow item 
+                    // create entity ref item 
                     DateTime now = DateTime.UtcNow;
-                    var shadowItemID = Guid.NewGuid();
-                    var shadowItem = new Item()
+                    var entityRefItemID = Guid.NewGuid();
+                    var entityRefItem = new Item()
                     {
-                        ID = shadowItemID,
+                        ID = entityRefItemID,
                         Name = entity.Name,
-                        FolderID = shadowItemList.FolderID,
+                        FolderID = entityRefList.FolderID,
                         UserID = user.ID,
                         ItemTypeID = SystemItemTypes.Reference,
-                        ParentID = shadowItemList.ID,
+                        ParentID = entityRefList.ID,
                         Created = now,
                         LastModified = now,
                         FieldValues = new List<FieldValue>()
                         {
                             new FieldValue()
                             {
-                                ItemID = shadowItemID,
+                                ItemID = entityRefItemID,
                                 FieldName = FieldNames.EntityRef,
                                 Value = entityID,
                             },
                             new FieldValue()
                             {
-                                ItemID = shadowItemID,
+                                ItemID = entityRefItemID,
                                 FieldName = FieldNames.EntityType,
                                 Value = entity.GetType().Name,
                             },
                         }
                     };
-                    Items.Add(shadowItem);
+                    Items.Add(entityRefItem);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name));
-                    return shadowItem;
+                    TraceLog.TraceInfo(String.Format("GetOrCreateEntityRef: created entity ref item {0} for user {1}", entity.Name, user.Name));
+                    return entityRefItem;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateShadowItem: created shadow item {0} for user {1}", entity.Name, user.Name), ex);
+                TraceLog.TraceException(String.Format("GetOrCreateEntityRef: created entity ref item {0} for user {1}", entity.Name, user.Name), ex);
                 return null;
             }
         }
 
-        public Item GetOrCreateShadowItemList(User user)
+        public Item GetOrCreateEntityRefList(User user)
         {
-            return GetOrCreateUserList(user, SystemEntities.ShadowItems, SystemItemTypes.Reference);
+            return GetOrCreateUserList(user, SystemEntities.EntityRefs, SystemItemTypes.Reference);
         }
 
         public Folder GetOrCreateUserFolder(User user)

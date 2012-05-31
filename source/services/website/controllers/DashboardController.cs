@@ -174,9 +174,8 @@
                     return RedirectToAction("Home", "Dashboard");
                 }
 
-                // enqueue a message for the Worker that will wake up the Connect to Facebook workflow
-                if (HostEnvironment.IsAzure)
-                    MessageQueue.EnqueueMessage(operation.ID);
+                // wake up the Connect to Facebook workflow
+                WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(storage, suggestionsContext, operation);
             }
             catch (Exception ex)
             {
@@ -231,8 +230,8 @@
                 // create an operation corresponding to the new user creation
                 var operation = model.StorageContext.CreateOperation(this.CurrentUser, "POST", (int?) HttpStatusCode.Created, this.CurrentUser, null);
 
-                // enqueue a message for the Worker that will kick off the New User workflow
-                if (HostEnvironment.IsAzure) { MessageQueue.EnqueueMessage(operation.ID); }
+                // kick off the New User workflow
+                WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(model.StorageContext, null, operation);
             }
             catch (Exception ex)
             {

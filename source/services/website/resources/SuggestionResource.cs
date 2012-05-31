@@ -189,13 +189,11 @@
                     }
                     else
                     {
-                        if (HostEnvironment.IsAzure) 
-                        {
-                            // if this suggestion was "Chosen", then enqueue a message.  we don't need to enqueue messages for
-                            // suggestions that were ignored.
-                            if (modified.ReasonSelected == Reasons.Chosen)
-                                MessageQueue.EnqueueMessage(operation.ID); 
-                        }
+                        // if this suggestion was "Chosen", then invoke the workflow.  we don't need to invoke the workflow for
+                        // suggestions that were ignored.
+                        if (modified.ReasonSelected == Reasons.Chosen)
+                            WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, this.SuggestionsStorageContext, operation);
+
                         TraceLog.TraceInfo("SuggestionResource.UpdateSuggestion: Accepted");
                         return ReturnResult<Suggestion>(req, operation, current, HttpStatusCode.Accepted);
                     }

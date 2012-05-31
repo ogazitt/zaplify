@@ -47,11 +47,11 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    // get or create a shadow item in the shadow item list in the $User folder
-                    var shadowItem = UserContext.GetOrCreateShadowItem(user, item);
-                    if (shadowItem == null)
+                    // get or create an entityref in the entity ref list in the $User folder
+                    var entityRefItem = UserContext.GetOrCreateEntityRef(user, item);
+                    if (entityRefItem == null)
                     {
-                        TraceLog.TraceError("GetContactInfoFromFacebook: could not retrieve or create a shadow item for this contact");
+                        TraceLog.TraceError("GetContactInfoFromFacebook: could not retrieve or create an entity ref for this contact");
                         return Status.Error;
                     }
 
@@ -67,7 +67,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                                 item.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
                             var gender = (string) contact[FBQueryResult.Gender];
                             if (gender != null)
-                                shadowItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
+                                entityRefItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                         }
                         UserContext.SaveChanges();
                     }

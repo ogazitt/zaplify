@@ -11,45 +11,19 @@ namespace BuiltSteady.Zaplify.WorkflowHost
 {
     public class WorkflowHost 
     {
-        public WorkflowHost()
-        {
-        }
-
-        public WorkflowHost(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext)
-        {
-            UserContext = userContext;
-            SuggestionsContext = suggestionsContext;
-        }
-
-        public UserStorageContext UserContext { get; set; }
-        public SuggestionsStorageContext SuggestionsContext { get; set; }
-
         public static string Me
         {
             get { return String.Concat(Environment.MachineName.ToLower(), "-", Thread.CurrentThread.ManagedThreadId.ToString()); }
         }
 
         /// <summary>
-        /// Delete all workflow instances associated with this entity
+        /// Delete all workflow instances associated with this entity ID (the entity is already deleted)
         /// </summary>
+        /// <param name="userContext"></param>
         /// <param name="suggestionsContext"></param>
         /// <param name="entity"></param>
-        public void DeleteWorkflows(ServerEntity entity)
+        public static void DeleteWorkflows(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, Guid entityID)
         {
-            DeleteWorkflows(UserContext, SuggestionsContext, entity);
-        }
-
-        /// <summary>
-        /// Delete all workflow instances associated with this entity
-        /// </summary>
-        /// <param name="suggestionsContext"></param>
-        /// <param name="entity"></param>
-        public static void DeleteWorkflows(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, ServerEntity entity)
-        {
-            if (entity == null)
-                return;
-            Guid entityID = entity.ID;
-
             try
             {
                 // get all the workflow instances for this Item
@@ -74,21 +48,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost
         /// Execute the workflow instances associated with this entity
         /// </summary>
         /// <param name="entity"></param>
-        /// <returns>true if one the workflow instances was locked (causes the message to be reenqueued); false if the message was processed</returns>
-        public bool ExecuteWorkflows(ServerEntity entity)
-        {
-            return ExecuteWorkflows(UserContext, SuggestionsContext, entity);
-        }
-
-        /// <summary>
-        /// Execute the workflow instances associated with this entity
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns>true if one the workflow instances was locked (causes the message to be reenqueued); false if the message was processed</returns>
+        /// <param name="userContext"></param>
+        /// <param name="suggestionsContext"></param>
+        /// <returns>true if processing happened (and the operation doesn't need to be processed again), 
+        /// false if one the workflow instances was locked (causes the message to be reprocessed)</returns>
         public static bool ExecuteWorkflows(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, ServerEntity entity)
         {
             if (entity == null)
-                return false;
+                return true;
 
             List<WorkflowInstance> wis = null;
 
@@ -103,7 +70,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                     foreach (var instance in wis)
                     {
                         if (instance.LockedBy != null && instance.LockedBy != Me)
-                            return true;
+                            return false;
                         instance.LockedBy = Me;
                     }
                     suggestionsContext.SaveChanges();
@@ -113,7 +80,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                     var locks = suggestionsContext.WorkflowInstances.Where(w => w.EntityID == entity.ID).Select(w => w.LockedBy).ToList();
                     foreach (var lockedby in locks)
                         if (lockedby != Me)
-                            return true;
+                            return false;
 
                     // loop over the workflow instances and dispatch the new message
                     foreach (var instance in wis)
@@ -138,12 +105,12 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                         workflow.Run(instance, entity);
                     }
                 }
-                return false;
+                return true;
             }
             catch (Exception ex)
             {
                 TraceLog.TraceException("ExecuteWorkflows: failed", ex);
-                return false;
+                return true;
             }
             finally
             {
@@ -164,17 +131,124 @@ namespace BuiltSteady.Zaplify.WorkflowHost
         }
 
         /// <summary>
-        /// Restart the workflows associated with an entity
+        /// Invoke the workflows for an operation depending on the environment.  
+        /// If in Azure, enqueue a message; otherwise, invoke the workflow host directly.
         /// </summary>
         /// <param name="userContext"></param>
         /// <param name="suggestionsContext"></param>
-        /// <param name="entity"></param>
-        /// <param name="workflowType"></param>
-        public void RestartWorkflow(ServerEntity entity, string workflowType)
+        /// <param name="operation"></param>
+        public static void InvokeWorkflowForOperation(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, Operation operation)
         {
-            RestartWorkflow(UserContext, SuggestionsContext, entity, workflowType);
+            if (HostEnvironment.IsAzure)
+                MessageQueue.EnqueueMessage(operation.ID);
+            else
+                ProcessOperation(userContext, suggestionsContext, operation);
         }
-        
+
+        /// <summary>
+        /// Process the operation based on the underlying entity type and the operation type
+        /// </summary>
+        /// <param name="userContext"></param>
+        /// <param name="suggestionsContext"></param>
+        /// <param name="operation"></param>
+        /// <returns>true if processed, false if the instance was locked and the operation needs to be replayed</returns>
+        public static bool ProcessOperation(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, Operation operation)
+        {
+            if (operation == null)
+                return true;
+
+            if (userContext == null)
+                userContext = Storage.NewUserContext;
+            if (suggestionsContext == null)
+                suggestionsContext = Storage.NewSuggestionsContext;
+
+            Guid entityID = operation.EntityID;
+            string entityType = operation.EntityType.Trim();
+            string operationType = operation.OperationType.Trim();
+
+            // try to get a strongly-typed entity (item, folder, user...)
+            ServerEntity entity = null, oldEntity = null;
+            bool process = true;
+
+            // extract the underlying entity unless this is a delete operation (in which case it's already deleted)
+            if (operationType != "DELETE")
+            {
+                try
+                {
+                    switch (entityType)
+                    {
+                        case "Item":
+                            Item item = userContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
+                            Item oldItem = JsonSerializer.Deserialize<Item>(operation.OldBody);
+                            entity = item;
+                            oldEntity = oldItem;
+                            break;
+                        case "Folder":
+                            Folder folder = userContext.Folders.Single(i => i.ID == entityID);
+                            entity = folder;
+                            break;
+                        case "User":
+                            User user = userContext.Users.Single(i => i.ID == entityID);
+                            entity = user;
+                            break;
+                        case "Suggestion":
+                            // if the entity passed in is a suggestion, this is a "meta" request - get the underlying Entity's
+                            // ID and type
+                            Suggestion suggestion = suggestionsContext.Suggestions.Single(s => s.ID == entityID);
+                            entityID = suggestion.EntityID;
+                            entityType = suggestion.EntityType;
+                            switch (entityType)
+                            {
+                                case "Item":
+                                    entity = userContext.Items.Include("FieldValues").Single(i => i.ID == entityID);
+                                    break;
+                                case "Folder":
+                                    entity = userContext.Folders.Single(i => i.ID == entityID);
+                                    break;
+                                case "User":
+                                    entity = userContext.Users.Single(i => i.ID == entityID);
+                                    break;
+                            }
+                            operationType = "SUGGESTION";
+                            break;
+                        default:
+                            TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
+                            process = false;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TraceLog.TraceException(String.Format("WorkflowWorker: could not retrieve {0}", entityType), ex);
+                    process = false;
+                }
+            }
+
+            // launch new workflows based on the changes to the item
+            if (process)
+            {
+                switch (operationType)
+                {
+                    case "DELETE":
+                        DeleteWorkflows(userContext, suggestionsContext, entityID);
+                        return true;
+                    case "POST":
+                        StartNewWorkflows(userContext, suggestionsContext, entity);
+                        return ExecuteWorkflows(userContext, suggestionsContext, entity);
+                    case "PUT":
+                        StartTriggerWorkflows(userContext, suggestionsContext, entity, oldEntity);
+                        return ExecuteWorkflows(userContext, suggestionsContext, entity);
+                    case "SUGGESTION":
+                        return ExecuteWorkflows(userContext, suggestionsContext, entity);
+                    default:
+                        TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
+                        return true;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Restart the workflows associated with an entity
         /// </summary>
@@ -207,17 +281,6 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             }
         }
 
-        /// <summary>
-        /// Start NewUser/NewFolder/NewItem workflows based on the entity type
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="suggestionsContext"></param>
-        /// <param name="entity"></param>
-        public void StartNewWorkflows(ServerEntity entity)
-        {
-            StartNewWorkflows(UserContext, SuggestionsContext, entity);
-        }
-        
         /// <summary>
         /// Start NewUser/NewFolder/NewItem workflows based on the entity type
         /// </summary>
@@ -271,18 +334,6 @@ namespace BuiltSteady.Zaplify.WorkflowHost
         /// <param name="suggestionsContext"></param>
         /// <param name="entity"></param>
         /// <param name="oldEntity"></param>
-        public void StartTriggerWorkflows(ServerEntity entity, ServerEntity oldEntity)
-        {
-            StartTriggerWorkflows(UserContext, SuggestionsContext, entity, oldEntity);
-        }
-
-        /// <summary>
-        /// Start workflows associated with a change in one or more of the entity's fields
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="suggestionsContext"></param>
-        /// <param name="entity"></param>
-        /// <param name="oldEntity"></param>
         public static void StartTriggerWorkflows(UserStorageContext userContext, SuggestionsStorageContext suggestionsContext, ServerEntity entity, ServerEntity oldEntity)
         {
             if (entity == null || oldEntity == null)
@@ -317,19 +368,6 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             }
         }
 
-        /// <summary>
-        /// Start a workflow of a certain type, passing it an entity and some instance data to start
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="suggestionsContext"></param>
-        /// <param name="type">String representing the workflow type</param>
-        /// <param name="entity">Entity to associate with the workflow</param>
-        /// <param name="instanceData">Instance data to pass into the workflow</param>
-        public void StartWorkflow(string type, ServerEntity entity, string instanceData)
-        {
-            StartWorkflow(UserContext, SuggestionsContext, type, entity, instanceData);
-        }
-        
         /// <summary>
         /// Start a workflow of a certain type, passing it an entity and some instance data to start
         /// </summary>

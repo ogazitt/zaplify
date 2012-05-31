@@ -285,9 +285,8 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     return Status.Error;
                 }
 
-                // enqueue a message for the Worker that will kick off the New Contact workflow
-                if (HostEnvironment.IsAzure)
-                    MessageQueue.EnqueueMessage(operation.ID);
+                // kick off the New Contact workflow
+                WorkflowHost.InvokeWorkflowForOperation(UserContext, SuggestionsContext, operation);
             }
 
             // add a contact reference to the contact list
