@@ -24,22 +24,24 @@
         <controls:Pivot x:Name ="ItemPagePivotControl" Title="{Binding Name}">
             <!--Pivot item one-->
             <controls:PivotItem Header="actions">
-                <Grid Margin="0,-30,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="70" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}"/>
-                        <TextBlock Grid.Row="2" Text="{Binding Description}" Margin="20,5,0,0" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" />
-                    </StackPanel>
-                    <Border Grid.Column="2" BorderThickness="3" BorderBrush="White">
-                    <Image x:Name="PictureImage" Source="{Binding Picture}" Width="64" Height="64" Margin="0,0,0,0"/>
-                    </Border>
+                <StackPanel>
+                    <Grid Margin="0,-30,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource PhoneTextAccentStyle}" TextWrapping ="Wrap" FontSize="{StaticResource PhoneFontSizeLarge}" FontFamily="{StaticResource PhoneFontFamilyLight}"/>
+                            <TextBlock Grid.Row="2" Text="{Binding Description}" Margin="20,5,0,0" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" />
+                        </StackPanel>
+                        <Border Grid.Column="2" BorderThickness="3" BorderBrush="{Binding PictureBorderColor}">
+                            <Image x:Name="PictureImage" Source="{Binding Picture}" Width="64" Height="64" Margin="0,0,0,0"/>
+                        </Border>
+                    </Grid>
                     <ScrollViewer Margin="0,0,0,0" Grid.Row="3">
                         <StackPanel>
                             <Grid x:Name="ViewGrid" Background="Transparent" Margin="0,30,0,0">
@@ -50,7 +52,7 @@
                             </Grid>
                         </StackPanel>
                     </ScrollViewer>
-                </Grid>
+                </StackPanel>
                 <!--<StackPanel Margin="0,0,0,17" Width="432">
                     <TextBlock Text="{Binding Name}" TextWrapping="Wrap" Style="{StaticResource PhoneTextExtraLargeStyle}"/>
                     <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="12,-6,12,0" Style="{StaticResource PhoneTextSubtleStyle}"/>

@@ -12,10 +12,8 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
-    using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
-    using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
     using System.Web;
 
     [ServiceContract]
@@ -96,6 +94,13 @@
                     multipleItemsDeleted = DeleteItemChildrenRecursively(StorageContext, requestedItem);
                     // delete all ItemRef FieldValues with Value of this item.ID
                     multipleItemsDeleted |= DeleteItemReferences(CurrentUser, StorageContext, requestedItem);
+
+                    // process the delete
+                    ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, requestedItem.ItemTypeID);
+                    if (ip != null)
+                    {   // do itemtype-specific processing
+                        ip.ProcessDelete(requestedItem);
+                    }
 
                     // TODO: indicate using TimeStamp that multiple items were deleted
 

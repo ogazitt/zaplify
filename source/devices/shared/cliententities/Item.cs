@@ -758,6 +758,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
+        // display color for picture border
+        public string PictureBorderColor { get { return Picture != null ? "Gray" : "Transparent"; } }
+
         public int? Priority
         {
             get

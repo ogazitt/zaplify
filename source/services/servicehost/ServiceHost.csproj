@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.FBGraph, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.FBGraph.dll</HintPath>
+    </Reference>
     <Reference Include="BuiltSteady.Zaplify.ServiceUtilities.Grocery">
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Grocery.dll</HintPath>
     </Reference>
@@ -67,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="FacebookProcessor.cs" />
     <Compile Include="FieldProcessor.cs" />
     <Compile Include="ItemProcessor.cs" />
     <Compile Include="GroceryServiceModels.cs" />
@@ -75,6 +80,7 @@
     <Compile Include="nlp\Tagger.cs" />
     <Compile Include="nlp\Task.cs" />
     <Compile Include="nlp\Tokenizer.cs" />
+    <Compile Include="PossibleContactProcessor.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />
     <Compile Include="ConfigurationSettings.cs" />

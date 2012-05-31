@@ -80,7 +80,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 return Status.Error;
             }
 
-            User user = CurrentUser(item);
+            User user = UserContext.CurrentUser(item);
             if (user == null)
             {
                 TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
@@ -270,7 +270,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     return Status.Error;
                 }
 
-                User user = CurrentUser(item);
+                User user = UserContext.CurrentUser(item);
                 if (user == null)
                 {
                     TraceLog.TraceError("CreateContact: couldn't find the user associated with item " + item.Name);

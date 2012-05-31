@@ -337,6 +337,43 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             return list;
         }
 
+        private void HandleAddedContact(Item valueList, Item contact)
+        {
+            // if this contact was found and already selected, nothing more to do (and don't need to refresh the display)
+            if (valueList.Items.Any(i => i.ItemRef == contact.ID))
+                return;
+
+            // create a new itemref 
+            var itemRef = new Item()
+            {
+                Name = contact.Name,
+                FolderID = valueList.FolderID,
+                ItemTypeID = SystemItemTypes.Reference,
+                ParentID = valueList.ID,
+                ItemRef = contact.ID
+            };
+
+            // add the itemref to the folder
+            Folder folder = App.ViewModel.Folders.FirstOrDefault(f => f.ID == valueList.FolderID);
+            if (folder == null)
+                return;
+            folder.Items.Add(itemRef);
+
+            // save the current state of the folder
+            StorageHelper.WriteFolder(folder);
+
+            // enqueue the Web Request Record
+            RequestQueue.EnqueueRequestRecord(
+                new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                    Body = itemRef,
+                });
+
+            // add the new item reference to the selected value list
+            valueList.Items.Add(itemRef);
+        }
+
         /// <summary>
         /// Find a item by ID and then return its index 
         /// </summary>
@@ -496,7 +533,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.TelephoneNumber } } };
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
-                    StackPanel innerPanel = RenderEditItemImageButtonPanel(tb);
+                    tb.MinWidth -= 64;
+                    tb.MaxWidth = tb.MinWidth;
+                    StackPanel innerPanel = RenderImageButtonPanel(tb);
                     ImageButton imageButton = (ImageButton)innerPanel.Children[1];
                     imageButton.Click += new RoutedEventHandler(delegate
                     {
@@ -522,7 +561,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
                     tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                    innerPanel = RenderEditItemImageButtonPanel(tb);
+                    tb.MinWidth -= 64;
+                    tb.MaxWidth = tb.MinWidth;
+                    innerPanel = RenderImageButtonPanel(tb);
                     imageButton = (ImageButton)innerPanel.Children[1];
                     imageButton.Click += new RoutedEventHandler(delegate
                     {
@@ -563,7 +604,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                     tb.LostFocus += new RoutedEventHandler(delegate { pi.SetValue(container, tb.Text, null); });
                     tb.TabIndex = tabIndex++;
                     tb.KeyUp += new KeyEventHandler(TextBox_KeyUp);
-                    innerPanel = RenderEditItemImageButtonPanel(tb);
+                    tb.MinWidth -= 64;
+                    tb.MaxWidth = tb.MinWidth;
+                    innerPanel = RenderImageButtonPanel(tb);
                     imageButton = (ImageButton)innerPanel.Children[1];
                     imageButton.Click += new RoutedEventHandler(delegate
                     {
@@ -749,7 +792,72 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         IsTabStop = true
                     };
                     contactPicker.TabIndex = tabIndex++;
-                    EditStackPanel.Children.Add(contactPicker);
+                    contactPicker.MinWidth -= 84;
+                    contactPicker.MaxWidth = contactPicker.MinWidth;
+                    innerPanel = RenderImageButtonPanel(contactPicker, "/Images/button.add.png", "/Images/button.add.pressed.png");
+                    imageButton = (ImageButton)innerPanel.Children[1];
+                    imageButton.Click += new RoutedEventHandler(delegate
+                    {
+                        EmailAddressChooserTask chooser = new EmailAddressChooserTask();
+                        chooser.Completed += new EventHandler<EmailResult>((s, e) =>
+                        {
+                            if (e.TaskResult == TaskResult.OK && !String.IsNullOrEmpty(e.Email))
+                            {
+                                // find the contact using the email address
+                                Contacts contacts = new Contacts();
+                                contacts.SearchCompleted += new EventHandler<ContactsSearchEventArgs>((sen, ev) =>
+                                {
+                                    // save the contact info as a new contact
+                                    var contact = ev.Results.FirstOrDefault();
+                                    if (contact == null)
+                                        return;
+                                    var newContact = ContactPickerHelper.ProcessContact(contact);
+                                    if (newContact != null)
+                                    {
+                                        // if the list doesn't yet exist, create it now
+                                        if (currentContacts.ID == Guid.Empty)
+                                        {
+                                            Guid id = Guid.NewGuid();
+                                            currentContacts.ID = id;
+
+                                            // enqueue the Web Request Record
+                                            RequestQueue.EnqueueRequestRecord(
+                                                new RequestQueue.RequestRecord()
+                                                {
+                                                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                                                    Body = currentContacts
+                                                });
+
+                                            // add the list to the folder
+                                            folder.Items.Add(currentContacts);
+                                            StorageHelper.WriteFolder(folder);
+
+                                            // store the list's Guid in the item's property 
+                                            pi.SetValue(container, id.ToString(), null);
+                                        }
+
+                                        // rebuild the image panel with a new ItemRefListPicker
+                                        HandleAddedContact(currentContacts, newContact);
+                                        var oldListPicker = innerPanel.Children[0] as ItemRefListPicker;
+                                        contactPicker = new ItemRefListPicker(folder, currentContacts, SystemItemTypes.Contact, pi, container)
+                                        {
+                                            IsTabStop = true
+                                        };
+                                        if (oldListPicker != null)
+                                        {
+                                            contactPicker.TabIndex = oldListPicker.TabIndex;
+                                            contactPicker.MinWidth = oldListPicker.MinWidth;
+                                            contactPicker.MaxWidth = oldListPicker.MaxWidth;
+                                        }
+                                        innerPanel.Children[0] = contactPicker;
+                                    }
+                                });
+                                contacts.SearchAsync(e.Email, FilterKind.EmailAddress, null);
+                            }
+                        });
+                        chooser.Show();
+                    });
+                    EditStackPanel.Children.Add(innerPanel);
                     break;
                 case DisplayTypes.LocationList:
                     Item currentLocations = CreateValueList(item, field, currentValue == null ? Guid.Empty : new Guid((string) currentValue));
@@ -847,24 +955,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             keyboardHelper.RefreshTabbedControls(null);
         }
 
-        private static StackPanel RenderEditItemImageButtonPanel(TextBox tb)
-        {
-            tb.MinWidth -= 64;
-            tb.MaxWidth = tb.MinWidth;
-            StackPanel innerPanel = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
-            innerPanel.Children.Add(tb);
-            ImageButton imageButton = new ImageButton()
-            {
-                Image = new BitmapImage(new Uri("/Images/button.search.png", UriKind.Relative)),
-                PressedImage = new BitmapImage(new Uri("/Images/button.search.pressed.png", UriKind.Relative)),
-                Width = 48,
-                Height = 48,
-                Template = (ControlTemplate)App.Current.Resources["ImageButtonControlTemplate"]
-            };
-            innerPanel.Children.Add(imageButton);
-            return innerPanel;
-        }
-
         private void RenderEditItemTagList(TextBox taglist, Item item, PropertyInfo pi)
         {
             taglist.InputScope = new InputScope() { Names = { new InputScopeName() { NameValue = InputScopeNameValue.Text } } };
@@ -929,6 +1019,25 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // create the mirror Tags collection in the item
                 item.CreateTags(App.ViewModel.Tags);
             });
+        }
+
+        private static StackPanel RenderImageButtonPanel(
+            Control control, 
+            string buttonUriString = "/Images/button.search.png", 
+            string buttonUriPressedString = "/Images/button.search.pressed.png")
+        {
+            StackPanel innerPanel = new StackPanel() { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            innerPanel.Children.Add(control);
+            ImageButton imageButton = new ImageButton()
+            {
+                Image = new BitmapImage(new Uri(buttonUriString, UriKind.Relative)),
+                PressedImage = new BitmapImage(new Uri(buttonUriPressedString, UriKind.Relative)),
+                Width = 48,
+                Height = 48,
+                Template = (ControlTemplate)App.Current.Resources["ImageButtonControlTemplate"]
+            };
+            innerPanel.Children.Add(imageButton);
+            return innerPanel;
         }
 
         private void RenderViewItem(Item item)

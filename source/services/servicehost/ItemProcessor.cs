@@ -7,6 +7,7 @@ using BuiltSteady.Zaplify.ServiceHost.Nlp;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
 using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
+using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
@@ -24,6 +25,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
         /// <returns>A new ItemProcessor subtype</returns>
         public static ItemProcessor Create(UserStorageContext userContext, User currentUser, Guid itemTypeID)
         {
+            if (itemTypeID == SystemItemTypes.Contact)
+                return new ContactProcessor(userContext, currentUser);
             if (itemTypeID == SystemItemTypes.ShoppingItem)
                 return new ShoppingItemProcessor(userContext, currentUser);
             if (itemTypeID == SystemItemTypes.Task)
@@ -107,6 +110,94 @@ namespace BuiltSteady.Zaplify.ServiceHost
         }
     }
 
+    public class ContactProcessor : ItemProcessor
+    {
+        public ContactProcessor(UserStorageContext userContext, User currentUser)
+        {
+            this.userContext = userContext;
+            this.currentUser = currentUser;
+        }
+
+        public override bool ProcessCreate(Item item)
+        {
+            if (base.ProcessCreate(item))
+                return true;
+
+            FacebookProcessor.AddContactInfo(userContext, item);
+            return PossibleContactProcessor.AddContact(userContext, item);
+        }
+
+        public override bool ProcessDelete(Item item)
+        {
+            if (base.ProcessDelete(item))
+                return true;
+
+            return PossibleContactProcessor.RemoveContact(userContext, item);
+        }
+
+        public override bool ProcessUpdate(Item oldItem, Item newItem)
+        {
+            // base method checks to see if name or itemtype have changed and if so, treats as a create
+            if (base.ProcessUpdate(oldItem, newItem))
+                return true;
+
+            // if the facebook ID is set or changed, retrieve FB info
+            var fbfv = newItem.GetFieldValue(FieldNames.FacebookID);
+            if (fbfv != null && fbfv.Value != null)
+            {
+                // the old category must not exist or the value must have changed
+                var oldfbfv = oldItem.GetFieldValue(FieldNames.FacebookID);
+                if (oldfbfv == null || oldfbfv.Value != fbfv.Value)
+                {
+                    FBGraphAPI fbApi = new FBGraphAPI();
+                    try
+                    {
+                        User user = userContext.Users.Include("UserCredentials").Single(u => u.ID == currentUser.ID);
+                        UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
+                        fbApi.AccessToken = cred.FBConsentToken;
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceLog.TraceException("ProcessUpdate: could not find Facebook credential or consent token", ex);
+                        return false;
+                    }
+
+                    // get or create an entityref in the entity ref list in the $User folder
+                    var entityRefItem = userContext.GetOrCreateEntityRef(currentUser, newItem);
+                    if (entityRefItem == null)
+                    {
+                        TraceLog.TraceError("ProcessUpdate: could not retrieve or create an entity ref for this contact");
+                        return false;
+                    }
+
+                    // get the contact's profile information from facebook
+                    try
+                    {
+                        // this is written as a foreach because the Query API returns an IEnumerable, but there is only one result
+                        foreach (var contact in fbApi.Query(fbfv.Value, FBQueries.BasicInformation))
+                        {
+                            newItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbfv.Value);
+                            var birthday = (string)contact[FBQueryResult.Birthday];
+                            if (birthday != null)
+                                newItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
+                            var gender = (string)contact[FBQueryResult.Gender];
+                            if (gender != null)
+                                entityRefItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
+                        }
+                        //userContext.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        TraceLog.TraceException("ProcessUpdate: could not save Facebook information to Contact", ex);
+                    }
+
+                    return true;
+                }
+            }
+            return false;
+        }    
+    }
+
     public class TaskProcessor : ItemProcessor
     {
         public TaskProcessor(UserStorageContext userContext, User currentUser)
@@ -126,7 +217,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return base.ProcessUpdate(oldItem, newItem);
             // kick off workflow?
         }
-        
+
         protected override string ExtractIntent(Item item)
         {
             try
@@ -134,7 +225,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 Phrase phrase = new Phrase(item.Name);
                 if (phrase.Task != null)
                 {
-                    Intent intent = Storage.NewSuggestionsContext.Intents.FirstOrDefault(i => i.Verb == phrase.Task.Verb && i.Noun == phrase.Task.Article);
+                    string verb = phrase.Task.Verb.ToLower();
+                    string noun = phrase.Task.Article.ToLower();
+                    Intent intent = Storage.NewSuggestionsContext.Intents.FirstOrDefault(i => i.Verb == verb && i.Noun == noun);
                     if (intent != null)
                         return intent.WorkflowType;
                 }

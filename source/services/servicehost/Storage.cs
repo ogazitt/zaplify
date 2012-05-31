@@ -462,6 +462,26 @@
             return operation;
         }
 
+        /// <summary>
+        /// Get the User that owns the current Item
+        /// </summary>
+        /// <param name="item">Item to get the user for</param>
+        /// <returns>User that owns the item</returns>
+        public User CurrentUser(Item item)
+        {
+            if (item == null)
+                return null;
+            try
+            {
+                return Users.Include("UserCredentials").Single(u => u.ID == item.UserID);
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("CurrentUser: User for item {0} not found", item.Name), ex);
+                return null;
+            }
+        }
+
         public Item GetOrCreateUserItemTypeList(User user, Guid itemTypeID)
         {
             return GetOrCreateUserList(user, SystemItemTypes.Names[itemTypeID], SystemItemTypes.NameValue);

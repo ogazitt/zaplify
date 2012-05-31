@@ -187,6 +187,8 @@
     <Content Include="Images\appbar.sort.rest.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\button.add.png" />
+    <Content Include="Images\button.add.pressed.png" />
     <Content Include="Images\button.mic.pressed.png" />
     <Content Include="Images\button.search.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
