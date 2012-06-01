@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BuiltSteady.Zaplify.GroceryService.Models;
-using BuiltSteady.Zaplify.ServiceHost;
 using System.IO;
 
 namespace GroceryLoader
