@@ -20,7 +20,7 @@
     </SupportedCultures>
     <XapOutputs>true</XapOutputs>
     <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
-    <XapFilename>WinPhone.xap</XapFilename>
+    <XapFilename>Zaplify.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
     <SilverlightAppEntry>BuiltSteady.Zaplify.Devices.WinPhone.App</SilverlightAppEntry>
     <ValidateXaml>true</ValidateXaml>

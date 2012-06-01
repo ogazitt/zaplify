@@ -487,11 +487,6 @@
             return GetOrCreateUserList(user, SystemItemTypes.Names[itemTypeID], SystemItemTypes.NameValue);
         }
 
-        public Item GetOrCreatePossibleSubjectsList(User user)
-        {
-            return GetOrCreateUserList(user, SystemEntities.PossibleSubjects, SystemItemTypes.NameValue);
-        }
-
         public Item GetOrCreateEntityRef(User user, ServerEntity entity)
         {
             Item entityRefList = GetOrCreateEntityRefList(user);

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 using BuiltSteady.Zaplify.ServiceHost;
-using System.Collections.Generic;
+using BuiltSteady.Zaplify.ServiceHost.Helpers;
 
 namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
@@ -32,10 +30,10 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    if (FacebookProcessor.GetUserInfo(UserContext, user) == false)
+                    if (FacebookHelper.GetUserInfo(UserContext, user) == false)
                         return Status.Error;
 
-                    if (FacebookProcessor.ImportFriendsAsPossibleContacts(UserContext, user, folder))
+                    if (FacebookHelper.ImportFriendsAsPossibleContacts(UserContext, user, folder))
                         return Status.Complete;
                     else
                         return Status.Error;

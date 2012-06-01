@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.ServiceHost.Helpers;
 
 namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
-    public class AddContactToPossibleSubjects : WorkflowActivity
+    public class AddContactToPossibleContacts : WorkflowActivity
     {
         public override Func<WorkflowInstance, ServerEntity, object, Status> Function
         {
@@ -18,11 +16,11 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("AddContactToPossibleSubject: non-Item passed in");
+                        TraceLog.TraceError("AddContactToPossibleContacts: non-Item passed in");
                         return Status.Error;
                     }
 
-                    if (PossibleContactProcessor.AddContact(UserContext, item))
+                    if (PossibleContactHelper.AddContact(UserContext, item))
                         return Status.Complete;
                     else
                         return Status.Error;

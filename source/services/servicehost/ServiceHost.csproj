@@ -71,16 +71,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
-    <Compile Include="FacebookProcessor.cs" />
+    <Compile Include="helpers\FacebookHelper.cs" />
     <Compile Include="FieldProcessor.cs" />
     <Compile Include="ItemProcessor.cs" />
-    <Compile Include="GroceryServiceModels.cs" />
     <Compile Include="IWorker.cs" />
     <Compile Include="nlp\Phrase.cs" />
     <Compile Include="nlp\Tagger.cs" />
     <Compile Include="nlp\Task.cs" />
     <Compile Include="nlp\Tokenizer.cs" />
-    <Compile Include="PossibleContactProcessor.cs" />
+    <Compile Include="helpers\PossibleContactHelper.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />
     <Compile Include="ConfigurationSettings.cs" />

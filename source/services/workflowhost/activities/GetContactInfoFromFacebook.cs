@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Linq;
 using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
+using BuiltSteady.Zaplify.ServiceHost.Helpers;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 {
@@ -25,7 +24,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     if (VerifyItemType(item, SystemItemTypes.Contact) == false)
                         return Status.Error;
 
-                    if (FacebookProcessor.AddContactInfo(UserContext, item))
+                    if (FacebookHelper.AddContactInfo(UserContext, item))
                         return Status.Complete;
                     else
                         return Status.Error;

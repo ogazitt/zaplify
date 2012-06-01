@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Json;
 using System.Linq;
 using System.Reflection;
 using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -338,6 +339,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// 
         /// Otherwise, change the names of all the "local" folders to include " (Phone)" so the user can 
         /// distinguish these folders from the ones that they already have in their existing account
+        /// Also, remove any operations that have to do with the ClientSettings folder so that we don't have a duplicate
         /// </summary>
         public static void PrepareQueueForAccountConnect()
         {
@@ -374,18 +376,44 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                             {
                                 // if the file opens, read the contents 
                                 requests = dc.ReadObject(stream) as List<RequestRecord>;
+
+                                // clean out records we don't want ($ClientSettings) and append (Phone) to all user folders
                                 foreach (var req in requests)
                                 {
-                                    // append (Phone) to all folder names
+                                    Guid clientSettingsFolderID = Guid.Empty;
                                     req.DeserializeBody();
+                                    req.IsDefaultObject = false;
+                                    
+                                    // append (Phone) to all folder names that contain user data
                                     if (req.BodyTypeName == typeof(Folder).Name && req.ReqType == RequestRecord.RequestType.Insert)
                                     {
                                         var folder = req.Body as Folder;
                                         if (folder != null)
-                                            folder.Name += " (Phone)";
-                                        req.SerializeBody();
+                                        {
+                                            // if this is the $ClientSettings folder, mark it and save the ID
+                                            if (folder.Name == SystemEntities.ClientSettings)
+                                            {
+                                                req.IsDefaultObject = true;
+                                                clientSettingsFolderID = req.ID;
+                                            }
+                                            else
+                                            {
+                                                folder.Name += " (Phone)";
+                                                req.SerializeBody();
+                                            }
+                                        }
                                     }
+
+                                    // get the folder for the current request and mark the request if it is in the ClientSettings folder
+                                    Guid folderID = GetFolderID(req);
+                                    if (folderID == clientSettingsFolderID)
+                                        req.IsDefaultObject = true;
                                 }
+
+                                // loop through all the requests again and remove the ones that are marked as belonging in the ClientSettings folder
+                                foreach (var req in requests.ToList())
+                                    if (req.IsDefaultObject)
+                                        requests.Remove(req);
 
                                 // reset the stream and rewrite the request queue file
                                 stream.Position = 0;
@@ -405,6 +433,41 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         return;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Get the Folder ID for the record
+        /// </summary>
+        /// <param name="req">Request record</param>
+        /// <returns>Guid of the folder, or Guid.Empty if not found</returns>
+        public static Guid GetFolderID(RequestRecord req)
+        {
+            switch (req.ReqType)
+            {
+                case RequestQueue.RequestRecord.RequestType.Delete:
+                case RequestQueue.RequestRecord.RequestType.Insert:
+                    switch (req.BodyTypeName)
+                    {
+                        case "Item":
+                            return ((Item)req.Body).FolderID;
+                        case "Folder":
+                            return ((Folder)req.Body).ID;
+                        default:
+                            return Guid.Empty;
+                    }
+                case RequestQueue.RequestRecord.RequestType.Update:
+                    switch (req.BodyTypeName)
+                    {
+                        case "Item":
+                            return ((List<Item>)req.Body)[0].FolderID;
+                        case "Folder":
+                            return ((List<Folder>)req.Body)[0].ID;
+                        default:
+                            return Guid.Empty;
+                    }
+                default:
+                    return Guid.Empty;
             }
         }
 		

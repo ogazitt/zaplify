@@ -11,53 +11,53 @@
 
     public class UserInfoController : BaseController
     {
-        class JsSubjectsResult
+        class JsContactsResult
         {
             public HttpStatusCode StatusCode = HttpStatusCode.OK;
             public int Count = -1;
-            public Dictionary<string, string> Subjects = null;
+            public Dictionary<string, string> Contacts = null;
         }
 
-        public ActionResult PossibleSubjects(string startsWith = null, string contains = null, int maxCount = 10)
+        public ActionResult PossibleContacts(string startsWith = null, string contains = null, int maxCount = 10)
         {
-            JsSubjectsResult subjectResults = new JsSubjectsResult();
+            JsContactsResult contactsResults = new JsContactsResult();
             Folder userFolder = StorageContext.GetOrCreateUserFolder(CurrentUser);
-            if (StorageContext.Items.Any(item => item.UserID == CurrentUser.ID && item.FolderID == userFolder.ID && item.Name == SystemEntities.PossibleSubjects))
+            Item possibleContactsList = StorageContext.GetOrCreateUserItemTypeList(CurrentUser, SystemItemTypes.Contact);
+            if (possibleContactsList != null)
             {
-                Dictionary<string, string> subjects = new Dictionary<string, string>();
-                Item possibleSubjectList = StorageContext.Items.Single(item => item.UserID == CurrentUser.ID && item.FolderID == userFolder.ID && item.Name == SystemEntities.PossibleSubjects);
-                List<Item> possibleSubjects = StorageContext.Items.
+                Dictionary<string, string> contacts = new Dictionary<string, string>();
+                List<Item> possibleContacts = StorageContext.Items.
                     Include("FieldValues").
                     Where(item => item.UserID == CurrentUser.ID
                         && item.FolderID == userFolder.ID
-                        && item.ParentID == possibleSubjectList.ID
+                        && item.ParentID == possibleContactsList.ID
                         && item.Name.StartsWith(startsWith)       
                         // && System.Data.Objects.SqlClient.SqlFunctions.PatIndex("%" + contains + "%", item.Name) == 1     // TODO: test if this works
                     ).ToList<Item>();
 
-                foreach (var item in possibleSubjects)
+                foreach (var item in possibleContacts)
                 {
                     if (contains == null || item.Name.Contains(contains))
                     {
                         FieldValue fv = item.GetFieldValue(FieldNames.Value);
                         if (fv != null)
                         {
-                            if (subjects.ContainsKey(item.Name))
+                            if (contacts.ContainsKey(item.Name))
                             {   // disambiguate duplicate names
-                                item.Name = string.Format("{0} ({1})", item.Name, subjects.Count.ToString());
+                                item.Name = string.Format("{0} ({1})", item.Name, contacts.Count.ToString());
                             }
-                            subjects.Add(item.Name, fv.Value);
+                            contacts.Add(item.Name, fv.Value);
                         }
-                        if (subjects.Count == maxCount) { break; }
+                        if (contacts.Count == maxCount) { break; }
                     }
                 }
-                subjectResults.Count = subjects.Count;
-                subjectResults.Subjects = subjects;
+                contactsResults.Count = contacts.Count;
+                contactsResults.Contacts = contacts;
             }
 
             JsonResult result = new JsonResult();
             result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
-            result.Data = subjectResults;
+            result.Data = contactsResults;
             return result;
         }
 

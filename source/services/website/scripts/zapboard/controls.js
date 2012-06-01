@@ -286,14 +286,14 @@ Control.Text.autoCompleteAddress = function Control$Text$autoCompleteAddress($in
 Control.Text.autoCompleteContact = function Control$Text$autoCompleteContact($input, selectHandler) {
     $input.autocomplete({
         source: function (request, response) {
-            Service.InvokeController('UserInfo', 'PossibleSubjects',
+            Service.InvokeController('UserInfo', 'PossibleContacts',
                 { 'startsWith': request.term },
                 function (responseState) {
                     var result = responseState.result;
                     var contacts = [];
                     if (result.Count > 0) {
-                        for (var name in result.Subjects) {
-                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
+                        for (var name in result.Contacts) {
+                            contacts.push({ label: name, value: name, json: result.Contacts[name] });
                         }
                     }
                     response(contacts);

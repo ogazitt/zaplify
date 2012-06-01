@@ -714,14 +714,14 @@ ItemEditor.prototype.renderContactList = function (container, field) {
     var lastTerm = function (term) { return split(term).pop(); }
     $field.autocomplete({
         source: function (request, response) {
-            Service.InvokeController('UserInfo', 'PossibleSubjects',
+            Service.InvokeController('UserInfo', 'PossibleContacts',
                 { 'startsWith': lastTerm(request.term) },
                 function (responseState) {
                     var result = responseState.result;
                     var contacts = [];
                     if (result.Count > 0) {
-                        for (var name in result.Subjects) {
-                            contacts.push({ label: name, value: name, json: result.Subjects[name] });
+                        for (var name in result.Contacts) {
+                            contacts.push({ label: name, value: name, json: result.Contacts[name] });
                         }
                     }
                     response(contacts);

@@ -70,7 +70,7 @@
   <ItemGroup>
     <Compile Include="activities\ConnectToFacebook.cs" />
     <Compile Include="activities\ConnectToActiveDirectory.cs" />
-    <Compile Include="activities\AddContactToPossibleSubjects.cs" />
+    <Compile Include="activities\AddContactToPossibleContacts.cs" />
     <Compile Include="activities\GetGroceryCategory.cs" />
     <Compile Include="activities\GetContactInfoFromFacebook.cs" />
     <Compile Include="activities\ImportFromFacebook.cs" />

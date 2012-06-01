@@ -165,6 +165,7 @@
     <Compile Include="models\accesscontrol\UserMembershipProvider.cs" />
     <Compile Include="models\AccountModels.cs" />
     <Compile Include="models\DataModels.cs" />
+    <Compile Include="models\GroceryServiceModels.cs" />
     <Compile Include="properties\AssemblyInfo.cs" />
     <Compile Include="resources\BaseResource.cs" />
     <Compile Include="resources\ConstantsResource.cs" />

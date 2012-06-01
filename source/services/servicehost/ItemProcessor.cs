@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost.Helpers;
 using BuiltSteady.Zaplify.ServiceHost.Nlp;
-using BuiltSteady.Zaplify.Shared.Entities;
+using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 using BuiltSteady.Zaplify.ServiceUtilities.Grocery;
 using BuiltSteady.Zaplify.ServiceUtilities.Supermarket;
-using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
@@ -123,16 +123,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
             if (base.ProcessCreate(item))
                 return true;
 
-            FacebookProcessor.AddContactInfo(userContext, item);
-            return PossibleContactProcessor.AddContact(userContext, item);
+            var fbret = FacebookHelper.AddContactInfo(userContext, item);
+            var pcret = PossibleContactHelper.AddContact(userContext, item);
+            return fbret && pcret;
         }
 
         public override bool ProcessDelete(Item item)
         {
             if (base.ProcessDelete(item))
                 return true;
-
-            return PossibleContactProcessor.RemoveContact(userContext, item);
+            return PossibleContactHelper.RemoveContact(userContext, item);
         }
 
         public override bool ProcessUpdate(Item oldItem, Item newItem)

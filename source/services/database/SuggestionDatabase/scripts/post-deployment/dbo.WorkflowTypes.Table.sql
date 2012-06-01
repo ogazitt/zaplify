@@ -50,7 +50,7 @@ INSERT [dbo].[WorkflowTypes] ([Type], [Definition]) VALUES (N'Connect to Active 
 /* new user, task, contact workflows */
 INSERT [dbo].[WorkflowTypes] ([Type], [Definition]) VALUES (N'New Contact', N'{ "States": [ 
 	{ "Name": "GetFacebookInfo", "Activity": "GetContactInfoFromFacebook", "NextState": "AddContact" },
-	{ "Name": "AddContact", "Activity": "AddContactToPossibleSubjects", "NextState": null } ] }')
+	{ "Name": "AddContact", "Activity": "AddContactToPossibleContacts", "NextState": null } ] }')
 INSERT [dbo].[WorkflowTypes] ([Type], [Definition]) VALUES (N'New ShoppingItem', N'{ "States": [ 
 	{ "Name": "GetCategory", "Activity": "GetGroceryCategory", "NextState": null } ] }')
 INSERT [dbo].[WorkflowTypes] ([Type], [Definition]) VALUES (N'New Task', N'{ "States": [ 

@@ -306,19 +306,15 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             {
                 if (item.ItemTypeID == SystemItemTypes.Task)
                     StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewTask, item, null);
-                if (item.ItemTypeID == SystemItemTypes.Contact)
-                    StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewContact, item, null);
-                // the ShoppingItem category assignment now happens "synchronously" in the Web API code
+                // the Contact and ShoppingItem new item processing happens in ItemProcessor now
+                //if (item.ItemTypeID == SystemItemTypes.Contact)
+                //    StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewContact, item, null);
                 //if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
                 //    Workflow.StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewShoppingItem, item, null);
             }
 
             if (folder != null)
             {
-                // the "New User" workflow gets triggered on the creation of a new User, but the Entity that gets 
-                // sent is the People folder, because the UI wants to anchor the suggestions off of the People folder
-                //if (folder.ItemTypeID == SystemItemTypes.Contact)
-                //    Workflow.StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewUser, folder, null);
             }
 
             if (user != null)

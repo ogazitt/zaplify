@@ -263,8 +263,6 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
         // system items - $User
         public const string EntityRefs = "EntityRefs";
-        public const string GroceryCategories = "GroceryCategories";
-        public const string PossibleSubjects = "PossibleSubjects";
     }
 
     public class UserEntities

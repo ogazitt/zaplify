@@ -6,9 +6,9 @@ using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.Shared.Entities;
 using BuiltSteady.Zaplify.ServiceUtilities.FBGraph;
 
-namespace BuiltSteady.Zaplify.ServiceHost
+namespace BuiltSteady.Zaplify.ServiceHost.Helpers
 {
-    public class FacebookProcessor
+    public class FacebookHelper
     {
         /// <summary>
         /// Add facebook contact info into a contact Item
@@ -132,6 +132,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     var location = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
                     if (location != null)
                         entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
+                    TraceLog.TraceInfo("FacebookProcessor.GetUserInfo: added user birthday, gender, location");
                 }
             }
             catch (Exception ex)
@@ -165,35 +166,35 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 return false;
             }
 
-            // get or create the possible subjects list in the $User folder
-            Item possibleSubjectList = userContext.GetOrCreatePossibleSubjectsList(user);
-            if (possibleSubjectList == null)
+            // get or create the possible contacts list in the $User folder
+            Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
+            if (possibleContactsList == null)
             {
-                TraceLog.TraceError("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create the possible subjects list");
+                TraceLog.TraceError("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create the possible contacts list");
                 return false;
             }
 
-            DateTime now = DateTime.UtcNow;
-
-            // get the current list of all possible subjects for this user ($User.PossibleSubjects)
-            var currentPossibleSubjects = userContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == possibleSubjectList.FolderID &&
-                ps.ParentID == possibleSubjectList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
+            // get the current list of all possible contacts for this user ($User/PossibleContacts)
+            var currentPossibleContacts = userContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == possibleContactsList.FolderID &&
+                ps.ParentID == possibleContactsList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
                 ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID)).ToList();
 
             // get the current list of all Items that are Contacts for this user
             var currentContacts = userContext.Items.Include("FieldValues").
                         Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact).ToList();
 
-            // get all the user's friends and add them as serialized contacts to the $User.PossibleSubjects list
+            // get all the user's friends and add them as serialized contacts to the $User/PossibleContacts list
             float sort = 1f;
+            DateTime now = DateTime.UtcNow;
             try
             {
                 var results = fbApi.Query("me", FBQueries.Friends).ToList();
                 TraceLog.TraceInfo(String.Format("FacebookProcessor.ImportFriendsAsPossibleContacts: found {0} Facebook friends", results.Count));
                 foreach (var friend in results)
                 {
-                    // check if a possible subject by this name and with this FBID already exists - and if so, skip it
-                    if (currentPossibleSubjects.Any(ps => ps.Name == (string)friend[FBQueryResult.Name] &&
+                    // check if a possible contact by this name and with this FBID already exists - and if so, skip it
+                    if (currentPossibleContacts.Any(
+                            ps => ps.Name == (string)friend[FBQueryResult.Name] &&
                             ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID && fv.Value == (string)friend[FBQueryResult.ID])))
                         continue;
 
@@ -219,7 +220,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                             process = false;
                             break;
                         }
-                        // getting here means that a contact by this name was found but had a different FBID - so this new subject is unique
+                        // getting here means that a contact by this name was found but had a different FBID - so this new contact is unique
                     }
 
                     // add the contact if it wasn't detected as a duplicate
@@ -242,13 +243,13 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.Sources, Value = Sources.Facebook });
                         string jsonContact = JsonSerializer.Serialize(contact);
 
-                        // store the serialized contact in the value of a new NameValue item on the PossibleSubjects list
+                        // store the serialized contact in the value of a new NameValue item on the PossibleContacts list
                         var nameValItem = new Item()
                         {
                             ID = Guid.NewGuid(),
                             Name = (string)friend[FBQueryResult.Name],
-                            FolderID = possibleSubjectList.FolderID,
-                            ParentID = possibleSubjectList.ID,
+                            FolderID = possibleContactsList.FolderID,
+                            ParentID = possibleContactsList.ID,
                             UserID = user.ID,
                             ItemTypeID = SystemItemTypes.NameValue,
                             Created = now,
@@ -256,21 +257,21 @@ namespace BuiltSteady.Zaplify.ServiceHost
                             FieldValues = new List<FieldValue>()
                         };
                         nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.Value, ItemID = nameValItem.ID, Value = jsonContact });
-                        // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible subject, for easier dup handling
+                        // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible contact, for easier dup handling
                         nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = (string)friend[FBQueryResult.ID] });
 
-                        // add this new possible subject to the DB and to the working list of possible subjects
+                        // add this new possible subject to the DB and to the working list of possible contacts
                         userContext.Items.Add(nameValItem);
-                        currentPossibleSubjects.Add(nameValItem);
+                        currentPossibleContacts.Add(nameValItem);
                     }
                 }
 
                 userContext.SaveChanges();
-                TraceLog.TraceInfo(String.Format("FacebookProcessor.ImportFriendsAsPossibleContacts: added {0} possible subjects to $User.PossibleSubjects", results.Count));
+                TraceLog.TraceInfo(String.Format("FacebookProcessor.ImportFriendsAsPossibleContacts: added {0} possible contacts to $User.PossibleContacts", results.Count));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create a new PossibleSubject", ex);
+                TraceLog.TraceException("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create a new PossibleContact", ex);
                 return false;
             }
 
