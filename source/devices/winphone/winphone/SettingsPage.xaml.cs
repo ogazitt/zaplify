@@ -23,6 +23,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public partial class SettingsPage : PhoneApplicationPage, INotifyPropertyChanged
     {
+        bool isInitialized = false;
+
         public SettingsPage()
         {
             InitializeComponent();
@@ -40,7 +42,6 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (IsConnected)
                 MainPivot.SelectedIndex = 1;
 
-            Loaded += new RoutedEventHandler(SettingsPage_Loaded);
             BackKeyPress += new EventHandler<CancelEventArgs>(SettingsPage_BackKeyPress);
         }
 
@@ -102,6 +103,62 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // do the below instead to avoid Invalid cross-thread access exception
                 //Deployment.Current.Dispatcher.BeginInvoke(() => { handler(this, new PropertyChangedEventArgs(propertyName)); });
             }
+        }
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            if (isInitialized == true)
+                return;
+
+            // trace page navigation
+            TraceHelper.AddMessage("Settings: Loaded");
+
+            Email.IsEnabled = !IsConnected;
+            Password.IsEnabled = !IsConnected;
+            accountOperationSuccessful = false;
+            accountTextChanged = false;
+            SettingsPanel.Children.Clear();
+
+            foreach (var setting in PhoneSettings.Settings.Keys)
+            {
+                // get the source list for the setting, along with any current value
+                var phoneSetting = PhoneSettings.Settings[setting];
+                //var bindingList = (from l in list select new { Name = l }).ToList();
+                var bindingList = phoneSetting.Values;
+                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
+                int selectedIndex = 0;
+                if (value != null && bindingList.Any(ps => ps.Name == value))
+                {
+                    var selectedValue = bindingList.Single(ps => ps.Name == value);
+                    selectedIndex = bindingList.IndexOf(selectedValue);
+                }
+
+                var template = !String.IsNullOrEmpty(phoneSetting.DisplayTemplate) ?
+                    (DataTemplate)App.Current.Resources[phoneSetting.DisplayTemplate] :
+                    null;
+
+                // create a new list picker for the setting
+                var listPicker = new ListPicker()
+                {
+                    Header = setting,
+                    Tag = setting,
+                    SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0
+                };
+                listPicker.ItemsSource = bindingList;
+                listPicker.DisplayMemberPath = "Name";
+                if (template != null)
+                    listPicker.FullModeItemTemplate = template;
+                SettingsPanel.Children.Add(listPicker);
+            }
+
+            CreateUserButton.DataContext = this;
+            CreateButtonLabel.DataContext = this;
+            ConnectUserButton.DataContext = this;
+            ConnectButtonLabel.DataContext = this;
+            Email.LostFocus += new RoutedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
+            Password.LostFocus += new RoutedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
+
+            isInitialized = true;
         }
 
         #region Event handlers
@@ -183,63 +240,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
         }
 
-        void SettingsPage_BackKeyPress(object sender, CancelEventArgs e)
+        private void SettingsPage_BackKeyPress(object sender, CancelEventArgs e)
         {
             // trace page navigation
             TraceHelper.StartMessage("Settings: Navigate back");
 
             // navigate back
             NavigationService.GoBack();
-        }
-
-        void SettingsPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            // trace page navigation
-            TraceHelper.AddMessage("Settings: Loaded");
-
-            Email.IsEnabled = !IsConnected;
-            Password.IsEnabled = !IsConnected;
-            accountOperationSuccessful = false;
-            accountTextChanged = false;
-
-            foreach (var setting in PhoneSettings.Settings.Keys)
-            {
-                // get the source list for the setting, along with any current value
-                var phoneSetting = PhoneSettings.Settings[setting];
-                //var bindingList = (from l in list select new { Name = l }).ToList();
-                var bindingList = phoneSetting.Values;
-                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
-                int selectedIndex = 0;
-                if (value != null && bindingList.Any(ps => ps.Name == value))
-                {
-                    var selectedValue = bindingList.Single(ps => ps.Name == value);
-                    selectedIndex = bindingList.IndexOf(selectedValue);
-                }
-
-                var template = !String.IsNullOrEmpty(phoneSetting.DisplayTemplate) ?
-                    (DataTemplate)App.Current.Resources[phoneSetting.DisplayTemplate] :
-                    null;
-
-                // create a new list picker for the setting
-                var listPicker = new ListPicker()
-                {
-                    Header = setting,
-                    Tag = setting,
-                    SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0
-                };
-                listPicker.ItemsSource = bindingList;
-                listPicker.DisplayMemberPath = "Name";
-                if (template != null)
-                    listPicker.FullModeItemTemplate = template;
-                SettingsPanel.Children.Add(listPicker);
-            }
-
-            CreateUserButton.DataContext = this;
-            CreateButtonLabel.DataContext = this;
-            ConnectUserButton.DataContext = this;
-            ConnectButtonLabel.DataContext = this;
-            Email.TextChanged += new TextChangedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
-            Password.PasswordChanged += new RoutedEventHandler(delegate { accountTextChanged = true; NotifyPropertyChanged("EnableButtons"); });
         }
 
         // Event handlers for settings tab

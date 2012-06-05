@@ -817,6 +817,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         // Main routine for performing a sync with the Service.  It will chain the following operations:
+        //     0.  Send a crash report (if any)
         //     1.  Get Constants
         //     2.  Play the record queue (which will daisy chain on itself)
         //     3.  Retrieve the user data (itemtypes, folders, tags...)
