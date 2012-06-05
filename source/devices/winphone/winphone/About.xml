@@ -1,17 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <About>
-  <VersionNumber>0.9</VersionNumber>
+  <VersionNumber>0.1</VersionNumber>
   <DeveloperInfo>BuiltSteady, Inc.</DeveloperInfo>
   <FeedbackEmail>support@zaplify.com</FeedbackEmail>
   <Website>www.builtsteady.com</Website>
   <Versions>
     <Version>
-      <Number>0.91</Number>
-      <Details>Added speech recognition</Details>
-    </Version>
-    <Version>
-      <Number>0.9</Number>
-      <Details>First beta</Details>
+      <Number>0.1</Number>
+      <Details>Pre-alpha</Details>
     </Version>
   </Versions>
 </About>

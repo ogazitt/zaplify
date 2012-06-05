@@ -515,7 +515,8 @@
                 target.Name);
 
             // sync with the service
-            App.ViewModel.SyncWithService();
+            // (do not sync for operations against $ClientSettings)
+            //App.ViewModel.SyncWithService();
 
             // close the popup 
             sortPopupOpen = false;
@@ -535,7 +536,8 @@
                 null);
 
             // sync with the service
-            App.ViewModel.SyncWithService();
+            // (do not sync for operations against $ClientSettings)
+            //App.ViewModel.SyncWithService();
 
             // close the popup 
             sortPopupOpen = false;

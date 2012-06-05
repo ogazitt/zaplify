@@ -56,12 +56,12 @@
                         <TextBlock  Grid.Row="1" Grid.Column="1" Text="{Binding About.Website}" TextWrapping="Wrap" Style="{StaticResource PhoneTextNormalStyle}" Margin="0,0,0,0" />
                     </Grid>
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Send" Click="About_FeedbackButton_Click" />
-                        <TextBlock Text="us feedback - we LOVE getting it!" Margin="0,20,0,0" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        <Button Content="Send" Click="About_FeedbackButton_Click" Width="150" />
+                        <TextBlock Text="us feedback" Margin="0,20,0,0" Style="{StaticResource PhoneTextNormalStyle}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Review" Click="About_ReviewButton_Click" />
-                        <TextBlock Text="our app :-)" Margin="0,20,0,0" Style="{StaticResource PhoneTextNormalStyle}"/>
+                        <Button Content="Rate" Click="About_ReviewButton_Click" Width="150"/>
+                        <TextBlock Text="our app" Margin="0,20,0,0" Style="{StaticResource PhoneTextNormalStyle}"/>
                     </StackPanel>
                     <TextBlock Text="Version history:" Margin="0,0,0,0" Style="{StaticResource PhoneTextLargeStyle}"/>
                     <ListBox x:Name="VersionsListBox" Margin="10,10,0,0" ItemsSource="{Binding About.Versions}" ScrollViewer.VerticalScrollBarVisibility="Disabled" tilt:TiltEffect.SuppressTilt="True">

@@ -310,6 +310,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             FieldValue fieldValue = item.GetFieldValue(f.ID, false);
                             if (fieldValue != null)
                                 currentValue = fieldValue.Value;
+                            if (String.IsNullOrWhiteSpace((string)currentValue))
+                                currentValue = null;
                         }
 
                         // if this property wasn't found or is null, no need to print anything
@@ -326,10 +328,28 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                             switch (f.DisplayType)
                             {
                                 case DisplayTypes.DatePicker:
-                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, ((DateTime)currentValue).ToString("d"));
+                                    DateTime dateTime;
+                                    try
+                                    {
+                                        dateTime = Convert.ToDateTime((string)currentValue);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        break;
+                                    }
+                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, dateTime.ToString("d"));
                                     break;
                                 case DisplayTypes.Priority:
-                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, Item.PriorityNames[(int)currentValue]);
+                                    int priority = 0;
+                                    try
+                                    {
+                                        priority = Convert.ToInt32((string)currentValue);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        break;
+                                    }
+                                    sb.AppendFormat("        {0}: {1}\n", f.DisplayName, Item.PriorityNames[priority]);
                                     break;
                                 default:
                                     sb.AppendFormat("        {0}: {1}\n", f.DisplayName, currentValue.ToString());
@@ -420,6 +440,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                 // create the add button panel
                 CreateAddButtons();
+
+                // register an event handler to call whenever the UserData is refreshed, so that we can refresh
+                // the add buttons
+                App.ViewModel.SyncComplete += new MainViewModel.SyncCompleteEventHandler((s, ea) =>
+                {
+                    // run this on the UI thread 
+                    Deployment.Current.Dispatcher.BeginInvoke(() => { CreateAddButtons(); });
+                });
             }
 
             // if haven't synced with web service yet, try now
@@ -492,8 +520,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
-            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
-                App.ViewModel.SyncWithService();
+            // (do not sync for operations against $ClientSettings)
+            //if (String.IsNullOrWhiteSpace(NameTextBox.Text))
+            //    App.ViewModel.SyncWithService();
 
             // Reset selected index to -1 (no selection)
             MoreListsListBox.SelectedIndex = -1;
@@ -1027,13 +1056,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             const string moreListsString = "more lists...";
             double width = Math.Max(420f, AddButtonsStackPanel.ActualWidth) / 2;
+
             // get all the lists
-            /*
-            lists = (from it in App.ViewModel.Items
-                     where it.IsList == true && it.ItemTypeID != SystemItemTypes.Reference
-                     orderby it.Name ascending
-                     select it).ToList();
-             */
             var entityRefItems = ListMetadataHelper.GetListsOrderedBySelectedCount(App.ViewModel.ClientSettings);
             lists = new List<ClientEntity>();
             foreach (var entityRefItem in entityRefItems)
@@ -1161,8 +1185,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
-            if (String.IsNullOrWhiteSpace(NameTextBox.Text))
-                App.ViewModel.SyncWithService();
+            // (do not sync for operations against $ClientSettings)
+            //if (String.IsNullOrWhiteSpace(NameTextBox.Text))
+            //    App.ViewModel.SyncWithService();
         }     
 
         private ObservableCollection<Item> FilterItems(ObservableCollection<Item> items)
