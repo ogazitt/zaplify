@@ -25,7 +25,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
                 // load intents from file
                 var intents = new List<Intent>();
-                using (var file = File.Open(IntentsFileName, FileMode.Open))
+                using (var file = File.Open(IntentsFileName, FileMode.Open, FileAccess.Read))
                 using (var reader = new StreamReader(file))
                 {
                     string intentDef = reader.ReadLine();
@@ -63,7 +63,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 {
                     string prefix = @".\";
                     string suffix = @".json";
-                    using (var file = File.Open(filename, FileMode.Open))
+                    using (var file = File.Open(filename, FileMode.Open, FileAccess.Read))
                     using (var reader = new StreamReader(file))
                     {
                         // strip ".\" off the beginning of the filename, and the ".json" extension

@@ -38,7 +38,7 @@
     <GenerateCreateScript>False</GenerateCreateScript>
     <SqlServerVerification>True</SqlServerVerification>
     <TargetLanguage>CS</TargetLanguage>
-    <DefaultCollation>SQL_Latin1_General_CP1_CS_AS</DefaultCollation>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
     <AnsiNullDefault>True</AnsiNullDefault>
     <AnsiNulls>True</AnsiNulls>
     <AnsiPadding>True</AnsiPadding>
