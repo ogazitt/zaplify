@@ -115,7 +115,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             if (IsConnected)
             {
                 // if the request queue isn't empty, warn the user
-                if (RequestQueue.GetRequestRecord() != null)
+                if (RequestQueue.GetRequestRecord(RequestQueue.UserQueue) != null)
                 {
                     MessageBoxResult result = MessageBox.Show(
                         "some of the changes you made on the phone haven't made it to your Zaplify account yet.  " +
@@ -158,7 +158,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						if (user.Password == null)
                             user.Password = pswd;
                         App.ViewModel.User = user;
-                        RequestQueue.PrepareQueueForAccountConnect();
+                        RequestQueue.PrepareQueueForAccountConnect(RequestQueue.UserQueue);
 	                    App.ViewModel.SyncWithService();
 	                    break;
 	                case HttpStatusCode.NotFound:
@@ -403,13 +403,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
 
                         // queue up a server request
-                        RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                        if (App.ViewModel.ClientSettings.ID != Guid.Empty)
                         {
-                            ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                            Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
-                            BodyTypeName = "Item",
-                            ID = phoneSettingsItem.ID
-                        });
+                            RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                            {
+                                ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                                Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
+                                BodyTypeName = "Item",
+                                ID = phoneSettingsItem.ID
+                            });
+                        }
             
                         // sync with the server
                         App.ViewModel.SyncWithService();

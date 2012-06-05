@@ -61,8 +61,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 select p.Number).FirstOrDefault();
             var email = (from em in contact.Emails  
                 select em.Address).FirstOrDefault();
-            var website = (from w in contact.Websites  
-                select w.Address).FirstOrDefault();
+            //var website = (from w in contact.Websites  
+            //    select w.Address).FirstOrDefault();
 
             string birthday = null;
             if (selectedPerson.Birthday != null)
@@ -88,7 +88,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -162,7 +162,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,

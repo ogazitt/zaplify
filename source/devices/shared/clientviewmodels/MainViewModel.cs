@@ -106,9 +106,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     clientSettings = StorageHelper.ReadClientSettings();
                 if (clientSettings == null)
                 {
+                    // read the client settings folder ID from isolated storage, and create / write a new one if it doesn't yet exist
+                    Guid id = StorageHelper.ReadSystemEntityID(SystemEntities.ClientSettings);
+                    if (id == Guid.Empty)
+                    {
+                        id = Guid.NewGuid();
+                        StorageHelper.WriteSystemEntityID(SystemEntities.ClientSettings, id);
+                    }
                     clientSettings = new Folder()
                     {
-                        ID = Guid.NewGuid(),
+                        ID = id,
                         SortOrder = 0,
                         Name = SystemEntities.ClientSettings,
                         ItemTypeID = SystemItemTypes.NameValue,
@@ -231,7 +238,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                         // enqueue the Web Request Record (with a new copy of the folder)
                         // need to create a copy because otherwise other items may be added to it
                         // and we want the record to have exactly one operation in it (create the folder)
-                        RequestQueue.EnqueueRequestRecord(
+                        RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                             new RequestQueue.RequestRecord()
                             {
                                 ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -497,7 +504,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             StorageHelper.WriteTags(null);
             StorageHelper.WriteFolders(null);
             StorageHelper.WriteUserCredentials(null);
-            RequestQueue.DeleteQueue();
+            RequestQueue.DeleteQueue(RequestQueue.UserQueue);
 
             IsDataLoaded = false;
             LastNetworkOperationStatus = false;
@@ -678,20 +685,29 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             return f;
         }
 
-        public void PlayQueue()
+        public void PlayQueue(string queueName)
         {
             // if user hasn't been set, we cannot sync with the service
             if (User == null)
                 return;
 
             // peek at the first record 
-            RequestQueue.RequestRecord record = RequestQueue.GetRequestRecord();
+            RequestQueue.RequestRecord record = RequestQueue.GetRequestRecord(queueName);
+
             // if the record is null, this means we've processed all the pending changes
-            // in that case, retrieve the Service's (now authoritative) folder
             if (record == null)
             {
-                // refresh the user data
-                GetUserData();
+                if (queueName == RequestQueue.UserQueue)
+                {
+                    // retrieve the Service's (now authoritative) data
+                    GetUserData();
+                }
+                else
+                {
+                    // we just finished processing the last request on the system queue - signal any registered event handlers
+                    if (SyncComplete != null)
+                        SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+                }
                 return;
             }
 
@@ -700,6 +716,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
             // trace playing record
             TraceHelper.AddMessage(String.Format("Play Queue: {0} {1}", record.ReqType, typename));
+
+            PlayQueueCallbackDelegate callbackDelegate = null;
+            switch (queueName)
+            {
+                case RequestQueue.UserQueue:
+                    callbackDelegate = new PlayQueueCallbackDelegate(PlayUserQueueCallback);
+                    break;
+                case RequestQueue.SystemQueue:
+                    callbackDelegate = new PlayQueueCallbackDelegate(PlaySystemQueueCallback);
+                    break;
+                default:
+                    TraceHelper.AddMessage("PlayQueue: unrecognized queue name " + queueName);
+                    return;
+            }
 
             // invoke the appropriate web service call based on the record type
             switch (record.ReqType)
@@ -711,22 +741,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                             WebServiceHelper.DeleteTag(
                                 User, 
                                 (Tag)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                         case "Item":
                             WebServiceHelper.DeleteItem(
                                 User,
                                 (Item)record.Body,
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
-
                             break;
                         case "Folder":
                             WebServiceHelper.DeleteFolder(
                                 User, 
                                 (Folder)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                     }
@@ -738,21 +767,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                             WebServiceHelper.CreateTag(
                                 User, 
                                 (Tag)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                         case "Item":
                             WebServiceHelper.CreateItem(
                                 User, 
                                 (Item)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                         case "Folder":
                             WebServiceHelper.CreateFolder(
                                 User, 
                                 (Folder)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                     }
@@ -764,21 +793,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                             WebServiceHelper.UpdateTag(
                                 User, 
                                 (List<Tag>)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                         case "Item":
                             WebServiceHelper.UpdateItem(
                                 User, 
                                 (List<Item>)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                         case "Folder":
                             WebServiceHelper.UpdateFolder(
                                 User, 
                                 (List<Folder>)record.Body, 
-                                new PlayQueueCallbackDelegate(PlayQueueCallback),
+                                callbackDelegate,
                                 new NetworkOperationInProgressCallbackDelegate(NetworkOperationInProgressCallback));
                             break;
                     }
@@ -818,8 +847,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         // Main routine for performing a sync with the Service.  It will chain the following operations:
         //     1.  Get Constants
-        //     2.  Play the record queue (which will daisy chain on itself)
+        //     2.  Play the user record queue (which will daisy chain on itself)
         //     3.  Retrieve the user data (itemtypes, folders, tags...)
+        //     4.  Play the system record queue (which will daisy chain on itself)
         public void SyncWithService()
         {
             if (StorageHelper.ReadCrashReport() != null)
@@ -834,7 +864,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
             else
             {
-                PlayQueue();
+                PlayQueue(RequestQueue.UserQueue);
             }
         }
 
@@ -872,7 +902,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     ItemType.CreateDictionary(constants.ItemTypes);
 
                     // Chain the PlayQueue call to drain the queue and retrieve the user data
-                    PlayQueue();
+                    PlayQueue(RequestQueue.UserQueue);
 #if FALSE && !IOS
                 });
 #endif
@@ -936,11 +966,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
                 // store the $ClientSettings folder
                 ClientSettings = csf;
+
+                // play the system queue
+                PlayQueue(RequestQueue.SystemQueue);
             }
-            
-            // invoke the SyncComplete event handler if it was set
-            if (SyncComplete != null)
-                SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+            else
+            {
+                // invoke the SyncComplete event handler if it was set
+                if (SyncComplete != null)
+                    SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+            }
         }
 
         public delegate void NetworkOperationInProgressCallbackDelegate(bool operationInProgress, OperationStatus status);
@@ -975,30 +1010,64 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         }
 
         public delegate void PlayQueueCallbackDelegate(Object obj);
-        private void PlayQueueCallback(object obj)
+        private void PlayUserQueueCallback(object obj)
         {
             // trace callback
-            TraceHelper.AddMessage(String.Format("Play Queue Callback: {0}", obj == null ? "null" : "success"));
+            TraceHelper.AddMessage(String.Format("Play User Queue Callback: {0}", obj == null ? "null" : "success"));
    
             // if the operation was successful, continue the refresh cycle
             if (obj != null)
             {
                 // dequeue the current record (which removes it from the queue)
-                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
-    			
-    			// parse out request record info and trace the details 
+                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord(RequestQueue.UserQueue);
+                
+                // parse out request record info and trace the details 
                 string typename;
                 string reqtype;
                 string id;
                 string name;
                 RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
-    			TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
-    			
+                TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
+                
                 // don't need to process the object since the folder will be refreshed at the end 
                 // of the cycle anyway
     
                 // since the operation was successful, continue to drain the queue
-                PlayQueue();
+                PlayQueue(RequestQueue.UserQueue);
+            }
+            else
+            {
+                // refresh cycle interrupted - still need to signal the SyncComplete event if it was set
+                if (SyncComplete != null)
+                    SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+                
+            }
+        }
+
+        private void PlaySystemQueueCallback(object obj)
+        {
+            // trace callback
+            TraceHelper.AddMessage(String.Format("Play System Queue Callback: {0}", obj == null ? "null" : "success"));
+   
+            // if the operation was successful, continue the refresh cycle
+            if (obj != null)
+            {
+                // dequeue the current record (which removes it from the queue)
+                RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord(RequestQueue.SystemQueue);
+                
+                // parse out request record info and trace the details 
+                string typename;
+                string reqtype;
+                string id;
+                string name;
+                RequestQueue.RetrieveRequestInfo(record, out typename, out reqtype, out id, out name);
+                TraceHelper.AddMessage(String.Format("Request details: {0} {1} {2} (id {3})", reqtype, typename, name, id));
+                
+                // don't need to process the object since the folder will be refreshed at the end 
+                // of the cycle anyway
+    
+                // since the operation was successful, continue to drain the queue
+                PlayQueue(RequestQueue.SystemQueue);
             }
             else
             {
@@ -1051,13 +1120,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             var folders = new ObservableCollection<Folder>(UserConstants.DefaultFolders(null));
             foreach (var folder in folders)
             {
+                string queueName = folder.Name == SystemEntities.ClientSettings ? RequestQueue.SystemQueue : RequestQueue.UserQueue;
                 FolderDictionary.Add(folder.ID, folder);
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(queueName,
                     new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID, IsDefaultObject = true });
 
                 foreach (var item in folder.Items)
                 {
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(queueName,
                         new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = item, ID = item.ID, IsDefaultObject = true });
 
                 }

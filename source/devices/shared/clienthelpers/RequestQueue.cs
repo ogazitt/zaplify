@@ -16,8 +16,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class RequestQueue
     {
-        // Lock object for the queue file
-        private static object fileLock = new Object();
+        public const string UserQueue = "UserQueue";
+        public const string SystemQueue = "SystemQueue";
+
+        // Lock objects for the queue files
+        private static Dictionary<string, object> fileLocks = new Dictionary<string, object>()
+        {
+            { UserQueue,   new object() },
+            { SystemQueue, new object() },
+        };
             
         /// <summary>
         /// Web Request Record
@@ -124,15 +131,15 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// <summary>
         /// Delete the queue
         /// </summary>
-        public static void DeleteQueue()
+        public static void DeleteQueue(string queueName)
         {
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
                     try 
                     {
-                        file.DeleteFile(@"RequestRecords.xml");
+                        file.DeleteFile(QueueFilename(queueName));
                     } 
                     catch (Exception ex) 
                     {
@@ -145,16 +152,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// <summary>
         /// Dequeue the first record 
         /// </summary>
-        public static RequestRecord DequeueRequestRecord()
+        public static RequestRecord DequeueRequestRecord(string queueName)
         {
             List<RequestRecord> requests = new List<RequestRecord>();
             DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
 
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
-                    using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.Open, file))
+                    using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Open, file))
                     {
                         try
                         {
@@ -189,7 +196,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// <summary>
         /// Enqueue a Web Service record into the record queue
         /// </summary>
-        public static void EnqueueRequestRecord(RequestRecord newRecord)
+        public static void EnqueueRequestRecord(string queueName, RequestRecord newRecord)
         {            
             bool enableQueueOptimization = false;  // turn off the queue optimization (doesn't work with introduction of tags)
 
@@ -201,10 +208,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
                     // if the file opens, read the contents 
-                    using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.OpenOrCreate, file))
+                    using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.OpenOrCreate, file))
                     {
                         try
                         {
@@ -243,20 +250,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// <summary>
         /// Get all RequestRecords in the queue
         /// </summary>
-        public static List<RequestRecord> GetAllRequestRecords()
+        public static List<RequestRecord> GetAllRequestRecords(string queueName)
         {
             List<RequestRecord> requests = new List<RequestRecord>();
             DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
 
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
                     // try block because the using block below will throw if the file doesn't exist
                     try
                     {
                         // if the file opens, read the contents 
-                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.Open, file))
+                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Open, file))
                         {
                             try
                             {
@@ -286,20 +293,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// <summary>
         /// Get the first RequestRecord in the queue
         /// </summary>
-        public static RequestRecord GetRequestRecord()
+        public static RequestRecord GetRequestRecord(string queueName)
         {
             List<RequestRecord> requests = new List<RequestRecord>();
             DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
 
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
                     // try block because the using block below will throw if the file doesn't exist
                     try
                     {
                         // if the file opens, read the contents 
-                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.Open, file))
+                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Open, file))
                         {
                             try
                             {
@@ -341,10 +348,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// distinguish these folders from the ones that they already have in their existing account
         /// Also, remove any operations that have to do with the ClientSettings folder so that we don't have a duplicate
         /// </summary>
-        public static void PrepareQueueForAccountConnect()
+        public static void PrepareQueueForAccountConnect(string queueName)
         {
             bool deleteQueue = true;
-            var requests = GetAllRequestRecords();
+            var requests = GetAllRequestRecords(queueName);
             if (requests != null)
                 foreach (var r in requests)
                     if (r.IsDefaultObject == false)
@@ -355,7 +362,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             if (deleteQueue)
             {
-                DeleteQueue();
+                DeleteQueue(queueName);
                 return;
             }
 
@@ -364,13 +371,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                lock (fileLock)
+                lock (fileLocks[queueName])
                 {
                     // try block because the using block below will throw if the file doesn't exist
                     try
                     {
                         // if the file opens, read the contents 
-                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(@"RequestRecords.xml", FileMode.Open, file))
+                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Open, file))
                         {
                             try
                             {
@@ -532,6 +539,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     reqtype = "Unrecognized";
                     break;
             }
+        }
+
+        private static string QueueFilename(string queuename)
+        {
+            return String.Format("{0}.json", queuename);
         }
 
         /// <summary>

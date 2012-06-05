@@ -53,14 +53,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 fieldValue.Value = value;
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Item>() { copy, metadataItem },
-                    BodyTypeName = "Item",
-                    ID = metadataItem.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                        Body = new List<Item>() { copy, metadataItem },
+                        BodyTypeName = "Item",
+                        ID = metadataItem.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
             else
             {
@@ -100,13 +103,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 clientSettings.Items.Add(metadataItem);
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = metadataItem,
-                    ID = metadataItem.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = metadataItem,
+                        ID = metadataItem.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
 
             // store the client settings
@@ -200,15 +206,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
                 // store the client settings
                 StorageHelper.WriteClientSettings(clientSettings);
+                StorageHelper.WriteSystemEntityID(SystemEntities.ListMetadata, listsMetadata.ID);
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = listsMetadata,
-                    ID = listsMetadata.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = listsMetadata,
+                        ID = listsMetadata.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
 
             return listsMetadata;

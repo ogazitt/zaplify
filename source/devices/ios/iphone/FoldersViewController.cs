@@ -233,7 +233,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 folder.SortOrder = newSortOrder;
 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -262,7 +262,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         folder = App.ViewModel.Folders.Single(f => f.ID == folder.ID);
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Delete,

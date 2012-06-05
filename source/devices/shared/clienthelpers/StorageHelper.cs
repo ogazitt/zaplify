@@ -170,6 +170,44 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         }
 
         /// <summary>
+        /// Get the ID for the System Entity from isolated storage
+        /// </summary>
+        /// <returns>Folder ID if saved, otherwise null</returns>
+        public static Guid ReadSystemEntityID(string systemEntityName)
+        {
+            try
+            {
+                Guid guid = new Guid((string)AppSettings[systemEntityName]);
+                return guid;
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage(String.Format("ReadSystemEntityID: could not find entity ID for {0}; ex: {1}", systemEntityName, ex.Message)); 
+                return Guid.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Write Default Folder ID to isolated storage
+        /// </summary>
+        /// <param name="user">Folder ID to write</param>
+        public static void WriteSystemEntityID(string systemEntityName, Guid systemEntityID)
+        {
+            try
+            {
+                if (systemEntityID == Guid.Empty)
+                    AppSettings[systemEntityName] = null;
+                else
+                    AppSettings[systemEntityName] = (string)systemEntityID.ToString();
+                AppSettings.Save();
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage(String.Format("WriteSystemEntityID: could not write entity ID for {0}; ex: {1}", systemEntityName, ex.Message)); 
+            }
+        }
+
+        /// <summary>
         /// Read the contents of the Tags XML file from isolated storage
         /// </summary>
         /// <returns>retrieved folder of Tags</returns>

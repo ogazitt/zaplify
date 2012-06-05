@@ -461,8 +461,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 T resultObject = resp.GetBody();
                 del.DynamicInvoke(resultObject);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                TraceHelper.AddMessage("ProcessResponse: exception from GetBody or DynamicInvoke; ex: " + ex.Message);
                 del.DynamicInvoke(null);
             }
         }

@@ -17,7 +17,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 	public class MultilineEntryElement : Element, IElementSizing 
     {
 		UITextView entry;
-		static UIFont font = UIFont.BoldSystemFontOfSize (17);
+		static UIFont font = UIFont.SystemFontOfSize (17);
         string val;
 		
 		/// <summary>
@@ -33,12 +33,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 		{ 
             Caption = caption;
 			Value = value;
+            Lines = 1;
+            AcceptReturns = false;
 		}
 
         /// <summary>
         ///   The number of lines in the MultilineEntryElement
         /// </summary>
         public int Lines { get; set; }
+
+        public bool AcceptReturns { get; set; }
 
         public string Value
         {
@@ -112,7 +116,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				float width = cell.ContentView.Bounds.Width - size.Width;
 
 				entry = CreateTextView (new RectangleF (size.Width, yOffset, width, size.Height));
-                entry.ReturnKeyType = UIReturnKeyType.Done;
+                if (AcceptReturns == false)
+                    entry.ReturnKeyType = UIReturnKeyType.Done;
+                else
+                    entry.ReturnKeyType = UIReturnKeyType.Default;
+
                 entry.KeyboardType = UIKeyboardType.Default;
                 entry.AutocorrectionType = UITextAutocorrectionType.Default;
 
@@ -134,7 +142,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			}
 
 			cell.TextLabel.Text = Caption;
-			cell.ContentView.AddSubview (entry);
+            cell.ContentView.AddSubview (entry);
 			return cell;
 		}
 		
@@ -165,13 +173,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			if (newValue == Value)
 				return;
 
-            // check for return key and resign responder if it is
-            if (newValue.IndexOf('\n') >= 0)
+            if (AcceptReturns == false)
             {
-                entry.ResignFirstResponder();
-                return;
+                // check for return key and resign responder if it is    
+                if (newValue.IndexOf('\n') >= 0)
+                {
+                    entry.Text = entry.Text.Replace("\n", "");
+                    entry.ResignFirstResponder();
+                    return;
+                }
             }
-            
+
 			Value = newValue;
 		}
 	}	
