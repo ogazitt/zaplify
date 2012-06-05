@@ -151,7 +151,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         else
                         {
                             // worker role
-                            lexiconFileName = @"nlp\lex.dat";
+                            lexiconFileName = @"\approot\nlp\lex.dat";
                         }
                     }
                     else
