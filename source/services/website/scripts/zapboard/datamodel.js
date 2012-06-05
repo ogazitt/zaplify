@@ -176,14 +176,18 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
             }
         }
 
+        // add to local DataModel immediately (fire datachanged)
+        if (newItem.ID == null) { newItem.ID = Math.uuid(); }           // assign ID if not defined
+        if (containerItem == null) {                                    // add new Folder
+            newItem = DataModel.addFolder(newItem, activeItem);
+        } else {                                                        // add new Item to container
+            containerItem.addItem(newItem, activeItem);
+        }
+
         Service.InsertResource(resource, newItem,
-            function (responseState) {                                      // successHandler
+            function (responseState) {                                  // successHandler
                 var insertedItem = responseState.result;
-                if (containerItem == null) {                                // add new Folder
-                    DataModel.addFolder(insertedItem, activeItem);
-                } else {                                                    // add new Item to container
-                    containerItem.addItem(insertedItem, activeItem);
-                }
+                newItem.update(insertedItem, null);                     // update local DataModel (do not fire datachanged)
                 if (callback != null) {
                     callback(insertedItem);
                 }
@@ -200,16 +204,20 @@ DataModel.InsertFolder = function DataModel$InsertFolder(newFolder, adjacentFold
 // generic helper for updating a folder or item, invokes server and updates local data model
 DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem, activeItem) {
     if (originalItem != null && updatedItem != null) {
+        // update local DataModel immediately (fire datachanged)
+        originalItem.update(updatedItem, activeItem)
+
         updatedItem.LastModified = DataModel.timeStamp;                         // timestamp on server
         var resource = (originalItem.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;
         var data = [originalItem, updatedItem];
         if (resource == Service.FoldersResource) {
-            data = [originalItem.Copy(), updatedItem];                          // remove items from original folder
+            data = [originalItem.Copy(), updatedItem];                          // exclude items from original folder
         }
+
         Service.UpdateResource(resource, originalItem.ID, data,
             function (responseState) {                                          // successHandler
                 var returnedItem = responseState.result;
-                var success = originalItem.update(returnedItem, activeItem);    // update Folder or Item
+                var success = originalItem.update(returnedItem, null);          // update local DataModel (do not fire datachanged)
                 // TODO: report failure to update
             });
         return true;
@@ -220,34 +228,36 @@ DataModel.UpdateItem = function DataModel$UpdateItem(originalItem, updatedItem, 
 // generic helper for deleting a folder or item, invokes server and updates local data model
 DataModel.DeleteItem = function DataModel$DeleteItem(item, activeItem) {
     if (item != null) {
+        // delete item from local DataModel (fire datachanged)
+        if (item.IsFolder()) {                                      // remove Folder
+            DataModel.FoldersMap.remove(item);
+            DataModel.fireDataChanged();
+        } else {                                                    // remove Item
+            var parent = item.GetParent();
+            if (parent != null && parent.ItemTypeID == ItemTypes.Reference) {
+                // deleting a reference, don't change selection or fire data changed
+                item.GetFolder().ItemsMap.remove(item);
+            } else if (activeItem != null) {
+                // select activeItem
+                var activeFolderID = activeItem.IsFolder() ? activeItem.ID : activeItem.FolderID;
+                var activeItemID = activeItem.IsFolder() ? null : activeItem.ID;
+                item.GetFolder().ItemsMap.remove(item);
+                DataModel.deleteReferences(item.ID);
+                DataModel.fireDataChanged(activeFolderID, activeItemID);
+            } else {
+                var nextItem = item.selectNextItem();
+                var nextItemID = (nextItem == null) ? null : nextItem.ID;
+                item.GetFolder().ItemsMap.remove(item);
+                DataModel.deleteReferences(item.ID);
+                DataModel.fireDataChanged(item.FolderID, nextItemID);
+            }
+        }
+
         var resource = (item.IsFolder()) ? Service.FoldersResource : Service.ItemsResource;
         Service.DeleteResource(resource, item.ID, item,
             function (responseState) {                                      // successHandler
                 var deletedItem = responseState.result;
-                // delete item from local data model
-                if (item.IsFolder()) {                                      // remove Folder
-                    DataModel.FoldersMap.remove(item);
-                    DataModel.fireDataChanged();
-                } else {                                                    // remove Item
-                    var parent = item.GetParent();
-                    if (parent != null && parent.ItemTypeID == ItemTypes.Reference) {
-                        // deleting a reference, don't change selection or fire data changed
-                        item.GetFolder().ItemsMap.remove(item);
-                    } else if (activeItem != null) {
-                        // select activeItem
-                        var activeFolderID = activeItem.IsFolder() ? activeItem.ID : activeItem.FolderID;
-                        var activeItemID = activeItem.IsFolder() ? null : activeItem.ID;
-                        item.GetFolder().ItemsMap.remove(item);
-                        DataModel.deleteReferences(item.ID);
-                        DataModel.fireDataChanged(activeFolderID, activeItemID);
-                    } else {
-                        var nextItem = item.selectNextItem();
-                        var nextItemID = (nextItem == null) ? null : nextItem.ID;
-                        item.GetFolder().ItemsMap.remove(item);
-                        DataModel.deleteReferences(item.ID);
-                        DataModel.fireDataChanged(item.FolderID, nextItemID);
-                    }
-                }
+                // TODO: report failure to delete
             });
         return true;
     }
@@ -336,7 +346,8 @@ DataModel.addFolder = function (newFolder, activeItem) {
         DataModel.fireDataChanged(newFolder.ID);
     } else if (activeItem != null) {                            // fire event with activeItem
         DataModel.fireDataChanged(activeItem.FolderID, activeItem.ID);
-    }                                                           // null, do not fire event
+    }
+    return newFolder;                                           // null, do not fire event
 };
 
 DataModel.deleteReferences = function (itemID) {
@@ -992,7 +1003,8 @@ UserSettings.prototype.GetDefaultList = function (itemType) {
     if (defaultLists != null) {
         var defaultList = this.Folder.GetItemByName(itemType, defaultLists.ID);
         if (defaultList != null) {
-            return defaultList.GetFieldValue(FieldNames.EntityRef);
+            var list = defaultList.GetFieldValue(FieldNames.EntityRef);
+            if (typeof (list) == 'object') { return list; }
         }
     }
     // return first folder with itemType

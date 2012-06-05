@@ -145,10 +145,15 @@ Control.Icons.deleteBtn = function Control$Icons$deleteBtn(item) {
     //$icon.attr('title', 'Delete Item').tooltip(Control.ttDelay);
     $icon.attr('title', 'Delete Item').tooltip();
     $icon.bind('click', function () {
-        $(this).tooltip('hide');
-        var item = $(this).data('item');
-        var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
-        item.Delete(activeItem);
+        var $this = $(this);
+        $this.tooltip('hide');
+        // don't delete if in middle of sorting
+        var sorting = $this.parents('.ui-sortable-helper').length > 0;
+        if (!sorting) {
+            var item = $this.data('item');
+            var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
+            item.Delete(activeItem);
+        }
         return false;   // do not propogate event
     });
     return $icon;
@@ -716,15 +721,12 @@ Control.List = {};
 // make a list of items sortable, apply to <ul> element
 // each <li> in list must have attached data('item')
 Control.List.sortable = function Control$List$sortable($element) {
-    $element.sortable({ 
+    $element.sortable({
         revert: true,
-        start: function (e, ui) {
-            ui.item.addClass('sorting');
-        },
         stop: function (e, ui) {
+            $('i').tooltip('hide');
             var $item = ui.item;
             var item = $item.data('item');
-            $item.removeClass('sorting');
             var liElements = $item.parent('ul').children('li');
             for (var i in liElements) {
                 if (item.ID == $(liElements[i]).data('item').ID) {
