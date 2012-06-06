@@ -55,9 +55,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
         public static List<WorkflowType> DefaultWorkflowTypes()
         {
             // load workflow types from files
+            bool cdBack = false;
             try
             {
                 Directory.SetCurrentDirectory(@"workflows");
+                cdBack = true;
                 var workflowTypes = new List<WorkflowType>();
                 foreach (var filename in Directory.EnumerateFiles(@".", @"*.json"))
                 {
@@ -75,11 +77,15 @@ namespace BuiltSteady.Zaplify.ServiceHost
                             workflowTypes.Add(new WorkflowType() { Type = workflowName, Definition = workflowDef });
                     }
                 }
+                cdBack = false;
+                Directory.SetCurrentDirectory(@"..");
                 return workflowTypes;
             }
             catch (Exception ex)
             {
                 TraceLog.TraceException("WorkflowConstants.DefaultWorkflowTypes: reading workflows failed", ex);
+                if (cdBack)
+                    Directory.SetCurrentDirectory(@"..");
                 return null;
             }
         }
