@@ -95,7 +95,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -154,7 +154,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,

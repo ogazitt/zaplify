@@ -176,7 +176,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return;
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Delete,
@@ -229,7 +229,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (thisItem == null)
             {
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -243,7 +243,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             else // this is an update
             {
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -363,7 +363,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -821,7 +821,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                                             currentContacts.ID = id;
 
                                             // enqueue the Web Request Record
-                                            RequestQueue.EnqueueRequestRecord(
+                                            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                                                 new RequestQueue.RequestRecord()
                                                 {
                                                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -998,7 +998,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         newTags.Add(new ItemTag() { Name = str, TagID = tag.ID, ItemID = item.ID });
 
                         // enqueue the Web Request Record 
-                        RequestQueue.EnqueueRequestRecord(
+                        RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                             new RequestQueue.RequestRecord()
                             {
                                 ReqType = RequestQueue.RequestRecord.RequestType.Insert,

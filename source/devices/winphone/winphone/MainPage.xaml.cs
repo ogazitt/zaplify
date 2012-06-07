@@ -1151,7 +1151,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 item.Complete = false;
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,

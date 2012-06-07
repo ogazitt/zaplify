@@ -484,7 +484,7 @@
 
         public Item GetOrCreateUserItemTypeList(User user, Guid itemTypeID)
         {
-            return GetOrCreateUserList(user, SystemItemTypes.Names[itemTypeID], SystemItemTypes.NameValue);
+            return GetOrCreateUserListByValue(user, itemTypeID.ToString(), SystemItemTypes.Names[itemTypeID], SystemItemTypes.NameValue);
         }
 
         public Item GetOrCreateEntityRef(User user, ServerEntity entity)
@@ -618,13 +618,58 @@
                     };
                     Items.Add(list);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateUserFolderList: created {0} list for user {1}", listName, user.Name));
+                    TraceLog.TraceInfo(String.Format("GetOrCreateUserList: created {0} list for user {1}", listName, user.Name));
                     return list;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateUserFolderList: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                TraceLog.TraceException(String.Format("GetOrCreateUserList: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                return null;
+            }
+        }
+
+        public Item GetOrCreateUserListByValue(User user, string value, string listName, Guid itemTypeID)
+        {
+            Folder userFolder = GetOrCreateUserFolder(user);
+            if (userFolder == null)
+                return null;
+
+            // retrieve the list inside the $User folder
+            try
+            {
+                // get the list
+                if (Items.Any(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.FieldValues.Any(
+                    fv => fv.FieldName == FieldNames.Value && fv.Value == value)))
+                    return Items.Single(i => i.UserID == user.ID && i.FolderID == userFolder.ID && i.FieldValues.Any(
+                        fv => fv.FieldName == FieldNames.Value && fv.Value == value));
+                else
+                {
+                    // create list
+                    DateTime now = DateTime.UtcNow;
+                    var list = new Item()
+                    {
+                        ID = Guid.NewGuid(),
+                        Name = listName,
+                        FolderID = userFolder.ID,
+                        UserID = user.ID,
+                        IsList = true,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        ParentID = null,
+                        Created = now,
+                        LastModified = now,
+                        FieldValues = new List<FieldValue>()
+                    };
+                    list.GetFieldValue(FieldNames.Value, true).Value = value;
+                    Items.Add(list);
+                    SaveChanges();
+                    TraceLog.TraceInfo(String.Format("GetOrCreateUserListByValue: created {0} list for user {1}", listName, user.Name));
+                    return list;
+                }
+            }
+            catch (Exception ex)
+            {
+                TraceLog.TraceException(String.Format("GetOrCreateUserListByValue: could not find or create {0} list for user {1}", listName, user.Name), ex);
                 return null;
             }
         }
