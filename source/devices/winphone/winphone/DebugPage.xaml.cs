@@ -115,11 +115,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void Debug_DeleteButton_Click(object sender, EventArgs e)
         {
             // clear the record queue
-            RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord(RequestQueue.UserQueue);
-            while (record != null)
-            {
-                record = RequestQueue.DequeueRequestRecord(RequestQueue.UserQueue);
-            }
+            RequestQueue.DeleteQueue(RequestQueue.UserQueue);
+            RequestQueue.DeleteQueue(RequestQueue.SystemQueue);
 
             // re-render the debug tab
             RenderDebugPanel();
@@ -155,9 +152,25 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             button.Click += (s, e) => { WebServiceHelper.BaseUrl = textBox.Text; };
             DebugPanel.Children.Add(button);
 
-            // render request queue
-            DebugPanel.Children.Add(new TextBlock() { Text = "Request Queue:" });
+            // render user request queue
+            DebugPanel.Children.Add(new TextBlock() { Text = "User Queue:" });
             List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords(RequestQueue.UserQueue);
+            if (requests != null)
+            {
+                foreach (var req in requests)
+                {
+                    string typename;
+                    string reqtype;
+                    string id;
+                    string name;
+                    RetrieveRequestInfo(req, out typename, out reqtype, out id, out name);
+                    DebugPanel.Children.Add(new TextBlock() { Text = String.Format("  {0} {1} {2} (id {3})", reqtype, typename, name, id) });
+                }
+            }
+
+            // render system request queue
+            DebugPanel.Children.Add(new TextBlock() { Text = "System Queue:" });
+            requests = RequestQueue.GetAllRequestRecords(RequestQueue.SystemQueue);
             if (requests != null)
             {
                 foreach (var req in requests)
