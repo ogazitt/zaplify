@@ -79,7 +79,7 @@ FolderList.prototype.folderClicked = function ($folder) {
 }
 
 FolderList.prototype.itemClicked = function ($item) {
-    this.$element.find('li').removeClass('active');
+    //this.$element.find('li').removeClass('active');
     var item = $item.data('item');
     this.select($item, item);
     this.fireSelectionChanged(item.FolderID, item.ID);

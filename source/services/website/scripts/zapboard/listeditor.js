@@ -18,6 +18,7 @@ ListEditor.prototype.render = function ($element, list, maxHeight) {
     var $newItem = this.newItemEditor.render(this.$element, list);
     var newItemHeight = ($newItem != null) ? $newItem.outerHeight() : 0;
     this.listView.render(this.$element, list, maxHeight - newItemHeight - 28);   // exclude top & bottom padding
+    $newItem.find('.fn-name').focus();
 }
 
 ListEditor.prototype.selectItem = function (item) {
@@ -46,7 +47,6 @@ NewItemEditor.prototype.render = function ($element, list) {
         // render name field for new item 
         $field = this.renderNameField(this.$element);
         $field.val('');
-        $field.focus();
     }
     return this.$element;
 }
@@ -64,7 +64,6 @@ NewItemEditor.prototype.renderNameField = function ($element) {
     //var $addButton = $('<span class="add-on"><i class="icon-plus-sign"></i></span>').appendTo($append);
 
     $nameField.addClass('input-block-level');
-    $nameField.attr('placeholder', '-- new item --');
     return $nameField;
 }
 
@@ -126,7 +125,7 @@ ListView.prototype.renderListItems = function (listItems) {
 
         // click item to select
         $li.bind('click', function (e) {
-            if ($(this).hasClass('sorting') ||
+            if ($(this).hasClass('ui-sortable-helper') ||
                 $(e.srcElement).hasClass('dt-checkbox') ||
                 $(e.srcElement).hasClass('dt-email')) {
                 return;
@@ -176,6 +175,12 @@ ListView.prototype.renderField = function ($element, item, field) {
             if (item.GetFieldValue(FieldNames.Complete) != true) {
                 $field = Control.Text.render($element, item, field, 'small', 'Due on ');
             }
+            break;
+        case FieldNames.StartTime:
+            $field = Control.Text.render($element, item, field, 'small', 'On ');
+            break;
+        case FieldNames.EndTime:
+            $field = Control.Text.render($element, item, field, 'small', 'until ');
             break;
         case FieldNames.CompletedOn:
             if (item.GetFieldValue(FieldNames.Complete) == true) {
@@ -278,12 +283,12 @@ PropertyEditor.prototype.renderListActions = function ($element, list) {
         var $element = $(e.target);
         var action = $element.attr('href');
         if (action == 'newfolder') {
-            var newFolder = { Name: 'New List', ItemTypeID: list.ItemTypeID };
+            var newFolder = Folder.Extend({ Name: 'New List', ItemTypeID: list.ItemTypeID });
             DataModel.InsertFolder(newFolder);
         }
         if (action == 'newlist') {
             var folder = (list.IsFolder()) ? list : list.GetFolder();
-            var newList = { Name: 'New List', ItemTypeID: list.ItemTypeID, IsList: true };
+            var newList = Item.Extend({ Name: 'New List', ItemTypeID: list.ItemTypeID, IsList: true });
             folder.Expand(true);
             folder.InsertItem(newList);
         }

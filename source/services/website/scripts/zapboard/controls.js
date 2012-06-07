@@ -8,6 +8,7 @@
 // Control static object
 // shared helpers used by controls
 var Control = function Control$() {};
+Control.noDelay = { delay: { show: 0, hide: 0} };           // tooltip with no delay
 Control.ttDelay = { delay: { show: 500, hide: 200} };       // default tooltip delay
 
 // helper function for preventing event bubbling
@@ -54,6 +55,22 @@ Control.collapse = function Control$collapse($element, animate, callback) {
 }
 
 // ---------------------------------------------------------
+// Browser static object
+// get information about browser
+var Browser = function Browser$() { };
+Browser.IsMSIE = function Browser$IsMSIE() { return (navigator.appName == 'Microsoft Internet Explorer'); }
+Browser.MSIE_Version = function Browser$MSIE_Version() {
+    var version = -1;                                           // return -1 if not MSIE
+    if (Browser.IsMSIE) {
+        var regex = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (regex.exec(navigator.userAgent) != null) {
+            version = parseFloat(RegExp.$1);
+        }
+    }
+    return version;
+}
+
+// ---------------------------------------------------------
 // Control.Icons static object
 //
 Control.Icons = {};
@@ -90,16 +107,17 @@ Control.Icons.forSources = function Control$Icons$forSources(item) {
 Control.Icons.forItemType = function Control$Icons$forItemType(item) {
     // allow parameter as Item or ItemTypeID
     var itemType = item;
-    var isFolder = false;
     if (typeof (item) == 'object') {
         itemType = item.ItemTypeID;
-        isFolder = item.IsFolder();
     }
 
     var $icon = $('<i></i>');
     switch (itemType) {
         case ItemTypes.Task:
-            (isFolder) ? $icon.addClass('icon-calendar') : $icon.addClass('icon-check');
+            $icon.addClass('icon-check');
+            break;
+        case ItemTypes.Appointment:
+            $icon.addClass('icon-calendar');
             break;
         case ItemTypes.Contact:
             $icon.addClass('icon-user');
@@ -107,8 +125,11 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
         case ItemTypes.Location:
             $icon.addClass('icon-map-marker');
             break;
-        case ItemTypes.ShoppingItem:
+        case ItemTypes.GroceryItem:
             $icon.addClass('icon-shopping-cart');
+            break;
+        case ItemTypes.ShoppingItem:
+            $icon.addClass('icon-tag');
             break;
         case ItemTypes.ListItem:
         default:
@@ -142,16 +163,21 @@ Control.Icons.deleteBtn = function Control$Icons$deleteBtn(item) {
     var $icon = $('<i class="icon-remove-sign"></i>');
     $icon.css('cursor', 'pointer');
     $icon.data('item', item);
-    //$icon.attr('title', 'Delete Item').tooltip(Control.ttDelay);
-    $icon.attr('title', 'Delete Item').tooltip();
+    $icon.attr('title', 'Delete Item').tooltip(Control.noDelay);
     $icon.bind('click', function () {
-        $(this).tooltip('hide');
-        var item = $(this).data('item');
-        var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
-        item.Delete(activeItem);
+        var $this = $(this);
+        $this.tooltip('hide');
+        // don't delete if in middle of sorting
+        var sorting = $this.parents('.ui-sortable-helper').length > 0;
+        if (!sorting) {
+            var item = $this.data('item');
+            var activeItem = (item.ParentID == null) ? item.GetFolder() : item.GetParent();
+            item.Delete(activeItem);
+        }
         return false;   // do not propogate event
     });
-    return $icon;
+    // wrap in anchor tag to get tooltips to work in Chrome
+    return $('<a class="icon" />').append($icon);
 }
 
 // ---------------------------------------------------------
@@ -198,6 +224,7 @@ Control.Text.renderEmail = function Control$Text$renderEmail($element, item, fie
 Control.Text.renderInput = function Control$Text$renderInput($element, item, field) {
     $text = $('<input type="text" />').appendTo($element);
     $text = Control.Text.base($text, item, field);
+    Control.Text.placeholder($text, field);
     $text.change(function (e) { Control.Text.update($(e.srcElement)); });
     $text.keypress(function (e) { if (e.which == 13) { Control.Text.update($(e.srcElement)); return false; } });
     return $text;
@@ -214,15 +241,24 @@ Control.Text.renderInputNew = function Control$Text$renderInput($element, item, 
         Control.Text.autoCompletePlace($text, Control.Text.insert);
     } else if (item.ItemTypeID == ItemTypes.Contact) {
         Control.Text.autoCompleteContact($text, Control.Text.insert);
-    } else if (item.ItemTypeID == ItemTypes.ShoppingItem) {
+        Control.Text.placeholder($text, 'Enter a contact');
+    } else if (item.ItemTypeID == ItemTypes.GroceryItem) {
         Control.Text.autoCompleteGrocery($text, Control.Text.insert);
-    } 
+        Control.Text.placeholder($text, 'Enter an item');
+    } else if (item.ItemTypeID == ItemTypes.Task) {
+        Control.Text.placeholder($text, 'Enter a task');
+    } else if (item.ItemTypeID == ItemTypes.Appointment) {
+        Control.Text.placeholder($text, 'Enter an appointment');
+    } else {
+        Control.Text.placeholder($text, 'Enter an item');
+    }
     return $text;
 }
 // render textarea with update onchange
 Control.Text.renderTextArea = function Control$Text$renderTextArea($element, item, field) {
     $text = $('<textarea></textarea>').appendTo($element);
     $text = Control.Text.base($text, item, field);
+    Control.Text.placeholder($text, field);
     $text.change(function (e) { Control.Text.update($(e.srcElement)); });
     return $text;
 }
@@ -369,8 +405,8 @@ Control.Text.insert = function Control$Text$insert($input) {
                 }
             }
         }
-        if (item.ItemTypeID == ItemTypes.ShoppingItem) {
-            // autocomplete for new ShoppingItems
+        if (item.ItemTypeID == ItemTypes.GroceryItem) {
+            // autocomplete for new GroceryItems
             var grocery = $input.data('grocery');
             if (grocery != null) {
                 Control.Text.applyGrocery(item, grocery);
@@ -428,11 +464,11 @@ Control.Text.applyPlace = function Control$Text$applyPlace(item, place, fieldNam
     if (links == null || links == '[]') {
         var weblinks = new LinkArray();
         if (place.types[0] == 'street_address') {
-            weblinks.Add('Map', 'http://maps.google.com/maps?z=15&t=m&q=' + place.formatted_address);
+            weblinks.Add('http://maps.google.com/maps?z=15&t=m&q=' + place.formatted_address, 'Map');
         } else {
-            weblinks.Add('Map', place.url);
+            weblinks.Add(place.url, 'Map');
         }
-        if (place.website != null) { weblinks.Add('Website', place.website); }
+        if (place.website != null) { weblinks.Add(place.website, 'Website'); }
         item.SetFieldValue(FieldNames.WebLinks, weblinks.ToJson());
     }
     return item;
@@ -467,6 +503,36 @@ Control.Text.base = function Control$Text$base($element, item, field) {
     $element.val(item.GetFieldValue(field));
     return $element;
 }
+// add placeholder attribute to an input element, work-around in IE
+Control.Text.placeholder = function Control$Text$placeholder($input, placeholdertext) {
+    if (typeof (placeholdertext) == 'object') {     // may pass field object to get a default placeholder
+        placeholdertext = 'Enter ' + placeholdertext.DisplayName.toLowerCase();
+    }
+
+    $input.attr('placeholder', placeholdertext);
+    if (Browser.IsMSIE()) {
+        if ($input.val() == null || $input.val().length == 0) {
+            $input.val(placeholdertext);
+            $input.addClass('ie-placeholder');
+        }
+
+        $input.focus(function () {
+            var $this = $(this);
+            if ($this.val() == $this.attr('placeholder')) {
+                $this.val('');
+                $this.removeClass('ie-placeholder');
+            }
+        });
+        $input.blur(function () {
+            var $this = $(this);
+            if ($this.val() == null || $this.val().length == 0) {
+                $this.val($this.attr('placeholder'));
+                $this.addClass('ie-placeholder');
+            }
+        });
+    }
+}
+
 
 // ---------------------------------------------------------
 // Control.Checkbox static object
@@ -502,27 +568,65 @@ Control.Checkbox.update = function Control$Checkbox$update($checkbox) {
 // Control.LinkArray static object
 //
 Control.LinkArray = {};
-Control.LinkArray.renderTextArea = function Control$LinkArray$renderInput($element, item, field) {
-    $text = $('<textarea></textarea>').appendTo($element);
+Control.LinkArray.render = function Control$LinkArray$render($element, item, field) {
+    var $wrapper = $('<div class="link-array" />').appendTo($element);
+    $text = $('<input type="text" />').appendTo($wrapper);
     $text = Control.Text.base($text, item, field);
-    var linkArray = new LinkArray(item.GetFieldValue(field));
-    $text.val(linkArray.ToText());
+    $text.val('');
+    Control.Text.placeholder($text, 'Add a link');
     $text.change(function (e) { Control.LinkArray.update($(e.srcElement)); });
+    $text.keypress(function (e) { if (e.which == 13) { Control.LinkArray.update($(e.srcElement)); return false; } });
+
+    var linkArray = new LinkArray(item.GetFieldValue(field));
+    var links = linkArray.Links();
+    if (links.length > 0) {                 // display existing links with delete
+        for (var i in links) {
+            Control.LinkArray.deleteBtn(i).appendTo($wrapper);
+            var link = links[i];
+            var $link = $('<a/>').appendTo($wrapper);
+            var name = (link.Name == null) ? link.Url : link.Name;
+            $link.html(name);
+            $link.attr('href', link.Url);
+            $link.attr('target', 'new');
+        }
+    }
     return $text;
 }
 
 Control.LinkArray.update = function Control$LinkArray$update($input) {
     var item = $input.data('item');
     var field = $input.data('field');
-    var currentValue = item.GetFieldValue(field);
-    var linkArray = new LinkArray();
-    linkArray.Parse($input.val());
-    var value = linkArray.ToJson();
-    if (value != currentValue) {
+    var linkArray = new LinkArray(item.GetFieldValue(field));
+    var value = $input.val();
+    if (value != null && value.length > 0) {
+        linkArray.Add(value);
         var updatedItem = item.Copy();
-        updatedItem.SetFieldValue(field, value);
+        updatedItem.SetFieldValue(field, linkArray.ToJson());
         item.Update(updatedItem);
     }
+}
+
+// return an element that is an icon for deleting an link in the array
+Control.LinkArray.deleteBtn = function Control$Icons$deleteBtn(index) {
+    var $icon = $('<i class="icon-ban-circle"></i>');
+    $icon.css('cursor', 'pointer');
+    $icon.attr('title', 'Remove').tooltip(Control.noDelay);
+    $icon.data('index', index);
+    $icon.bind('click', function () {
+        var $this = $(this);
+        $this.tooltip('hide');
+        var $input = $this.parents('.link-array').first().find('input');
+        var item = $input.data('item');
+        var field = $input.data('field');
+        var linkArray = new LinkArray(item.GetFieldValue(field));
+        linkArray.Remove($this.data('index'));
+        var updatedItem = item.Copy();
+        updatedItem.SetFieldValue(field, linkArray.ToJson());
+        item.Update(updatedItem);
+        return false;   // do not propogate event
+    });
+    // wrap in anchor tag to get tooltips to work in Chrome
+    return $('<a class="icon" />').append($icon);
 }
 
 // ---------------------------------------------------------
@@ -652,12 +756,14 @@ Control.LocationList.renderInput = function Control$LocationList$renderInput($el
         for (var id in locations) {
             var locationRef = locations[id].GetFieldValue(FieldNames.EntityRef);
             if (locationRef != null) {
+                /*
                 var address = locationRef.GetFieldValue(FieldNames.Address);
                 text += address;
                 if (locationRef.Name != address) {
-                    text += ' ( ' + locationRef.Name + ' )';
+                text += ' ( ' + locationRef.Name + ' )';
                 }
-                //text += '; ';             // TODO: support multiple locations
+                */
+                text = locationRef.Name;
             }
             break;
         }
@@ -716,26 +822,25 @@ Control.List = {};
 // make a list of items sortable, apply to <ul> element
 // each <li> in list must have attached data('item')
 Control.List.sortable = function Control$List$sortable($element) {
-    $element.sortable({ 
+    $element.sortable({
         revert: true,
-        start: function (e, ui) {
-            ui.item.addClass('sorting');
-        },
         stop: function (e, ui) {
+            $('i').tooltip('hide');
             var $item = ui.item;
             var item = $item.data('item');
-            $item.removeClass('sorting');
-            var liElements = $item.parent('ul').children('li');
-            for (var i in liElements) {
-                if (item.ID == $(liElements[i]).data('item').ID) {
-                    var $liBefore = $(liElements[i]).prevAll('li').first();
-                    var before = Number(($liBefore.length == 0) ? 0 : $liBefore.data('item').SortOrder);
-                    var $liAfter = $(liElements[i]).nextAll('li').first();
-                    var after = Number(($liAfter.length == 0) ? before + 1000 : $liAfter.data('item').SortOrder);
-                    var updatedItem = item.Copy();
-                    updatedItem.SortOrder = before + ((after - before) / 2);
-                    item.Update(updatedItem);
-                    break;
+            if (item != null) {
+                var liElements = $item.parent('ul').children('li');
+                for (var i in liElements) {
+                    if (item.ID == $(liElements[i]).data('item').ID) {
+                        var $liBefore = $(liElements[i]).prevAll('li').first();
+                        var before = Number(($liBefore.length == 0) ? 0 : $liBefore.data('item').SortOrder);
+                        var $liAfter = $(liElements[i]).nextAll('li').first();
+                        var after = Number(($liAfter.length == 0) ? before + 1000 : $liAfter.data('item').SortOrder);
+                        var updatedItem = item.Copy();
+                        updatedItem.SortOrder = before + ((after - before) / 2);
+                        item.Update(updatedItem);
+                        break;
+                    }
                 }
             }
         }

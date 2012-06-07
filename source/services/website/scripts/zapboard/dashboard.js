@@ -79,12 +79,12 @@ Dashboard.Close = function Dashboard$Close(event) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
-    Dashboard.ManageFolder(folderID, itemID);
+    Dashboard.ManageFolder(folderID, itemID, true);
     Dashboard.folderList.render(Dashboard.$left, Dashboard.dataModel.Folders);
 }
 
 // event handler, do not reference 'this' to access static Dashboard
-Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
+Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID, excludeSuggestions) {
     var item;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     if (itemID == null) {
@@ -102,7 +102,7 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
         Dashboard.folderManager.selectItem(item);
     }
 
-    if (!Dashboard.resizing) {
+    if (!Dashboard.resizing && !excludeSuggestions) {
         // get suggestions for currently selected user, folder, or item
         Dashboard.getSuggestions(folder, item);
     }

@@ -46,10 +46,7 @@ ItemEditor.prototype.render = function ($element, item) {
             this.$element.find('.carousel-control').dblclick(function (e) { e.preventDefault(); });
         }
 
-        // TODO: handle focus properly
-        //var $fldActive = this.$element.find('.fn-name');
-        //$fldActive.focus();
-        //$fldActive.select();
+        // TODO: handle focus and default text selection properly
     }
 }
 
@@ -143,7 +140,7 @@ ItemEditor.prototype.renderField = function ($element, field) {
             $field = Control.Text.renderInputAddress($wrapper, this.item, field);
             break;
         case DisplayTypes.LinkArray:
-            $field = Control.LinkArray.renderTextArea($wrapper, this.item, field);
+            $field = Control.LinkArray.render($wrapper, this.item, field);
             break;
         case DisplayTypes.DateTimePicker:
             $field = Control.DateTime.renderDateTimePicker($wrapper, this.item, field);
