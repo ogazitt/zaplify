@@ -161,13 +161,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 StorageHelper.WriteClientSettings(clientSettings);
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = phoneSettings,
-                    ID = phoneSettings.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = phoneSettings,
+                        ID = phoneSettings.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
 
             return phoneSettings;

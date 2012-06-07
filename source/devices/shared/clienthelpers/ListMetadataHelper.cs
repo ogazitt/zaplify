@@ -53,14 +53,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 fieldValue.Value = value;
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                    Body = new List<Item>() { copy, metadataItem },
-                    BodyTypeName = "Item",
-                    ID = metadataItem.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                        Body = new List<Item>() { copy, metadataItem },
+                        BodyTypeName = "Item",
+                        ID = metadataItem.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
             else
             {
@@ -100,13 +103,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 clientSettings.Items.Add(metadataItem);
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = metadataItem,
-                    ID = metadataItem.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = metadataItem,
+                        ID = metadataItem.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
 
             // store the client settings
@@ -125,9 +131,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             var selectedCountLists = clientSettings.Items.Where(i =>
                 i.ParentID == metadataList.ID &&
                 i.FieldValues.Any(fv => fv.FieldName == FieldNames.SelectedCount)).ToList();
+
             var orderedLists = new List<SelectedCount>();
             foreach (var l in selectedCountLists)
                 orderedLists.Add(new SelectedCount() { EntityRefItem = l, Count = Convert.ToInt32(l.GetFieldValue(FieldNames.SelectedCount).Value) });
+
+            // return the ordered lists
             return orderedLists.OrderByDescending(sc => sc.Count).ThenBy(sc => sc.EntityRefItem.Name).Select(sc => sc.EntityRefItem).ToList();
         }
 
@@ -156,7 +165,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             var defaultLists = GetDefaultListsItem(clientSettings);
             if (defaultLists == null) 
                 return null;
-            return clientSettings.Items.FirstOrDefault(i => i.ParentID == defaultLists.ID && i.Name == itemType.ToString());
+            return clientSettings.Items.FirstOrDefault(
+                i => i.ParentID == defaultLists.ID && 
+                i.FieldValues.Any(f => f.FieldName == FieldNames.Value && f.Value == itemType.ToString()));
         }
 
         #region Helpers
@@ -179,7 +190,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             if (clientSettings == null)
                 return null;
 
-            // get the list of list sort orders
+            // get the list of list metadata
             Item listsMetadata = null;
             if (clientSettings.Items.Any(i => i.Name == SystemEntities.ListMetadata))
                 listsMetadata = clientSettings.Items.Single(i => i.Name == SystemEntities.ListMetadata);
@@ -202,13 +213,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 StorageHelper.WriteClientSettings(clientSettings);
 
                 // queue up a server request
-                RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+                if (clientSettings.ID != Guid.Empty)
                 {
-                    ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                    Body = listsMetadata,
-                    ID = listsMetadata.ID,
-                    IsDefaultObject = true
-                });
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                    {
+                        ReqType = RequestQueue.RequestRecord.RequestType.Insert,
+                        Body = listsMetadata,
+                        ID = listsMetadata.ID,
+                        IsDefaultObject = true
+                    });
+                }
             }
 
             return listsMetadata;

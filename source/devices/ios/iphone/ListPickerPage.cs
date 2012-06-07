@@ -16,6 +16,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public class ListPickerPage 
 	{
+        private Guid itemTypeID;
         private UINavigationController controller;
         private DialogViewController dvc;
         private Item valueList;
@@ -27,14 +28,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private StringElement stringElement;
         private List<Item> currentList;
         private Section section;
-        private ItemPage itemPage;
 		
-        public ListPickerPage(ItemPage itemPage, UINavigationController c, StringElement stringElement, PropertyInfo pi, object container, string caption, Item valueList, Item pickFromList)
+        public ListPickerPage(Guid itemTypeID, UINavigationController c, StringElement stringElement, PropertyInfo pi, object container, string caption, Item valueList, Item pickFromList)
         {
             // trace event
             TraceHelper.AddMessage("ListPicker: constructor");
+            this.itemTypeID = itemTypeID;
             this.controller = c;
-            this.itemPage = itemPage;
             this.stringElement = stringElement;
             this.pi = pi;
             this.container = container;
@@ -58,7 +58,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     i.ParentID = id;
                 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -119,7 +119,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 StorageHelper.WriteFolder(folder);
                 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -134,7 +134,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 StorageHelper.WriteFolder(folder);
 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Delete,
@@ -194,7 +194,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             StorageHelper.WriteFolder(folder);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -252,10 +252,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 ce.Tapped += delegate { Checkbox_Click(ce, new EventArgs()); };
                 section.Add(ce);
             }
-            
-            return new RootElement(caption) 
+
+            Section itemTypeSection = null;
+            if (itemTypeID == SystemItemTypes.Contact)
             {
-                new Section()
+                itemTypeSection = new Section()
                 {
                     new StringElement("Add contact", delegate {
                         var picker = new ABPeoplePickerNavigationController();
@@ -274,9 +275,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         // present the contact picker
                         controller.PresentModalViewController(picker, true);
                     }),
-                },
-                section 
-            };
+                };
+            }
+
+            var listPickerRoot = new RootElement(caption);
+            if (itemTypeSection != null)
+                listPickerRoot.Add(itemTypeSection);
+            listPickerRoot.Add(section);
+            return listPickerRoot;
         }
 
         #endregion

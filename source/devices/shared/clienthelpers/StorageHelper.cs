@@ -66,6 +66,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// </summary>
         public static void WriteClientSettings(Folder folder)
         {
+            // save all the system entity ID's
+            WriteSystemEntityID(SystemEntities.ClientSettings, folder.ID);
+            foreach (var item in folder.Items)
+            {
+                if (item == null)
+                    continue;
+                if (item.Name != SystemEntities.DefaultLists &&
+                    item.Name != SystemEntities.ListMetadata &&
+                    item.Name != SystemEntities.PhoneSettings)
+                    continue;
+                WriteSystemEntityID(item.Name, item.ID);
+            }
+
             // make a copy and do the write on the background thread
             var copy = new Folder(folder);
             ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.ClientSettings); });
@@ -167,6 +180,44 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             foreach (var item in itemTypes)
                 copy.Add(new ItemType(item));
             ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<ObservableCollection<ItemType>>(copy, "ItemTypes"); });
+        }
+
+        /// <summary>
+        /// Get the ID for the System Entity from isolated storage
+        /// </summary>
+        /// <returns>Folder ID if saved, otherwise null</returns>
+        public static Guid ReadSystemEntityID(string systemEntityName)
+        {
+            try
+            {
+                Guid guid = new Guid((string)AppSettings[systemEntityName]);
+                return guid;
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage(String.Format("ReadSystemEntityID: could not find entity ID for {0}; ex: {1}", systemEntityName, ex.Message)); 
+                return Guid.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Write Default Folder ID to isolated storage
+        /// </summary>
+        /// <param name="user">Folder ID to write</param>
+        public static void WriteSystemEntityID(string systemEntityName, Guid systemEntityID)
+        {
+            try
+            {
+                if (systemEntityID == Guid.Empty)
+                    AppSettings[systemEntityName] = null;
+                else
+                    AppSettings[systemEntityName] = (string)systemEntityID.ToString();
+                AppSettings.Save();
+            }
+            catch (Exception ex)
+            {
+                TraceHelper.AddMessage(String.Format("WriteSystemEntityID: could not write entity ID for {0}; ex: {1}", systemEntityName, ex.Message)); 
+            }
         }
 
         /// <summary>

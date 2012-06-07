@@ -110,8 +110,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
-            if (String.IsNullOrWhiteSpace(Name.Value))
-                App.ViewModel.SyncWithService();
+            // (do not sync for operations against $ClientSettings)
+            //if (String.IsNullOrWhiteSpace(Name.Value))
+            //    App.ViewModel.SyncWithService();
         }     
 
         private void RefreshHandler(object sender, MainViewModel.SyncCompleteEventArgs e)
@@ -323,7 +324,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private void CreateAddButtons()
         {
             // get all the lists
-            var entityRefItems = ListMetadataHelper.GetListsOrderedBySelectedCount(App.ViewModel.ClientSettings);
+            var entityRefItems = App.ViewModel.GetListsOrderedBySelectedCount();
+
             lists = new List<ClientEntity>();
             foreach (var entityRefItem in entityRefItems)
             {
@@ -395,8 +397,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                         AddItem(f, null);
                                         // increment the selected count for this folder and sync if this isn't an actual Add
                                         ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, f);
-                                        if (String.IsNullOrWhiteSpace(Name.Value))
-                                            App.ViewModel.SyncWithService();
+                                        // (do not sync for operations against $ClientSettings)
+                                        //if (String.IsNullOrWhiteSpace(Name.Value))
+                                        //    App.ViewModel.SyncWithService();
                                     }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
                                     from li in f.Items
                                         where li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference
@@ -406,8 +409,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                             AddItem(f, li);
                                             // increment the selected count for this list and sync if this isn't an actual Add
                                             ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, li);
-                                            if (String.IsNullOrWhiteSpace(Name.Value))
-                                                App.ViewModel.SyncWithService();
+                                            // (do not sync for operations against $ClientSettings)
+                                            //if (String.IsNullOrWhiteSpace(Name.Value))
+                                            //    App.ViewModel.SyncWithService();
                                         }) { Image = new UIImage("Images/179-notepad.png") }
                                 }
                         };
@@ -444,7 +448,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 item.Complete = false;
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,

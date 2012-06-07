@@ -72,6 +72,7 @@
     <MtouchArch>ARMv7</MtouchArch>
     <IpaPackageName />
     <DefineConstants>IOS</DefineConstants>
+    <BuildIpa>true</BuildIpa>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -132,6 +133,7 @@
     <Compile Include="controls\ParentListPickerElement.cs" />
     <Compile Include="MailHelper.cs" />
     <Compile Include="ContactPickerHelper.cs" />
+    <Compile Include="controls\DummyElement.cs" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="FoldersViewController_iPad.xib" />

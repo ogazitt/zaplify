@@ -17,7 +17,7 @@ using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.IPhone
 {
-	public class ItemPage
+	public class ItemPage : IImageUpdated
 	{
 		Item ThisItem = null;
 		Item ItemCopy = null;
@@ -130,7 +130,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return;
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Delete,
@@ -168,7 +168,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     ThisItem.RemoveFieldValue(fv);
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -341,6 +341,15 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // render the primary fields
 			Section primarySection = RenderEditItemFields(item, itemType, true);
 
+            // HACK: insert a dummy element inside the primary section.  This dummy element
+            // implements IElementSizing and returns a 0-sized cell (so it is invisible).  
+            // This is to work around an issue in MT.Dialog where it doesn't honor IElementSizing
+            // on elements that are added after a dialog is already drawn.  This element must be 
+            // inserted after the first element but before the last element, to avoid losing the 
+            // rounded rectangle look of the first and last elements of a Section.
+            if (primarySection.Count > 0)
+                primarySection.Insert(1, new DummyElement());
+
 			// render more button
             var moreButton = new Button() { Background = "Images/darkgreybutton.png", Caption = "more details" };
             var sse = new ButtonListElement() { Margin = 0f };
@@ -452,11 +461,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					//element = stringElement;
                     break;
                 case DisplayTypes.TextArea:
-					//MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
-					//multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
-					//element = multilineElement;
-                    entryElement.Value = (string) currentValue;
-                    entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
+                    MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
+                    multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
+                    //var multilineElement = new MultilineEntryElement3(field.DisplayName, (string) currentValue) { Editable = true };
+                    //multilineElement.Changed += delegate { pi.SetValue(container, multilineElement.Value, null); };
+                    element = multilineElement;
+                    //entryElement.Value = (string) currentValue;
+                    //entryElement.Changed += delegate { pi.SetValue(container, entryElement.Value, null); };
                     break;
                 case DisplayTypes.Phone:
                     entryElement.Value = (string) currentValue;
@@ -577,22 +588,22 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     element = null;
                     break;
                 case DisplayTypes.LinkArray:
-                    //MultilineEntryElement multilineElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3 };
+                    var linkArrayElement = new MultilineEntryElement(field.DisplayName, (string) currentValue) { Lines = 3, AcceptReturns = true };
                     if (!String.IsNullOrEmpty((string) currentValue))
                     {
                         try
                         {
                             var linkList = JsonConvert.DeserializeObject<List<Link>>((string)currentValue);
-                            entryElement.Value = String.Concat(linkList.Select(l => l.Name != null ? l.Name + "," + l.Url + "\n" : l.Url + "\n").ToList());
+                            linkArrayElement.Value = String.Concat(linkList.Select(l => l.Name != null ? l.Name + "," + l.Url + "\n" : l.Url + "\n").ToList());
                         }
                         catch (Exception)
                         {
                         }
                     }
-                    entryElement.Changed += delegate 
+                    linkArrayElement.Changed += delegate 
                     {
                         // the expected format is a newline-delimited list of Name, Url pairs
-                        var linkArray = entryElement.Value.Split(new char[] { '\r','\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        var linkArray = linkArrayElement.Value.Split(new char[] { '\r','\n' }, StringSplitOptions.RemoveEmptyEntries);
                         var linkList = new List<Link>();
                         foreach (var link in linkArray)
                         {
@@ -607,7 +618,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         var json = JsonConvert.SerializeObject(linkList);
                         pi.SetValue(container, json, null); 
                     };
-                    //element = multilineElement;
+                    element = linkArrayElement;
                     break;
                 case DisplayTypes.Hidden:
                     // skip rendering
@@ -628,7 +639,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     {
                         // put up the list picker dialog
                         ListPickerPage listPicker = new ListPickerPage(
-                            this,
+                            SystemItemTypes.Contact,
                             editViewController.NavigationController, 
                             contactsElement,
                             pi,
@@ -655,7 +666,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     {
                         // put up the list picker dialog
                         ListPickerPage listPicker = new ListPickerPage(
-                            this,
+                            SystemItemTypes.Location,
                             editViewController.NavigationController, 
                             locationsElement,
                             pi,
@@ -828,11 +839,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             var picFV = item.GetFieldValue(FieldNames.Picture);
             if (picFV != null && !String.IsNullOrWhiteSpace(picFV.Value))
             {
-                var image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), null);
-                var width = controller.View.Frame.Width;
-                var wrapperView = new UIView(new RectangleF(0, 0, 60, 60)) { AutosizesSubviews = false };
-                wrapperView.AddSubview(new UIImageView(image) { Frame = new RectangleF(width - 70, -35, 60, 60) });
-                name.FooterView = wrapperView;
+                var image = ImageLoader.DefaultRequestImage(new Uri(picFV.Value), this);//new ImageLoaderCallback(actionsViewController, name));
+                if (image != null)
+                    name.FooterView = RenderViewItemPicture(image);
             }
 
             // create a list of all the first subitems in each of the sublists of the item (e.g. Contacts, Places, etc)
@@ -1037,6 +1046,23 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			}
 			
 			return new RootElement("Actions") { name, section };
+        }
+
+        private UIView RenderViewItemPicture(UIImage image)
+        {
+            var width = controller.View.Frame.Width;
+            var wrapperView = new UIView(new RectangleF(0, 0, 60, 60)) { AutosizesSubviews = false };
+            var imageView = new UIImageView(image) { Frame = new RectangleF(width - 70, -35, 60, 60) };
+            imageView.Layer.BorderColor = UIColor.Gray.CGColor;
+            imageView.Layer.BorderWidth = 2.0f;
+            wrapperView.AddSubview(imageView);
+            return wrapperView;
+        }
+
+        void IImageUpdated.UpdatedImage(Uri uri)
+        {
+            if (uri != null)
+                actionsViewController.TableView.ReloadData();
         }
 
         #endregion

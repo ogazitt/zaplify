@@ -24,17 +24,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				new StringElement("Connected", App.ViewModel.LastNetworkOperationStatus.ToString()),
 			};
 
-            // render request queue
-			var queue = new Section("Request Queue");
-			queue.Add(new StringElement(
+            // render user queue
+			var userQueue = new Section("User Queue");
+			userQueue.Add(new StringElement(
 				"Clear Queue", 
 				delegate 
 			    { 
-					RequestQueue.DeleteQueue();
-					queue.Clear ();
+                    RequestQueue.DeleteQueue(RequestQueue.UserQueue);
+					userQueue.Clear ();
 				}));
 			
-			List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords();
+			List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords(RequestQueue.UserQueue);
             if (requests != null)
             {
                 foreach (var req in requests)
@@ -48,7 +48,35 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 					{
 						Font = UIFont.FromName("Helvetica", UIFont.SmallSystemFontSize),
 					};
-					queue.Add (sse);
+					userQueue.Add (sse);
+                }
+            }
+
+            // render system queue
+            var systemQueue = new Section("System Queue");
+            systemQueue.Add(new StringElement(
+                "Clear Queue", 
+                delegate 
+                { 
+                    RequestQueue.DeleteQueue(RequestQueue.SystemQueue);
+                    systemQueue.Clear ();
+                }));
+            
+            requests = RequestQueue.GetAllRequestRecords(RequestQueue.SystemQueue);
+            if (requests != null)
+            {
+                foreach (var req in requests)
+                {
+                    string typename;
+                    string reqtype;
+                    string id;
+                    string name;
+                    RequestQueue.RetrieveRequestInfo(req, out typename, out reqtype, out id, out name);
+                    var sse = new StyledStringElement(String.Format("  {0} {1} {2} (id {3})", reqtype, typename, name, id))
+                    {
+                        Font = UIFont.FromName("Helvetica", UIFont.SmallSystemFontSize),
+                    };
+                    systemQueue.Add (sse);
                 }
             }
 
@@ -91,7 +119,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			var root = new RootElement("Debug")
 			{
 				service,
-				queue,
+				userQueue,
+                systemQueue,
 				traceMessages,
 			};
 

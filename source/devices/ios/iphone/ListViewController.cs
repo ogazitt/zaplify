@@ -71,7 +71,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     TraceHelper.StartMessage("ListPage: Navigate back");
 
                     // navigate back
-					this.NavigationController.PopToViewController(parentController, true);
+					this.NavigationController.PopViewControllerAnimated(true);
                     return;
                 }
 
@@ -133,7 +133,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 TraceHelper.StartMessage(String.Format("ListPage: Navigate back (exception: {0})", ex.Message));
 
                 // navigate back
-				this.NavigationController.PopToViewController(parentController, true);
+                //this.NavigationController.PopToViewController(parentController, true);
+                this.NavigationController.PopViewControllerAnimated(true);
                 return;
             }
 			
@@ -187,34 +188,44 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             switch (OrderBy)
             {
                 case FieldNames.DueDate:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Priority:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Name:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Address:
-                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Phone:
-                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Email:
-                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Complete:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Category:
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case null:
-                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
                     break;
                 default:
-                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
                     break;
             }
 
@@ -243,6 +254,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     value = fv != null ? fv.Value : null;
                 }
                 string currentSectionHeading = item.Complete == true ? "completed" : FormatSectionHeading(displayType, value);
+                currentSectionHeading = item.IsList == true ? "lists" : currentSectionHeading;
                 if (currentSectionHeading != separator)
                 {
                     currentList = new Item(List, false) { Name = currentSectionHeading };
@@ -340,7 +352,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 {
                     // store the current listbox and orderby field, and re-render the list
                     var field = fields[sortPicker.RadioSelected];
-                    OrderBy = field.DisplayName;
+                    OrderBy = field.Name;
         
                     // store the sort order
                     ListMetadataHelper.StoreListSortOrder(
@@ -349,7 +361,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         OrderBy);
         
                     // sync with the service
-                    App.ViewModel.SyncWithService();
+                    // (do not sync for operations against $ClientSettings)
+                    //App.ViewModel.SyncWithService();
 
                     // return to parent
                     dvc.NavigationController.PopViewControllerAnimated(true);
@@ -369,7 +382,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         null);
         
                     // sync with the service
-                    App.ViewModel.SyncWithService();                            
+                    // (do not sync for operations against $ClientSettings)
+                    //App.ViewModel.SyncWithService();                            
 
                     // return to parent
                     dvc.NavigationController.PopViewControllerAnimated(true);
@@ -581,8 +595,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // bump the last modified timestamp
             item.LastModified = DateTime.UtcNow;
 
+            if (item.Complete == true)
+                item.CompletedOn = item.LastModified.ToString("d");
+            else
+                item.CompletedOn = null;
+
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -732,7 +751,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				}
 				else
 				{	// render an item
-					cell.DetailTextLabel.Text = item.Due != null ? ((DateTime) item.Due).ToString("d") : "";
+                    cell.DetailTextLabel.Text = item.DueDisplay; //item.Due != null ? ((DateTime) item.Due).ToString("d") : "";
 					cell.DetailTextLabel.TextColor = UIColorHelper.FromString(item.DueDisplayColor);
 					icon = itemType.Icon;
 
@@ -844,7 +863,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 item.SortOrder = newSortOrder;
 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Update,
@@ -868,7 +887,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     Item item = controller.Sections[indexPath.Section].Items[indexPath.Row];
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Delete,
