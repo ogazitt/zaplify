@@ -464,11 +464,11 @@ Control.Text.applyPlace = function Control$Text$applyPlace(item, place, fieldNam
     if (links == null || links == '[]') {
         var weblinks = new LinkArray();
         if (place.types[0] == 'street_address') {
-            weblinks.Add('Map', 'http://maps.google.com/maps?z=15&t=m&q=' + place.formatted_address);
+            weblinks.Add('http://maps.google.com/maps?z=15&t=m&q=' + place.formatted_address, 'Map');
         } else {
-            weblinks.Add('Map', place.url);
+            weblinks.Add(place.url, 'Map');
         }
-        if (place.website != null) { weblinks.Add('Website', place.website); }
+        if (place.website != null) { weblinks.Add(place.website, 'Website'); }
         item.SetFieldValue(FieldNames.WebLinks, weblinks.ToJson());
     }
     return item;

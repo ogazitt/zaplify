@@ -960,8 +960,14 @@ function LinkArray(json) {
 LinkArray.prototype.Links = function () { return this.links; }
 LinkArray.prototype.ToJson = function () { return JSON.stringify(this.links); }
 LinkArray.prototype.Remove = function (index) { this.links.splice(index, 1); }
-LinkArray.prototype.Add = function (link) {
-    var split = link.split(',');
+LinkArray.prototype.Add = function (link, name) {
+    if (name != null) {                             
+        // both name and link provided explicitly 
+        this.links.push({ Name: name, Url: link });
+        return this.links;
+    }
+    // check for name,link syntax
+    var split = link.split(',');                    
     if (split.length > 1) {
         name = $.trim(split[0]);
         link = $.trim(split[1]);
