@@ -551,6 +551,19 @@ Folder.prototype.GetItemByName = function (name, parentID) {
     }
     return null;
 }
+// this assumes the item being looked for is ItemTypes.NameValue
+Folder.prototype.GetItemByValue = function (value, parentID) {
+    for (id in this.Items) {
+        var item = this.Items[id];
+        if (item.ItemTypeID == ItemTypes.NameValue) {
+            if (value == item.GetFieldValue(FieldNames.Value) &&
+                (parentID === undefined || item.ParentID == parentID)) {
+                    return item; 
+                }
+        }
+    }
+    return null;
+}
 Folder.prototype.GetSelectedItem = function () {
     for (id in this.Items) {
         if (DataModel.UserSettings.IsItemSelected(id) == true) { return this.Items[id]; }
@@ -1086,7 +1099,7 @@ UserSettings.prototype.init = function (name, itemKey) {
     this[itemName] = this.Folder.GetItemByName(itemKey, null);
     if (this[itemName] == null) {
         this[name] = {};
-        this.Folder.InsertItem({ Name: itemKey, ItemTypeID: ItemTypes.NameValue }, null, null, null);
+        this.Folder.InsertItem(Item.Extend({ Name: itemKey, ItemTypeID: ItemTypes.NameValue }), null, null, null);
     } else {
         var value = this[itemName].GetFieldValue(FieldNames.Value);
         this[name] = (value == null) ? {} : $.parseJSON(value);

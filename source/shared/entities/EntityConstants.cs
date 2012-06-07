@@ -572,7 +572,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 Name = UserEntities.Groceries,
                 FolderID = folder.ID,
                 IsList = true,
-                ItemTypeID = SystemItemTypes.ShoppingItem,
+                ItemTypeID = SystemItemTypes.GroceryItem,
                 ParentID = null,
                 Created = now,
                 LastModified = now,
@@ -581,8 +581,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 #endif
             };
             folder.Items.Add(item);
-            // make this defaultList for ShoppingItems
-            defaultLists.Add(SystemItemTypes.ShoppingItem, item);
+            // make this defaultList for GroceryItems
+            defaultLists.Add(SystemItemTypes.GroceryItem, item);
 
             folderID = Guid.NewGuid();
 #if !CLIENT
@@ -678,7 +678,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 {
                     ID = Guid.NewGuid(),
                     SortOrder = sortOrder++,
-                    Name = keyValue.Key.ToString(),
+                    Name = SystemItemTypes.Names[keyValue.Key],
                     FolderID = folder.ID,
                     IsList = false,
                     ItemTypeID = SystemItemTypes.Reference,
@@ -699,9 +699,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 #if CLIENT
                     item.GetFieldValue(FieldNames.EntityRef, true).Value = folderToRef.ID.ToString();
                     item.GetFieldValue(FieldNames.EntityType, true).Value = EntityTypes.Folder;
+                    item.GetFieldValue(FieldNames.Value, true).Value = keyValue.Key.ToString();
 #else
                     item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityRef, folderToRef.ID.ToString()));
-                    item.FieldValues.Add( Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Folder));
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Folder));
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.Value, keyValue.Key.ToString()));
 #endif                
                 }
                 if (keyValue.Value is Item) 
@@ -710,9 +712,11 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 #if CLIENT
                     item.GetFieldValue(FieldNames.EntityRef, true).Value = itemToRef.ID.ToString();
                     item.GetFieldValue(FieldNames.EntityType, true).Value = EntityTypes.Item;
+                    item.GetFieldValue(FieldNames.Value, true).Value = keyValue.Key.ToString();
 #else
                     item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityRef, itemToRef.ID.ToString()));
                     item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.EntityType, EntityTypes.Item));
+                    item.FieldValues.Add(Item.CreateFieldValue(item.ID, FieldNames.Value, keyValue.Key.ToString()));
 #endif                  
                 }
 
