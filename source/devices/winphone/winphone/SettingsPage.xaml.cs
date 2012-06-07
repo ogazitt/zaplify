@@ -187,7 +187,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (IsConnected)
             {
                 // if the request queue isn't empty, warn the user
-                if (RequestQueue.GetRequestRecord() != null)
+                if (RequestQueue.GetRequestRecord(RequestQueue.UserQueue) != null)
                 {
                     MessageBoxResult result = MessageBox.Show(
                         "some of the changes you made on the phone haven't made it to your Zaplify account yet.  " +
@@ -286,7 +286,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
 
             // queue up a server request
-            RequestQueue.EnqueueRequestRecord(new RequestQueue.RequestRecord()
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue, new RequestQueue.RequestRecord()
             {
                 ReqType = RequestQueue.RequestRecord.RequestType.Update,
                 Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
@@ -328,7 +328,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         if (user.Password == null)
                             user.Password = Password.Password;
                         App.ViewModel.User = user;
-                        RequestQueue.PrepareQueueForAccountConnect();
+                        RequestQueue.PrepareUserQueueForAccountConnect();
                         App.ViewModel.SyncWithService();
                         break;
                     case HttpStatusCode.NotFound:

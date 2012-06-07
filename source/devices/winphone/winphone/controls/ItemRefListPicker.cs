@@ -50,7 +50,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone.Controls
                     StorageHelper.WriteFolder(folder);
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Delete,
@@ -71,7 +71,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone.Controls
                         i.ParentID = id;
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -97,7 +97,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone.Controls
                     StorageHelper.WriteFolder(folder);
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -116,7 +116,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone.Controls
                     StorageHelper.WriteFolder(folder);
 
                     // enqueue the Web Request Record
-                    RequestQueue.EnqueueRequestRecord(
+                    RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                         new RequestQueue.RequestRecord()
                         {
                             ReqType = RequestQueue.RequestRecord.RequestType.Delete,

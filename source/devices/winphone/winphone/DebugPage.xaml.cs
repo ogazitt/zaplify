@@ -71,7 +71,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 Name = "Check out Zaplify", Due = DateTime.Today, Priority = 1 });
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -89,7 +89,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = groceryList.ID, ItemTypeID = SystemItemTypes.ShoppingItem, SortOrder = (1000*index), Name = name });
 
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -115,10 +115,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private void Debug_DeleteButton_Click(object sender, EventArgs e)
         {
             // clear the record queue
-            RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord();
+            RequestQueue.RequestRecord record = RequestQueue.DequeueRequestRecord(RequestQueue.UserQueue);
             while (record != null)
             {
-                record = RequestQueue.DequeueRequestRecord();
+                record = RequestQueue.DequeueRequestRecord(RequestQueue.UserQueue);
             }
 
             // re-render the debug tab
@@ -157,7 +157,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // render request queue
             DebugPanel.Children.Add(new TextBlock() { Text = "Request Queue:" });
-            List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords();
+            List<RequestQueue.RequestRecord> requests = RequestQueue.GetAllRequestRecords(RequestQueue.UserQueue);
             if (requests != null)
             {
                 foreach (var req in requests)

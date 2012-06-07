@@ -119,7 +119,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return;
 
             // enqueue the Web Request Record
-            RequestQueue.EnqueueRequestRecord(
+            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                 new RequestQueue.RequestRecord()
                 {
                     ReqType = RequestQueue.RequestRecord.RequestType.Delete,
@@ -163,7 +163,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 // enqueue the Web Request Record (with a new copy of the tag)
                 // need to create a copy because otherwise other items may be added to it
                 // and we want the record to have exactly one operation in it (create the tag)
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
@@ -176,7 +176,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             else // this is an update
             {
                 // enqueue the Web Request Record
-                RequestQueue.EnqueueRequestRecord(
+                RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
                     new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Update,
