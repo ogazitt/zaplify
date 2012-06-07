@@ -61,13 +61,13 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             { Contact, ItemTypeNames.Contact },
             { ListItem, ItemTypeNames.ListItem },
             { ShoppingItem, ItemTypeNames.ShoppingItem },
-            { GroceryItem, ItemTypeNames.GroceryItem },
+            { GroceryItem, ItemTypeNames.Grocery },
             { Reference, ItemTypeNames.Reference },
             { NameValue,  ItemTypeNames.NameValue }
         };
     }
 
-    public class ItemTypeNames
+    class ItemTypeNames
     {
         // standard item types
         public const string Task = "Task";
@@ -76,7 +76,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Contact = "Contact";
         public const string ListItem = "List Item";
         public const string ShoppingItem = "Shopping Item";
-        public const string GroceryItem = "Grocery Item";
+        public const string Grocery = "Grocery";
         // system item types
         public const string System = "System";
         public const string Reference = "Reference";
@@ -286,7 +286,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class UserConstants
     {
         public static string SchemaVersion { get { return "1.0.2012.0503"; } }
-        public static string ConstantsVersion { get { return "2012-06-06"; } }
+        public static string ConstantsVersion { get { return "2012-06-07"; } }
 
         public static List<ActionType> DefaultActionTypes()
         {
@@ -418,7 +418,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000087"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 7 });
 
             // create GroceryItem
-            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.GroceryItem, Name = ItemTypeNames.GroceryItem, UserID = SystemUsers.User, Fields = new List<Field>() });
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.GroceryItem, Name = ItemTypeNames.Grocery, UserID = SystemUsers.User, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000051"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000052"), FieldType = FieldTypes.String, Name = FieldNames.Category, DisplayName = "Category", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000053"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 3 });
@@ -433,6 +433,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000061"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000062"), FieldType = FieldTypes.Guid, Name = FieldNames.EntityRef, DisplayName = "EntityRef", DisplayType = DisplayTypes.Reference, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 2 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000063"), FieldType = FieldTypes.String, Name = FieldNames.EntityType, DisplayName = "EntityType", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000064"), FieldType = FieldTypes.String, Name = FieldNames.Value, DisplayName = "Value", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Reference, IsPrimary = true, SortOrder = 4 });
 
             // create NameValue
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.NameValue, Name = ItemTypeNames.NameValue, UserID = SystemUsers.System, Fields = new List<Field>() });

@@ -551,11 +551,11 @@ Folder.prototype.GetItemByName = function (name, parentID) {
     }
     return null;
 }
-// this assumes the item being looked for is ItemTypes.NameValue
+// assumes the item being looked for is ItemTypes.NameValue or ItemTypes.Reference
 Folder.prototype.GetItemByValue = function (value, parentID) {
     for (id in this.Items) {
         var item = this.Items[id];
-        if (item.ItemTypeID == ItemTypes.NameValue) {
+        if (item.ItemTypeID == ItemTypes.NameValue || item.ItemTypeID == ItemTypes.Reference) {
             if (value == item.GetFieldValue(FieldNames.Value) &&
                 (parentID === undefined || item.ParentID == parentID)) {
                     return item; 
