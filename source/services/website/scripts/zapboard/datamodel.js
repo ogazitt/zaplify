@@ -1031,7 +1031,7 @@ UserSettings.preferencesKey = 'WebPreferences';
 UserSettings.prototype.GetDefaultList = function (itemType) {
     var defaultLists = this.Folder.GetItemByName(UserSettings.defaultListsKey);
     if (defaultLists != null) {
-        var defaultList = this.Folder.GetItemByName(itemType, defaultLists.ID);
+        var defaultList = this.Folder.GetItemByValue(itemType, defaultLists.ID);
         if (defaultList != null) {
             var list = defaultList.GetFieldValue(FieldNames.EntityRef);
             if (typeof (list) == 'object') { return list; }
