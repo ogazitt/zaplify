@@ -49,7 +49,6 @@ Service.Init = function Service$Init(siteUrl, resourceUrl, domainUrl, fbAppID) {
     this.fbAppID = fbAppID;
 
     Service.invokeAsync = true;
-    $('.header-content .logo').click(Service.NavigateToDashboard);
 }
 
 Service.Close = function Service$Close() {

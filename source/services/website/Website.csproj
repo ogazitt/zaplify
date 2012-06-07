@@ -398,7 +398,6 @@
   <ItemGroup>
     <Content Include="scripts\master.js.chirp.config" />
     <Content Include="content\font\fontawesome-webfont.eot" />
-    <Content Include="content\font\fontawesome-webfont.svgz" />
     <Content Include="content\font\fontawesome-webfont.ttf" />
     <Content Include="content\font\fontawesome-webfont.woff" />
     <None Include="content\less\accordion.less" />

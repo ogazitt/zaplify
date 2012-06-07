@@ -64,7 +64,6 @@ NewItemEditor.prototype.renderNameField = function ($element) {
     //var $addButton = $('<span class="add-on"><i class="icon-plus-sign"></i></span>').appendTo($append);
 
     $nameField.addClass('input-block-level');
-    $nameField.attr('placeholder', '-- new item --');
     return $nameField;
 }
 
@@ -176,6 +175,12 @@ ListView.prototype.renderField = function ($element, item, field) {
             if (item.GetFieldValue(FieldNames.Complete) != true) {
                 $field = Control.Text.render($element, item, field, 'small', 'Due on ');
             }
+            break;
+        case FieldNames.StartTime:
+            $field = Control.Text.render($element, item, field, 'small', 'On ');
+            break;
+        case FieldNames.EndTime:
+            $field = Control.Text.render($element, item, field, 'small', 'until ');
             break;
         case FieldNames.CompletedOn:
             if (item.GetFieldValue(FieldNames.Complete) == true) {

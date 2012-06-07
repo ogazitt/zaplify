@@ -27,8 +27,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
         {
             if (itemTypeID == SystemItemTypes.Contact)
                 return new ContactProcessor(userContext, currentUser);
-            if (itemTypeID == SystemItemTypes.ShoppingItem)
-                return new ShoppingItemProcessor(userContext, currentUser);
+            if (itemTypeID == SystemItemTypes.GroceryItem)
+                return new GroceryItemProcessor(userContext, currentUser);
             if (itemTypeID == SystemItemTypes.Task)
                 return new TaskProcessor(userContext, currentUser);
             return null;
@@ -99,7 +99,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         /// <summary>
         /// The intent of an item is a normalized string that is a key into an itemtype-specific meaning for the item
         /// For example, the intent of a Task is the Workflow that it triggers; 
-        /// The intent of a Shopping Item is the lowercased naem.
+        /// The intent of a ListItem, ShoppingItem, or GroceryItem is the lowercased name.
         /// Default implementation for the intent of an item is the item's name, lowercased
         /// </summary>
         /// <param name="item">Item to extract an intent from</param>
@@ -240,9 +240,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
         }
     }
 
-    public class ShoppingItemProcessor : ItemProcessor
+    public class GroceryItemProcessor : ItemProcessor
     {
-        public ShoppingItemProcessor(UserStorageContext userContext, User currentUser)
+        public GroceryItemProcessor(UserStorageContext userContext, User currentUser)
         {
             this.userContext = userContext;
             this.currentUser = currentUser;
@@ -254,14 +254,14 @@ namespace BuiltSteady.Zaplify.ServiceHost
             if (base.ProcessCreate(item))
                 return true;
 
-            // assign category to the shopping item
+            // assign category to the grocery item
 
             // create a new category fieldvalue in the item to process
             var categoryFV = item.GetFieldValue(FieldNames.Category, true);
 
-            // check if the category for this item's name has already been saved under the $User/ShoppingItem list
+            // check if the category for this item's name has already been saved under the $User/GroceryItem list
             // in this case, store the category in the incoming item
-            var groceryCategoryFV = GetShoppingItemCategoryFieldValue(item);
+            var groceryCategoryFV = GetGroceryItemCategoryFieldValue(item);
             if (groceryCategoryFV != null && groceryCategoryFV.Value != null)
             {
                 categoryFV.Value = groceryCategoryFV.Value;
@@ -319,8 +319,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
                     // find the item using a new context 
                     var context = Storage.NewUserContext;
-                    var shoppingItem = context.Items.Single(i => i.ID == item.ID);
-                    FieldValue categoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
+                    var groceryItem = context.Items.Single(i => i.ID == item.ID);
+                    FieldValue categoryFV = groceryItem.GetFieldValue(FieldNames.Category, true);
 
                     // get the category
                     foreach (var entry in results)
@@ -371,7 +371,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 return true;
 
             // if the user stored a grocery category, overwrite the current category that's saved in the 
-            // corresponding item under the $User/ShoppingItem list
+            // corresponding item under the $User/GroceryItem list
             var categoryFV = newItem.GetFieldValue(FieldNames.Category);
             if (categoryFV != null && categoryFV.Value != null)
             {
@@ -379,12 +379,12 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 var oldCategoryFV = oldItem.GetFieldValue(FieldNames.Category);
                 if (oldCategoryFV == null || oldCategoryFV.Value != categoryFV.Value)
                 {
-                    // get the grocery category fieldvalue for the corresponding Item in the $User/ShoppingItem list
-                    var groceryCategoryFV = GetShoppingItemCategoryFieldValue(newItem, true);
+                    // get the grocery category fieldvalue for the corresponding Item in the $User/GroceryItem list
+                    var groceryCategoryFV = GetGroceryItemCategoryFieldValue(newItem, true);
                     if (groceryCategoryFV == null)
                         return false;
 
-                    // write the new category in the corresponding item in the user's $User/ShoppingItem list
+                    // write the new category in the corresponding item in the user's $User/GroceryItem list
                     groceryCategoryFV.Value = categoryFV.Value;
 
                     // null out the picture URL from the new item's fieldvalues.  if the user overrode the category,
@@ -399,52 +399,52 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return false;
         }
 
-        private FieldValue GetShoppingItemCategoryFieldValue(Item item, bool create = false)
+        private FieldValue GetGroceryItemCategoryFieldValue(Item item, bool create = false)
         {
-            // get the known shopping item list under the $User folder
-            var knownShoppingItems = userContext.GetOrCreateUserItemTypeList(currentUser, SystemItemTypes.ShoppingItem);
-            if (knownShoppingItems == null)
+            // get the known grocery item list under the $User folder
+            var knownGroceryItems = userContext.GetOrCreateUserItemTypeList(currentUser, SystemItemTypes.GroceryItem);
+            if (knownGroceryItems == null)
                 return null;
 
-            Item shoppingItem = null;
-            FieldValue shoppingItemCategoryFV = null;
+            Item groceryItem = null;
+            FieldValue groceryItemCategoryFV = null;
 
             // get the normalized name for the grocery (stored in FieldNames.Intent) or resort to lowercased item name
             var intentFV = item.GetFieldValue(FieldNames.Intent);
             var itemName = intentFV != null && intentFV.Value != null ? intentFV.Value : item.Name.ToLower();
             
-            if (userContext.Items.Any(i => i.Name == itemName && i.ParentID == knownShoppingItems.ID))
+            if (userContext.Items.Any(i => i.Name == itemName && i.ParentID == knownGroceryItems.ID))
             {
-                shoppingItem = userContext.Items.Include("FieldValues").Single(i => i.Name == itemName && i.ParentID == knownShoppingItems.ID);
-                shoppingItemCategoryFV = shoppingItem.GetFieldValue(FieldNames.Category, true);
+                groceryItem = userContext.Items.Include("FieldValues").Single(i => i.Name == itemName && i.ParentID == knownGroceryItems.ID);
+                groceryItemCategoryFV = groceryItem.GetFieldValue(FieldNames.Category, true);
             }
             else if (create)
             {
-                // create shopping item category item 
+                // create grocery item category item 
                 DateTime now = DateTime.UtcNow;
-                var shoppingItemCategoryItemID = Guid.NewGuid();
-                shoppingItemCategoryFV = new FieldValue()
+                var groceryItemCategoryItemID = Guid.NewGuid();
+                groceryItemCategoryFV = new FieldValue()
                 {
-                    ItemID = shoppingItemCategoryItemID,
+                    ItemID = groceryItemCategoryItemID,
                     FieldName = FieldNames.Category,
                     Value = null,
                 };
-                shoppingItem = new Item()
+                groceryItem = new Item()
                 {
-                    ID = shoppingItemCategoryItemID,
+                    ID = groceryItemCategoryItemID,
                     Name = itemName,
-                    FolderID = knownShoppingItems.FolderID,
+                    FolderID = knownGroceryItems.FolderID,
                     UserID = currentUser.ID,
                     ItemTypeID = SystemItemTypes.NameValue,
-                    ParentID = knownShoppingItems.ID,
+                    ParentID = knownGroceryItems.ID,
                     Created = now,
                     LastModified = now,
-                    FieldValues = new List<FieldValue>() { shoppingItemCategoryFV }
+                    FieldValues = new List<FieldValue>() { groceryItemCategoryFV }
                 };
-                userContext.Items.Add(shoppingItem);
+                userContext.Items.Add(groceryItem);
             }
 
-            return shoppingItemCategoryFV;
+            return groceryItemCategoryFV;
         }
     }
 }

@@ -14,15 +14,15 @@
     <link href="<%: Url.Content("~/content/master.generated.min.css") %>" rel="stylesheet" type="text/css" />
 
     <!-- use merged and minified script when NOT debugging -->
-    <!--
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-1.7.1.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery.validate.min.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/bootstrap.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/math.uuid.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/service.js") %>"></script>
-    -->
+    <!--
     <script type="text/javascript" src="<%: Url.Content("~/scripts/master.generated.min.js") %>"></script>
+    -->
 
     <script type="text/javascript">
         // document ready handler

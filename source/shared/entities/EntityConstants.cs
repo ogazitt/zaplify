@@ -44,7 +44,9 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public static Guid Location = new Guid("00000000-0000-0000-0000-000000000002");
         public static Guid Contact = new Guid("00000000-0000-0000-0000-000000000003");
         public static Guid ListItem = new Guid("00000000-0000-0000-0000-000000000004");
-        public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000005");
+        public static Guid GroceryItem = new Guid("00000000-0000-0000-0000-000000000005");
+        public static Guid ShoppingItem = new Guid("00000000-0000-0000-0000-000000000008");
+        public static Guid Appointment = new Guid("00000000-0000-0000-0000-000000000009");
         // system item types
         public static Guid System = new Guid("00000000-0000-0000-0000-000000000000");
         public static Guid Reference = new Guid("00000000-0000-0000-0000-000000000006");
@@ -54,10 +56,12 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         { 
             { System, ItemTypeNames.System},
             { Task, ItemTypeNames.Task },
+            { Appointment, ItemTypeNames.Appointment },
             { Location, ItemTypeNames.Location },
             { Contact, ItemTypeNames.Contact },
             { ListItem, ItemTypeNames.ListItem },
             { ShoppingItem, ItemTypeNames.ShoppingItem },
+            { GroceryItem, ItemTypeNames.GroceryItem },
             { Reference, ItemTypeNames.Reference },
             { NameValue,  ItemTypeNames.NameValue }
         };
@@ -67,10 +71,12 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     {
         // standard item types
         public const string Task = "Task";
+        public const string Appointment = "Appointment";
         public const string Location = "Location";
         public const string Contact = "Contact";
         public const string ListItem = "List Item";
         public const string ShoppingItem = "Shopping Item";
+        public const string GroceryItem = "Grocery Item";
         // system item types
         public const string System = "System";
         public const string Reference = "Reference";
@@ -99,7 +105,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Complete = "Complete";          // Boolean 
         public const string CompletedOn = "CompletedOn";    // DateTime 
         public const string DueDate = "DueDate";            // DateTime
-        public const string Duration = "Duration";          // TimeSpan
+        public const string StartTime = "StartTime";        // DateTime
+        public const string EndTime = "EndTime";            // DateTime
         public const string Birthday = "Birthday";          // DateTime
         public const string Address = "Address";            // Address
         public const string WebLink = "WebLink";            // Url
@@ -165,7 +172,6 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Boolean = "Boolean";
         public const string Integer = "Integer";
         public const string DateTime = "DateTime";
-        public const string TimeSpan = "TimeSpan";
         public const string Phone = "Phone";
         public const string Email = "Email";
         public const string Url = "Url";
@@ -193,7 +199,6 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Checkbox = "Checkbox";
         public const string DatePicker = "DatePicker";
         public const string DateTimePicker = "DateTimePicker";
-        public const string TimeSpanPicker = "TimeSpanPicker";
         public const string Phone = "Phone";
         public const string Email = "Email";
         public const string Link = "Link";
@@ -281,7 +286,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     public class UserConstants
     {
         public static string SchemaVersion { get { return "1.0.2012.0503"; } }
-        public static string ConstantsVersion { get { return "2012-05-18"; } }
+        public static string ConstantsVersion { get { return "2012-06-06"; } }
 
         public static List<ActionType> DefaultActionTypes()
         {
@@ -349,15 +354,26 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Task, Name = ItemTypeNames.Task, UserID = SystemUsers.User, Fields = new List<Field>() });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000011"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 1 });
             itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000012"), FieldType = FieldTypes.Integer, Name = FieldNames.Priority, DisplayName = "Priority", DisplayType = DisplayTypes.Priority, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 2 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000013"), FieldType = FieldTypes.DateTime, Name = FieldNames.DueDate, DisplayName = "Due", DisplayType = DisplayTypes.DateTimePicker, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 3 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000014"), FieldType = FieldTypes.TimeSpan, Name = FieldNames.Duration, DisplayName = "Duration", DisplayType = DisplayTypes.TimeSpanPicker, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 4 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000015"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Details", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000016"), FieldType = FieldTypes.Guid, Name = FieldNames.Contacts, DisplayName = "Contacts", DisplayType = DisplayTypes.ContactList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 6 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000017"), FieldType = FieldTypes.Guid, Name = FieldNames.Locations, DisplayName = "Locations", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 7 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000018"), FieldType = FieldTypes.Json, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 8 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000019"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", /* DisplayTypes.TagList */ DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 9 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000001A"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 10 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000001B"), FieldType = FieldTypes.DateTime, Name = FieldNames.CompletedOn, DisplayName = "Completed On", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 11 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000013"), FieldType = FieldTypes.DateTime, Name = FieldNames.DueDate, DisplayName = "Due", DisplayType = DisplayTypes.DatePicker, ItemTypeID = SystemItemTypes.Task, IsPrimary = true, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000014"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Details", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000015"), FieldType = FieldTypes.Guid, Name = FieldNames.Contacts, DisplayName = "Contacts", DisplayType = DisplayTypes.ContactList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000016"), FieldType = FieldTypes.Guid, Name = FieldNames.Locations, DisplayName = "Locations", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000017"), FieldType = FieldTypes.Json, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000018"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", /* DisplayTypes.TagList */ DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000019"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 9 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-00000000001A"), FieldType = FieldTypes.DateTime, Name = FieldNames.CompletedOn, DisplayName = "Completed On", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Task, IsPrimary = false, SortOrder = 10 });
+
+            // create Appointment
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Appointment, Name = ItemTypeNames.Appointment, UserID = SystemUsers.User, Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000091"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000092"), FieldType = FieldTypes.Integer, Name = FieldNames.Priority, DisplayName = "Priority", DisplayType = DisplayTypes.Priority, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000093"), FieldType = FieldTypes.DateTime, Name = FieldNames.StartTime, DisplayName = "Start Time", DisplayType = DisplayTypes.DateTimePicker, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = true, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000094"), FieldType = FieldTypes.DateTime, Name = FieldNames.EndTime, DisplayName = "End Time", DisplayType = DisplayTypes.DateTimePicker, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000095"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Details", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000096"), FieldType = FieldTypes.Guid, Name = FieldNames.Contacts, DisplayName = "Contacts", DisplayType = DisplayTypes.ContactList, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000097"), FieldType = FieldTypes.Guid, Name = FieldNames.Locations, DisplayName = "Locations", DisplayType = DisplayTypes.LocationList, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000098"), FieldType = FieldTypes.Json, Name = FieldNames.WebLinks, DisplayName = "Web Links", DisplayType = DisplayTypes.LinkArray, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000099"), FieldType = FieldTypes.TagIDs, Name = FieldNames.ItemTags, DisplayName = "Tags", /* DisplayTypes.TagList */ DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.Appointment, IsPrimary = false, SortOrder = 9 });
 
             // create Location
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Location, Name = ItemTypeNames.Location, UserID = SystemUsers.User, Icon = "location.png", Fields = new List<Field>() });
@@ -393,14 +409,24 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
             // create ShoppingItem
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.ShoppingItem, Name = ItemTypeNames.ShoppingItem, UserID = SystemUsers.User, Fields = new List<Field>() });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000051"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 1 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000052"), FieldType = FieldTypes.String, Name = FieldNames.Category, DisplayName = "Category", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 2 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000053"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 3 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000054"), FieldType = FieldTypes.String, Name = FieldNames.Amount, DisplayName = "Quantity", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 4 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000055"), FieldType = FieldTypes.Currency, Name = FieldNames.Cost, DisplayName = "Price", DisplayType = DisplayTypes.Currency, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 5 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000056"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 6 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000057"), FieldType = FieldTypes.DateTime, Name = FieldNames.CompletedOn, DisplayName = "Completed On", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 7 });
-            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000058"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 8 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000081"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000082"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000083"), FieldType = FieldTypes.String, Name = FieldNames.Amount, DisplayName = "Quantity", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000084"), FieldType = FieldTypes.Currency, Name = FieldNames.Cost, DisplayName = "Price", DisplayType = DisplayTypes.Currency, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000085"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000086"), FieldType = FieldTypes.DateTime, Name = FieldNames.CompletedOn, DisplayName = "Completed On", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000087"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.ShoppingItem, IsPrimary = false, SortOrder = 7 });
+
+            // create GroceryItem
+            itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.GroceryItem, Name = ItemTypeNames.GroceryItem, UserID = SystemUsers.User, Fields = new List<Field>() });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000051"), FieldType = FieldTypes.String, Name = FieldNames.Name, DisplayName = "Name", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 1 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000052"), FieldType = FieldTypes.String, Name = FieldNames.Category, DisplayName = "Category", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 2 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000053"), FieldType = FieldTypes.Boolean, Name = FieldNames.Complete, DisplayName = "Complete", DisplayType = DisplayTypes.Checkbox, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = true, SortOrder = 3 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000054"), FieldType = FieldTypes.String, Name = FieldNames.Amount, DisplayName = "Quantity", DisplayType = DisplayTypes.Text, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = false, SortOrder = 4 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000055"), FieldType = FieldTypes.Currency, Name = FieldNames.Cost, DisplayName = "Price", DisplayType = DisplayTypes.Currency, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = false, SortOrder = 5 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000056"), FieldType = FieldTypes.String, Name = FieldNames.Description, DisplayName = "Notes", DisplayType = DisplayTypes.TextArea, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = false, SortOrder = 6 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000057"), FieldType = FieldTypes.DateTime, Name = FieldNames.CompletedOn, DisplayName = "Completed On", DisplayType = DisplayTypes.Hidden, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = false, SortOrder = 7 });
+            itemType.Fields.Add(new Field() { ID = new Guid("00000000-0000-0000-0000-000000000058"), FieldType = FieldTypes.Url, Name = FieldNames.Picture, DisplayName = "Picture", DisplayType = DisplayTypes.Hidden /* TODO: DisplayTypes.ImageUrl */, ItemTypeID = SystemItemTypes.GroceryItem, IsPrimary = false, SortOrder = 8 });
 
             // create Reference
             itemTypes.Add(itemType = new ItemType() { ID = SystemItemTypes.Reference, Name = ItemTypeNames.Reference, UserID = SystemUsers.System, Fields = new List<Field>() });
@@ -453,7 +479,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
                 ID = folderID,
                 SortOrder = 1000,
                 Name = UserEntities.Activities,
-                ItemTypeID = SystemItemTypes.Task,
+                ItemTypeID = SystemItemTypes.Appointment,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
 #else
@@ -463,6 +489,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 #endif
             };
             folders.Add(folder);
+            // make this defaultList for Appointments
+            defaultLists.Add(SystemItemTypes.Appointment, folder);
 
             // create Tasks list
             item = new Item()

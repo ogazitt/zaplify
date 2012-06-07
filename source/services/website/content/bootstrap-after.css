@@ -3,7 +3,10 @@
 */
 
 /* increase default font-awesome size */
-i { font-size: 16px; }
+i { font-size: 14px; }
+a.icon:hover { text-decoration: none; }
+textarea.ie-placeholder, input[type="text"].ie-placeholder, input[type="text"].pac-placeholder { color: #ccc; }
+
 /* center checkbox when add-on in input-prepend */
 .input-prepend .add-on .checkbox { margin-top: -2px; }
 
@@ -55,8 +58,8 @@ i { font-size: 16px; }
 .dashboard-center .tab-content .form-vertical .control-group { margin: 0 10px 0 0; padding: 0; }
 .dashboard-center .tab-content .form-vertical .control-label { font-size: 8pt; margin: 0 0 -4px 8px; }
 .Xdashboard-center .tab-content .form-vertical .btn-group > .btn:first-child { min-width: 60px; text-align: left; }
-.dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }
 .dashboard-center .nav-list small { font-size: 90%; margin-right: 12px;  }
+.dashboard-center .nav-list .form-inline .checkbox { margin-right: 6px; margin-top: -2px; }
 .dashboard-center .manager-folders .tab-content .nav-list { overflow-y: auto; overflow-x: hidden; padding: 0; }
 .dashboard-center .manager-folders .tab-content .nav-list li { border-top: 1px solid #dddddd; padding: 0 0 0 8px; }
 .dashboard-center .manager-folders .tab-content .nav-list li.selected { background-color: #eeeeee; }  /* use @btnBackgroundHighlight */
@@ -92,6 +95,12 @@ i { font-size: 16px; }
 .page-turn-control.right { left: auto; right: -10px; }
 .page-turn-control div { opacity: 0.35; filter: alpha(opacity=35); }
 .page-turn-control div:hover { opacity: 0.9; filter: alpha(opacity=90); }
+
+/* styles for link-array */
+.link-array { margin-bottom: 8px; }
+.link-array a { font-size: 90%; margin: 0 24px 0 6px; }
+.link-array a.icon { margin: 0; }
+.link-array input { margin-bottom: 2px; }
 
 /*----------------------------------------------------------
 jquery-ui timepicker extension

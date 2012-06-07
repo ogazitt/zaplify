@@ -271,7 +271,7 @@ DataModel.GetSuggestions = function DataModel$GetSuggestions(handler, entity, fi
     filter.EntityID = entity.ID;
     filter.FieldName = fieldName;
     filter.EntityType = EntityTypes.User;
-    if (entity.hasOwnProperty('UserID')) {
+    if (entity.hasOwnProperty('ItemTypeID')) {
         filter.EntityType = (entity.hasOwnProperty('FolderID')) ? EntityTypes.Item : EntityTypes.Folder;
     }
 
@@ -958,8 +958,19 @@ function LinkArray(json) {
 }
 
 LinkArray.prototype.Links = function () { return this.links; }
-LinkArray.prototype.Add = function (name, link) { this.links.push({ Name: name, Url: link }); return this.links; }
 LinkArray.prototype.ToJson = function () { return JSON.stringify(this.links); }
+LinkArray.prototype.Remove = function (index) { this.links.splice(index, 1); }
+LinkArray.prototype.Add = function (link) {
+    var split = link.split(',');
+    if (split.length > 1) {
+        name = $.trim(split[0]);
+        link = $.trim(split[1]);
+        this.links.push({ Name: name, Url: link });
+    } else {
+        this.links.push({ Url: link });
+    }
+    return this.links;
+}
 LinkArray.prototype.ToText = function () {
     var text = '';
     for (var i in this.links) {
@@ -1007,14 +1018,16 @@ UserSettings.prototype.GetDefaultList = function (itemType) {
             if (typeof (list) == 'object') { return list; }
         }
     }
-    // return first folder with itemType
+    // find first folder for itemType
+    var folder;
     for (id in DataModel.Folders) {
-        var folder = DataModel.Folders[id];
+        folder = DataModel.Folders[id];
         if (folder.ItemTypeID == itemType) {
             return folder;
         }
     }
-    return null;
+    // default to last folder
+    return folder;
 }
 
 UserSettings.prototype.Selection = function (folderID, itemID) {
@@ -1096,10 +1109,13 @@ var ItemTypes = {
     Location : "00000000-0000-0000-0000-000000000002",
     Contact : "00000000-0000-0000-0000-000000000003",
     ListItem : "00000000-0000-0000-0000-000000000004",
-    ShoppingItem : "00000000-0000-0000-0000-000000000005",
+    GroceryItem: "00000000-0000-0000-0000-000000000005",
+    ShoppingItem: "00000000-0000-0000-0000-000000000008",
+    Appointment: "00000000-0000-0000-0000-000000000009",
     // system item types
-    Reference : "00000000-0000-0000-0000-000000000006",
-    NameValue : "00000000-0000-0000-0000-000000000007"
+    System: "00000000-0000-0000-0000-000000000000",
+    Reference: "00000000-0000-0000-0000-000000000006",
+    NameValue: "00000000-0000-0000-0000-000000000007"
 }
 
 // ---------------------------------------------------------
@@ -1112,8 +1128,9 @@ var FieldNames = {
     Complete: "Complete",                   // Boolean 
     CompletedOn : "CompletedOn",            // DateTime 
     DueDate: "DueDate",                     // DateTime
-    Duration : "Duration",                  // TimeSpan
-    Birthday : "Birthday",                  // DateTime
+    StartTime: "StartTime",                 // DateTime
+    EndTime: "EndTime",                     // DateTime
+    Birthday: "Birthday",                   // DateTime
     Address : "Address",                    // Address
     WebLink : "WebLink",                    // Url
     WebLinks : "WebLinks",                  // JSON
@@ -1156,7 +1173,6 @@ var FieldTypes = {
     Boolean: "Boolean",
     Integer : "Integer",
     DateTime: "DateTime",
-    TimeSpan: "TimeSpan",
     Phone: "Phone",
     Email : "Email",
     Url : "Url",
@@ -1177,7 +1193,6 @@ var DisplayTypes = {
     Checkbox : "Checkbox",
     DatePicker : "DatePicker",
     DateTimePicker: "DateTimePicker",
-    TimeSpanPicker: "TimeSpanPicker",
     Phone: "Phone",
     Email : "Email",
     Link : "Link",
