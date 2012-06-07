@@ -33,7 +33,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         public bool IsDataLoaded { get; set; }
 
-#region // Databound Properties
+        #region Databound Properties
 
         private About about;
         public About About
@@ -106,16 +106,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     clientSettings = StorageHelper.ReadClientSettings();
                 if (clientSettings == null)
                 {
-                    // read the client settings folder ID from isolated storage, and create / write a new one if it doesn't yet exist
-                    Guid id = StorageHelper.ReadSystemEntityID(SystemEntities.ClientSettings);
-                    if (id == Guid.Empty)
-                    {
-                        id = Guid.NewGuid();
-                        StorageHelper.WriteSystemEntityID(SystemEntities.ClientSettings, id);
-                    }
+                    // folder got corrupted - create a new one and signify a client-only ClientSettings via Guid.Empty
                     clientSettings = new Folder()
                     {
-                        ID = id,
+                        ID = Guid.Empty,
                         SortOrder = 0,
                         Name = SystemEntities.ClientSettings,
                         ItemTypeID = SystemItemTypes.NameValue,
@@ -490,9 +484,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         public event SyncCompleteEventHandler SyncComplete;
         public object SyncCompleteArg { get; set; }
 
-#endregion
+        #endregion Databound Properties
 
-#region // Public Methods
+        #region Public Methods
 
         public void EraseAllData()
         {
@@ -505,6 +499,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             StorageHelper.WriteFolders(null);
             StorageHelper.WriteUserCredentials(null);
             RequestQueue.DeleteQueue(RequestQueue.UserQueue);
+            RequestQueue.DeleteQueue(RequestQueue.SystemQueue);
 
             IsDataLoaded = false;
             LastNetworkOperationStatus = false;
@@ -544,6 +539,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         public ClientEntity GetDefaultList(Guid itemType)
         {
             Item reference = ListMetadataHelper.GetDefaultList(ClientSettings, itemType);
+            if (reference == null)
+                return null;
             var entityTypeFV = reference.GetFieldValue(FieldNames.EntityType);
             if (entityTypeFV == null || entityTypeFV.Value == null)
                 return null;
@@ -563,9 +560,45 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     var list = Items.FirstOrDefault(i => i.ID == id);
                     if (list == null)
                         return folders.FirstOrDefault(f => f.ItemTypeID == itemType);
-                    return null;
+                    return list;
             }
             return null;
+        }
+
+        public List<Item> GetListsOrderedBySelectedCount()
+        {
+            var lists = ListMetadataHelper.GetListsOrderedBySelectedCount(ClientSettings);
+
+            // if there are no lists with a selected count, create one for each default list
+            if (lists.Count == 0)
+            {
+                // give the task and shopping item lists a count of 2
+                var task = GetDefaultList(SystemItemTypes.Task);
+                if (task != null)
+                {
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
+                }
+                var shopping = GetDefaultList(SystemItemTypes.ShoppingItem);
+                if (shopping != null)
+                {
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, shopping);
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, shopping);
+                }
+
+                // give the contact and location lists a count of 1
+                var contact = GetDefaultList(SystemItemTypes.Contact);
+                if (contact != null)
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, contact);
+                var location = GetDefaultList(SystemItemTypes.Location);
+                if (location != null)
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, location);
+
+                // re-retrieve selected count lists
+                lists = ListMetadataHelper.GetListsOrderedBySelectedCount(ClientSettings);
+            }
+
+            return lists;
         }
 
         public void GetUserData()
@@ -869,9 +902,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-#endregion
+        #endregion Public Methods
 
-#region // Callbacks 
+        #region Callbacks 
 
         public delegate void GetConstantsCallbackDelegate(Constants constants);
         private void GetConstantsCallback(Constants constants)
@@ -966,7 +999,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 }
 
                 // store the $ClientSettings folder
-                ClientSettings = csf;
+                if (csf != null)
+                    ClientSettings = csf;
+
+                // prepare the system queue for playing (this will replace any guids that came from the service)
+                RequestQueue.PrepareSystemQueueForPlaying();
 
                 // play the system queue
                 PlayQueue(RequestQueue.SystemQueue);
@@ -1086,9 +1123,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             SyncWithService();
         }
                 
-#endregion
+        #endregion Callbacks
 
-#region // Helpers
+        #region Helpers
 
         private Constants InitializeConstants()
         {
@@ -1141,6 +1178,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             ClientSettings = csf;
 
             // initialize the SelectedCount for a few default folders and lists
+            /*
             foreach (var folder in folders)
             {
                 if (folder.Name == UserEntities.People ||
@@ -1159,10 +1197,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     }
                 }                
             }
+            */
 
             return folders;
         }
 
-#endregion
+        #endregion Helpers
     }
 }

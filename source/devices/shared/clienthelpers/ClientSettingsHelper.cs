@@ -145,11 +145,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 phoneSettings = clientSettings.Items.Single(i => i.Name == SystemEntities.PhoneSettings);
             else
             {
-                Guid id = StorageHelper.ReadSystemEntityID(SystemEntities.PhoneSettings);
                 DateTime now = DateTime.UtcNow;
                 phoneSettings = new Item()
                 {
-                    ID = id,
                     Name = SystemEntities.PhoneSettings,
                     FolderID = clientSettings.ID,
                     ItemTypeID = SystemItemTypes.NameValue,
@@ -163,7 +161,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 StorageHelper.WriteClientSettings(clientSettings);
 
                 // queue up a server request
-                if (id != Guid.Empty && clientSettings.ID != Guid.Empty)
+                if (clientSettings.ID != Guid.Empty)
                 {
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {

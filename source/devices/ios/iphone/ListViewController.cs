@@ -188,44 +188,44 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             switch (OrderBy)
             {
                 case FieldNames.DueDate:
-                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.DueSort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Priority:
-                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenByDescending(t => t.PrioritySort).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Name:
-                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Address:
-                    //sorted = sorted.OrderBy(t => t.Address).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Address).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Address).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Phone:
-                    //sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Phone).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Email:
-                    //sorted = sorted.OrderBy(t => t.Email).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Email).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Email).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Complete:
-                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case FieldNames.Category:
-                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => !t.IsList).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.Complete).ThenBy(t => t.Category).ThenBy(t => t.Name).ToObservableCollection();
                     break;
                 case null:
-                    //sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
                     break;
                 default:
-                    //sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
-                    sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
+                    sorted = sorted.OrderBy(t => t.SortOrder).ThenBy(t => !t.IsList).ToObservableCollection();
+                    //sorted = sorted.OrderBy(t => t.SortOrder).ToObservableCollection();
                     break;
             }
 
@@ -361,7 +361,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         OrderBy);
         
                     // sync with the service
-                    App.ViewModel.SyncWithService();
+                    // (do not sync for operations against $ClientSettings)
+                    //App.ViewModel.SyncWithService();
 
                     // return to parent
                     dvc.NavigationController.PopViewControllerAnimated(true);
@@ -381,7 +382,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         null);
         
                     // sync with the service
-                    App.ViewModel.SyncWithService();                            
+                    // (do not sync for operations against $ClientSettings)
+                    //App.ViewModel.SyncWithService();                            
 
                     // return to parent
                     dvc.NavigationController.PopViewControllerAnimated(true);

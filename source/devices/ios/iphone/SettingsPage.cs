@@ -158,7 +158,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						if (user.Password == null)
                             user.Password = pswd;
                         App.ViewModel.User = user;
-                        RequestQueue.PrepareQueueForAccountConnect(RequestQueue.UserQueue);
+                        RequestQueue.PrepareUserQueueForAccountConnect();
 	                    App.ViewModel.SyncWithService();
 	                    break;
 	                case HttpStatusCode.NotFound:

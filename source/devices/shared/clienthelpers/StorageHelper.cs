@@ -66,6 +66,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// </summary>
         public static void WriteClientSettings(Folder folder)
         {
+            // save all the system entity ID's
+            WriteSystemEntityID(SystemEntities.ClientSettings, folder.ID);
+            foreach (var item in folder.Items)
+            {
+                if (item == null)
+                    continue;
+                if (item.Name != SystemEntities.DefaultLists &&
+                    item.Name != SystemEntities.ListMetadata &&
+                    item.Name != SystemEntities.PhoneSettings)
+                    continue;
+                WriteSystemEntityID(item.Name, item.ID);
+            }
+
             // make a copy and do the write on the background thread
             var copy = new Folder(folder);
             ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.ClientSettings); });

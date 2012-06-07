@@ -348,9 +348,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         /// distinguish these folders from the ones that they already have in their existing account
         /// Also, remove any operations that have to do with the ClientSettings folder so that we don't have a duplicate
         /// </summary>
-        public static void PrepareQueueForAccountConnect(string queueName)
+        public static void PrepareUserQueueForAccountConnect()
         {
             bool deleteQueue = true;
+            string queueName = RequestQueue.UserQueue;
             var requests = GetAllRequestRecords(queueName);
             if (requests != null)
                 foreach (var r in requests)
@@ -366,9 +367,22 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 return;
             }
 
-            requests = new List<RequestRecord>();
-            DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
+            // append (Phone) to all user folders
+            foreach (var req in requests)
+            {
+                if (req.BodyTypeName == typeof(Folder).Name && req.ReqType == RequestRecord.RequestType.Insert)
+                {
+                    req.DeserializeBody();
+                    var folder = req.Body as Folder;
+                    if (folder != null)
+                    {
+                        folder.Name += " (Phone)";
+                        req.SerializeBody();
+                    }
+                }
+            }
 
+            DataContractJsonSerializer dc = new DataContractJsonSerializer(requests.GetType());
             using (IsolatedStorageFile file = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 lock (fileLocks[queueName])
@@ -377,53 +391,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     try
                     {
                         // if the file opens, read the contents 
-                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Open, file))
+                        using (IsolatedStorageFileStream stream = new IsolatedStorageFileStream(QueueFilename(queueName), FileMode.Truncate, file))
                         {
                             try
                             {
-                                // if the file opens, read the contents 
-                                requests = dc.ReadObject(stream) as List<RequestRecord>;
-
-                                // clean out records we don't want ($ClientSettings) and append (Phone) to all user folders
-                                foreach (var req in requests)
-                                {
-                                    Guid clientSettingsFolderID = Guid.Empty;
-                                    req.DeserializeBody();
-                                    req.IsDefaultObject = false;
-                                    
-                                    // append (Phone) to all folder names that contain user data
-                                    if (req.BodyTypeName == typeof(Folder).Name && req.ReqType == RequestRecord.RequestType.Insert)
-                                    {
-                                        var folder = req.Body as Folder;
-                                        if (folder != null)
-                                        {
-                                            // if this is the $ClientSettings folder, mark it and save the ID
-                                            if (folder.Name == SystemEntities.ClientSettings)
-                                            {
-                                                req.IsDefaultObject = true;
-                                                clientSettingsFolderID = req.ID;
-                                            }
-                                            else
-                                            {
-                                                folder.Name += " (Phone)";
-                                                req.SerializeBody();
-                                            }
-                                        }
-                                    }
-
-                                    // get the folder for the current request and mark the request if it is in the ClientSettings folder
-                                    Guid folderID = GetFolderID(req);
-                                    if (folderID == clientSettingsFolderID)
-                                        req.IsDefaultObject = true;
-                                }
-
-                                // loop through all the requests again and remove the ones that are marked as belonging in the ClientSettings folder
-                                foreach (var req in requests.ToList())
-                                    if (req.IsDefaultObject)
-                                        requests.Remove(req);
-
-                                // reset the stream and rewrite the request queue file
-                                stream.Position = 0;
                                 dc.WriteObject(stream, requests);
                             }
                             catch (Exception ex)
@@ -441,6 +412,67 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     }
                 }
             }
+        }
+
+        public static void PrepareSystemQueueForPlaying()
+        {
+            bool deleteQueue = false;
+            var requests = GetAllRequestRecords(RequestQueue.SystemQueue);
+            if (requests == null)
+                return;
+
+            // check the queue for inconsistency with server data
+            foreach (var req in requests)
+            {
+                req.DeserializeBody();
+
+                // handle ClientSettings folder itself
+                if (req.BodyTypeName == typeof(Folder).Name)
+                {
+                    // compare the folder ID to the client settings folder ID, and if not the same, mark the queue for deletion
+                    var folder = req.Body as Folder;
+                    if (folder != null && folder.Name == SystemEntities.ClientSettings)
+                    {
+                        Guid clientSettingsFolderID = StorageHelper.ReadSystemEntityID(SystemEntities.ClientSettings);
+                        if (folder.ID != clientSettingsFolderID)
+                        {
+                            deleteQueue = true;
+                            break;
+                        }
+                    }
+                }
+
+                // handle the various system items
+                if (req.BodyTypeName == typeof(Item).Name)
+                {
+                    var item = req.Body as Item;
+                    if (item == null)
+                        continue;
+
+                    // if any of the system items have an empty folderID, mark the queue for deletion
+                    if (item.FolderID == Guid.Empty)
+                    {
+                        deleteQueue = true;
+                        break;
+                    }
+
+                    // if any of the known system items have an ID mismatch, mark the queue for deletion
+                    if (item.Name == SystemEntities.DefaultLists ||
+                        item.Name == SystemEntities.ListMetadata ||
+                        item.Name == SystemEntities.PhoneSettings)
+                    {
+                        Guid id = StorageHelper.ReadSystemEntityID(item.Name);
+                        if (item.ID != id)
+                        {
+                            deleteQueue = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (deleteQueue)
+                DeleteQueue(RequestQueue.SystemQueue);
         }
 
         /// <summary>

@@ -76,7 +76,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     {
                         Font = UIFont.FromName("Helvetica", UIFont.SmallSystemFontSize),
                     };
-                    userQueue.Add (sse);
+                    systemQueue.Add (sse);
                 }
             }
 
