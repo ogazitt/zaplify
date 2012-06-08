@@ -579,11 +579,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
                     ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
                 }
-                var shopping = GetDefaultList(SystemItemTypes.ShoppingItem);
-                if (shopping != null)
+                var grocery = GetDefaultList(SystemItemTypes.Grocery);
+                if (grocery != null)
                 {
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, shopping);
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, shopping);
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, grocery);
+                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, grocery);
                 }
 
                 // give the contact and location lists a count of 1

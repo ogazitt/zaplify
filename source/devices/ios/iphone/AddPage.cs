@@ -218,7 +218,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             ItemType itemType = App.ViewModel.ItemTypes.Single(it => it.ID == itemTypeID);
             
             // special case grocery items - split the name by comma and add a new grocery item for each string
-            if (itemTypeID == SystemItemTypes.ShoppingItem)
+            if (itemTypeID == SystemItemTypes.Grocery)
                 foreach (var si in name.Split(','))
                     CreateItem(si.Trim(), folder, itemType, parentID);
             else
