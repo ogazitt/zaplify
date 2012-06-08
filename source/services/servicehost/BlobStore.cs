@@ -91,7 +91,7 @@
                 if (created == true)
                     TraceLog.TraceInfo("BlobStore.WriteBlobData: created container " + containerName);
 
-                var blob = TraceContainer.GetBlobReference(filename);
+                var blob = container.GetBlobReference(filename);
                 blob.UploadText(data);
                 TraceLog.TraceInfo(String.Format("BlobStore.WriteBlobData: added file {0} to container {1}", filename, containerName));
             }
