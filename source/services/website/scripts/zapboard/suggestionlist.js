@@ -50,8 +50,11 @@ SuggestionList.prototype.renderSuggestions = function ($group, group) {
     for (var id in suggestions) {
         var suggestion = suggestions[id];
         if (suggestion.SuggestionType == SuggestionTypes.ChooseManyWithChildren) {
-            $dropdown = $('<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b>&nbsp;&nbsp;' + suggestion.DisplayName + '</a></li>').appendTo($group);
-            this.renderChildSuggestions($dropdown, suggestion);
+            // only display if children are present
+            if (ItemMap.count(suggestion.Suggestions) > 0) {
+                $dropdown = $('<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b>&nbsp;&nbsp;' + suggestion.DisplayName + '</a></li>').appendTo($group);
+                this.renderChildSuggestions($dropdown, suggestion);
+            }
         } else {
             this.renderSuggestion($group, suggestion);
         }

@@ -608,9 +608,9 @@ Control.LinkArray.update = function Control$LinkArray$update($input) {
 
 // return an element that is an icon for deleting an link in the array
 Control.LinkArray.deleteBtn = function Control$Icons$deleteBtn(index) {
-    var $icon = $('<i class="icon-ban-circle"></i>');
+    var $icon = $('<i class="icon-remove-circle"></i>');
     $icon.css('cursor', 'pointer');
-    $icon.attr('title', 'Remove').tooltip(Control.noDelay);
+    $icon.attr('title', 'Remove Link').tooltip(Control.noDelay);
     $icon.data('index', index);
     $icon.bind('click', function () {
         var $this = $(this);

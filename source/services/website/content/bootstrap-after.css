@@ -102,6 +102,13 @@ textarea.ie-placeholder, input[type="text"].ie-placeholder, input[type="text"].p
 .link-array a.icon { margin: 0; }
 .link-array input { margin-bottom: 2px; }
 
+/* busy animation for suggestions pane */
+.busy {
+    display: none; position:absolute; top: 10px; right: 92px; width: 16px; height: 11px;
+    background: transparent url(images/busy.gif) no-repeat;
+    opacity:0.4; filter:alpha(opacity=40);
+}
+
 /*----------------------------------------------------------
 jquery-ui timepicker extension
 ----------------------------------------------------------*/
