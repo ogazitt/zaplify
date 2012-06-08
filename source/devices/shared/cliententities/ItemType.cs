@@ -59,21 +59,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
 
             // last resort
-            if (itemTypeID == SystemItemTypes.Task)
-                return "Task";
-            if (itemTypeID == SystemItemTypes.Location)
-                return "Location";
-            if (itemTypeID == SystemItemTypes.Contact)
-                return "Contact";
-            if (itemTypeID == SystemItemTypes.ListItem)
-                return "ListItem";
-            if (itemTypeID == SystemItemTypes.ShoppingItem)
-                return "ShoppingItem";
-            if (itemTypeID == SystemItemTypes.Reference)
-                return "Reference";
-            if (itemTypeID == SystemItemTypes.NameValue)
-                return "NameValue";
-            return null;
+            return SystemItemTypes.Names[itemTypeID];
         }
 
         private Guid id;

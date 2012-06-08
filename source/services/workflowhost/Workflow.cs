@@ -12,7 +12,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
     {
         public const string NewContact = "NewContact";
         public const string NewFolder = "NewFolder";
-        public const string NewShoppingItem = "NewShoppingItem";
+        public const string NewGrocery = "NewGrocery";
         public const string NewTask = "NewTask";
         public const string NewUser = "NewUser";
     }

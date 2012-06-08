@@ -306,11 +306,11 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             {
                 if (item.ItemTypeID == SystemItemTypes.Task)
                     StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewTask, item, null);
-                // the Contact and ShoppingItem new item processing happens in ItemProcessor now
+                // the Contact and Grocery new item processing happens in ItemProcessor now
                 //if (item.ItemTypeID == SystemItemTypes.Contact)
                 //    StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewContact, item, null);
-                //if (item.ItemTypeID == SystemItemTypes.ShoppingItem)
-                //    Workflow.StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewShoppingItem, item, null);
+                //if (item.ItemTypeID == SystemItemTypes.Grocery)
+                //    Workflow.StartWorkflow(userContext, suggestionsContext, WorkflowNames.NewGrocery, item, null);
             }
 
             if (folder != null)
