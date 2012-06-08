@@ -27,7 +27,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         {
             if (itemTypeID == SystemItemTypes.Contact)
                 return new ContactProcessor(userContext, currentUser);
-            if (itemTypeID == SystemItemTypes.GroceryItem)
+            if (itemTypeID == SystemItemTypes.Grocery)
                 return new GroceryItemProcessor(userContext, currentUser);
             if (itemTypeID == SystemItemTypes.Task)
                 return new TaskProcessor(userContext, currentUser);
@@ -402,7 +402,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         private FieldValue GetGroceryItemCategoryFieldValue(Item item, bool create = false)
         {
             // get the known grocery item list under the $User folder
-            var knownGroceryItems = userContext.GetOrCreateUserItemTypeList(currentUser, SystemItemTypes.GroceryItem);
+            var knownGroceryItems = userContext.GetOrCreateUserItemTypeList(currentUser, SystemItemTypes.Grocery);
             if (knownGroceryItems == null)
                 return null;
 
