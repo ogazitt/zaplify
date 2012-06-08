@@ -21,17 +21,17 @@
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
 <%  if (HostEnvironment.IsAzure && !HostEnvironment.IsAzureDevFabric) { %>
     <!-- use merged and minified scripts when deployed to Azure -->
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.generated.min.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/dashboard.generated.min.js") %>"></script>
 <%  } else { %>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/folderlist.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/foldermanager.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/listeditor.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/itemeditor.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionlist.js") %>"></script>
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionmanager.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/controls.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/datamodel.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/dashboard.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/folderlist.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/foldermanager.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/listeditor.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/itemeditor.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/suggestionlist.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/dashboard/suggestionmanager.js") %>"></script>
 <%  } %>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>

@@ -217,21 +217,19 @@
     <Content Include="README.jQuery.vsdoc.txt" />
     <Content Include="scripts\bootstrap.js" />
     <Content Include="scripts\bootstrap.min.js" />
+    <Content Include="scripts\dashboard\dashboard.generated.min.js">
+      <DependentUpon>dashboard.js.chirp.config</DependentUpon>
+    </Content>
+    <Content Include="scripts\dashboard\dashboard.js" />
+    <Content Include="scripts\dashboard\dashboard.js.chirp.config" />
+    <Content Include="scripts\dashboard\datamodel.js" />
+    <Content Include="scripts\dashboard\itemeditor.js" />
+    <Content Include="scripts\dashboard\listeditor.js" />
     <Content Include="scripts\jquery-ui-1.8.16.bootstrap.min.js" />
     <Content Include="scripts\master.generated.min.js">
       <DependentUpon>master.js.chirp.config</DependentUpon>
     </Content>
     <Content Include="scripts\shared\math.uuid.js" />
-    <Content Include="scripts\zapboard\controls.js" />
-    <Content Include="scripts\zapboard\itemeditor.js" />
-    <Content Include="scripts\zapboard\datamodel.js" />
-    <Content Include="scripts\zapboard\dashboard.js" />
-    <Content Include="scripts\zapboard\folderlist.js" />
-    <Content Include="scripts\zapboard\foldermanager.js" />
-    <Content Include="scripts\zapboard\listeditor.js" />
-    <Content Include="scripts\zapboard\suggestionlist.js" />
-    <Content Include="scripts\zapboard\suggestionmanager.js" />
-    <Content Include="scripts\dashboard\itemviewer.js" />
     <Content Include="scripts\dashboard\suggestionmanager.js" />
     <Content Include="scripts\dashboard\suggestionlist.js" />
     <Content Include="scripts\dashboard\foldermanager.js" />
@@ -247,10 +245,6 @@
     <Content Include="scripts\modernizr-2.0.6-development-only.js" />
     <Content Include="scripts\dashboard\controls.js" />
     <Content Include="scripts\shared\service.js" />
-    <Content Include="scripts\shared\datamodel.js" />
-    <Content Include="scripts\zapboard\zapboard.generated.min.js">
-      <DependentUpon>zapboard.js.chirp.config</DependentUpon>
-    </Content>
     <Content Include="startup\7z.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -363,7 +357,6 @@
     <Content Include="content\master.css.chirp.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="scripts\zapboard\zapboard.js.chirp.config" />
     <None Include="startup\Install.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -79,12 +79,12 @@ Dashboard.Close = function Dashboard$Close(event) {
 
 // event handler, do not reference 'this' to access static Dashboard
 Dashboard.ManageDataChange = function Dashboard$ManageDataChange(folderID, itemID) {
-    Dashboard.ManageFolder(folderID, itemID, true);
+    Dashboard.ManageFolder(folderID, itemID);
     Dashboard.folderList.render(Dashboard.$left, Dashboard.dataModel.Folders);
 }
 
 // event handler, do not reference 'this' to access static Dashboard
-Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID, excludeSuggestions) {
+Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID) {
     var item;
     var folder = (folderID != null) ? Dashboard.dataModel.Folders[folderID] : null;
     if (itemID == null) {
@@ -102,9 +102,8 @@ Dashboard.ManageFolder = function Dashboard$ManageFolder(folderID, itemID, exclu
         Dashboard.folderManager.selectItem(item);
     }
 
-    if (!Dashboard.resizing && !excludeSuggestions) {
-        // get suggestions for currently selected user, folder, or item
-        Dashboard.getSuggestions(folder, item);
+    if (!Dashboard.resizing) {
+        Dashboard.getSuggestions(folder, item);     // get suggestions for currently selected user, folder, or item
     }
 }
 
@@ -113,8 +112,8 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
     var refresh = Dashboard.suggestionManager.select(suggestion);
     if (refresh) {      // refresh more suggestions
         // check for more suggestions every 5 seconds for 20 seconds
-        $('.working').show();
-        Dashboard.suggestionList.hideGroup(suggestion.groupID);
+        Dashboard.suggestionList.hideGroup(suggestion.GroupID);
+        Dashboard.suggestionList.working(true);
         var nTries = 0;
         var checkPoint = new Date();
 
@@ -123,7 +122,7 @@ Dashboard.ManageChoice = function Dashboard$ManageChoice(suggestion) {
                 Dashboard.getSuggestions(Dashboard.folderManager.currentFolder, Dashboard.folderManager.currentItem);
                 setTimeout(checkForSuggestions, 5000);
             } else {
-                $('.working').hide();
+                Dashboard.suggestionList.working(false);
             }
         }
         checkForSuggestions();
@@ -200,12 +199,20 @@ Dashboard.resize = function Dashboard$resize() {
 
 Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
     if (item != null) {
-        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
+        if (item.hasOwnProperty('Created')) {
+            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, item);
+        } else {    // clear existing suggestions
+            Dashboard.renderSuggestions({});
+        }
     } else if (folder != null) {
-        this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
+        if (folder.hasOwnProperty('Created')) {
+            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
+        } else {    // clear existing suggestions
+            Dashboard.renderSuggestions({});
+        }
     } else {
-        this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
-    }
+        return this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
+    }   
 }
 
 Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) {
@@ -227,6 +234,6 @@ Dashboard.renderSuggestions = function Dashboard$renderSuggestions(suggestions) 
 
     Dashboard.suggestionList.render(Dashboard.$right, suggestions);
     if (suggestions['Group_0'] != null) {
-        $('.working').hide();
+        Dashboard.suggestionList.working(false);
     }
 }

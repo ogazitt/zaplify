@@ -31,6 +31,16 @@ SuggestionList.prototype.fireSelectionChanged = function (suggestion) {
     }
 }
 
+SuggestionList.prototype.working = function (on) {
+    if (this.$element != null) {
+        if (on == true) {
+            this.$element.prepend('<div class="working"><span /></div>');
+        } else {
+            this.$element.find('.working').remove();
+        }
+    }
+}
+
 SuggestionList.prototype.render = function ($element, groups) {
     this.groups = groups;
     this.$element = $element.empty();

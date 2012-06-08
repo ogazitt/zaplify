@@ -38,6 +38,14 @@ textarea.ie-placeholder, input[type="text"].ie-placeholder, input[type="text"].p
 .dashboard-right li.active { text-transform: uppercase; text-align: center; }
 .dashboard-right .dropdown-menu.pull-right { left: auto; right: 0; }
 
+/* busy animation for suggestions pane */
+.dashboard-right .working { text-align: center; width: 100%; }
+.dashboard-right .working span {
+    display: inline-block; width: 16px; height: 11px;
+    background: transparent url(images/busy.gif) no-repeat;
+    opacity:0.6; filter:alpha(opacity=60);
+}
+
 .dashboard-center { padding: 0; margin: 0; }
 .dashboard-center.well { padding: 8px; }
 
@@ -101,13 +109,6 @@ textarea.ie-placeholder, input[type="text"].ie-placeholder, input[type="text"].p
 .link-array a { font-size: 90%; margin: 0 24px 0 6px; }
 .link-array a.icon { margin: 0; }
 .link-array input { margin-bottom: 2px; }
-
-/* busy animation for suggestions pane */
-.busy {
-    display: none; position:absolute; top: 10px; right: 92px; width: 16px; height: 11px;
-    background: transparent url(images/busy.gif) no-repeat;
-    opacity:0.4; filter:alpha(opacity=40);
-}
 
 /*----------------------------------------------------------
 jquery-ui timepicker extension
