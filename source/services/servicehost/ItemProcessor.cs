@@ -74,14 +74,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 ProcessCreate(newItem);
                 return true;
             }
-            
+
+#if false            
+            // OBSOLETE! Stamping of CompletedOn field is done on each client to get proper timezone and immediate response
             // process CompletedOn field if newItem has a Complete field set true
             FieldValue complete = newItem.GetFieldValue(FieldNames.Complete);
             if (complete != null && complete.Value.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 FieldProcessor.ProcessUpdateCompletedOn(userContext, oldItem, newItem);
             }
-
+#endif
             return false;
         }
 
