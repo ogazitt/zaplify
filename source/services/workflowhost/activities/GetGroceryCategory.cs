@@ -23,7 +23,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    if (VerifyItemType(item, SystemItemTypes.ShoppingItem) == false)
+                    if (VerifyItemType(item, SystemItemTypes.Grocery) == false)
                         return Status.Error;
 
                     // set up the Supermarket API context

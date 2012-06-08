@@ -80,13 +80,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 });
 
             folder = App.ViewModel.Folders.Single(f => f.Name == "Lists");
-            groceryList = App.ViewModel.Items.Single(i => i.ItemTypeID == SystemItemTypes.ShoppingItem && i.IsList == true);
+            groceryList = App.ViewModel.Items.Single(i => i.ItemTypeID == SystemItemTypes.Grocery && i.IsList == true);
             // create a shopping item
             int index = 1;
             string[] names = { "Milk", "OJ", "Cereal", "Coffee", "Bread" };
             foreach (var name in names)
             {
-                folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = groceryList.ID, ItemTypeID = SystemItemTypes.ShoppingItem, SortOrder = (1000*index), Name = name });
+                folder.Items.Add(item = new Item() { FolderID = folder.ID, ParentID = groceryList.ID, ItemTypeID = SystemItemTypes.Grocery, SortOrder = (1000*index), Name = name });
 
                 // enqueue the Web Request Record
                 RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue,
