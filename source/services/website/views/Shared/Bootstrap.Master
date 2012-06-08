@@ -1,4 +1,5 @@
 ﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
+<%@ Import Namespace="BuiltSteady.Zaplify.ServiceHost" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -13,16 +14,17 @@
     %>
     <link href="<%: Url.Content("~/content/master.generated.min.css") %>" rel="stylesheet" type="text/css" />
 
-    <!-- use merged and minified script when NOT debugging -->
+<%  if (HostEnvironment.IsAzure && !HostEnvironment.IsAzureDevFabric) { %>
+    <!-- use merged and minified scripts when deployed to Azure -->
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/master.generated.min.js") %>"></script>
+<%  } else { %>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-1.7.1.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/jquery-ui-1.8.16.bootstrap.min.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery.validate.min.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/bootstrap.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/math.uuid.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/service.js") %>"></script>
-    <!--
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/master.generated.min.js") %>"></script>
-    -->
+<%  } %>
 
     <script type="text/javascript">
         // document ready handler

@@ -92,7 +92,7 @@ ItemEditor.prototype.renderNameField = function ($element) {
     field = fields[FieldNames.Name];
     if (this.item.ItemTypeID == ItemTypes.Location) {
         $field = Control.Text.renderInputAddress($controls, this.item, field);
-    } else if (this.item.ItemTypeID == ItemTypes.GroceryItem) {
+    } else if (this.item.ItemTypeID == ItemTypes.Grocery) {
         $field = Control.Text.renderInputGrocery($controls, this.item, field);
     } else {
         $field = Control.Text.renderInput($controls, this.item, field);

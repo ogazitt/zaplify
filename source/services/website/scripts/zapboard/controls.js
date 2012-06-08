@@ -125,7 +125,7 @@ Control.Icons.forItemType = function Control$Icons$forItemType(item) {
         case ItemTypes.Location:
             $icon.addClass('icon-map-marker');
             break;
-        case ItemTypes.GroceryItem:
+        case ItemTypes.Grocery:
             $icon.addClass('icon-shopping-cart');
             break;
         case ItemTypes.ShoppingItem:
@@ -242,7 +242,7 @@ Control.Text.renderInputNew = function Control$Text$renderInput($element, item, 
     } else if (item.ItemTypeID == ItemTypes.Contact) {
         Control.Text.autoCompleteContact($text, Control.Text.insert);
         Control.Text.placeholder($text, 'Enter a contact');
-    } else if (item.ItemTypeID == ItemTypes.GroceryItem) {
+    } else if (item.ItemTypeID == ItemTypes.Grocery) {
         Control.Text.autoCompleteGrocery($text, Control.Text.insert);
         Control.Text.placeholder($text, 'Enter an item');
     } else if (item.ItemTypeID == ItemTypes.Task) {
@@ -405,8 +405,8 @@ Control.Text.insert = function Control$Text$insert($input) {
                 }
             }
         }
-        if (item.ItemTypeID == ItemTypes.GroceryItem) {
-            // autocomplete for new GroceryItems
+        if (item.ItemTypeID == ItemTypes.Grocery) {
+            // autocomplete for new Grocery
             var grocery = $input.data('grocery');
             if (grocery != null) {
                 Control.Text.applyGrocery(item, grocery);

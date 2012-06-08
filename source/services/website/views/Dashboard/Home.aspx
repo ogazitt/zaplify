@@ -1,5 +1,6 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Bootstrap.Master" Inherits="System.Web.Mvc.ViewPage<UserDataModel>" %>
 <%@ Import Namespace="System.Web" %>
+<%@ Import Namespace="BuiltSteady.Zaplify.ServiceHost" %>
 <%@ Import Namespace="BuiltSteady.Zaplify.Website.Models" %>
 
 <asp:Content ContentPlaceHolderID="MasterHead" runat="server">
@@ -18,7 +19,10 @@
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
-    <!-- use merged and minified script when NOT debugging -->
+<%  if (HostEnvironment.IsAzure && !HostEnvironment.IsAzureDevFabric) { %>
+    <!-- use merged and minified scripts when deployed to Azure -->
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.generated.min.js") %>"></script>
+<%  } else { %>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/controls.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/datamodel.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/dashboard.js") %>"></script>
@@ -28,12 +32,10 @@
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/itemeditor.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionlist.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/suggestionmanager.js") %>"></script>
-    <!--
-    <script type="text/javascript" src="<%: Url.Content("~/scripts/zapboard/zapboard.generated.min.js") %>"></script>
-    -->
+<%  } %>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-timepicker.js") %>"></script>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
-    
+
 <%
     string jsonConstants = Ajax.JavaScriptStringEncode(ConstantsModel.JsonConstants);
     string jsonUserData = Ajax.JavaScriptStringEncode(Model.JsonUserData);
