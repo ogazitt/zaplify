@@ -178,6 +178,7 @@ DataModel.InsertItem = function DataModel$InsertItem(newItem, containerItem, adj
 
         // add to local DataModel immediately (fire datachanged)
         if (newItem.ID == null) { newItem.ID = Math.uuid(); }           // assign ID if not defined
+        delete newItem['Created'];                                      // remove Created field
         if (containerItem == null) {                                    // add new Folder
             newItem = DataModel.addFolder(newItem, activeItem);
         } else {                                                        // add new Item to container
