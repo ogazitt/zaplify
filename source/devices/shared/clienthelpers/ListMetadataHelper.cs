@@ -162,52 +162,50 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         public static Item GetDefaultList(Folder clientSettings, Guid itemType)
         {
-            var defaultLists = GetDefaultListsItem(clientSettings);
+            var defaultLists = GetDefaultListsList(clientSettings);
             if (defaultLists == null) 
                 return null;
+
             return clientSettings.Items.FirstOrDefault(
-                i => i.ParentID == defaultLists.ID && 
-                i.FieldValues.Any(f => f.FieldName == FieldNames.Value && f.Value == itemType.ToString()));
+                    i => i.ParentID == defaultLists.ID &&
+                    i.FieldValues.Any(f => f.FieldName == FieldNames.Value && f.Value == itemType.ToString()));
         }
 
         #region Helpers
 
-        private static Item GetDefaultListsItem(Folder clientSettings)
+        private static Item GetDefaultListsList(Folder clientSettings)
         {
-            if (clientSettings == null)
-                return null;
-
-            // get the list of list sort orders
-            Item defaultLists = null;
-            if (clientSettings.Items.Any(i => i.Name == SystemEntities.DefaultLists))
-                defaultLists = clientSettings.Items.Single(i => i.Name == SystemEntities.DefaultLists);
-
-            return defaultLists;
+            return GetClientSettingsList(clientSettings, SystemEntities.DefaultLists, SystemItemTypes.NameValue);
         }
 
         private static Item GetListMetadataList(Folder clientSettings)
         {
+            return GetClientSettingsList(clientSettings, SystemEntities.ListMetadata, SystemItemTypes.Reference);
+        }
+
+        private static Item GetClientSettingsList(Folder clientSettings, string name, Guid itemType)
+        {
             if (clientSettings == null)
                 return null;
 
-            // get the list of list metadata
-            Item listsMetadata = null;
-            if (clientSettings.Items.Any(i => i.Name == SystemEntities.ListMetadata))
-                listsMetadata = clientSettings.Items.Single(i => i.Name == SystemEntities.ListMetadata);
+            // get the list item 
+            Item listItem = null;
+            if (clientSettings.Items.Any(i => i.Name == name && i.ParentID == null))
+                listItem = clientSettings.Items.Single(i => i.Name == name && i.ParentID == null);
             else
             {
                 DateTime now = DateTime.UtcNow;
-                listsMetadata = new Item()
+                listItem = new Item()
                 {
                     Name = SystemEntities.ListMetadata,
                     FolderID = clientSettings.ID,
                     IsList = true,
-                    ItemTypeID = SystemItemTypes.Reference,
+                    ItemTypeID = itemType,
                     Items = new ObservableCollection<Item>(),
                     Created = now,
                     LastModified = now
                 };
-                clientSettings.Items.Add(listsMetadata);
+                clientSettings.Items.Add(listItem);
 
                 // store the client settings
                 StorageHelper.WriteClientSettings(clientSettings);
@@ -218,14 +216,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {
                         ReqType = RequestQueue.RequestRecord.RequestType.Insert,
-                        Body = listsMetadata,
-                        ID = listsMetadata.ID,
+                        Body = listItem,
+                        ID = listItem.ID,
                         IsDefaultObject = true
                     });
                 }
             }
 
-            return listsMetadata;
+            return listItem;
         }
 
         #endregion Helpers

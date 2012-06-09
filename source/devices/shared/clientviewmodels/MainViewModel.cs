@@ -540,13 +540,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             Item reference = ListMetadataHelper.GetDefaultList(ClientSettings, itemType);
             if (reference == null)
-                return null;
+                return Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
             var entityTypeFV = reference.GetFieldValue(FieldNames.EntityType);
             if (entityTypeFV == null || entityTypeFV.Value == null)
-                return null;
+                return Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
             var entityRefFV = reference.GetFieldValue(FieldNames.EntityRef);
             if (entityRefFV == null || entityRefFV.Value == null)
-                return null;
+                return Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
             string type = entityTypeFV.Value;
             Guid id = new Guid(entityRefFV.Value);
             switch (type)
@@ -554,12 +554,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 case EntityTypes.Folder:
                     var folder = Folders.FirstOrDefault(f => f.ID == id);
                     if (folder == null)
-                        folder = folders.FirstOrDefault(f => f.ItemTypeID == itemType);
+                        folder = Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
                     return folder;
                 case EntityTypes.Item:
                     var list = Items.FirstOrDefault(i => i.ID == id);
                     if (list == null)
-                        return folders.FirstOrDefault(f => f.ItemTypeID == itemType);
+                        return Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
                     return list;
             }
             return null;
