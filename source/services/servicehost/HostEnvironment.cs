@@ -121,7 +121,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     {   // use local hostname if not defined in configuration
                         if (HttpContext.Current != null && HttpContext.Current.Request != null)
                         {
-                            Uri requestUri = HttpContext.Current.Request.UrlReferrer;
+                            Uri requestUri = HttpContext.Current.Request.Url;
                             if (requestUri != null)
                             {
                                 dataServicesEndpoint = String.Format("{0}://{1}/", requestUri.Scheme, requestUri.Authority);
