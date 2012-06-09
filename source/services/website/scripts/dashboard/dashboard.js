@@ -205,7 +205,7 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
             Dashboard.renderSuggestions({});
         }
     } else if (folder != null) {
-        if (folder.hasOwnProperty('Created')) {
+        if (folder.hasOwnProperty('Items')) {
             this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
         } else {    // clear existing suggestions
             Dashboard.renderSuggestions({});
