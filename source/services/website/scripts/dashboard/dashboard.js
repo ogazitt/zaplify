@@ -199,8 +199,8 @@ Dashboard.resize = function Dashboard$resize() {
 }
 
 Dashboard.alertStatus = function Dashboard$alertStatus(status) {
+    var message, header;
     if (status != null && status.length > 0) {
-        var message, header;
         switch (status) {
             case "FBConsentSuccess":
                 header = "Success!";
@@ -228,6 +228,10 @@ Dashboard.alertStatus = function Dashboard$alertStatus(status) {
                 break;
         }
         if (message != null) { Control.alert(message, header); }
+    } else if (Browser.IsMSIE() && Browser.MSIE_Version() < 9) {
+        header = "We're Sorry!";
+        message = "This application currently requires an HTML5-compatible browser. We encourage you to try using the application with the latest version of Internet Explorer, Chrome, or FireFox.<br/>Thank you";
+        Control.alert(message, header);
     }
 }
 

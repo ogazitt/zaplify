@@ -21,6 +21,7 @@
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-1.7.1.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery-ui-1.8.16.bootstrap.min.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/jquery.validate.js") %>"></script>
+    <script type="text/javascript" src="<%: Url.Content("~/scripts/json2.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/bootstrap.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/math.uuid.js") %>"></script>
     <script type="text/javascript" src="<%: Url.Content("~/scripts/shared/service.js") %>"></script>

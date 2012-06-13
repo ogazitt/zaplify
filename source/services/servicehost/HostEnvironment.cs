@@ -3,10 +3,14 @@ namespace BuiltSteady.Zaplify.ServiceHost
     using System;
     using System.Globalization;
     using System.IO;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Web;
     // avoid loading Azure assemblies unless running in Azure
     using Azure = Microsoft.WindowsAzure;
+
+    using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     public static class HostEnvironment
     {
@@ -60,6 +64,40 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 }
                 return isAzureDevFabric.Value;
             }
+        }
+
+        static string versionCheckStatus = null;
+        public static bool DataVersionCheck(out string status)
+        {
+            if (versionCheckStatus == null)
+            {
+                versionCheckStatus = string.Empty;
+                UserStorageContext userStorage = Storage.NewUserContext;
+                var dbSchemaVersion = userStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Schema);
+                var dbConstantsVersion = userStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Constants);
+                if (dbSchemaVersion.VersionString != UserConstants.SchemaVersion)
+                {
+                    versionCheckStatus += string.Format("UserSchema version mismatch: Code='{0}' Database='{1}' <br/>", UserConstants.SchemaVersion, dbSchemaVersion.VersionString);
+                }
+                if (dbConstantsVersion.VersionString != UserConstants.ConstantsVersion)
+                {
+                    versionCheckStatus += string.Format("UserConstants version mismatch: Code='{0}' Database='{1}' <br/>", UserConstants.ConstantsVersion, dbConstantsVersion.VersionString);
+                }
+
+                SuggestionsStorageContext workflowStorage = Storage.NewSuggestionsContext;
+                dbSchemaVersion = workflowStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Schema);
+                dbConstantsVersion = workflowStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Constants);
+                if (dbSchemaVersion.VersionString != WorkflowConstants.SchemaVersion)
+                {
+                    versionCheckStatus += string.Format("WorkflowSchema version mismatch: Code='{0}' Database='{1}' <br/>", WorkflowConstants.SchemaVersion, dbSchemaVersion.VersionString);
+                }
+                if (dbConstantsVersion.VersionString != WorkflowConstants.ConstantsVersion)
+                {
+                    versionCheckStatus += string.Format("WorkflowConstants version mismatch: Code='{0}' Database='{1}' <br/>", WorkflowConstants.ConstantsVersion, dbConstantsVersion.VersionString);
+                }
+            }
+            status = versionCheckStatus;
+            return (versionCheckStatus.Length == 0);
         }
 
         public static string UserDataConnection
