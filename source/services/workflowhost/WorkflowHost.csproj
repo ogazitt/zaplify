@@ -71,6 +71,7 @@
     <Compile Include="activities\ConnectToFacebook.cs" />
     <Compile Include="activities\ConnectToActiveDirectory.cs" />
     <Compile Include="activities\AddContactToPossibleContacts.cs" />
+    <Compile Include="activities\ConnectToGoogle.cs" />
     <Compile Include="activities\GetGroceryCategory.cs" />
     <Compile Include="activities\GetContactInfoFromFacebook.cs" />
     <Compile Include="activities\ImportFromFacebook.cs" />
@@ -128,6 +129,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="workflows\NewUser.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="workflows\ConnectToGoogle.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

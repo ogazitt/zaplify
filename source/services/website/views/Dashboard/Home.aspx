@@ -16,6 +16,32 @@
             <div class="dashboard-right dashboard-list span3 well">&nbsp;</div>
         </div>
     </div>
+
+    <div id="modalMessage" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3></h3>        
+        </div>
+        <div class="modal-body">
+            <p></p>        
+        </div>        
+        <div class="modal-footer">
+            <a href="#" class="btn btn-primary" data-dismiss="modal">OK</a>      
+        </div>
+    </div>
+    <div id="modalPrompt" class="modal hide fade">
+        <div class="modal-header">
+            <h3></h3>        
+        </div>
+        <div class="modal-body">
+            <p></p>        
+        </div>        
+        <div class="modal-footer">
+            <a href="#" class="btn btn-primary">OK</a>      
+            <a href="#" class="btn btn-cancel">Cancel</a>  
+        </div>
+    </div>
+
 </asp:Content>
 
 <asp:Content ContentPlaceHolderID="ScriptBlock" runat="server">
@@ -40,12 +66,13 @@
     string jsonConstants = Ajax.JavaScriptStringEncode(ConstantsModel.JsonConstants);
     string jsonUserData = Ajax.JavaScriptStringEncode(Model.JsonUserData);
     string renewFBToken = (Model.RenewFBToken) ? "true" : "false";
+    string consentStatus = (Model.ConsentStatus == null) ? "" : Model.ConsentStatus;
 %>    
     <script type="text/javascript">
         // document ready handler
         $(function () {
             DataModel.Init('<%= jsonConstants %>', '<%= jsonUserData %>');
-            Dashboard.Init(DataModel, <%= renewFBToken %>);
+            Dashboard.Init(DataModel, <%= renewFBToken %>, '<%= consentStatus %>');
         });
     </script>
 </asp:Content>

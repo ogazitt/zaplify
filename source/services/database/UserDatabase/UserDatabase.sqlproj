@@ -159,27 +159,6 @@
     <Build Include="dbo.UserCredentials.Table.sql">
       <SubType>Code</SubType>
     </Build>
-    <None Include="Scripts\Post-Deployment\dbo.ActionTypes.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.Colors.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.Fields.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.ItemTypes.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.Permissions.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.Priorities.Table.sql">
-      <SubType>Code</SubType>
-    </None>
-    <None Include="Scripts\Post-Deployment\dbo.Users.Table.sql">
-      <SubType>Code</SubType>
-    </None>
     <Build Include="dbo.DatabaseVersions.Table.sql" />
   </ItemGroup>
   <ItemGroup>

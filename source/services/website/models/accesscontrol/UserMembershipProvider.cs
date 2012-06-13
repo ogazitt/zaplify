@@ -28,12 +28,12 @@
             {
                 UserStorageContext storage = Storage.NewUserContext;
                 User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username.ToLower());
-
+                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.PASSWORD);
                 // verify old password
-                if (IsValidPassword(user.UserCredentials[0], oldPassword))
+                if (IsValidPassword(cred, oldPassword))
                 {   // TODO: verify new password meets requirements
-                    user.UserCredentials[0].Password = HashPassword(newPassword, user.UserCredentials[0].PasswordSalt);
-                    user.UserCredentials[0].LastModified = DateTime.UtcNow;
+                    cred.AccessToken = HashPassword(newPassword, cred.RenewalToken);
+                    cred.LastModified = DateTime.UtcNow;
                     return (storage.SaveChanges() > 0);
                 }
             }
@@ -91,8 +91,9 @@
             UserCredential credentials = new UserCredential()
             {
                 UserID = user.ID,
-                Password = password,    
-                PasswordSalt = salt,
+                CredentialType = UserCredential.PASSWORD,
+                AccessToken = password,    
+                RenewalToken = salt,
                 LastModified = user.CreateDate
             };
             user.UserCredentials = new List<UserCredential>() { credentials };
@@ -254,8 +255,19 @@
 
         public override bool ValidateUser(string username, string password)
         {
-            User user = LookupUserByName(username, true);
-            return ((user != null) && IsValidPassword(user.UserCredentials[0], password));
+            UserStorageContext storage = Storage.NewUserContext;
+            User user = LookupUserByName(username, true, storage);
+            if (user != null)
+            {
+                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.PASSWORD);
+                if (IsValidPassword(cred, password))
+                {   // timestamp LastAccessed 
+                    cred.LastAccessed = DateTime.UtcNow;
+                    storage.SaveChanges();
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static User AsUser(MembershipUser mu)
@@ -282,11 +294,11 @@
                 user = LookupUserByName(user.Name, true);
 
                 // check expiration of facebook consent token, renew if expiring soon
-                UserCredential credential = user.UserCredentials[0];
-                if (credential.FBConsentToken != null &&
-                    credential.FBConsentTokenExpiration < (DateTime.UtcNow + TimeSpan.FromDays(7)))
+                if (user.UserCredentials.Any(uc => uc.CredentialType == UserCredential.FB_CONSENT))
                 {
-                    renewFBToken = true;
+                    UserCredential fbCred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.FB_CONSENT);
+                    renewFBToken = (fbCred.AccessToken != null &&
+                        fbCred.AccessTokenExpiration < (DateTime.UtcNow + TimeSpan.FromDays(7)));
                 }
             }
 
@@ -303,16 +315,25 @@
             return authCookie;
         }
 
-        static bool IsValidPassword(UserCredential credentials, string password)
-        {   // hash of given password should match stored hash  
-            string hash = HashPassword(password, credentials.PasswordSalt);
-            return credentials.Password.Equals(hash, StringComparison.Ordinal);
+        public static bool SaveCredential(string username, string credentialType, string accessToken, DateTime? expires, string renewalToken = null)
+        {
+            UserStorageContext storage = Storage.NewUserContext;
+            User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username);
+            bool exists = user.AddCredential(credentialType, accessToken, expires, renewalToken);
+            storage.SaveChanges();
+            return exists;
         }
 
-        static User LookupUserByName(string username, bool includeCredentials = false)
+        static bool IsValidPassword(UserCredential credentials, string password)
+        {   // hash of given password should match stored hash  
+            string hash = HashPassword(password, credentials.RenewalToken);
+            return credentials.AccessToken.Equals(hash, StringComparison.Ordinal);
+        }
+
+        static User LookupUserByName(string username, bool includeCredentials = false, UserStorageContext storage = null)
         {
             username = username.ToLower();
-            UserStorageContext storage = Storage.NewUserContext;
+            if (storage == null) { storage = Storage.NewUserContext; }
             if (storage.Users.Any<User>(u => u.Name == username))
             {
                 if (includeCredentials)

@@ -10,49 +10,40 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
 {
     public class FacebookHelper
     {
-        /// <summary>
-        /// Add facebook contact info into a contact Item
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="suggestionsContext"></param>
-        /// <param name="item"></param>
-        /// <returns>false if errors were encountered, otherwise true</returns>
         public static bool AddContactInfo(UserStorageContext userContext, Item item)
-        {
-            // if the contact has no facebook ID, there's nothing else to do
+        {  
             FieldValue fbfv = item.GetFieldValue(FieldNames.FacebookID);
             if (fbfv == null)
                 return true;
-
+            
             User user = userContext.CurrentUser(item);
             if (user == null)
                 return false;
 
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-            try
+            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            if (cred != null && cred.AccessToken != null)
             {
-                UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
-                fbApi.AccessToken = cred.FBConsentToken;
+                fbApi.AccessToken = cred.AccessToken;
             }
-            catch (Exception ex)
+            else
             {
-                TraceLog.TraceException("FacebookProcessor.GetContactInfo: could not find Facebook credential or consent token", ex);
+                TraceLog.TraceError(typeof(FacebookHelper), "AddContactInfo", "No Facebook access token available");
                 return false;
             }
 
-            // get or create an entityref in the entity ref list in the $User folder
+            // get or create an EntityRef in the $User/EntityRef list
             var entityRefItem = userContext.GetOrCreateEntityRef(user, item);
             if (entityRefItem == null)
             {
-                TraceLog.TraceError("FacebookProcessor.GetContactInfo: could not retrieve or create an entity ref for this contact");
+                TraceLog.TraceError(typeof(FacebookHelper), "AddContactInfo", "Could not retrieve or create an EntityRef for Contact");
                 return false;
             }
 
-            // get the contact's profile information from facebook
             try
-            {
-                // this is written as a foreach because the Query API returns an IEnumerable, but there is only one result
+            {   // get the Contact information from Facebook
+                // using foreach because the Query API returns an IEnumerable, but there is only one result
                 foreach (var contact in fbApi.Query(fbfv.Value, FBQueries.BasicInformation))
                 {
                     item.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbfv.Value);
@@ -67,50 +58,41 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("FacebookProcessor.GetContactInfo: could not save Facebook information to Contact", ex);
+                TraceLog.TraceException(typeof(FacebookHelper), "AddContactInfo" , "Could not save Facebook information for Contact", ex);
                 return false;
             }
 
             return true;
         }
 
-        /// <summary>
-        /// Get the user's basic information from Facebook
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="user"></param>
-        /// <returns>false if errors were encountered, otherwise true</returns>
         public static bool GetUserInfo(UserStorageContext userContext, User user)
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-
-            try
+            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            if (cred != null && cred.AccessToken != null)
             {
-                UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
-                fbApi.AccessToken = cred.FBConsentToken;
+                fbApi.AccessToken = cred.AccessToken;
             }
-            catch (Exception ex)
+            else
             {
-                TraceLog.TraceException("FacebookProcessor.GetUserInfo: could not find Facebook credential or consent token", ex);
+                TraceLog.TraceError(typeof(FacebookHelper), "GetUserInfo", "Facebook access token is not available");
                 return false;
             }
 
-            // get or create a entity ref item for the user in the $User folder
+            // get or create a EntityRef for the user in the $User folder
             var entityRefItem = userContext.GetOrCreateEntityRef(user, user);
             if (entityRefItem == null)
             {
-                TraceLog.TraceError("FacebookProcessor.GetUserInfo: could not retrieve or create a entity ref item for this user");
+                TraceLog.TraceError(typeof(FacebookHelper), "GetUserInfo" , "Could not retrieve or create a EntityRef item for User");
                 return false;
             }
 
-            // import information about the current user
             try
-            {
-                // this is written as a foreach because the Query API returns an IEnumerable, but there is only one result
+            {   // import information about the current user
+                // using foreach because the Query API returns an IEnumerable, but there is only one result
                 foreach (var userInfo in fbApi.Query("me", FBQueries.BasicInformation))
-                {
-                    // store the facebook ID
+                {   // store the facebook ID
                     var fbid = (string)userInfo[FBQueryResult.ID];
                     entityRefItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
                     // augment the sources field with Facebook as a source
@@ -132,37 +114,29 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                     var location = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
                     if (location != null)
                         entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
-                    TraceLog.TraceInfo("FacebookProcessor.GetUserInfo: added user birthday, gender, location");
+                    TraceLog.TraceInfo(typeof(FacebookHelper), "GetUserInfo", "Added birthday, gender, location for User");
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("FacebookProcessor.GetUserInfo: Facebook query for user's basic information failed", ex);
+                TraceLog.TraceException(typeof(FacebookHelper), "GetUserInfo", "Facebook query for basic User information failed", ex);
                 return false;
             }
-
             return true;
         }
 
-        /// <summary>
-        /// Import facebook friends as possible contacts
-        /// </summary>
-        /// <param name="userContext"></param>
-        /// <param name="user"></param>
-        /// <returns>false if errors were encountered, otherwise true</returns>
-        public static bool ImportFriendsAsPossibleContacts(UserStorageContext userContext, User user, Folder folder)
+        public static bool ImportFriendsAsPossibleContacts(UserStorageContext userContext, User user)
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-
-            try
+            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            if (cred != null && cred.AccessToken != null)
             {
-                UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
-                fbApi.AccessToken = cred.FBConsentToken;
+                fbApi.AccessToken = cred.AccessToken;
             }
-            catch (Exception ex)
+            else
             {
-                TraceLog.TraceException("FacebookProcessor.ImportFriendsAsPossibleContacts: could not find Facebook credential or consent token", ex);
+                TraceLog.TraceError(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Facebook access token is not available");
                 return false;
             }
 
@@ -170,11 +144,11 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
-                TraceLog.TraceError("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create the possible contacts list");
+                TraceLog.TraceError(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Could not retrieve or create the possible contacts list");
                 return false;
             }
 
-            // get the current list of all possible contacts for this user ($User/PossibleContacts)
+            // get the current list of all possible contacts for this user
             var currentPossibleContacts = userContext.Items.Include("FieldValues").Where(ps => ps.UserID == user.ID && ps.FolderID == possibleContactsList.FolderID &&
                 ps.ParentID == possibleContactsList.ID && ps.ItemTypeID == SystemItemTypes.NameValue &&
                 ps.FieldValues.Any(fv => fv.FieldName == FieldNames.FacebookID)).ToList();
@@ -183,7 +157,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             var currentContacts = userContext.Items.Include("FieldValues").
                         Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact).ToList();
 
-            // get all the user's friends and add them as serialized contacts to the $User/PossibleContacts list
+            // get all the user's friends and add them as serialized contacts to the possible contacts list
             float sort = 1f;
             DateTime now = DateTime.UtcNow;
             try
@@ -207,7 +181,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                         var fbFV = existingContact.GetFieldValue(FieldNames.FacebookID, true);
                         if (fbFV.Value == null)
                         {
-                            // contact by this name exists but facebook ID isn't set; assume this is a duplicate and set the FBID
+                            // contact with this name exists but no FacebookID, assume same and set the FacebookID
                             fbFV.Value = (string)friend[FBQueryResult.ID];
                             var sourcesFV = existingContact.GetFieldValue(FieldNames.Sources, true);
                             sourcesFV.Value = string.IsNullOrEmpty(sourcesFV.Value) ? Sources.Facebook : string.Concat(sourcesFV.Value, ",", Sources.Facebook);
@@ -215,35 +189,29 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                             break;
                         }
                         if (fbFV.Value == (string)friend[FBQueryResult.ID])
-                        {
-                            // this is definitely a duplicate - don't add it
+                        {   // FacebookIDs are same, definitely a duplicate, do not add
                             process = false;
                             break;
                         }
-                        // getting here means that a contact by this name was found but had a different FBID - so this new contact is unique
+                        // contact with same name was found but had a different FacebookID, add as a new contact
                     }
 
-                    // add the contact if it wasn't detected as a duplicate
+                    // add contact if not a duplicate
                     if (process)
                     {
                         var contact = new Item()
                         {
                             ID = Guid.NewGuid(),
                             Name = (string)friend[FBQueryResult.Name],
-                            ParentID = null,
                             UserID = user.ID,
-                            FolderID = folder.ID,
                             ItemTypeID = SystemItemTypes.Contact,
-                            SortOrder = sort++,
-                            Created = now,
-                            LastModified = now,
                             FieldValues = new List<FieldValue>(),
                         };
                         contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.FacebookID, Value = (string)friend[FBQueryResult.ID] });
                         contact.FieldValues.Add(new FieldValue() { ItemID = contact.ID, FieldName = FieldNames.Sources, Value = Sources.Facebook });
                         string jsonContact = JsonSerializer.Serialize(contact);
 
-                        // store the serialized contact in the value of a new NameValue item on the PossibleContacts list
+                        // store the serialized json contact in the value of a new NameValue item in possible contacts list
                         var nameValItem = new Item()
                         {
                             ID = Guid.NewGuid(),
@@ -257,24 +225,23 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                             FieldValues = new List<FieldValue>()
                         };
                         nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.Value, ItemID = nameValItem.ID, Value = jsonContact });
-                        // also add the FBID as a fieldvalue on the namevalue item which corresponds to the possible contact, for easier dup handling
+                        // add the FacebookID as a fieldvalue on the namevalue item which corresponds to the possible contact, for easier duplicate detection
                         nameValItem.FieldValues.Add(new FieldValue() { FieldName = FieldNames.FacebookID, ItemID = nameValItem.ID, Value = (string)friend[FBQueryResult.ID] });
 
-                        // add this new possible subject to the DB and to the working list of possible contacts
+                        // add new possible subject to the storage and to the working list of possible contacts
                         userContext.Items.Add(nameValItem);
                         currentPossibleContacts.Add(nameValItem);
                     }
                 }
 
                 userContext.SaveChanges();
-                TraceLog.TraceInfo(String.Format("FacebookProcessor.ImportFriendsAsPossibleContacts: added {0} possible contacts to $User.PossibleContacts", results.Count));
+                TraceLog.TraceInfo(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", String.Format("Added {0} possible contacts to $User.Contact list", results.Count));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("FacebookProcessor.ImportFriendsAsPossibleContacts: could not retrieve or create a new PossibleContact", ex);
+                TraceLog.TraceException(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Could not retrieve or create a new possible Contact", ex);
                 return false;
             }
-
             return true;
         }
     }

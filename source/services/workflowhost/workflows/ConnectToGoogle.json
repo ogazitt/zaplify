@@ -1,0 +1,6 @@
+﻿{
+	"States": 
+	[ 
+		{ "Name": "ConnectToGoogle", "Activity": "ConnectToGoogle", "NextState": null }
+	] 
+}

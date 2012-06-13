@@ -111,10 +111,20 @@
                 List<Suggestion> suggestions;
                 if (filter.FieldName == null)
                 {
-                    suggestions = this.SuggestionsStorageContext.Suggestions.
-                        Where(s => s.EntityID == filter.EntityID && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
-                        OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
-                        ToList<Suggestion>();
+                    if (filter.EntityType == EntityTypes.Folder)
+                    {   // include suggestions for BOTH Folder and User
+                        suggestions = this.SuggestionsStorageContext.Suggestions.
+                           Where(s => (s.EntityID == filter.EntityID || s.EntityID == this.CurrentUser.ID) && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
+                           OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
+                           ToList<Suggestion>();
+                    }
+                    else
+                    {
+                        suggestions = this.SuggestionsStorageContext.Suggestions.
+                            Where(s => s.EntityID == filter.EntityID && (s.ReasonSelected == null || s.ReasonSelected == Reasons.Like)).
+                            OrderBy(s => s.WorkflowInstanceID).OrderBy(s => s.GroupDisplayName).OrderBy(s => s.SortOrder).
+                            ToList<Suggestion>();
+                    }
                 }
                 else
                 {

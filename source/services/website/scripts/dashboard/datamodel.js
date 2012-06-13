@@ -1235,7 +1235,8 @@ var SuggestionTypes = {
     ChooseOneSubject: "ChooseOneSubject",
     ChooseMany: "ChooseMany",
     ChooseManyWithChildren: "ChooseManyWithChildren",
-    GetFBConsent: "GetFBConsent",  
+    GetFBConsent: "GetFBConsent",
+    GetGoogleConsent: "GetGoogleConsent",
     GetADConsent: "GetADConsent",
     NavigateLink: "NavigateLink",
     RefreshEntity: "RefreshEntity"

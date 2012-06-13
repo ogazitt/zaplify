@@ -89,19 +89,17 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 
             ADGraphAPI adApi = new ADGraphAPI();
             string adRefreshToken = null;
-            UserCredential creds = null;
+            //UserCredential creds = null;
 
-            // try to retrieve FB and/or AD credentials
-            try
-            {
-                creds = user.UserCredentials.Single(uc => uc.ADConsentToken != null || uc.FBConsentToken != null);
-                adApi.FacebookAccessToken = creds.FBConsentToken;
-                adRefreshToken = creds.ADConsentToken;
-            }
-            catch (Exception)
-            {
-                // the user not having either token isn't an error condition, but there's no way to generate suggestions,
-                // so we need to move forward from this state
+            // check for FB and/or AD credentials
+            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            if (cred != null && cred.AccessToken != null) { adApi.FacebookAccessToken = cred.AccessToken; }
+            cred = user.GetCredential(UserCredential.CLOUDAD_CONSENT);
+            if (cred != null && cred.RenewalToken != null) { adRefreshToken = cred.RenewalToken; }
+
+            if (adApi.FacebookAccessToken == null && adRefreshToken == null)
+            {   // user not having either token is not an error condition, but there is no way to generate suggestions
+                // just move forward from this state
                 return Status.Complete;
             }
 
@@ -124,19 +122,18 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     // workaround for ACS trashing the refresh token
                     if (!String.IsNullOrEmpty(authzResponse.RefreshToken))
                     {
-                        TraceLog.TraceInfo("GetPossibleSubjects.GenerateSuggestions: storing new refresh token");
-                        creds.ADConsentToken = authzResponse.RefreshToken;
-                        creds.LastModified = DateTime.UtcNow;
+                        TraceLog.TraceInfo(this.GetType(), "GenerateSuggestions", "Storing new CloudAD refresh token");
+                        user.AddCredential(UserCredential.CLOUDAD_CONSENT, authzResponse.AccessToken, null, authzResponse.RefreshToken);
                         UserContext.SaveChanges();
                     }
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("GenerateSuggestions: could not contact ACS to get an access token", ex);
+                    TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not contact ACS to get an access token", ex);
                     
-                    // if the FB credentials aren't available, there is nothing the Person service can do for us
+                    // Facebook credentials are not available
                     if (adApi.FacebookAccessToken == null)
-                        return Status.Pending;  // this could be a temporary outage, so don't move off this state
+                        return Status.Pending;  // could be a temporary outage, do not move off this state
                 }
             }
 
@@ -156,7 +153,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("GenerateSuggestions: could not initialize NLP engine", ex);
+                    TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not initialize NLP engine", ex);
                 }
             }
 
@@ -175,7 +172,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GenerateSuggestions: could not contact Person Service", ex);
+                TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not contact Person Service", ex);
                 return Status.Error;
             }
 

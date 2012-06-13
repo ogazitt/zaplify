@@ -41,12 +41,27 @@
     <Reference Include="Chirpy">
       <HintPath>..\..\packages\ChirpyDllOnly.2.0.0.4\lib\Chirpy.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetOpenAuth">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\DotNetOpenAuth.dll</HintPath>
+    </Reference>
     <Reference Include="EntityDataModel">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\EntityDataModel.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Authentication.OAuth2">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.Authentication.OAuth2.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Calendar.v3">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Services\CalendarService\Google.Apis.Calendar.v3.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationServer.Http">
       <HintPath>..\..\packages\WebApi.0.6.0\lib\40-Full\Microsoft.ApplicationServer.Http.dll</HintPath>
@@ -96,6 +111,9 @@
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json.Net35">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Newtonsoft.Json.Net35.dll</HintPath>
     </Reference>
     <Reference Include="NSpeex">
       <HintPath>..\..\packages\NSpeex.1.1\lib\NSpeex.dll</HintPath>
@@ -154,6 +172,7 @@
   <ItemGroup>
     <Compile Include="controllers\AccountController.cs" />
     <Compile Include="controllers\BaseController.cs" />
+    <Compile Include="controllers\OAuthConsentController.cs" />
     <Compile Include="controllers\GroceryController.cs" />
     <Compile Include="controllers\UserInfoController.cs" />
     <Compile Include="controllers\DashboardController.cs" />
@@ -226,6 +245,7 @@
     <Content Include="scripts\dashboard\itemeditor.js" />
     <Content Include="scripts\dashboard\listeditor.js" />
     <Content Include="scripts\jquery-ui-1.8.16.bootstrap.min.js" />
+    <Content Include="scripts\jquery.json-2.2.min.js" />
     <Content Include="scripts\master.generated.min.js">
       <DependentUpon>master.js.chirp.config</DependentUpon>
     </Content>

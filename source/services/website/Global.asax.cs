@@ -4,13 +4,16 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
-using BuiltSteady.Zaplify.ServerEntities;
-using BuiltSteady.Zaplify.ServiceHost;
-using BuiltSteady.Zaplify.Shared.Entities;
-using BuiltSteady.Zaplify.Website.Resources;
+
 using Microsoft.ApplicationServer.Http;
 using Microsoft.IdentityModel.Protocols.OAuth;
 using Microsoft.IdentityModel.Protocols.OAuth.Client;
+
+using BuiltSteady.Zaplify.ServerEntities;
+using BuiltSteady.Zaplify.ServiceHost;
+using BuiltSteady.Zaplify.Website.Models;
+using BuiltSteady.Zaplify.Website.Models.AccessControl;
+using BuiltSteady.Zaplify.Website.Resources;
 
 namespace BuiltSteady.Zaplify.Website
 {
@@ -160,81 +163,19 @@ namespace BuiltSteady.Zaplify.Website
                 UserStorageContext userStorage = Storage.NewUserContext;
                 try
                 {   // store token
-                    // TODO: encrypt token, store expiration
                     var userid = new Guid(tokenReceivedEventArgs.State);
                     user = userStorage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
-                    user.UserCredentials[0].ADConsentToken = refreshToken;
-                    user.UserCredentials[0].LastModified = DateTime.UtcNow;
+                    user.AddCredential(UserCredential.CLOUDAD_CONSENT, accessToken, null, refreshToken);
                     userStorage.SaveChanges();
                 }
                 catch (Exception ex) 
                 {
-                    TraceLog.TraceException("Failed to add AD credential to User", ex);
-                    // TODO: should probably return some error to the user
-                    tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                    TraceLog.TraceException("Failed to store CloudAD consent token for User", ex);
+                    tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home?consentStatus=" + UserDataModel.CloudADConsentFail, true);
                 }
-
-                try
-                {
-                    // find the People folder
-                    Folder peopleFolder = null;
-                    try
-                    {
-                        peopleFolder = userStorage.Folders.First(f => f.UserID == user.ID && f.ItemTypeID == SystemItemTypes.Contact);
-                        if (peopleFolder == null)
-                        {
-                            TraceLog.TraceError("Facebook Action: cannot find People folder");
-                            tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        TraceLog.TraceError("Facebook Action: cannot find People folder");
-                        tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
-                    }
-                    
-                    // timestamp suggestion
-                    SuggestionsStorageContext suggestionsContext = Storage.NewSuggestionsContext;
-                    Suggestion suggestion = suggestionsContext.Suggestions.Single<Suggestion>(s => s.EntityID == peopleFolder.ID && s.SuggestionType == SuggestionTypes.GetADConsent);
-                    Suggestion oldSuggestion = new Suggestion()
-                    {
-                        ID = suggestion.ID,
-                        DisplayName = suggestion.DisplayName,
-                        EntityID = suggestion.EntityID,
-                        EntityType = suggestion.EntityType,
-                        SuggestionType = suggestion.SuggestionType,
-                        GroupDisplayName = suggestion.GroupDisplayName,
-                        ParentID = suggestion.ParentID,
-                        ReasonSelected = suggestion.ReasonSelected,
-                        SortOrder = suggestion.SortOrder,
-                        State = suggestion.State,
-                        TimeSelected = suggestion.TimeSelected,
-                        Value = suggestion.Value,
-                        WorkflowInstanceID = suggestion.WorkflowInstanceID,
-                        WorkflowType = suggestion.WorkflowType
-                    };
-                    suggestion.TimeSelected = DateTime.UtcNow;
-                    suggestion.ReasonSelected = Reasons.Chosen;
-                    suggestionsContext.SaveChanges();
-
-                    // create an operation corresponding to choosing the Connect to AD suggestion
-                    var operation = userStorage.CreateOperation(user, "PUT", (int?)HttpStatusCode.Accepted, suggestion, oldSuggestion);
-                    if (operation == null)
-                    {
-                        TraceLog.TraceError("AD Access Token Received: failed to create operation");
-                        tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
-                    }
-
-                    // wake up the Connect to Active Directory workflow
-                    WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(userStorage, suggestionsContext, operation);
-                }
-                catch (Exception ex) 
-                {
-                    TraceLog.TraceException("Failed to update and timestamp suggestion or create operation", ex);
-                }
-                
+     
                 // redirect back to the dashboard
-                tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home", true);
+                tokenReceivedEventArgs.HttpContext.Response.Redirect("dashboard/home?consentStatus=" + UserDataModel.CloudADConsentSuccess, true);
             }
         }
     }

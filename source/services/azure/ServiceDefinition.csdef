@@ -14,6 +14,8 @@
       <Setting name="SQLSuggestions" />
       <Setting name="MailWorkerCount" />
       <Setting name="WorkflowWorkerCount" />
+      <Setting name="GoogleClientID" />
+      <Setting name="GoogleClientSecret" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
@@ -51,6 +53,8 @@
       <Setting name="DataServicesEndpoint"/>
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />
+      <Setting name="GoogleClientID" />
+      <Setting name="GoogleClientSecret" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">

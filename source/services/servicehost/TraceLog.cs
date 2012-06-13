@@ -29,6 +29,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
             TraceLine(msg, LogLevel.Detail);
         }
 
+        public static void TraceError(Type t, string method, string message)
+        {
+            TraceError(string.Format("{0}.{1}: {2}", t.Name, method, message));
+        }
+
         public static void TraceError(string message)
         {
             StackTrace st = new StackTrace(true);
@@ -38,6 +43,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 StackInfoText(),
                 message);
             TraceLine(msg, LogLevel.Error);
+        }
+
+        public static void TraceException(Type t, string method, string message, Exception ex)
+        {
+            TraceException(string.Format("{0}.{1}: {2}", t.Name, method, message), ex);
         }
 
         public static void TraceException(string message, Exception ex)
@@ -80,6 +90,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 "Entering {0}",
                 StackInfoText());
             TraceLine(msg, LogLevel.Detail);
+        }
+
+        public static void TraceInfo(Type t, string method, string message)
+        {
+            TraceInfo(string.Format("{0}.{1}: {2}", t.Name, method, message));
         }
 
         public static void TraceInfo(string message)
