@@ -46,7 +46,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                         }
                         catch (Exception ex)
                         {
-                            TraceLog.TraceException("WorkflowWorker: could not retrieve operation", ex);
+                            TraceLog.TraceException("Could not retrieve operation", ex);
 
                             // there are two possibilities - one is a transient issue with the database connection (e.g. DB wasn't initialized, or a weird race condition between 
                             // the DB value not getting stored before the workflow message gets dequeued).  in this case we let message expire and get dequeued again in the future.
@@ -79,7 +79,7 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("WorkflowWorker: message processing failed", ex);
+                    TraceLog.TraceException("Message processing failed", ex);
                 }
 
                 // sleep for the timeout period

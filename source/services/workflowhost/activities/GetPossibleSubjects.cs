@@ -26,7 +26,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("GetPossibleSubjects: non-Item passed in to Function");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error; 
                     }
 
@@ -76,14 +76,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Error;
             }
 
             User user = UserContext.CurrentUser(item);
             if (user == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
+                TraceLog.TraceError("Could not find the user associated with Item " + item.Name);
                 return Status.Error;
             }
 
@@ -92,9 +92,9 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             //UserCredential creds = null;
 
             // check for FB and/or AD credentials
-            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
             if (cred != null && cred.AccessToken != null) { adApi.FacebookAccessToken = cred.AccessToken; }
-            cred = user.GetCredential(UserCredential.CLOUDAD_CONSENT);
+            cred = user.GetCredential(UserCredential.CloudADConsent);
             if (cred != null && cred.RenewalToken != null) { adRefreshToken = cred.RenewalToken; }
 
             if (adApi.FacebookAccessToken == null && adRefreshToken == null)
@@ -122,14 +122,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     // workaround for ACS trashing the refresh token
                     if (!String.IsNullOrEmpty(authzResponse.RefreshToken))
                     {
-                        TraceLog.TraceInfo(this.GetType(), "GenerateSuggestions", "Storing new CloudAD refresh token");
-                        user.AddCredential(UserCredential.CLOUDAD_CONSENT, authzResponse.AccessToken, null, authzResponse.RefreshToken);
+                        TraceLog.TraceInfo("Storing new CloudAD refresh token");
+                        user.AddCredential(UserCredential.CloudADConsent, authzResponse.AccessToken, null, authzResponse.RefreshToken);
                         UserContext.SaveChanges();
                     }
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not contact ACS to get an access token", ex);
+                    TraceLog.TraceException("Could not contact ACS to get an access token", ex);
                     
                     // Facebook credentials are not available
                     if (adApi.FacebookAccessToken == null)
@@ -153,7 +153,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not initialize NLP engine", ex);
+                    TraceLog.TraceException("Could not initialize NLP engine", ex);
                 }
             }
 
@@ -172,7 +172,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(this.GetType(), "GenerateSuggestions", "Could not contact Person Service", ex);
+                TraceLog.TraceException("Could not contact Person Service", ex);
                 return Status.Error;
             }
 
@@ -211,7 +211,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("CreateContact: creating Contact sublist failed", ex);
+                    TraceLog.TraceException("Creating Contact sublist failed", ex);
                     return Status.Error;
                 }
             }
@@ -225,7 +225,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("CreateContact: deserializing contact failed", ex);
+                TraceLog.TraceException("Deserializing Contact failed", ex);
                 return Status.Error;                
             }
 
@@ -247,7 +247,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("CreateContact: update contact failed", ex);
+                    TraceLog.TraceException("Update Contact failed", ex);
                     return Status.Error;
                 }
             }
@@ -270,7 +270,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 User user = UserContext.CurrentUser(item);
                 if (user == null)
                 {
-                    TraceLog.TraceError("CreateContact: couldn't find the user associated with item " + item.Name);
+                    TraceLog.TraceError("Could not find the user associated with Item " + item.Name);
                     return Status.Error;
                 }
 
@@ -278,7 +278,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 var operation = UserContext.CreateOperation(user, "POST", (int?)System.Net.HttpStatusCode.Created, contact, null);
                 if (operation == null)
                 {
-                    TraceLog.TraceError("CreateContact: failed to create operation");
+                    TraceLog.TraceError("Failed to create operation");
                     return Status.Error;
                 }
 
@@ -311,7 +311,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("CreateContact: creating contact reference failed", ex);
+                TraceLog.TraceException("Creating Contact reference failed", ex);
                 return Status.Error;
             }
 

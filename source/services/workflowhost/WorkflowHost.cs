@@ -93,7 +93,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                         }
                         catch (Exception ex)
                         {
-                            TraceLog.TraceException("ExecuteWorkflows: could not find or deserialize workflow definition", ex);
+                            TraceLog.TraceException("Could not find or deserialize workflow definition", ex);
                             continue;
                         }
 
@@ -109,7 +109,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ExecuteWorkflows: failed", ex);
+                TraceLog.TraceException("ExecuteWorkflows failed", ex);
                 return true;
             }
             finally
@@ -212,14 +212,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                             operationType = "SUGGESTION";
                             break;
                         default:
-                            TraceLog.TraceError("WorkflowWorker: invalid Entity Type " + entityType);
+                            TraceLog.TraceError("Invalid Entity Type " + entityType);
                             process = false;
                             break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException(String.Format("WorkflowWorker: could not retrieve {0}", entityType), ex);
+                    TraceLog.TraceException(String.Format("Could not retrieve {0}", entityType), ex);
                     process = false;
                 }
             }
@@ -241,7 +241,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                     case "SUGGESTION":
                         return ExecuteWorkflows(userContext, suggestionsContext, entity);
                     default:
-                        TraceLog.TraceError("WorkflowWorker: invalid Operation Type " + operationType);
+                        TraceLog.TraceError("Invalid Operation Type " + operationType);
                         return true;
                 }
             }
@@ -387,7 +387,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("StartWorkflow: could not find or deserialize workflow definition", ex);
+                    TraceLog.TraceException("Could not find or deserialize workflow definition", ex);
                     return;
                 }
 
@@ -416,7 +416,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                 suggestionsContext.WorkflowInstances.Add(instance);
                 suggestionsContext.SaveChanges();
 
-                TraceLog.TraceInfo("Workflow.StartWorkflow: starting workflow " + type);
+                TraceLog.TraceInfo("Starting workflow " + type);
 
                 // invoke the workflow and process steps until workflow is blocked for user input or is done
                 workflow.Run(instance, entity);

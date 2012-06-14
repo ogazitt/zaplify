@@ -67,7 +67,7 @@
         {
             var current = Versions.Any(v => v.VersionType == DatabaseVersion.Schema && v.VersionString == WorkflowConstants.SchemaVersion);
             if (current == false)
-                TraceLog.TraceError(String.Format("SuggestionsStorageContext.CheckSchemaVersion: Suggestions database schema version {0} not found", WorkflowConstants.SchemaVersion));
+                TraceLog.TraceError(String.Format("Suggestions database schema version {0} not found", WorkflowConstants.SchemaVersion));
             return current;
         }
 
@@ -84,7 +84,7 @@
                 if (Versions.Any(v => v.VersionType == DatabaseVersion.Constants && v.VersionString == WorkflowConstants.ConstantsVersion) == false)
                 {
                     // no database - create and lock the new version entry
-                    TraceLog.TraceInfo(String.Format("SuggestionsStorageContext.VersionConstants: Suggestions database version {0} not found", WorkflowConstants.ConstantsVersion));
+                    TraceLog.TraceInfo(String.Format("Suggestions database version {0} not found", WorkflowConstants.ConstantsVersion));
 
                     // remove any existing database version (there should never be more than one...)
                     foreach (var existingVersion in Versions.Where(v => v.VersionType == DatabaseVersion.Constants).ToList())
@@ -108,7 +108,7 @@
                     if (dbVersion.Status == DatabaseVersion.Corrupted)
                     {
                         // try to update the database again - take a lock
-                        TraceLog.TraceInfo("SuggestionsStorageContext.VersionConstants: Suggestions database corrupted");
+                        TraceLog.TraceInfo("Suggestions database corrupted");
                         dbVersion.Status = me;
                         SaveChanges();
                         updateDB = true;
@@ -116,14 +116,14 @@
                 }
                 if (updateDB == false)
                 {
-                    TraceLog.TraceInfo(String.Format("SuggestionsStorageContext.VersionConstants: Suggestions database version {0} is up to date",
+                    TraceLog.TraceInfo(String.Format("Suggestions database version {0} is up to date",
                         WorkflowConstants.ConstantsVersion));
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("SuggestionsStorageContext.VersionConstants: could not find database version", ex);
+                TraceLog.TraceException("Could not find database version", ex);
                 return false;
             }
 
@@ -136,7 +136,7 @@
                 if (version.Status != me)  // someone else is update the database
                     return true;
 
-                TraceLog.TraceInfo(String.Format("SuggestionsStorageContext.VersionConstants: {0} updating Suggestions datatbase to version {1}",
+                TraceLog.TraceInfo(String.Format("{0} updating Suggestions database to version {1}",
                     me, WorkflowConstants.ConstantsVersion));
 
                 // replace intents 
@@ -145,7 +145,7 @@
                 var intents = WorkflowConstants.DefaultIntents();
                 if (intents == null)
                 {
-                    TraceLog.TraceError("SuggestionsStorageContext.VersionConstants: could not find or load intents");
+                    TraceLog.TraceError("Could not find or load intents");
                     version.Status = DatabaseVersion.Corrupted;
                     versionContext.SaveChanges();
                     return false;
@@ -153,7 +153,7 @@
                 foreach (var entity in intents)
                     Intents.Add(entity);
                 SaveChanges();
-                TraceLog.TraceInfo("SuggestionsStorageContext.VersionConstants: replaced intents");
+                TraceLog.TraceInfo("Replaced intents");
 
                 // replace workflow types
                 foreach (var entity in WorkflowTypes.ToList())
@@ -161,7 +161,7 @@
                 var workflowTypes = WorkflowConstants.DefaultWorkflowTypes();
                 if (workflowTypes == null)
                 {
-                    TraceLog.TraceError("SuggestionsStorageContext.VersionConstants: could not find or load workflow definitions");
+                    TraceLog.TraceError("Could not find or load workflow definitions");
                     version.Status = DatabaseVersion.Corrupted;
                     versionContext.SaveChanges();
                     return false;
@@ -169,7 +169,7 @@
                 foreach (var entity in workflowTypes)
                     WorkflowTypes.Add(entity);
                 SaveChanges();
-                TraceLog.TraceInfo("SuggestionsStorageContext.VersionConstants: replaced workflow types");
+                TraceLog.TraceInfo("Replaced workflow types");
 
                 // save the new version number
                 version.Status = DatabaseVersion.OK;
@@ -179,7 +179,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("SuggestionsStorageContext.VersionConstants failed", ex);
+                TraceLog.TraceException("VersionConstants failed", ex);
 
                 // mark the version as corrupted
                 version.Status = DatabaseVersion.Corrupted;
@@ -226,7 +226,7 @@
         {
             var current = Versions.Any(v => v.VersionType == DatabaseVersion.Schema && v.VersionString == UserConstants.SchemaVersion);
             if (current == false)
-                TraceLog.TraceError(String.Format("UserStorageContext.CheckSchemaVersion: User database schema version {0} not found", UserConstants.SchemaVersion));
+                TraceLog.TraceError(String.Format("User database schema version {0} not found", UserConstants.SchemaVersion));
             return current;
         }
 
@@ -243,7 +243,7 @@
                 if (Versions.Any(v => v.VersionType == DatabaseVersion.Constants && v.VersionString == UserConstants.ConstantsVersion) == false)
                 {
                     // no database - create and lock the new version entry
-                    TraceLog.TraceInfo(String.Format("UserStorageContext.VersionConstants: User database version {0} not found", UserConstants.ConstantsVersion));
+                    TraceLog.TraceInfo(String.Format("User database version {0} not found", UserConstants.ConstantsVersion));
 
                     // remove an existing database version (there should never be more than one...)
                     foreach (var existingVersion in Versions.Where(v => v.VersionType == DatabaseVersion.Constants).ToList())
@@ -267,7 +267,7 @@
                     if (dbVersion.Status == DatabaseVersion.Corrupted)
                     {
                         // try to update the database again - take a lock
-                        TraceLog.TraceInfo("UserStorageContext.VersionConstants: User database corrupted");
+                        TraceLog.TraceInfo("User database corrupted");
                         dbVersion.Status = me;
                         SaveChanges();
                         updateDB = true;
@@ -275,14 +275,14 @@
                 }
                 if (updateDB == false)
                 {
-                    TraceLog.TraceInfo(String.Format("UserStorageContext.VersionConstants: User database version {0} is up to date",
+                    TraceLog.TraceInfo(String.Format("User database version {0} is up to date",
                         UserConstants.ConstantsVersion));
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("UserStorageContext.VersionConstants: could not find database version", ex);
+                TraceLog.TraceException("Could not find database version", ex);
                 return false;
             }
 
@@ -296,7 +296,7 @@
                 if (version.Status != me)  // someone else is update the database
                     return true;
 
-                TraceLog.TraceInfo(String.Format("UserStorageContext.VersionConstants: {0} updating User datatbase to version {1}",
+                TraceLog.TraceInfo(String.Format("{0} updating User datatbase to version {1}",
                     me, UserConstants.ConstantsVersion));
 
                 // replace action types
@@ -311,7 +311,7 @@
                         ActionTypes.Add(entity);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced action types");
+                TraceLog.TraceInfo("Replaced action types");
 
                 // replace colors
                 foreach (var entity in UserConstants.DefaultColors())
@@ -325,7 +325,7 @@
                         Colors.Add(entity);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced colors");
+                TraceLog.TraceInfo("Replaced colors");
 
                 // replace permissions
                 foreach (var entity in UserConstants.DefaultPermissions())
@@ -339,7 +339,7 @@
                         Permissions.Add(entity);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced permissions");
+                TraceLog.TraceInfo("Replaced permissions");
 
                 // replace priorities
                 foreach (var entity in UserConstants.DefaultPriorities())
@@ -353,7 +353,7 @@
                         Priorities.Add(entity);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced priorities");
+                TraceLog.TraceInfo("Replaced priorities");
 
                 // replace built-in users 
                 foreach (var user in UserConstants.DefaultUsers())
@@ -369,7 +369,7 @@
                         Users.Add(user);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced users");
+                TraceLog.TraceInfo("Replaced users");
 
                 // replace built-in itemtypes and fields
                 foreach (var itemType in UserConstants.DefaultItemTypes())
@@ -395,7 +395,7 @@
                         ItemTypes.Add(itemType);
                 }
                 SaveChanges();
-                TraceLog.TraceInfo("UserStorageContext.VersionConstants: replaced item types and fields");
+                TraceLog.TraceInfo("Replaced item types and fields");
 
                 // save the new version number
                 version.Status = DatabaseVersion.OK;
@@ -405,7 +405,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("UserStorageContext.VersionConstants failed", ex);
+                TraceLog.TraceException("VersionConstants failed", ex);
 
                 // mark the version as corrupted
                 version.Status = DatabaseVersion.Corrupted;
@@ -451,12 +451,12 @@
                 Operations.Add(operation);
                 if (SaveChanges() < 1)
                 {   // log failure to record operation
-                    TraceLog.TraceError("CreateOperation: failed to record operation: " + opType);
+                    TraceLog.TraceError("Failed to record operation: " + opType);
                 }
             }
             catch (Exception ex)
             {   // log failure to record operation
-                TraceLog.TraceException("CreateOperation: failed to record operation", ex);
+                TraceLog.TraceException("Failed to record operation", ex);
             }
 
             return operation;
@@ -477,7 +477,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("CurrentUser: User for item {0} not found", item.Name), ex);
+                TraceLog.TraceException(String.Format("User for item {0} not found", item.Name), ex);
                 return null;
             }
         }
@@ -538,13 +538,13 @@
                     };
                     Items.Add(entityRefItem);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateEntityRef: created entity ref item {0} for user {1}", entity.Name, user.Name));
+                    TraceLog.TraceInfo(String.Format("Created entity ref item {0} for user {1}", entity.Name, user.Name));
                     return entityRefItem;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateEntityRef: created entity ref item {0} for user {1}", entity.Name, user.Name), ex);
+                TraceLog.TraceException(String.Format("Created entity ref item {0} for user {1}", entity.Name, user.Name), ex);
                 return null;
             }
         }
@@ -577,13 +577,13 @@
                     };
                     Folders.Add(userFolder);
                     SaveChanges();
-                    TraceLog.TraceInfo("GetOrCreateUserFolder: created $User folder for user " + user.Name);
+                    TraceLog.TraceInfo("Created $User folder for user " + user.Name);
                     return userFolder;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GetOrCreateUserFolder: could not find or create $User folder", ex);
+                TraceLog.TraceException("Could not find or create $User folder", ex);
                 return null;
             }
         }
@@ -618,13 +618,13 @@
                     };
                     Items.Add(list);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateUserList: created {0} list for user {1}", listName, user.Name));
+                    TraceLog.TraceInfo(String.Format("Created {0} list for user {1}", listName, user.Name));
                     return list;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateUserList: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                TraceLog.TraceException(String.Format("Could not find or create {0} list for user {1}", listName, user.Name), ex);
                 return null;
             }
         }
@@ -663,13 +663,13 @@
                     list.GetFieldValue(FieldNames.Value, true).Value = value;
                     Items.Add(list);
                     SaveChanges();
-                    TraceLog.TraceInfo(String.Format("GetOrCreateUserListByValue: created {0} list for user {1}", listName, user.Name));
+                    TraceLog.TraceInfo(String.Format("Created {0} list for user {1}", listName, user.Name));
                     return list;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("GetOrCreateUserListByValue: could not find or create {0} list for user {1}", listName, user.Name), ex);
+                TraceLog.TraceException(String.Format("Could not find or create {0} list for user {1}", listName, user.Name), ex);
                 return null;
             }
         }

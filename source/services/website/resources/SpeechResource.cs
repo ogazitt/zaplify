@@ -290,11 +290,11 @@
             }
             catch (DirectoryNotFoundException)
             {
-                TraceLog.TraceError("InitializeGrammar: Directory " + appDataPath + " not found");
+                TraceLog.TraceError("Directory " + appDataPath + " not found");
                 // if the directory doesn't exist, move it over from the approot
                 if (Directory.Exists(appRootDir))
                 {
-                    TraceLog.TraceInfo("InitializeGrammar: Creating " + appDataPath);
+                    TraceLog.TraceInfo("Creating " + appDataPath);
                     try
                     {
                         Directory.CreateDirectory(appDataPath);
@@ -302,20 +302,20 @@
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException("InitializeGrammar: Create Directory " + appDataPath + " failed", ex);
+                        TraceLog.TraceException("Create Directory " + appDataPath + " failed", ex);
                     }
                 }
                 else
-                    TraceLog.TraceError("InitializeGrammar: Directory " + appRootDir + " does not exist - cannot initialize grammar");
+                    TraceLog.TraceError("Directory " + appRootDir + " does not exist - cannot initialize grammar");
             }
             catch (FileNotFoundException)
             {
-                TraceLog.TraceError("InitializeGrammar: File " + grammarPath + " not found");
+                TraceLog.TraceError("File " + grammarPath + " not found");
                 InitializeGrammarCopyFiles(appDataPath, fileName, appRootDir);
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("InitializeGrammar: Cannot find grammar", ex);
+                TraceLog.TraceException("Cannot find grammar", ex);
             }
         }
 
@@ -326,23 +326,23 @@
 
             if (File.Exists(Path.Combine(appRootDir, fileName)))
             {
-                TraceLog.TraceInfo("InitializeGrammarCopyFiles: Copying " + appRootDir + " to " + appDataPath);
+                TraceLog.TraceInfo("Copying " + appRootDir + " to " + appDataPath);
                 try
                 {
                     foreach (var file in Directory.EnumerateFiles(appRootDir))
                     {
                         string fname = Path.GetFileName(file);
-                        TraceLog.TraceInfo("InitializeGrammarCopyFiles: Copying " + Path.Combine(appRootDir, fname) + " to " + Path.Combine(appDataPath, fname));
+                        TraceLog.TraceInfo("Copying " + Path.Combine(appRootDir, fname) + " to " + Path.Combine(appDataPath, fname));
                         File.Copy(Path.Combine(appRootDir, fname), Path.Combine(appDataPath, fname));
                     }
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("InitializeGrammarCopyFiles: Copy file failed", ex);
+                    TraceLog.TraceException("Copy file failed", ex);
                 }
             }
             else
-                TraceLog.TraceError("InitializeGrammarCopyFiles: File " + Path.Combine(appRootDir, fileName) + " does not exist - cannot initialize grammar");
+                TraceLog.TraceError("File " + Path.Combine(appRootDir, fileName) + " does not exist - cannot initialize grammar");
         }
 
         void InitializeSpeechEngine(SpeechRecognitionEngine sre)
@@ -361,7 +361,7 @@
                 string fileName = @"TELLME-SMS-LM.cfgp";
                 string appDataPath = HttpContext.Current.Server.MapPath("~/Content/grammars");
                 string grammarPath = Path.Combine(appDataPath, fileName);
-                TraceLog.TraceInfo("InitializeGrammarCopyFiles: Grammar path: " + grammarPath);
+                TraceLog.TraceInfo("Grammar path: " + grammarPath);
 
                 // make sure the grammar files are copied over from the approot directory to the appDataPath
                 InitializeGrammar(grammarPath, appDataPath, fileName);
@@ -373,7 +373,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceError("InitializeGrammarCopyFiles: Speech Engine initialization failed: " + ex.Message);            
+                TraceLog.TraceError("Speech Engine initialization failed: " + ex.Message);            
             }
         }
 
@@ -451,7 +451,7 @@
                 fs.Close();
 
                 // trace the size of the file
-                TraceLog.TraceDetail(String.Format("WriteSpeechFile: Write speech file: {0} bytes", stream.Position));
+                TraceLog.TraceDetail(String.Format("Write speech file: {0} bytes", stream.Position));
 
                 // reset the stream position
                 stream.Position = 0;
@@ -460,7 +460,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("WriteSpeechFile: Write speech file failed", ex);
+                TraceLog.TraceException("Write speech file failed", ex);
                 return ex.Message;
             }
         }

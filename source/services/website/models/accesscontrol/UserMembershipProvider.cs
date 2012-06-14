@@ -28,7 +28,7 @@
             {
                 UserStorageContext storage = Storage.NewUserContext;
                 User user = storage.Users.Include("UserCredentials").Single<User>(u => u.Name == username.ToLower());
-                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.PASSWORD);
+                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.Password);
                 // verify old password
                 if (IsValidPassword(cred, oldPassword))
                 {   // TODO: verify new password meets requirements
@@ -58,21 +58,21 @@
             if (!Regex.IsMatch(email.ToLower(), emailPattern))
             {   // not valid email address
                 status = MembershipCreateStatus.InvalidEmail;
-                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid email: " + email);
+                TraceLog.TraceInfo("Failed to create user account due to invalid email: " + email);
                 return null;
             }
 
             if (password.Length < MinRequiredPasswordLength)
             {   // not a valid password
                 status = MembershipCreateStatus.InvalidPassword;
-                TraceLog.TraceInfo("CreateUser: Failed to create user account due to invalid password: " + password);
+                TraceLog.TraceInfo("Failed to create user account due to invalid password: " + password);
                 return null;
             }
 
             if (storage.Users.Any<User>(u => u.Name == username))
             {   // username already exists
                 status = MembershipCreateStatus.DuplicateUserName;
-                TraceLog.TraceInfo("CreateUser: Failed to create duplicate user account: " + username);
+                TraceLog.TraceInfo("Failed to create duplicate user account: " + username);
                 return null;
             }
 
@@ -91,7 +91,7 @@
             UserCredential credentials = new UserCredential()
             {
                 UserID = user.ID,
-                CredentialType = UserCredential.PASSWORD,
+                CredentialType = UserCredential.Password,
                 AccessToken = password,    
                 RenewalToken = salt,
                 LastModified = user.CreateDate
@@ -103,7 +103,7 @@
             status = MembershipCreateStatus.Success;
 
             // Log creation of new user account
-            TraceLog.TraceInfo("CreateUser: Created new user account: " + username);
+            TraceLog.TraceInfo("Created new user account: " + username);
 
             return AsMembershipUser(user);
         }
@@ -259,7 +259,7 @@
             User user = LookupUserByName(username, true, storage);
             if (user != null)
             {
-                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.PASSWORD);
+                UserCredential cred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.Password);
                 if (IsValidPassword(cred, password))
                 {   // timestamp LastAccessed 
                     cred.LastAccessed = DateTime.UtcNow;
@@ -294,9 +294,9 @@
                 user = LookupUserByName(user.Name, true);
 
                 // check expiration of facebook consent token, renew if expiring soon
-                if (user.UserCredentials.Any(uc => uc.CredentialType == UserCredential.FB_CONSENT))
+                if (user.UserCredentials.Any(uc => uc.CredentialType == UserCredential.FacebookConsent))
                 {
-                    UserCredential fbCred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.FB_CONSENT);
+                    UserCredential fbCred = user.UserCredentials.Single<UserCredential>(uc => uc.CredentialType == UserCredential.FacebookConsent);
                     renewFBToken = (fbCred.AccessToken != null &&
                         fbCred.AccessTokenExpiration < (DateTime.UtcNow + TimeSpan.FromDays(7)));
                 }

@@ -70,7 +70,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             try
             {
                 // get current state and corresponding activity
-                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} entering state {1}", instance.WorkflowType, instance.State));
+                TraceLog.TraceInfo(String.Format("Workflow {0} entering state {1}", instance.WorkflowType, instance.State));
                 WorkflowState state = States.Single(s => s.Name == instance.State);
                 //var activity = PrepareActivity(instance, state.Activity, UserContext, SuggestionsContext);
                 
@@ -82,7 +82,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
 
                 if (activity == null)
                 {
-                    TraceLog.TraceError("Process: could not find or prepare Activity");
+                    TraceLog.TraceError("Could not find or prepare Activity");
                     return WorkflowActivity.Status.Error;
                 }
                 else
@@ -92,9 +92,9 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                 }
 
                 // invoke the activity
-                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} invoking activity {1}", instance.WorkflowType, activity.Name));
+                TraceLog.TraceInfo(String.Format("Workflow {0} invoking activity {1}", instance.WorkflowType, activity.Name));
                 var status = activity.Function.Invoke(instance, entity, data);
-                TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0}: activity {1} returned status {2}", instance.WorkflowType, activity.Name, status.ToString()));
+                TraceLog.TraceInfo(String.Format("Workflow {0}: activity {1} returned status {2}", instance.WorkflowType, activity.Name, status.ToString()));
                 instance.LastModified = DateTime.Now;
 
                 // if the activity completed, advance the workflow state
@@ -105,7 +105,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                     if (instance.State == null)
                     {
                         status = WorkflowActivity.Status.WorkflowDone;
-                        TraceLog.TraceInfo(String.Format("Workflow.Process: workflow {0} is done", instance.WorkflowType));
+                        TraceLog.TraceInfo(String.Format("Workflow {0} is done", instance.WorkflowType));
                     }
                 }
                 SuggestionsContext.SaveChanges();
@@ -114,7 +114,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("Workflow.Process failed", ex);
+                TraceLog.TraceException("Process failed", ex);
                 return WorkflowActivity.Status.Error;
             }
         }
@@ -126,7 +126,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
         /// <param name="entity"></param>
         public void Run(WorkflowInstance instance, ServerEntity entity)
         {
-            TraceLog.TraceInfo("Workflow.Run: running workflow " + instance.WorkflowType);
+            TraceLog.TraceInfo("Running workflow " + instance.WorkflowType);
             var status = WorkflowActivity.Status.Complete;
             try
             {
@@ -138,7 +138,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("Workflow.Run: workflow execution failed", ex);
+                TraceLog.TraceException("Workflow execution failed", ex);
             }
 
             // if the workflow is done or experienced a fatal error, terminate it
@@ -152,7 +152,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("Workflow.Run: could not remove workflow instance", ex);
+                    TraceLog.TraceException("Could not remove workflow instance", ex);
                 }
             }
         }

@@ -101,11 +101,11 @@
             {
                 var groc = context.Groceries.Include("Category").OrderBy(g => g.Name).First(g => g.Name.StartsWith(groceryName));
                 grocery.Add(new GroceryReturnValue() { Name = groc.Name, Category = groc.Category.Name, ImageUrl = groc.ImageUrl });
-                ServiceHost.TraceLog.TraceDetail(String.Format("GroceryInfo: found {0} category for {1}", groc.Category.Name, name));
+                ServiceHost.TraceLog.TraceDetail(String.Format("Found {0} category for {1}", groc.Category.Name, name));
             }
             catch (Exception)
             {
-                ServiceHost.TraceLog.TraceDetail("GroceryInfo: could not find a category for " + name);
+                ServiceHost.TraceLog.TraceDetail("Could not find a category for " + name);
             }
 
             groceryResults.Count = grocery.Count;

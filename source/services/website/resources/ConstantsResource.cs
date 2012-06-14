@@ -32,7 +32,7 @@
             catch (Exception ex)
             {
                 // constants not found - return 404 Not Found
-                TraceLog.TraceException("ConstantsResource.Get: not found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return new HttpResponseMessageWrapper<Constants>(req, HttpStatusCode.NotFound);
             }
         }

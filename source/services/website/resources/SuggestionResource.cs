@@ -62,7 +62,7 @@
                 Suggestion suggestion = this.SuggestionsStorageContext.Suggestions.Single<Suggestion>(s => s.ID == id);
                 if (!ValidateEntityOwnership(suggestion.EntityID, suggestion.EntityType))
                 {   // entity associated with suggestions does not belong to the authenticated user, return 403 Forbidden
-                    TraceLog.TraceError("SuggestionResource.GetSuggestion: Forbidden (associated entity does not belong to current user)");
+                    TraceLog.TraceError("Associated entity does not belong to current user)");
                     return ReturnResult<Suggestion>(req, operation, HttpStatusCode.Forbidden);
                 }
                 var response = ReturnResult<Suggestion>(req, operation, suggestion, HttpStatusCode.OK);
@@ -71,7 +71,7 @@
             }
             catch (Exception ex)
             {   // suggestion not found - return 404 Not Found
-                TraceLog.TraceException("SuggestionResource.GetSuggestion: Not Found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -102,7 +102,7 @@
 
             if (!ValidateEntityOwnership(filter.EntityID, filter.EntityType))
             {   // entity being queried does not belong to authenticated user, return 403 Forbidden
-                TraceLog.TraceError("SuggestionResource.QuerySuggestions: Forbidden (queried entity does not belong to current user)");
+                TraceLog.TraceError("Queried entity does not belong to current user)");
                 return ReturnResult<List<Suggestion>>(req, operation, HttpStatusCode.Forbidden);
             }
 
@@ -139,7 +139,7 @@
             }
             catch (Exception ex)
             {   // suggestions not found - return 404 Not Found
-                TraceLog.TraceException("SuggestionResource.QuerySuggestion: Internal Server Error", ex);
+                TraceLog.TraceException("Internal Server Error", ex);
                 return ReturnResult<List<Suggestion>>(req, operation, HttpStatusCode.InternalServerError);
             }
         }
@@ -166,23 +166,23 @@
 
             if (original.ID != modified.ID)
             {   // suggestion IDs must match
-                TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Bad Request (original and new suggestion ID's do not match)");
+                TraceLog.TraceError("Original and updated suggestion IDs do not match)");
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.BadRequest);
             }
             if (original.ID != id)
             {
-                TraceLog.TraceError("SuggestionResource.Update: Bad Request (ID in URL does not match suggestion body)");
+                TraceLog.TraceError("ID in URL does not match suggestion body");
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.BadRequest);
             }
             if (original.EntityID != modified.EntityID)
             {   // entity IDs must match
-                TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Bad Request (original and new entity ID's do not match)");
+                TraceLog.TraceError("Original and updated entity IDs do not match");
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.BadRequest);
             }
 
             if (!ValidateEntityOwnership(modified.EntityID, modified.EntityType))
             {   // entity associated with suggestions does not belong to the authenticated user, return 403 Forbidden
-                TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Forbidden (associated entity does not belong to current user)");
+                TraceLog.TraceError("Associated entity does not belong to current user");
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.Forbidden);
             }
 
@@ -194,7 +194,7 @@
                 {
                     if (this.SuggestionsStorageContext.SaveChanges() < 1)
                     {
-                        TraceLog.TraceError("SuggestionResource.UpdateSuggestion: Internal Server Error (database operation did not succeed)");
+                        TraceLog.TraceError("Internal Server Error (database operation did not succeed)");
                         return ReturnResult<Suggestion>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
@@ -204,19 +204,19 @@
                         if (modified.ReasonSelected == Reasons.Chosen)
                             WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, this.SuggestionsStorageContext, operation);
 
-                        TraceLog.TraceInfo("SuggestionResource.UpdateSuggestion: Accepted");
+                        TraceLog.TraceInfo("Accepted");
                         return ReturnResult<Suggestion>(req, operation, current, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
-                    TraceLog.TraceInfo("SuggestionResource.UpdateSuggestion: Accepted (no changes)");
+                    TraceLog.TraceInfo("Accepted (no changes)");
                     return ReturnResult<Suggestion>(req, operation, current, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {   // suggestion not found - return 404 Not Found
-                TraceLog.TraceException("SuggestionResource.UpdateSuggestion: Not Found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return ReturnResult<Suggestion>(req, operation, HttpStatusCode.NotFound);
             }
         }

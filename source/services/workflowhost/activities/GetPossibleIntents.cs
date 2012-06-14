@@ -35,7 +35,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Error;
             }
 
@@ -70,7 +70,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GenerateSuggestions: could not initialize NLP engine", ex);
+                TraceLog.TraceException("Could not initialize NLP engine", ex);
             }
 
             // if NLP failed (e.g. data file not found), do "poor man's NLP" - assume a structure like <verb> <noun> [{for,with} <subject>]
@@ -134,7 +134,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             // if there are no suggestions, we can terminate this workflow
             if (suggestionList.Count == 0)
             {
-                TraceLog.TraceError("GenerateSuggestions: no possible intents were found; terminating workflow");
+                TraceLog.TraceError("No possible intents were found, terminating workflow");
                 return Status.Error;
             }
 

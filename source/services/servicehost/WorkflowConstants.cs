@@ -19,7 +19,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {
                 if (!File.Exists(IntentsFileName))
                 {
-                    TraceLog.TraceError("WorkflowConstants.DefaultIntents: intents file not found");
+                    TraceLog.TraceError("Intents file not found");
                     return null;
                 }
 
@@ -47,7 +47,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("WorkflowConstants.DefaultIntents: reading intents failed", ex);
+                TraceLog.TraceException("Reading intents failed", ex);
                 return null;
             }
         }
@@ -83,7 +83,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("WorkflowConstants.DefaultWorkflowTypes: reading workflows failed", ex);
+                TraceLog.TraceException("Reading workflows failed", ex);
                 if (cdBack)
                     Directory.SetCurrentDirectory(@"..");
                 return null;

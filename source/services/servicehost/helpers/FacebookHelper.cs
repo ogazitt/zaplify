@@ -10,6 +10,11 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
 {
     public class FacebookHelper
     {
+        public const string TRACE_NO_FB_TOKEN = "Facebook access token is not available";
+        public const string TRACE_NO_CONTACT_ENTITYREF = "Could not retrieve or create an EntityRef for Contact";
+        public const string TRACE_NO_SAVE_FBCONTACTINFO = "Could not save Facebook information for Contact";
+
+
         public static bool AddContactInfo(UserStorageContext userContext, Item item)
         {  
             FieldValue fbfv = item.GetFieldValue(FieldNames.FacebookID);
@@ -22,14 +27,14 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
 
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
             if (cred != null && cred.AccessToken != null)
             {
                 fbApi.AccessToken = cred.AccessToken;
             }
             else
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "AddContactInfo", "No Facebook access token available");
+                TraceLog.TraceError(TRACE_NO_FB_TOKEN);
                 return false;
             }
 
@@ -37,7 +42,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             var entityRefItem = userContext.GetOrCreateEntityRef(user, item);
             if (entityRefItem == null)
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "AddContactInfo", "Could not retrieve or create an EntityRef for Contact");
+                TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
                 return false;
             }
 
@@ -58,7 +63,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(typeof(FacebookHelper), "AddContactInfo" , "Could not save Facebook information for Contact", ex);
+                TraceLog.TraceException(TRACE_NO_SAVE_FBCONTACTINFO, ex);
                 return false;
             }
 
@@ -69,14 +74,14 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
             if (cred != null && cred.AccessToken != null)
             {
                 fbApi.AccessToken = cred.AccessToken;
             }
             else
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "GetUserInfo", "Facebook access token is not available");
+                TraceLog.TraceError(TRACE_NO_FB_TOKEN);
                 return false;
             }
 
@@ -84,7 +89,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             var entityRefItem = userContext.GetOrCreateEntityRef(user, user);
             if (entityRefItem == null)
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "GetUserInfo" , "Could not retrieve or create a EntityRef item for User");
+                TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
                 return false;
             }
 
@@ -114,12 +119,12 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                     var location = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
                     if (location != null)
                         entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
-                    TraceLog.TraceInfo(typeof(FacebookHelper), "GetUserInfo", "Added birthday, gender, location for User");
+                    TraceLog.TraceInfo("Added birthday, gender, location for User");
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(typeof(FacebookHelper), "GetUserInfo", "Facebook query for basic User information failed", ex);
+                TraceLog.TraceException("Facebook query for basic User information failed", ex);
                 return false;
             }
             return true;
@@ -129,14 +134,14 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
-            UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+            UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
             if (cred != null && cred.AccessToken != null)
             {
                 fbApi.AccessToken = cred.AccessToken;
             }
             else
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Facebook access token is not available");
+                TraceLog.TraceError(TRACE_NO_FB_TOKEN);
                 return false;
             }
 
@@ -144,7 +149,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
-                TraceLog.TraceError(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Could not retrieve or create the possible contacts list");
+                TraceLog.TraceError("Could not retrieve or create the possible contacts list");
                 return false;
             }
 
@@ -163,7 +168,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             try
             {
                 var results = fbApi.Query("me", FBQueries.Friends).ToList();
-                TraceLog.TraceInfo(String.Format("FacebookProcessor.ImportFriendsAsPossibleContacts: found {0} Facebook friends", results.Count));
+                TraceLog.TraceInfo(String.Format("Found {0} Facebook friends", results.Count));
                 foreach (var friend in results)
                 {
                     // check if a possible contact by this name and with this FBID already exists - and if so, skip it
@@ -235,11 +240,11 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 }
 
                 userContext.SaveChanges();
-                TraceLog.TraceInfo(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", String.Format("Added {0} possible contacts to $User.Contact list", results.Count));
+                TraceLog.TraceInfo(String.Format("Added {0} possible contacts to list", results.Count));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(typeof(FacebookHelper), "ImportFriendsAsPossibleContacts", "Could not retrieve or create a new possible Contact", ex);
+                TraceLog.TraceException("Could not retrieve or create a new possible Contact", ex);
                 return false;
             }
             return true;

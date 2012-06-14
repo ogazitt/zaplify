@@ -22,7 +22,7 @@ namespace BuiltSteady.Zaplify.MailWorker
 
         public void Start()
         {
-            TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker started");
+            TraceLog.TraceInfo("MailWorker started");
             string hostname = ConfigurationManager.AppSettings["Hostname"];
             int port = Int32.Parse(ConfigurationManager.AppSettings["Port"]);
             string username = ConfigurationManager.AppSettings["Username"];
@@ -56,7 +56,7 @@ namespace BuiltSteady.Zaplify.MailWorker
                             MailMessage[] messages = imap.GetMessages(0, count, false);
                             foreach (var m in messages)
                             {
-                                TraceLog.TraceInfo("BuiltSteady.Zaplify.MailWorker processing message " + m.Subject);
+                                TraceLog.TraceInfo("MailWorker processing message " + m.Subject);
                                 ProcessMessage(m);
                                 imap.MoveMessage(m.Uid, "processed");
                             }

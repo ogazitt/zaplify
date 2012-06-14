@@ -95,7 +95,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         protected void CreateIntentFieldValue(Item item, string intent)
         {
             item.GetFieldValue(FieldNames.Intent, true).Value = intent;
-            TraceLog.TraceDetail(String.Format("CreateIntentFieldValue: assigned {0} intent to item {1}", intent, item.Name));
+            TraceLog.TraceDetail(String.Format("Assigned {0} intent to item {1}", intent, item.Name));
         }
 
         /// <summary>
@@ -153,14 +153,14 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 {
                     FBGraphAPI fbApi = new FBGraphAPI();
                     User user = userContext.Users.Include("UserCredentials").Single(u => u.ID == currentUser.ID);
-                    UserCredential cred = user.GetCredential(UserCredential.FB_CONSENT);
+                    UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
                     if (cred != null && cred.AccessToken != null)
                     {
                         fbApi.AccessToken = cred.AccessToken;
                     }
                     else
                     {
-                        TraceLog.TraceError(this.GetType(), "ProcessUpdate", "Facebook access token is not available");
+                        TraceLog.TraceError(FacebookHelper.TRACE_NO_FB_TOKEN);
                         return false;
                     }
 
@@ -168,7 +168,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     var entityRefItem = userContext.GetOrCreateEntityRef(currentUser, newItem);
                     if (entityRefItem == null)
                     {
-                        TraceLog.TraceError(this.GetType(), "ProcessUpdate", "Could not retrieve or create an EntityRef for contact");
+                        TraceLog.TraceError(FacebookHelper.TRACE_NO_CONTACT_ENTITYREF);
                         return false;
                     }
 
@@ -190,7 +190,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException(this.GetType(), "ProcessUpdate", "Could not save Facebook information for Contact", ex);
+                        TraceLog.TraceException(FacebookHelper.TRACE_NO_SAVE_FBCONTACTINFO, ex);
                     }
 
                     return true;
@@ -236,7 +236,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(this.GetType(), "ExtractIntent", "Could not initialize NLP engine", ex);
+                TraceLog.TraceException("Could not initialize NLP engine", ex);
             }
             return base.ExtractIntent(item);
         }
@@ -279,7 +279,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             // set up the grocery API endpoint
             GroceryAPI gApi = new GroceryAPI();
             gApi.EndpointBaseUri = string.Format("{0}{1}/", HostEnvironment.DataServicesEndpoint, "Grocery");
-            TraceLog.TraceDetail("ProcessCreate: endpointURI: " + gApi.EndpointBaseUri);
+            TraceLog.TraceDetail("GroceryAPI Endpoint: " + gApi.EndpointBaseUri);
 
             // try to find the category from the local Grocery Controller
             try
@@ -298,13 +298,13 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         // only grab the first category
                         break;
                     }
-                    TraceLog.TraceInfo(this.GetType(), "ProcessCreate", String.Format("Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    TraceLog.TraceInfo(String.Format("Grocery API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(this.GetType(), "ProcessCreate", "Grocery API or database commit failed", ex);
+                TraceLog.TraceException("Grocery API or database commit failed", ex);
             }
 
             // use the Supermarket API to get the grocery category
@@ -353,13 +353,13 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     BlobStore.WriteBlobData(BlobStore.GroceryContainerName, entry[SupermarketQueryResult.Name], entry.ToString());
 
                     // only grab the first category
-                    TraceLog.TraceInfo(this.GetType(), "ProcessCreate", String.Format("Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                    TraceLog.TraceInfo(String.Format("Supermarket API assigned {0} category to item {1}", categoryFV.Value, item.Name));
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(this.GetType(), "ProcessCreate", "Supermarket API or database commit failed", ex);
+                TraceLog.TraceException("Supermarket API or database commit failed", ex);
             }
 #endif
             return false;

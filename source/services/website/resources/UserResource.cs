@@ -109,7 +109,7 @@
 
                 if (clientUser.ID != id)
                 {   // IDs must match
-                    TraceLog.TraceError("TagResource.Delete: Bad Request (ID in URL does not match entity body)");
+                    TraceLog.TraceError("ID in URL does not match entity body");
                     return ReturnResult<User>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
@@ -123,7 +123,7 @@
                 }
                 catch (Exception)
                 {   // user not found - it may have been deleted by someone else.  Return 200 OK.
-                    TraceLog.TraceInfo("TagResource.Delete: entity not found; returned OK anyway");
+                    TraceLog.TraceInfo("Entity not found, return OK");
                     return ReturnResult<User>(req, operation, HttpStatusCode.OK);
                 }
             }

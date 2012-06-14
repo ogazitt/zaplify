@@ -34,7 +34,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Nlp
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("LoadMappingTable: could not open or deserialize lexicon file {0}", HostEnvironment.LexiconFileName), ex);
+                TraceLog.TraceException(String.Format("Could not open or deserialize lexicon file {0}", HostEnvironment.LexiconFileName), ex);
                 throw;
             }
         }

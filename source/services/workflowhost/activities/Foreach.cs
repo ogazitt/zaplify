@@ -24,14 +24,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     if (InputParameters.TryGetValue(ActivityParameters.List, out foreachList) == false ||
                         InputParameters.TryGetValue(ActivityParameters.Activity, out foreachBody) == false)
                     {
-                        TraceLog.TraceError("Foreach: could not find ForeachOver or ForeachBody arguments");
+                        TraceLog.TraceError("Could not find ForeachOver or ForeachBody arguments");
                         return Status.Error;
                     }
 
                     // check for an empty foreach list
                     if (String.IsNullOrEmpty(foreachList))
                     {
-                        TraceLog.TraceInfo("Foreach: no elements in list");
+                        TraceLog.TraceInfo("No elements in list");
                         return Status.Complete;
                     }
 
@@ -63,7 +63,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException("Foreach: processing failed", ex);
+                        TraceLog.TraceException("Processing failed", ex);
                         return Status.Error;
                     }
 

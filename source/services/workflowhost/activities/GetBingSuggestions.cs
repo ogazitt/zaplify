@@ -37,7 +37,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Error;
             }
 
@@ -54,7 +54,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 
                 if (String.IsNullOrWhiteSpace(query))
                 {
-                    TraceLog.TraceInfo("GenerateSuggestions: no query to issue Bing");
+                    TraceLog.TraceInfo("No query to issue Bing");
                     return Status.Complete;
                 }
 
@@ -75,7 +75,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GenerateSuggestions: Bing query failed", ex);
+                TraceLog.TraceException("Bing query failed", ex);
                 return Status.Error;
             }
 

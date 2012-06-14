@@ -22,7 +22,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("GetPossibleSubjects: non-Item passed in to Function");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error; 
                     }
 
@@ -72,7 +72,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Complete;
             }
 
@@ -118,7 +118,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 }
                 catch (Exception ex)
                 {
-                    TraceLog.TraceException("CreateContact: creating Contact sublist failed", ex);
+                    TraceLog.TraceException("Creating Contact sublist failed", ex);
                     return Status.Error;
                 }
             }
@@ -132,7 +132,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("CreateContact: deserializing contact failed", ex);
+                TraceLog.TraceException("Deserializing contact failed", ex);
                 return Status.Error;
             }
 
@@ -161,7 +161,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("CreateContact: creating or adding contact failed", ex);
+                TraceLog.TraceException("Creating or adding Contact failed", ex);
                 return Status.Error;
             }
 
@@ -190,7 +190,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("CreateContact: creating contact reference failed", ex);
+                TraceLog.TraceException("Creating Contact reference failed", ex);
                 return Status.Error;
             }
 

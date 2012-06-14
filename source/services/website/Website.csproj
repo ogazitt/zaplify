@@ -245,7 +245,7 @@
     <Content Include="scripts\dashboard\itemeditor.js" />
     <Content Include="scripts\dashboard\listeditor.js" />
     <Content Include="scripts\jquery-ui-1.8.16.bootstrap.min.js" />
-    <Content Include="scripts\jquery.json-2.2.min.js" />
+    <Content Include="scripts\json2.js" />
     <Content Include="scripts\master.generated.min.js">
       <DependentUpon>master.js.chirp.config</DependentUpon>
     </Content>

@@ -17,7 +17,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     User user = entity as User;
                     if (user == null)
                     {
-                        TraceLog.TraceError("ImportFromFacebook: expecting User entity");
+                        TraceLog.TraceError("Entity is not a User");
                         return Status.Error;
                     }
 
@@ -25,7 +25,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         user = UserContext.Users.Include("UserCredentials").Single(u => u.ID == user.ID);
                     else
                     {
-                        TraceLog.TraceError("ImportFromFacebook: User not found");
+                        TraceLog.TraceError("User not found");
                         return Status.Error;
                     }
 

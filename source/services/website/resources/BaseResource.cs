@@ -80,12 +80,12 @@
             {
                 if (HttpContext.Current.Request.Headers[authRequestHeader] != null)
                 {   // cookie is no longer valid, return 401 Unauthorized
-                    TraceLog.TraceError("AuthenticateUser: Unauthorized: cookie is expired or invalid");
+                    TraceLog.TraceError("Cookie is expired or invalid");
                     return HttpStatusCode.Unauthorized;
                 }
                 
                 // auth headers not found, return 400 Bad Request
-                TraceLog.TraceError("AuthenticateUser: Bad request: no user information found");
+                TraceLog.TraceError("Bad request: no user information found");
                 return HttpStatusCode.BadRequest;
             }
 
@@ -93,7 +93,7 @@
             {   // authenticate the user
                 if (Membership.ValidateUser(credentials.Name, credentials.Password) == false)
                 {
-                    TraceLog.TraceError("AuthenticateUser: Unauthorized: invalid username or password for user " + credentials.Name);
+                    TraceLog.TraceError("Invalid username or password for user " + credentials.Name);
                     return HttpStatusCode.Forbidden;
                 }
 
@@ -106,12 +106,12 @@
                     HttpContext.Current.Response.Cookies.Add(authCookie);
                 }
 
-                TraceLog.TraceInfo(String.Format("AuthenticateUser: User {0} successfully logged in", credentials.Name));
+                TraceLog.TraceInfo(String.Format("User {0} successfully logged in", credentials.Name));
                 return HttpStatusCode.OK;
             }
             catch (Exception ex)
             {   // username not found - return 404 Not Found
-                TraceLog.TraceException(String.Format("AuthenticateUser: Username not found: {0}", credentials.Name), ex);
+                TraceLog.TraceException(String.Format("Username not found: {0}", credentials.Name), ex);
                 return HttpStatusCode.NotFound;
             }
         }
@@ -146,7 +146,7 @@
             Type t = typeof(T);
             if (req == null)
             {
-                TraceLog.TraceError("ProcessRequestBody: null HttpRequestMessage");
+                TraceLog.TraceError("HttpRequestMessage is null");
                 return HttpStatusCode.BadRequest;
             }
 
@@ -165,13 +165,13 @@
                         entity = (T)dc.ReadObject(req.Content.ReadAsStreamAsync().Result);
                         break;
                     default:
-                        TraceLog.TraceError("ProcessRequestBody: content-type unrecognized: " + contentType);
+                        TraceLog.TraceError("Content-type unrecognized: " + contentType);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ProcessRequestBody: deserialization failed", ex);
+                TraceLog.TraceException("Deserialization failed", ex);
             }
 
             if (skipOperation) return HttpStatusCode.OK;
@@ -197,7 +197,7 @@
                             // if the entity does not belong to the authenticated user, return 403 Forbidden
                             if (currentEntity.UserID != CurrentUser.ID)
                             {
-                                TraceLog.TraceError("ProcessRequestBody: Forbidden (entity does not belong to current user)");
+                                TraceLog.TraceError("Entity does not belong to current user");
                                 return HttpStatusCode.Forbidden;
                             }
 
@@ -211,7 +211,7 @@
                         IList list = (IList)entity;
                         if (list.Count != 2)
                         {
-                            TraceLog.TraceError("ProcessRequestBody: Bad Request (malformed body)");
+                            TraceLog.TraceError("Bad Request (malformed body)");
                             return HttpStatusCode.BadRequest;
                         }
 
@@ -225,7 +225,7 @@
                             // make sure the entity ID's match
                             if (oldEntity.ID != newEntity.ID)
                             {
-                                TraceLog.TraceError("ProcessRequestBody: Bad Request (original and new entity ID's do not match)");
+                                TraceLog.TraceError("Original and updated IDs do not match");
                                 return HttpStatusCode.BadRequest;
                             }
 
@@ -237,7 +237,7 @@
                             // make sure the entity belongs to the authenticated user
                             if (oldEntity.UserID != CurrentUser.ID || newEntity.UserID != CurrentUser.ID)
                             {
-                                TraceLog.TraceError("ProcessRequestBody: Forbidden (entity does not belong to current user)");
+                                TraceLog.TraceError("Entity does not belong to current user");
                                 return HttpStatusCode.Forbidden;
                             }
                         }
@@ -266,7 +266,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ProcessRequestBody: request body processing failed", ex);
+                TraceLog.TraceException("Request body processing failed", ex);
                 return HttpStatusCode.BadRequest;
             }
         }
@@ -283,7 +283,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ReturnResult: could not log operation status", ex);
+                TraceLog.TraceException("Could not log operation status", ex);
             }
             return new HttpResponseMessageWrapper<T>(req, code);
         }
@@ -309,7 +309,7 @@
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ReturnResult: could not log operation status", ex);
+                TraceLog.TraceException("Could not log operation status", ex);
             }
             return new HttpResponseMessageWrapper<T>(req, t, code);
         }

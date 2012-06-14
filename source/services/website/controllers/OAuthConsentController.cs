@@ -57,7 +57,7 @@
             var renewed = false;
             try
             {   // store token
-                renewed = UserMembershipProvider.SaveCredential(this.CurrentUser.Name, UserCredential.FB_CONSENT, token, expires);
+                renewed = UserMembershipProvider.SaveCredential(this.CurrentUser.Name, UserCredential.FacebookConsent, token, expires);
             }
             catch (Exception ex)
             {
@@ -116,7 +116,7 @@
             if (state != null && (!string.IsNullOrEmpty(state.AccessToken) || !string.IsNullOrEmpty(state.RefreshToken)))
             {   // store refresh token  
                 string username = System.Web.HttpContext.Current.User.Identity.Name;
-                UserMembershipProvider.SaveCredential(username, UserCredential.GOOGLE_CONSENT, state.AccessToken, state.AccessTokenExpirationUtc, state.RefreshToken);
+                UserMembershipProvider.SaveCredential(username, UserCredential.GoogleConsent, state.AccessToken, state.AccessTokenExpirationUtc, state.RefreshToken);
                 return state;
             }
 

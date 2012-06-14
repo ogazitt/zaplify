@@ -59,10 +59,10 @@ namespace BuiltSteady.Zaplify.ServerEntities
 
     public class UserCredential
     {
-        public const string PASSWORD = "PASSWORD";
-        public const string FB_CONSENT = "FB_CONSENT";
-        public const string GOOGLE_CONSENT = "GOOGLE_CONSENT";
-        public const string CLOUDAD_CONSENT = "CLOUDAD_CONSENT";
+        public const string Password = "Password";
+        public const string FacebookConsent = "FacebookConsent";
+        public const string GoogleConsent = "GoogleConsent";
+        public const string CloudADConsent = "CloudADConsent";
 
         public long ID { get; set; }
         public Guid UserID { get; set; }
