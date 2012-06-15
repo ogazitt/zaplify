@@ -44,11 +44,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Zaplify.ServiceUtilities.1.0\lib\net40\Debug\BuiltSteady.Zaplify.ServiceUtilities.Supermarket.dll</HintPath>
     </Reference>
+    <Reference Include="DotNetOpenAuth">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\DotNetOpenAuth.dll</HintPath>
+    </Reference>
     <Reference Include="EntityDataModel">
       <HintPath>..\..\packages\WebApi.OData.0.6.0\lib\40-Full\EntityDataModel.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Authentication.OAuth2">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.Authentication.OAuth2.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Calendar.v3">
+      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Services\CalendarService\Google.Apis.Calendar.v3.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.WindowsAzure.Diagnostics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.WindowsAzure.ServiceRuntime, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -71,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="GoogleClient.cs" />
     <Compile Include="helpers\FacebookHelper.cs" />
     <Compile Include="FieldProcessor.cs" />
     <Compile Include="ItemProcessor.cs" />

@@ -41,7 +41,8 @@
     <Reference Include="Chirpy">
       <HintPath>..\..\packages\ChirpyDllOnly.2.0.0.4\lib\Chirpy.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetOpenAuth">
+    <Reference Include="DotNetOpenAuth, Version=4.0.0.11165, Culture=neutral, PublicKeyToken=2780ccd10d57b246, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\DotNetOpenAuth.dll</HintPath>
     </Reference>
     <Reference Include="EntityDataModel">
@@ -51,17 +52,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\EntityFramework.4.2.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis">
+    <Reference Include="Google.Apis, Version=1.2.4507.26291, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.dll</HintPath>
     </Reference>
-    <Reference Include="Google.Apis.Authentication.OAuth2">
+    <Reference Include="Google.Apis.Authentication.OAuth2, Version=1.2.4507.26288, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Google.Apis.Authentication.OAuth2.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.Apis.Calendar.v3">
-      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Services\CalendarService\Google.Apis.Calendar.v3.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.ApplicationServer.Http">
       <HintPath>..\..\packages\WebApi.0.6.0\lib\40-Full\Microsoft.ApplicationServer.Http.dll</HintPath>
@@ -111,9 +108,6 @@
     <Reference Include="Microsoft.WindowsAzure.StorageClient, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json.Net35">
-      <HintPath>..\..\packages\Google-Api-DotNet-Client-1.2\Lib\Newtonsoft.Json.Net35.dll</HintPath>
     </Reference>
     <Reference Include="NSpeex">
       <HintPath>..\..\packages\NSpeex.1.1\lib\NSpeex.dll</HintPath>

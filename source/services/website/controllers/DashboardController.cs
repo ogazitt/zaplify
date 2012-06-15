@@ -2,25 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
     using System.Net;
-    using System.Threading;
-    using System.Web;
     using System.Web.Mvc;
-    using Microsoft.IdentityModel.Protocols.OAuth.Client;
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Models;
-
-    using Google.Apis.Authentication.OAuth2;
-    using DotNetOpenAuth.OAuth2;
-    using DotNetOpenAuth.Messaging;
-    using Google.Apis.Calendar.v3;
-    using Google.Apis.Calendar.v3.Data;
-    using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
     public class DashboardController : BaseController
     {

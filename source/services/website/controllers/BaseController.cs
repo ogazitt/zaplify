@@ -31,26 +31,6 @@
             }
         }
 
-        static string googleClientID;
-        public static string GoogleClientID
-        {
-            get
-            {
-                if (googleClientID == null) { googleClientID = ConfigurationSettings.Get("GoogleClientID"); }
-                return googleClientID;
-            }
-        }
-
-        static string googleClientSecret;
-        public static string GoogleClientSecret
-        {
-            get
-            {
-                if (googleClientSecret == null) { googleClientSecret = ConfigurationSettings.Get("GoogleClientSecret"); }
-                return googleClientSecret;
-            }
-        }
-
         User currentUser;
         public User CurrentUser
         {

@@ -47,7 +47,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             FBGraphAPI fbApi = new FBGraphAPI();
 
             // get the current user
-            User user = UserContext.CurrentUser(item);
+            User user = UserContext.GetUser(item.UserID, true);
             if (user == null)
             {
                 TraceLog.TraceError("Could not find the user associated with Item " + item.Name);

@@ -21,7 +21,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             if (fbfv == null)
                 return true;
             
-            User user = userContext.CurrentUser(item);
+            User user = userContext.GetUser(item.UserID, true);
             if (user == null)
                 return false;
 

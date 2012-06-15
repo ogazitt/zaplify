@@ -13,12 +13,6 @@
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
-    using DotNetOpenAuth.Messaging;
-    using DotNetOpenAuth.OAuth2;
-    using Google.Apis.Authentication.OAuth2;
-    using Google.Apis.Calendar.v3;
-    using Google.Apis.Calendar.v3.Data;
-
     public class OAuthConsentController : BaseController
     {
 
@@ -70,24 +64,22 @@
             { return RedirectToAction("Home", "Dashboard", new { consentStatus = UserDataModel.FBConsentSuccess }); }
         }
 
-        static OAuth2Authenticator<WebServerClient> googleAuthenticator;
-        static CalendarService calService;
+        static GoogleClient googleClient;
         public ActionResult Google()
         {
-            if (calService == null)
-            {   // attempt to access Google Calendar API to force authentication
-               calService = new CalendarService(googleAuthenticator = CreateGoogleAuthenticator());
+            if (googleClient == null)
+            {   // access Google Calendar API to force initial authentication
+                googleClient = new GoogleClient();
             }
             
             if (HttpContext.Request["code"] != null)
             {   // load access tokens 
-                googleAuthenticator.LoadAccessToken();
+                googleClient.Authenticator.LoadAccessToken();
             }
 
             try
-            {   // try to access user calendar settings
-                SettingsResource.ListRequest calSettings = calService.Settings.List();
-                Settings settings = calSettings.Fetch();
+            {   // force authentication by accessing calendar settings
+                googleClient.ForceAuthentication();
                 return RedirectToAction("Home", "Dashboard", new { consentStatus = UserDataModel.GoogleConsentSuccess });
             }
             catch (ThreadAbortException)
@@ -100,32 +92,12 @@
             }
         }
 
-        OAuth2Authenticator<WebServerClient> CreateGoogleAuthenticator()
-        {   // create the authenticator.
-            var provider = new WebServerClient(GoogleAuthenticationServer.Description);
-            provider.ClientIdentifier = BaseController.GoogleClientID;
-            provider.ClientSecret = BaseController.GoogleClientSecret;
-            var authenticator = new OAuth2Authenticator<WebServerClient>(provider, GetGoogleAuthorization) { NoCaching = true };
-            return authenticator;
-        }
-
-        private IAuthorizationState GetGoogleAuthorization(WebServerClient client)
+        public ActionResult AccessCalendar()
         {
-            // check if authorization request already is in progress
-            IAuthorizationState state = client.ProcessUserAuthorization(new HttpRequestInfo(System.Web.HttpContext.Current.Request));
-            if (state != null && (!string.IsNullOrEmpty(state.AccessToken) || !string.IsNullOrEmpty(state.RefreshToken)))
-            {   // store refresh token  
-                string username = System.Web.HttpContext.Current.User.Identity.Name;
-                UserMembershipProvider.SaveCredential(username, UserCredential.GoogleConsent, state.AccessToken, state.AccessTokenExpirationUtc, state.RefreshToken);
-                return state;
-            }
+            GoogleClient client = new GoogleClient(this.CurrentUser, this.StorageContext);
+            client.ForceAuthentication();
 
-            // otherwise make a new authorization request
-            string scope = "https://www.googleapis.com/auth/calendar";
-            OutgoingWebResponse response = client.PrepareRequestUserAuthorization(new[] { scope });
-            response.Headers["Location"] += "&access_type=offline&approval_prompt=force"; 
-            response.Send();    // will throw a ThreadAbortException to prevent sending another response
-            return null;
+            return RedirectToAction("Home", "Dashboard");
         }
 
         public ActionResult CloudAD()

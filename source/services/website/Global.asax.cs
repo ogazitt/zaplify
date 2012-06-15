@@ -164,7 +164,7 @@ namespace BuiltSteady.Zaplify.Website
                 try
                 {   // store token
                     var userid = new Guid(tokenReceivedEventArgs.State);
-                    user = userStorage.Users.Include("UserCredentials").Single<BuiltSteady.Zaplify.ServerEntities.User>(u => u.ID == userid);
+                    user = userStorage.GetUser(userid, true);
                     user.AddCredential(UserCredential.CloudADConsent, accessToken, null, refreshToken);
                     userStorage.SaveChanges();
                 }

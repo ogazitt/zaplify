@@ -369,18 +369,7 @@
         static User LookupUserByID(Guid id, bool includeCredentials = false)
         {
             UserStorageContext storage = Storage.NewUserContext;
-            if (storage.Users.Any<User>(u => u.ID == id))
-            {
-                if (includeCredentials)
-                {
-                    return storage.Users.Include("UserCredentials").Single<User>(u => u.ID == id);
-                }
-                else
-                {
-                    return storage.Users.Single<User>(u => u.ID == id);
-                }
-            }
-            return null;
+            return storage.GetUser(id, includeCredentials);
         }
 
         static User ExtractUserFromTicket(IPrincipal principal)

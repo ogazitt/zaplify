@@ -21,9 +21,8 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    if (UserContext.Users.Any(u => u.ID == user.ID))
-                        user = UserContext.Users.Include("UserCredentials").Single(u => u.ID == user.ID);
-                    else
+                    user = UserContext.GetUser(user.ID, true);
+                    if (user == null)
                     {
                         TraceLog.TraceError("User not found");
                         return Status.Error;

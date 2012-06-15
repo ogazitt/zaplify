@@ -152,7 +152,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 if (oldfbfv == null || oldfbfv.Value != fbfv.Value)
                 {
                     FBGraphAPI fbApi = new FBGraphAPI();
-                    User user = userContext.Users.Include("UserCredentials").Single(u => u.ID == currentUser.ID);
+                    User user = userContext.GetUser(currentUser.ID, true);
                     UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
                     if (cred != null && cred.AccessToken != null)
                     {

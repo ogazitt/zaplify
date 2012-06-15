@@ -80,7 +80,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 return Status.Error;
             }
 
-            User user = UserContext.CurrentUser(item);
+            User user = UserContext.GetUser(item.UserID, true);
             if (user == null)
             {
                 TraceLog.TraceError("Could not find the user associated with Item " + item.Name);
@@ -89,7 +89,6 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 
             ADGraphAPI adApi = new ADGraphAPI();
             string adRefreshToken = null;
-            //UserCredential creds = null;
 
             // check for FB and/or AD credentials
             UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
@@ -267,7 +266,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     return Status.Error;
                 }
 
-                User user = UserContext.CurrentUser(item);
+                User user = UserContext.GetUser(item.UserID);
                 if (user == null)
                 {
                     TraceLog.TraceError("Could not find the user associated with Item " + item.Name);

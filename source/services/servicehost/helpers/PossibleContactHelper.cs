@@ -17,7 +17,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         /// <returns>false if errors were encountered, otherwise true</returns>
         public static bool AddContact(UserStorageContext userContext, Item item)
         {
-            User user = userContext.CurrentUser(item);
+            User user = userContext.GetUser(item.UserID);
             Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
@@ -81,7 +81,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         public static bool RemoveContact(UserStorageContext userContext, Item item)
         {
             // clean up any possible contacts that have this ID
-            User user = userContext.CurrentUser(item);
+            User user = userContext.GetUser(item.UserID);
             Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
                 return false;
