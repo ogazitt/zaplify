@@ -25,9 +25,10 @@ Service.domainUrl = null;
 Service.requestQueue = [];
 
 Service.fbConsentUri = 'https://www.facebook.com/dialog/oauth';
-Service.fbRedirectPath = 'dashboard/facebook';
+Service.fbRedirectPath = 'oauthconsent/facebook';
 Service.fbScopes = 'user_birthday,friends_likes,friends_birthday';
-Service.cloudADConsentUri = 'dashboard/cloudAD';
+Service.googleConsentUri = 'oauthconsent/google';
+Service.cloudADConsentUri = 'oauthconsent/cloudAD';
 
 Service.invokeAsync = true;
 Service.signOutUri = 'account/signout';
@@ -90,6 +91,11 @@ Service.SignOut = function Service$SignOut() {
 
 Service.GetFacebookConsent = function Service$GetFacebookConsent() {
     var uri = Service.fbConsentUri + "?client_id=" + Service.fbAppID + "&redirect_uri=" + encodeURI(Service.domainUrl + Service.fbRedirectPath) + "&scope=" + Service.fbScopes;
+    window.navigate(uri);
+}
+
+Service.GetGoogleConsent = function Service$GetGoogleConsent() {
+    var uri = Service.googleConsentUri;
     window.navigate(uri);
 }
 

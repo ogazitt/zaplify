@@ -40,7 +40,7 @@
 
                 if (clientItemType.ID != id)
                 {   // IDs must match
-                    TraceLog.TraceError("ItemTypeResource.Delete: Bad Request (ID in URL does not match entity body)");
+                    TraceLog.TraceError("ID in URL does not match entity body");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
                 }
             }
@@ -54,7 +54,7 @@
                 }
                 catch (Exception)
                 {   // itemtype not found - it may have been deleted by someone else.  Return 200 OK.
-                    TraceLog.TraceInfo("ItemTypeResource.Delete: entity not found; returned OK anyway");
+                    TraceLog.TraceInfo("Entity not found, return OK");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.OK);
                 }
             }
@@ -64,26 +64,26 @@
                 ItemType requestedItemType = this.StorageContext.ItemTypes.Single<ItemType>(t => t.ID == id);
                 if (requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to the authenticated user, return 403 Forbidden
-                    TraceLog.TraceError("ItemTypeResource.Delete: Forbidden (entity does not belong to current user)");
+                    TraceLog.TraceError("Entity does not belong to current user)");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
                 }
 
                 this.StorageContext.ItemTypes.Remove(requestedItemType);
                 if (this.StorageContext.SaveChanges() < 1)
                 {
-                    TraceLog.TraceError("ItemTypeResource.Delete: Internal Server Error (database operation did not succeed)");
+                    TraceLog.TraceError("Internal Server Error (database operation did not succeed)");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    TraceLog.TraceInfo("ItemTypeResource.Delete: Accepted");
+                    TraceLog.TraceInfo("Accepted");
                     return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {   
                 // itemtype not found - it may have been deleted by someone else.  Return 200 OK.
-                TraceLog.TraceInfo(String.Format("ItemTypeResource.Delete: exception in database operation: {0}; returned OK anyway", ex.Message));
+                TraceLog.TraceInfo(String.Format("Exception in database operation, return OK : Exception[{0}]", ex.Message));
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.OK);
             }
         }
@@ -110,7 +110,7 @@
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
-                TraceLog.TraceException("ItemTypeResource.GetItemTypes: Not Found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return ReturnResult<List<ItemType>>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -133,7 +133,7 @@
 
                 if (requestedItemType.UserID != null && requestedItemType.UserID != CurrentUser.ID)
                 {   // requested itemType does not belong to system or authenticated user, return 403 Forbidden
-                    TraceLog.TraceError("ItemTypeResource.GetItemType: Forbidden (entity does not belong to current user)");
+                    TraceLog.TraceError("Entity does not belong to current user)");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.Forbidden);
                 }
 
@@ -141,7 +141,7 @@
             }
             catch (Exception ex)
             {   // itemType not found - return 404 Not Found
-                TraceLog.TraceException("ItemTypeResource.GetItemType: Not Found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }
@@ -168,12 +168,12 @@
                 var itemType = this.StorageContext.ItemTypes.Add(clientItemType);
                 if (itemType == null || this.StorageContext.SaveChanges() < 1)
                 {
-                    TraceLog.TraceError("ItemTypeResource.Insert: Internal Server Error (database operation did not succeed)");
+                    TraceLog.TraceError("Internal Server Error (database operation did not succeed)");
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                 }
                 else
                 {
-                    TraceLog.TraceInfo("ItemTypeResource.Insert: Created");
+                    TraceLog.TraceInfo("Created");
                     return ReturnResult<ItemType>(req, operation, itemType, HttpStatusCode.Created);
                 }
             }
@@ -185,18 +185,18 @@
                     var dbItemType = this.StorageContext.ItemTypes.Single(t => t.ID == clientItemType.ID);
                     if (dbItemType.Name == clientItemType.Name)
                     {
-                        TraceLog.TraceInfo("ItemTypeResource.Insert: Accepted (entity already in database); ex: " + ex.Message);
+                        TraceLog.TraceInfo("Accepted (entity already in database) : Exception[" + ex.Message + "]");
                         return ReturnResult<ItemType>(req, operation, dbItemType, HttpStatusCode.Accepted);
                     }
                     else
                     {
-                        TraceLog.TraceException("ItemTypeResource.Insert: Conflict (entity in database did not match)", ex);
+                        TraceLog.TraceException("Entity in database did not match)", ex);
                         return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                     }
                 }
                 catch (Exception e)
                 {   // itemtype not inserted - return 409 Conflict
-                    TraceLog.TraceException(String.Format("ItemTypeResource.Insert: Conflict (entity was not in database); ex: {0}", ex.Message), e);
+                    TraceLog.TraceException(String.Format("Entity was not in database) : Exception[{0}]", ex.Message), e);
                     return ReturnResult<ItemType>(req, operation, HttpStatusCode.Conflict);
                 }
             }
@@ -225,7 +225,7 @@
             // make sure the itemtype ID's match
             if (originalItemType.ID != id || newItemType.ID != id)
             {
-                TraceLog.TraceError("ItemTypeResource.Update: Bad Request (ID in URL does not match entity body)");
+                TraceLog.TraceError("ID in URL does not match entity body)");
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.BadRequest);
             }
 
@@ -237,24 +237,24 @@
                 {
                     if (this.StorageContext.SaveChanges() < 1)
                     {
-                        TraceLog.TraceError("ItemTypeResource.Update: Internal Server Error (database operation did not succeed)");
+                        TraceLog.TraceError("Internal Server Error (database operation did not succeed)");
                         return ReturnResult<ItemType>(req, operation, HttpStatusCode.InternalServerError);
                     }
                     else
                     {
-                        TraceLog.TraceInfo("ItemTypeResource.Update: Accepted");
+                        TraceLog.TraceInfo("Accepted");
                         return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                     }
                 }
                 else
                 {
-                    TraceLog.TraceInfo("ItemTypeResource.Update: Accepted (no changes)");
+                    TraceLog.TraceInfo("Accepted (no changes)");
                     return ReturnResult<ItemType>(req, operation, requestedItemType, HttpStatusCode.Accepted);
                 }
             }
             catch (Exception ex)
             {   // itemtype not found - return 404 Not Found
-                TraceLog.TraceException("ItemTypeResource.Update: Not Found", ex);
+                TraceLog.TraceException("Resource not found", ex);
                 return ReturnResult<ItemType>(req, operation, HttpStatusCode.NotFound);
             }
         }

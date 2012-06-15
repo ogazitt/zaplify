@@ -53,19 +53,19 @@
             var msg = message as CloudQueueMessage;
             if (msg == null)
             {
-                TraceLog.TraceError("MessageQueue.DeleteMessage: wrong message type: " + message.GetType().Name);
+                TraceLog.TraceError("Wrong message type: " + message.GetType().Name);
                 return false;
             }
 
             try
             {
-                TraceLog.TraceInfo("MessageQueue.DeleteMessage deleting message ID " + msg.Id);
+                TraceLog.TraceInfo("Deleting message ID " + msg.Id);
                 Queue.DeleteMessage(msg);
                 return true;
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("MessageQueue.DeleteMessage failed", ex);
+                TraceLog.TraceException("DeleteMessage failed", ex);
                 return false;
             }
         }
@@ -76,13 +76,13 @@
             if (msg == null)  // GetMessage doesn't block for a message
                 return null;
 
-            TraceLog.TraceDetail(String.Format("MessageQueue.DequeueMessage dequeued message ID {0} inserted {1}", msg.Id, msg.InsertionTime.ToString()));
+            TraceLog.TraceDetail(String.Format("Dequeued message ID {0} inserted {1}", msg.Id, msg.InsertionTime.ToString()));
             byte[] bytes = msg.AsBytes;
             var ms = new MemoryStream(bytes);
             DataContractJsonSerializer dcs = new DataContractJsonSerializer(typeof(T));
             T content = (T)dcs.ReadObject(ms);
             MQMessage<T> returnMessage = new MQMessage<T>() { Content = content, MessageRef = msg };
-            TraceLog.TraceInfo(String.Format("MessageQueue.DequeueMessage dequeued a {0}: {1}", content.GetType().Name, content.ToString()));
+            TraceLog.TraceInfo(String.Format("Dequeued a {0}: {1}", content.GetType().Name, content.ToString()));
             
             return returnMessage;
         }
@@ -104,7 +104,7 @@
 
             var msg = new CloudQueueMessage(bytes);
             Queue.AddMessage(msg);
-            TraceLog.TraceInfo(String.Format("MessageQueue.EnqueueMessage enqueued a {0}: {1}", obj.GetType().Name, obj.ToString()));
+            TraceLog.TraceInfo(String.Format("Enqueued a {0}: {1}", obj.GetType().Name, obj.ToString()));
         }
 
         public static void Initialize()
@@ -112,9 +112,9 @@
             // create the queue if it doesn't yet exist
             // this call returns false if the queue was already created 
             if (Queue.CreateIfNotExist())
-                TraceLog.TraceInfo(String.Format("MessageQueue.Initialize: created queue named '{0}'", queueName));
+                TraceLog.TraceInfo(String.Format("Created queue named '{0}'", queueName));
             else
-                TraceLog.TraceDetail(String.Format("MessageQueue.Initialize: queue named '{0}' already exists", queueName));
+                TraceLog.TraceDetail(String.Format("Queue named '{0}' already exists", queueName));
         }
 
         public static MQMessage<T> PeekMessage<T>()
@@ -123,13 +123,13 @@
             if (msg == null)  // PeekMessage doesn't block for a message
                 return null;
 
-            TraceLog.TraceDetail(String.Format("MessageQueue.PeekMessage found message ID {0} inserted {1}", msg.Id, msg.InsertionTime.ToString()));
+            TraceLog.TraceDetail(String.Format("Found message ID {0} inserted {1}", msg.Id, msg.InsertionTime.ToString()));
             byte[] bytes = msg.AsBytes;
             var ms = new MemoryStream(bytes);
             DataContractJsonSerializer dcs = new DataContractJsonSerializer(typeof(T));
             T content = (T)dcs.ReadObject(ms);
             MQMessage<T> returnMessage = new MQMessage<T>() { Content = content, MessageRef = msg };
-            TraceLog.TraceInfo(String.Format("MessageQueue.PeekMessage message content is a {0}: {1}", content.GetType().Name, content.ToString()));
+            TraceLog.TraceInfo(String.Format("Message content is a {0}: {1}", content.GetType().Name, content.ToString()));
 
             return returnMessage;
         }

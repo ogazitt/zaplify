@@ -74,7 +74,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Type activityType = Type.GetType(typeName);
             if (activityType == null)
             {
-                TraceLog.TraceError("WorkflowActivity.CreateActivity: could not find type name " + typeName);
+                TraceLog.TraceError("Could not find type name " + typeName);
                 return null;
             }
 
@@ -133,7 +133,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                 {
                     StoreInstanceData(workflowInstance, OutputParameterName, targetField.Value);
                     StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, targetField.Value);
-                    TraceLog.TraceDetail(String.Format("CheckTargetField: target field {0} was set to {1} for activity {2}", TargetFieldName, targetField.Value, Name));
+                    TraceLog.TraceDetail(String.Format("Target field {0} was set to {1} for activity {2}", TargetFieldName, targetField.Value, Name));
                     return true;
                 }
             }
@@ -159,7 +159,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             // analyze the item for possible suggestions
             var suggestions = new Dictionary<string, string>();
             Status status = suggestionFunction.Invoke(workflowInstance, entity, suggestions);
-            TraceLog.TraceDetail(String.Format("CreateSuggestions: retrieved {0} suggestions from activity {1}", suggestions.Count, Name));
+            TraceLog.TraceDetail(String.Format("Retrieved {0} suggestions from activity {1}", suggestions.Count, Name));
 
             // if the function completed with an error, or without generating any data, return (this is typically a fail-fast state)
             if (status == Status.Error || suggestions.Count == 0)
@@ -173,7 +173,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     s = value;
                 StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, s);
                 StoreInstanceData(workflowInstance, OutputParameterName, s);
-                TraceLog.TraceDetail(String.Format("CreateSuggestions: exact match {0} was found for activity {1}", s, Name));
+                TraceLog.TraceDetail(String.Format("Exact match {0} was found for activity {1}", s, Name));
                 return status;
             }
 
@@ -215,7 +215,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     };
                     SuggestionsContext.Suggestions.Add(sugg);
 
-                    TraceLog.TraceDetail(String.Format("CreateSuggestions: created suggestion {0} in group {1} for activity {2}", s, groupDisplayName, Name));
+                    TraceLog.TraceDetail(String.Format("Created suggestion {0} in group {1} for activity {2}", s, groupDisplayName, Name));
                 }
 
                 SuggestionsContext.SaveChanges();
@@ -223,7 +223,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("Execute: Activity execution failed", ex);
+                TraceLog.TraceException("Activity execution failed", ex);
                 return Status.Error;
             }
         }
@@ -251,7 +251,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("Execute: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Error;
             }
 
@@ -370,7 +370,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     {
                         StoreInstanceData(workflowInstance, OutputParameterName, sugg.Value);
                         StoreInstanceData(workflowInstance, ActivityVariables.LastStateData, sugg.Value);
-                        TraceLog.TraceInfo(String.Format("ProcessActivityData: user selected suggestion {0} in group {1} for activity {2}",
+                        TraceLog.TraceInfo(String.Format("User selected suggestion {0} in group {1} for activity {2}",
                             sugg.DisplayName, sugg.GroupDisplayName, Name));
                         return Status.Complete;
                     }
@@ -383,7 +383,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
 
             // if the data can't be cast into a suggestion list, there is a serious error - move the workflow forward
             // (otherwise it will be stuck forever)
-            TraceLog.TraceError("ProcessActivityData: data passed in is not a list of suggestions");
+            TraceLog.TraceError("Data passed in is not a list of suggestions");
             return Status.Error;
         }
 
@@ -441,7 +441,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
         {
             if (item.ItemTypeID != desiredItemType)
             {
-                TraceLog.TraceError("VerifyItemType: wrong item type");
+                TraceLog.TraceError("Wrong item type");
                 return false;  
             }
 

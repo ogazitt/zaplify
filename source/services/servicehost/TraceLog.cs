@@ -20,52 +20,55 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         public static void TraceDetail(string message)
         {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(1);
             string msg = String.Format(
-                "Detail from {0} - {1}",
-                StackInfoText(),
+                "{0}\n{1}",
+                MethodInfoText(),
                 message);
             TraceLine(msg, LogLevel.Detail);
         }
 
+        public static void TraceInfo(string message)
+        {
+            string msg = String.Format(
+                "{0}\n{1}",
+                MethodInfoText(),
+                message);
+            TraceLine(msg, LogLevel.Info);
+        }
+
         public static void TraceError(string message)
         {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(1);
             string msg = String.Format(
-                "Error in {0} - {1}",
-                StackInfoText(),
+                "{0}\n{1}",
+                MethodInfoText(),
                 message);
             TraceLine(msg, LogLevel.Error);
         }
 
-        public static void TraceException(string message, Exception ex)
+        public static void TraceException(string message, Exception e)
         {
-            string msg = String.Format(
-                "Error in {0} - {1}",
-                StackInfoText(),
-                message);
-            
             StringBuilder sb = new StringBuilder(); 
             int level = 0;
-            while (ex != null)
+            while (e != null)
             {
-                sb.Append(String.Format("; ex{0}: {1}", level++, ex.Message));
-                ex = ex.InnerException;
+                sb.Append(String.Format("[{0}] {1}\n", level++, e.Message));
+                e = e.InnerException;
             }
-            msg += sb.ToString();
 
-            TraceLine(msg, LogLevel.Error);
+            string msg = String.Format(
+                "{0}\n{1}\nExceptions:\n{2}\nStackTrace:\n{3}",
+                MethodInfoText(),
+                message,
+                sb.ToString(),
+                StackTraceText(5));
+            TraceLine(msg, LogLevel.Error);        
         }
 
         public static void TraceFatal(string message)
         {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(1);
             string msg = String.Format(
-                "***Fatal Error*** in {0} - {1}",
-                StackInfoText(),
+                "{0} ***FATAL ERROR***\n{1}",
+                MethodInfoText(),
                 message);
             TraceLine(msg, LogLevel.Fatal);
         }
@@ -74,23 +77,10 @@ namespace BuiltSteady.Zaplify.ServiceHost
         [Conditional("DEBUG")]
         public static void TraceFunction()
         {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(1);
             string msg = String.Format(
                 "Entering {0}",
-                StackInfoText());
+                MethodInfoText());
             TraceLine(msg, LogLevel.Detail);
-        }
-
-        public static void TraceInfo(string message)
-        {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(1);
-            string msg = String.Format(
-                "Info from {0} - {1}",
-                StackInfoText(),
-                message);
-            TraceLine(msg, LogLevel.Info);
         }
 
         public static void TraceLine(string message, LogLevel level)
@@ -100,18 +90,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         public static void TraceLine(string message, string level)
         {
-            string msg = String.Format(
-                    "{0}: {1}",
-                    DateTime.Now.ToString(),
-                    message);
-
+            message = String.Format("{0}: {1}", DateTime.Now.ToString(), message);
             if (RoleEnvironment.IsAvailable)
             {
-                Trace.WriteLine(msg, level);
+                Trace.WriteLine(message, level);
                 Trace.Flush();
             }
             else
-                Console.WriteLine(msg);
+            {
+                Console.WriteLine(String.Format("{0}:{1}", level, message));
+            }
         }
 
         #region Helpers
@@ -133,16 +121,21 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
-        private static string StackInfoText()
+        private static string MethodInfoText()
         {
-            StackTrace st = new StackTrace(true);
-            StackFrame sf = st.GetFrame(2);
+            StackTrace st = new StackTrace(2, true);
+            StackFrame sf = st.GetFrame(0);
+            return StackFrameText(sf);
+        }
+
+        private static string StackFrameText(StackFrame sf)
+        {
             string fullFileName = sf.GetFileName();
-            string filename = "Unknown";
+            string filename = "UnknownFile";
             if (!string.IsNullOrEmpty(fullFileName))
             {
-                string[] lines = fullFileName.Split('\\');
-                filename = lines[lines.Length - 1];
+                string[] parts = fullFileName.Split('\\');
+                filename = parts[parts.Length - 1];
             }
             string msg = String.Format(
                 "{0}() in {1}:{2}",
@@ -152,6 +145,19 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return msg;
         }
 
+        private static string StackTraceText(int depth)
+        {
+            StackTrace st = new StackTrace(2, true);
+            StackFrame[] frames = st.GetFrames();
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            while (i < frames.Length)
+            {
+                sb.Append(String.Format("({0}) {1}\n", i, StackFrameText(frames[i])));
+                if (++i >= depth) break;
+            }
+            return sb.ToString();
+        }
         #endregion
     }
 }

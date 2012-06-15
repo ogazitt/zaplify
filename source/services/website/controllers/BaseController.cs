@@ -14,12 +14,9 @@
         static string fbAppID;
         public static string FBAppID
         {
-            get
+            get 
             {
-                if (fbAppID == null)
-                {
-                    fbAppID = ConfigurationSettings.Get("FBAppID");
-                }
+                if (fbAppID == null) { fbAppID = ConfigurationSettings.Get("FBAppID"); }
                 return fbAppID;
             }
         }
@@ -27,16 +24,32 @@
         static string fbAppSecret;
         public static string FBAppSecret
         {
-            get
+            get 
             {
-                if (fbAppSecret == null)
-                {
-                    fbAppSecret = ConfigurationSettings.Get("FBAppSecret");
-                }
+                if (fbAppSecret == null) { fbAppSecret = ConfigurationSettings.Get("FBAppSecret"); }
                 return fbAppSecret;
             }
         }
 
+        static string googleClientID;
+        public static string GoogleClientID
+        {
+            get
+            {
+                if (googleClientID == null) { googleClientID = ConfigurationSettings.Get("GoogleClientID"); }
+                return googleClientID;
+            }
+        }
+
+        static string googleClientSecret;
+        public static string GoogleClientSecret
+        {
+            get
+            {
+                if (googleClientSecret == null) { googleClientSecret = ConfigurationSettings.Get("GoogleClientSecret"); }
+                return googleClientSecret;
+            }
+        }
 
         User currentUser;
         public User CurrentUser

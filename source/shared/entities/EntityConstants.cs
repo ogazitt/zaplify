@@ -153,6 +153,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ChooseMany = "ChooseMany";
         public const string ChooseManyWithChildren = "ChooseManyWithChildren";
         public const string GetFBConsent = "GetFBConsent";
+        public const string GetGoogleConsent = "GetGoogleConsent";
         public const string GetADConsent = "GetADConsent";
         public const string NavigateLink = "NavigateLink";
         public const string RefreshEntity = "RefreshEntity";
@@ -285,7 +286,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class UserConstants
     {
-        public static string SchemaVersion { get { return "1.0.2012.0503"; } }
+        public static string SchemaVersion { get { return "1.0.2012.0612"; } }
         public static string ConstantsVersion { get { return "2012-06-07"; } }
 
         public static List<ActionType> DefaultActionTypes()

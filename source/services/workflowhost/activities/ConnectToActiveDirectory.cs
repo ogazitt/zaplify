@@ -20,43 +20,21 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     if (data != null)
                         return ProcessActivityData(workflowInstance, data);
 
-                    // find the People folder
-                    Folder peopleFolder = null;
-                    try
-                    {
-                        peopleFolder = UserContext.Folders.First(f => f.UserID == entity.ID && f.ItemTypeID == SystemItemTypes.Contact);
-                        if (peopleFolder == null)
-                        {
-                            TraceLog.TraceError("ConnectToFacebook: cannot find People folder");
-                            return Status.Error;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        TraceLog.TraceError("ConnectToFacebook: cannot find People folder");
-                        return Status.Error;
-                    }
-
                     // create a single suggestion to connect to AD
                     var sugg = new Suggestion()
                     {
                         ID = Guid.NewGuid(),
-                        EntityID = peopleFolder.ID,
-                        EntityType = peopleFolder.GetType().Name,
+                        EntityID = entity.ID,
+                        EntityType = entity.GetType().Name,
                         WorkflowType = workflowInstance.WorkflowType,
                         WorkflowInstanceID = workflowInstance.ID,
                         State = workflowInstance.State,
                         SuggestionType = SuggestionType,
                         DisplayName = "Connect to Active Directory",
                         GroupDisplayName = "Get Connected",
-                        SortOrder = 2,
+                        SortOrder = 3,
                     };
                     SuggestionsContext.Suggestions.Add(sugg);
-
-                    // change the workflowInstance to point to the appropriate entity (people folder)
-                    workflowInstance.EntityID = peopleFolder.ID;
-                    workflowInstance.EntityName = peopleFolder.Name;
-
                     SuggestionsContext.SaveChanges();
                     return Status.Pending;
                 });

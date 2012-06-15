@@ -21,7 +21,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
-                TraceLog.TraceError("PossibleContactProcessor.AddContact: could not retrieve or create the possible contacts list");
+                TraceLog.TraceError("Could not retrieve or create the possible contacts list");
                 return false;
             }
 
@@ -65,7 +65,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("PossibleContactProcessor.AddContact: could not create a new PossibleContact", ex);
+                TraceLog.TraceException("Could not create a new PossibleContact", ex);
                 return false;
             }
 
@@ -115,7 +115,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("ProcessDelete: could not delete the PossibleContact " + item.Name, ex);
+                TraceLog.TraceException("Could not delete the PossibleContact " + item.Name, ex);
                 return false;
             }
         }

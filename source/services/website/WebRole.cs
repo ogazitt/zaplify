@@ -25,7 +25,7 @@ namespace Website
 
             // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
             TraceLog.TraceFunction();
-            TraceLog.TraceInfo("BuiltSteady.Zaplify.WebRole started");
+            TraceLog.TraceInfo("WebRole started");
 
             // initialize the Queue 
             MessageQueue.Initialize();

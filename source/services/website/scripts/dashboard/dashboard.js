@@ -22,7 +22,8 @@ var Dashboard = function Dashboard$() {
 // ---------------------------------------------------------
 // public methods
 
-Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken) {
+Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken, consentStatus) {
+    Dashboard.alertStatus(consentStatus);
     if (renewFBToken == true) {
         Service.GetFacebookConsent();
     }
@@ -195,6 +196,43 @@ Dashboard.resize = function Dashboard$resize() {
 
     $(window).bind('resize', Dashboard.resize);
     Dashboard.resizing = false;
+}
+
+Dashboard.alertStatus = function Dashboard$alertStatus(status) {
+    var message, header;
+    if (status != null && status.length > 0) {
+        switch (status) {
+            case "FBConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for accessing your Facebook information.";
+                break;
+            case "FBConsentFail":
+                header = "Failed!";
+                message = "This application was not able to receive consent for accessing your Facebook information.";
+                break;
+            case "GoogleConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for managing your Google calendar.";
+                break;
+            case "GoogleConsentFail":
+                header = "Failed!";
+                message = "This application was not able to receive consent for managing your Google calendar.";
+                break;
+            case "CloudADConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for accessing your Cloud Directory.";
+                break;
+            case "CloudADConsentFail":
+                header = "Failed!";
+                message = "This application was not able to receive consent for accessing your Cloud Directory.";
+                break;
+        }
+        if (message != null) { Control.alert(message, header); }
+    } else if (Browser.IsMSIE() && Browser.MSIE_Version() < 9) {
+        header = "We're Sorry!";
+        message = "This application currently requires an HTML5-compatible browser. We encourage you to try using the application with the latest version of Internet Explorer, Chrome, or FireFox.<br/>Thank you";
+        Control.alert(message, header);
+    }
 }
 
 Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {

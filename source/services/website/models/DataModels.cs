@@ -62,6 +62,12 @@
     public class UserDataModel
     {
         public const string DefaultTheme = "default";
+        public const string FBConsentSuccess = "FBConsentSuccess";
+        public const string FBConsentFail = "FBConsentFail";
+        public const string GoogleConsentSuccess = "GoogleConsentSuccess";
+        public const string GoogleConsentFail = "GoogleConsentFail";
+        public const string CloudADConsentSuccess = "CloudADConsentSuccess";
+        public const string CloudADConsentFail = "CloudADConsentFail";
 
         UserStorageContext storageContext;
         User currentUser;
@@ -87,6 +93,7 @@
         }
 
         public bool RenewFBToken { get; set; }
+        public string ConsentStatus { get; set; }
 
         public string UserTheme
         {

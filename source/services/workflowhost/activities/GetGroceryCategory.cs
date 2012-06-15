@@ -19,7 +19,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("GetGroceryCategory: non-Item passed in to Function");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error;
                     }
 
@@ -39,11 +39,11 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                             break;
                         }
                         UserContext.SaveChanges();
-                        TraceLog.TraceInfo(String.Format("GetGroceryCategory: assigned {0} category to item {1}", categoryFV.Value, item.Name));
+                        TraceLog.TraceInfo(String.Format("Assigned {0} category to Item {1}", categoryFV.Value, item.Name));
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException("GetGroceryCategory: Supermarket API call failed", ex);
+                        TraceLog.TraceException("Supermarket API call failed", ex);
                         return Status.Error;
                     }
 

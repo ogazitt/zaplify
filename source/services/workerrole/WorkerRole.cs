@@ -40,29 +40,29 @@ namespace BuiltSteady.Zaplify.WorkerRole
 
         public override void Run()
         {
-            TraceLog.TraceInfo("BuiltSteady.Zaplify.WorkerRole started");
+            TraceLog.TraceInfo("WorkerRole started");
 
             // check the database schema versions to make sure there is no version mismatch
             if (!Storage.NewUserContext.CheckSchemaVersion())
             {
-                TraceLog.TraceFatal("User database schema is out of sync: unrecoverable error");
+                TraceLog.TraceFatal("User database schema is out of sync, unrecoverable error");
                 return;
             }
             if (!Storage.NewSuggestionsContext.CheckSchemaVersion())
             {
-                TraceLog.TraceFatal("Suggestions database schema is out of sync: unrecoverable error");
+                TraceLog.TraceFatal("Suggestions database schema is out of sync, unrecoverable error");
                 return;
             }
 
             // (re)create the database constants if the code contains a newer version
             if (!Storage.NewUserContext.VersionConstants(Me))
             {
-                TraceLog.TraceFatal("Cannot check and/or update the User database constants: unrecoverable error");
+                TraceLog.TraceFatal("Cannot check and/or update the User database constants, unrecoverable error");
                 return;
             }
             if (!Storage.NewSuggestionsContext.VersionConstants(Me))
             {
-                TraceLog.TraceFatal("Cannot check and/or update the Suggestions database constants: unrecoverable error");
+                TraceLog.TraceFatal("Cannot check and/or update the Suggestions database constants, unrecoverable error");
                 return;
             }
 

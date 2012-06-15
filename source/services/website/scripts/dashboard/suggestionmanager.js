@@ -18,6 +18,7 @@ SuggestionManager.prototype.select = function (suggestion) {
         case SuggestionTypes.NavigateLink: { refresh = this.navigateLink(suggestion); break; }
 
         case SuggestionTypes.GetFBConsent: { refresh = this.getFacebookConsent(suggestion); break; }
+        case SuggestionTypes.GetGoogleConsent: { refresh = this.getGoogleConsent(suggestion); break; }
         case SuggestionTypes.GetADConsent: { refresh = this.getCloudADConsent(suggestion); break; }
 
         default: { refresh = this.chooseSuggestion(suggestion); break; }
@@ -84,17 +85,42 @@ SuggestionManager.prototype.chooseMany = function (suggestion) {
 }
 
 SuggestionManager.prototype.getFacebookConsent = function (suggestion) {
-    var msg = 'You will be redirected to Facebook to allow Zaplify to access your Facebook contacts.\r\rDo you want to continue?';
-    if (confirm(msg)) {
-        Service.GetFacebookConsent();
-    }
+    var dataModel = this.dataModel;
+    var msg = 'You will be redirected to Facebook to allow this application to access your Facebook information. ' +
+    'This application will use information about yourself to help setup your user profile. ' +
+    'This application will use information about your friends to help manage your Contacts. ' +
+    '<br\><br\>Do you want to continue?';
+    Control.confirm(msg, "Facebook Consent?", function() {
+        dataModel.SelectSuggestion(suggestion, Reasons.Chosen,
+            function (selected) { Service.GetFacebookConsent(); }
+        );
+    });
     return false;
 }
 
 SuggestionManager.prototype.getCloudADConsent = function (suggestion) {
-    var msg = 'Once you are redirected, simply login with your Office 365 credentials to allow Zaplify to access your contacts.\r\rDo you want to continue?';
-    if (confirm(msg)) {
-        Service.GetCloudADConsent();
-    }
+    var dataModel = this.dataModel;
+    var msg = 'You will be redirected to the Cloud Directory portal. ' +
+    'Login with your Office 365 credentials to allow this application to access your directory information. ' +
+    'This application will use information about yourself and other users to help manage your Contacts. ' +
+    '<br\><br\>Do you want to continue?';    
+    Control.confirm(msg, "Cloud Directory Consent?", function () {
+        dataModel.SelectSuggestion(suggestion, Reasons.Chosen,
+            function (selected) { Service.GetCloudADConsent(); }
+        );
+    });
+    return false;
+}
+
+SuggestionManager.prototype.getGoogleConsent = function (suggestion) {
+    var dataModel = this.dataModel;
+    var msg = 'You will be redirected to Google to allow this application to manage your Google Calendar. ' +
+    'This application will interact with your calendar to keep your tasks and appointments synchronized. ' +
+    '<br\><br\>Do you want to continue?';  
+    Control.confirm(msg, "Google Calendar Consent?", function () {
+        dataModel.SelectSuggestion(suggestion, Reasons.Chosen,
+            function (selected) { Service.GetGoogleConsent(); }
+        );
+    });
     return false;
 }

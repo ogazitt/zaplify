@@ -14,26 +14,25 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             {
                 return ((workflowInstance, entity, data) =>
                 {
-                    Folder folder = entity as Folder;
-                    if (folder == null)
+                    User user = entity as User;
+                    if (user == null)
                     {
-                        TraceLog.TraceError("ImportFromFacebook: non-Folder passed in");
+                        TraceLog.TraceError("Entity is not a User");
                         return Status.Error;
                     }
 
-                    User user = null;
-                    if (UserContext.Users.Any(u => u.ID == folder.UserID))
-                        user = UserContext.Users.Include("UserCredentials").Single(u => u.ID == folder.UserID);
+                    if (UserContext.Users.Any(u => u.ID == user.ID))
+                        user = UserContext.Users.Include("UserCredentials").Single(u => u.ID == user.ID);
                     else
                     {
-                        TraceLog.TraceError("ImportFromFacebook: User not found");
+                        TraceLog.TraceError("User not found");
                         return Status.Error;
                     }
 
                     if (FacebookHelper.GetUserInfo(UserContext, user) == false)
                         return Status.Error;
 
-                    if (FacebookHelper.ImportFriendsAsPossibleContacts(UserContext, user, folder))
+                    if (FacebookHelper.ImportFriendsAsPossibleContacts(UserContext, user))
                         return Status.Complete;
                     else
                         return Status.Error;

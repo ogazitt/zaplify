@@ -9,6 +9,7 @@
     using System.Web.Security;
 
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
@@ -17,6 +18,11 @@
 
         public ActionResult SignIn()
         {
+            string status;
+            if (!HostEnvironment.DataVersionCheck(out status))
+            {
+                return Content(status);
+            }
             return View();
         }
 

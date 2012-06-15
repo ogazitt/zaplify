@@ -17,7 +17,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("GetContactInfoFromFacebook: non-Item passed in to Function");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error;
                     }
 

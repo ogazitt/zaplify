@@ -70,15 +70,15 @@
             {
                 bool created = TraceContainer.CreateIfNotExist();
                 if (created == true)
-                    TraceLog.TraceInfo("BlobStore.AddTraceFile: created container " + TraceContainerName);
+                    TraceLog.TraceInfo("Created container " + TraceContainerName);
 
                 var blob = TraceContainer.GetBlobReference(filename);
                 blob.UploadFromStream(stream);
-                TraceLog.TraceInfo(String.Format("BlobStore.AddTraceFile: uploaded trace file {0}", filename));
+                TraceLog.TraceInfo(String.Format("Uploaded trace file {0}", filename));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("BlobStore.AddTraceFile: failed to upload trace file {0}", filename), ex);
+                TraceLog.TraceException(String.Format("Failed to upload trace file {0}", filename), ex);
             }
         }
 
@@ -89,15 +89,15 @@
                 var container = BlobClient.GetContainerReference(containerName);
                 bool created = container.CreateIfNotExist();
                 if (created == true)
-                    TraceLog.TraceInfo("BlobStore.WriteBlobData: created container " + containerName);
+                    TraceLog.TraceInfo("Created container " + containerName);
 
                 var blob = container.GetBlobReference(filename);
                 blob.UploadText(data);
-                TraceLog.TraceInfo(String.Format("BlobStore.WriteBlobData: added file {0} to container {1}", filename, containerName));
+                TraceLog.TraceInfo(String.Format("Added file {0} to container {1}", filename, containerName));
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException(String.Format("BlobStore.WriteBlobData: failed to add file {0} to container {1}", filename, containerName), ex);
+                TraceLog.TraceException(String.Format("Failed to add file {0} to container {1}", filename, containerName), ex);
             }
         }
     }

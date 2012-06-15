@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         private const string IntentsFileName = @"workflows\Intents.txt";
 
         public static string SchemaVersion { get { return "1.0.2012.0426"; } }
-        public static string ConstantsVersion { get { return "2012-04-26"; } }
+        public static string ConstantsVersion { get { return "2012-06-12"; } }
 
         public static List<Intent> DefaultIntents()
         {
@@ -19,7 +19,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {
                 if (!File.Exists(IntentsFileName))
                 {
-                    TraceLog.TraceError("WorkflowConstants.DefaultIntents: intents file not found");
+                    TraceLog.TraceError("Intents file not found");
                     return null;
                 }
 
@@ -47,7 +47,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("WorkflowConstants.DefaultIntents: reading intents failed", ex);
+                TraceLog.TraceException("Reading intents failed", ex);
                 return null;
             }
         }
@@ -83,7 +83,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("WorkflowConstants.DefaultWorkflowTypes: reading workflows failed", ex);
+                TraceLog.TraceException("Reading workflows failed", ex);
                 if (cdBack)
                     Directory.SetCurrentDirectory(@"..");
                 return null;

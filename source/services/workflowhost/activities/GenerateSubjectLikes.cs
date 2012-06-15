@@ -22,7 +22,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("Execute: non-Item passed in");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error;
                     }
 
@@ -103,7 +103,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     }
                     catch (Exception ex)
                     {
-                        TraceLog.TraceException("Execute: Activity execution failed", ex);
+                        TraceLog.TraceException("Activity execution failed", ex);
                         return Status.Error;
                     }
                 });
@@ -115,7 +115,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             Item item = entity as Item;
             if (item == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: non-Item passed in");
+                TraceLog.TraceError("Entity is not an Item");
                 return Status.Error;
             }
 
@@ -131,19 +131,18 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             User user = UserContext.CurrentUser(item);
             if (user == null)
             {
-                TraceLog.TraceError("GenerateSuggestions: couldn't find the user associated with item " + item.Name);
+                TraceLog.TraceError("Could not find the user associated with item " + item.Name);
                 return Status.Error;
             }
 
-            try 
+            UserCredential cred = user.GetCredential(UserCredential.FacebookConsent);
+            if (cred != null && cred.AccessToken != null) 
 	        {	        
-                UserCredential cred = user.UserCredentials.Single(uc => uc.FBConsentToken != null);
-                fbApi.AccessToken = cred.FBConsentToken;
+                fbApi.AccessToken = cred.AccessToken;
 	        }
-	        catch (Exception)
-	        {
-                // the user not having a FB token isn't an error condition, but there's no way to generate suggestions,
-                // so we need to move forward from this state
+	        else
+	        {   // user not having a FB token is not an error condition, but there is no way to generate suggestions
+                // just move forward from this state
                 return Status.Complete;
 	        }
 
@@ -162,14 +161,14 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GenerateSuggestions: could not deserialize subject Item", ex);
+                TraceLog.TraceException("Could not deserialize subject Item", ex);
                 return Status.Error;
             }
 
             FieldValue fbID = subject.GetFieldValue(FieldNames.FacebookID);
             if (fbID == null || fbID.Value == null)
             {
-                TraceLog.TraceError(String.Format("GenerateSuggestions: could not find Facebook ID for contact {0}", subject.Name));
+                TraceLog.TraceError(String.Format("Could not find FacebookID for Contact {0}", subject.Name));
                 return Status.Complete;
             }
 
@@ -185,7 +184,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
             catch (Exception ex)
             {
-                TraceLog.TraceException("GenerateSuggestions: Error calling Facebook Graph API", ex);
+                TraceLog.TraceException("Error calling Facebook Graph API", ex);
                 return Status.Complete;
             }
 

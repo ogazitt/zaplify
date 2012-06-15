@@ -13,6 +13,10 @@
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="WorkflowWorkerCount" value="2" />
       
+      <!-- Google Client 'Zaplify' -->
+      <Setting name="GoogleClientID" value="944381664180-jm6ekhg10tu2vam4pnuknekr8hg3k0s2.apps.googleusercontent.com"/>
+      <Setting name="GoogleClientSecret" value="JzoT-C-U9Nb8ehzthQI6ALSB"/>
+
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -40,7 +44,10 @@
       <!-- Facebook Application 'Zaplify' -->
       <Setting name="FBAppID" value="411772288837103"/>
       <Setting name="FBAppSecret" value="88a4f4d70a8c4060aa15c593a36062ff"/>
-      
+      <!-- Google Client 'Zaplify' -->
+      <Setting name="GoogleClientID" value="944381664180-jm6ekhg10tu2vam4pnuknekr8hg3k0s2.apps.googleusercontent.com"/>
+      <Setting name="GoogleClientSecret" value="JzoT-C-U9Nb8ehzthQI6ALSB"/>
+
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplify;AccountKey=ySbvuVLszzHW2f/9WzdsvgcXinBZKBhlKUT9tJWauO+udsY27x85AdSVhqrIrX3vh1cjVru9Kms+OPBsvcKFZQ==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />

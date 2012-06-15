@@ -16,7 +16,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                     Item item = entity as Item;
                     if (item == null)
                     {
-                        TraceLog.TraceError("AddContactToPossibleContacts: non-Item passed in");
+                        TraceLog.TraceError("Entity is not an Item");
                         return Status.Error;
                     }
 

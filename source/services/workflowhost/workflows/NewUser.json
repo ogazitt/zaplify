@@ -8,6 +8,15 @@
 				"Name": "StartWorkflow",
 				"WorkflowType": "ConnectToFacebook"
 			}, 
+			"NextState": "InvokeGoogleWorkflow" 
+		},
+		{ 
+			"Name": "InvokeGoogleWorkflow",
+			"ActivityDefinition": 
+			{
+				"Name": "StartWorkflow",
+				"WorkflowType": "ConnectToGoogle"
+			}, 
 			"NextState": "InvokeADWorkflow" 
 		},
 		{ 
