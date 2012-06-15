@@ -11,7 +11,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
     public class ContactPickerHelper
     {
-        const string ZaplifyContactHeader = "zaplify";
+        const string ZaplifyContactHeader = "zaplify:";
 
         /// <summary>
         /// Processes the contact - creates a new contact if one doesn't exist, or refreshes the contact

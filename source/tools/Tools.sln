@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GroceryLoader", "GroceryLoader\GroceryLoader.csproj", "{C6D72A93-B606-419B-91B4-B9B45D2135E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserDataExport", "UserDataExport\UserDataExport.csproj", "{D8C6136B-D8FD-46E3-A4A6-F8AA1DBB150B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserDataImport", "userdataimport\UserDataImport.csproj", "{34F08ABE-7194-495D-9BE4-593A704D7E4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +17,14 @@ Global
 		{C6D72A93-B606-419B-91B4-B9B45D2135E1}.Debug|x86.Build.0 = Debug|x86
 		{C6D72A93-B606-419B-91B4-B9B45D2135E1}.Release|x86.ActiveCfg = Release|x86
 		{C6D72A93-B606-419B-91B4-B9B45D2135E1}.Release|x86.Build.0 = Release|x86
+		{D8C6136B-D8FD-46E3-A4A6-F8AA1DBB150B}.Debug|x86.ActiveCfg = Debug|x86
+		{D8C6136B-D8FD-46E3-A4A6-F8AA1DBB150B}.Debug|x86.Build.0 = Debug|x86
+		{D8C6136B-D8FD-46E3-A4A6-F8AA1DBB150B}.Release|x86.ActiveCfg = Release|x86
+		{D8C6136B-D8FD-46E3-A4A6-F8AA1DBB150B}.Release|x86.Build.0 = Release|x86
+		{34F08ABE-7194-495D-9BE4-593A704D7E4B}.Debug|x86.ActiveCfg = Debug|x86
+		{34F08ABE-7194-495D-9BE4-593A704D7E4B}.Debug|x86.Build.0 = Debug|x86
+		{34F08ABE-7194-495D-9BE4-593A704D7E4B}.Release|x86.ActiveCfg = Release|x86
+		{34F08ABE-7194-495D-9BE4-593A704D7E4B}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
