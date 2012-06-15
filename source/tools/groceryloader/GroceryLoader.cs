@@ -5,7 +5,7 @@ using System.Text;
 using BuiltSteady.Zaplify.GroceryService.Models;
 using System.IO;
 
-namespace GroceryLoader
+namespace BuiltSteady.Zaplify.Tools.GroceryLoader
 {
     public class GroceryLoader
     {

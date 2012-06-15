@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using BuiltSteady.Zaplify.ServiceHost;
 
-namespace BuiltSteady.Zaplify.Tools.GroceryLoader
+namespace BuiltSteady.Zaplify.Tools.UserDataExport
 {
     class Program
     {
-        static void Main(string[] arglist)
+        static void Main(string[] args)
         {
-            var conn = ConfigurationSettings.GetConnection("DataServicesConnection");
-            var file = @"groceries.txt";
+            var conn = ConfigurationSettings.GetConnection("UsersConnection");
+            var file = @"userdata.json";
+            string user = null;
 
             // handle args
-            string[] args = Environment.CommandLine.Split('/').Skip(1).ToArray();
             foreach (string arg in args)
             {
                 string value = arg.Trim().Trim('/');
@@ -38,12 +38,15 @@ namespace BuiltSteady.Zaplify.Tools.GroceryLoader
                     file = value;
                     continue;
                 }
+                if (value.StartsWith("u:"))
+                {
+                    value = value.Substring(2);
+                    user = value;
+                    continue;
+                }
                 if (value.StartsWith("h") || value.StartsWith("?"))
                 {
-                    Console.WriteLine(
-                        "Usage: GroceryLoader.exe\n" +
-                        "\t/f:<groceryfile.txt>\t(defaults to groceries.txt)\n" +
-                        "\t/c:<connection name>\t(defaults to SQLDataServicesDev1)");
+                    Usage();
                     return;
                 }
             }
@@ -51,20 +54,37 @@ namespace BuiltSteady.Zaplify.Tools.GroceryLoader
             if (file == null)
             {
                 Console.WriteLine("Filename wasn't provided");
+                Usage();
                 return;
             }
             if (conn == null)
             {
                 Console.WriteLine("Connection not found");
+                Usage();
+                return;
+            }
+            if (user == null)
+            {
+                Console.WriteLine("User name wasn't provided");
+                Usage();
                 return;
             }
 
             // load the grocery data
-            bool success = GroceryLoader.ReloadGroceryData(conn, file);
+            bool success = DataExporter.Export(conn, file, user);
             if (success)
-                Console.WriteLine("Succeeded in loading groceries");
+                Console.WriteLine("Succeeded in exporting data");
             else
-                Console.WriteLine("Failed to load groceries");
+                Console.WriteLine("Failed to export user data");
+        }
+
+        private static void Usage()
+        {
+            Console.WriteLine(
+                "Usage: UserDataExport.exe\n" +
+                "\t/c:<connection name>\t(defaults to UsersConnection in app.config)\n" +
+                "\t/f:<userdata.json>\t(defaults to userdata.json)\n" +
+                "\t/u:<user name>\t\t(must be supplied - in email format)");
         }
     }
 }
