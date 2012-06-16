@@ -204,6 +204,7 @@
     <Content Include="content\images\busy.gif" />
     <Content Include="content\images\glyphicons-halflings-white.png" />
     <Content Include="content\images\glyphicons-halflings.png" />
+    <Content Include="content\images\icon-azure.png" />
     <Content Include="content\images\page-turn-next.png" />
     <Content Include="content\images\page-turn-prev.png" />
     <Content Include="content\images\zaplogo-small.png" />
