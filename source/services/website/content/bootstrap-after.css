@@ -110,6 +110,10 @@ textarea.ie-placeholder, input[type="text"].ie-placeholder, input[type="text"].p
 .link-array a.icon { margin: 0; }
 .link-array input { margin-bottom: 2px; }
 
+/* custom icons */
+i.icon-azure { display: inline-block; width: 16px; height: 16px; cursor: pointer; 
+    background: transparent url(images/icon-azure.png) no-repeat; }
+
 /*----------------------------------------------------------
 jquery-ui timepicker extension
 ----------------------------------------------------------*/

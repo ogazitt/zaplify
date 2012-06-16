@@ -944,6 +944,7 @@ textarea.ie-placeholder,input[type="text"].ie-placeholder,input[type="text"].pac
 .link-array a{font-size:90%;margin:0 24px 0 6px}
 .link-array a.icon{margin:0}
 .link-array input{margin-bottom:2px}
+i.icon-azure{display:inline-block;width:16px;height:16px;cursor:pointer;background:transparent url(images/icon-azure.png) no-repeat}
 .ui-timepicker-div .ui-widget-header{margin-bottom:8px}
 .ui-timepicker-div dl{text-align:left}
 .ui-timepicker-div dl dt{height:25px;margin-bottom:-25px;margin-left:8px}

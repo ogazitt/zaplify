@@ -131,7 +131,7 @@ Control.Icons.forSources = function Control$Icons$forSources(item) {
                         }
                         break;
                     case "Directory":
-                        $icons.append('<i class="azure-icon" />');
+                        $icons.append('<i class="icon-azure" />');
                         break;
                 }
             }
