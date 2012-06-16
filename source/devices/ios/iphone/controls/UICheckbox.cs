@@ -32,8 +32,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				
 		public UICheckbox() : base()
 		{
-			this.falseImage = new UIImage("Images/checkbox.off.png");
-			this.trueImage = new UIImage("Images/checkbox.on.png");
+			this.falseImage = UIImageCache.GetUIImage("Images/checkbox.off.png");
+			this.trueImage = UIImageCache.GetUIImage("Images/checkbox.on.png");
 			this.Image = falseImage;
 			this.Value = false;
 		}
@@ -59,6 +59,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			// call the superclass handler (which will invoke the Clicked event handler)
 			base.TouchesEnded(touches, evt);
 		}
+
+        protected override void Dispose(bool disposing)
+        {
+            falseImage = null;
+            trueImage = null;
+            UserState = null;
+            base.Dispose(disposing);
+        }
 	}
 }
 

@@ -3,7 +3,7 @@ using System.Globalization;
 using MonoTouch.CoreGraphics;
 using MonoTouch.UIKit;
 
-namespace MonoTouch.UIKit
+namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public static class UIColorHelper
 	{
@@ -12,7 +12,7 @@ namespace MonoTouch.UIKit
 			if (color == null)
 				return UIColor.Clear;
             if (color.StartsWith("Images/", true, CultureInfo.InvariantCulture))
-                return UIColor.FromPatternImage(new UIImage(color));
+                return UIColor.FromPatternImage(UIImageCache.GetUIImage(color));
                 
 			if (color.StartsWith("#"))
 			{	// hex template

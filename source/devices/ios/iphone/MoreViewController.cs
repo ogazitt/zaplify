@@ -15,7 +15,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
 	public partial class MoreViewController : UINavigationController
 	{
-        private DialogViewController dvc = null;
+        private DialogViewController dvc;
         
 		static bool UserInterfaceIdiomIsPhone {
 			get { return UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Phone; }
@@ -23,85 +23,50 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
 		public MoreViewController() : base()
 		{
+            TraceHelper.AddMessage("More: constructor");
 			this.Title = NSBundle.MainBundle.LocalizedString ("More", "More");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/appbar.overflowdots.png");
 		}
 		
-		public override void ViewDidLoad ()
+		public override void ViewDidLoad()
 		{
-			base.ViewDidLoad ();
+            TraceHelper.AddMessage("More: ViewDidLoad");
+            InitializeComponent();
+            base.ViewDidLoad();
 		}
 		
-		public override void ViewDidAppear (bool animated)
+        public override void ViewDidUnload()
+        {
+            TraceHelper.AddMessage("More: ViewDidUnload");
+            Cleanup();
+            base.ViewDidUnload();
+        }
+        
+		public override void ViewDidAppear(bool animated)
 		{
-			var root = new RootElement("More")
-            {
-				new Section ()
-				{
-                    new StyledStringElement("Add Folder", delegate 
-                    { 
-                        var form = new FolderEditor(this, null);
-                        form.PushViewController();
-                    })
-                    {
-                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
-                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
-                    },
-                    new StyledStringElement("Add List", delegate 
-                    { 
-                        var form = new ListEditor(this, null, null, null);
-                        form.PushViewController();
-                    })
-                    {
-                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
-                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
-                    },
-                    new StyledStringElement("Debug", DebugPage)
-                    {
-                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
-                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
-                    }
-				},
-			};
+            TraceHelper.AddMessage("More: ViewDidAppear");
 			
             if (dvc == null)
-            {
-                // create and push the dialog view onto the nav stack
-                dvc = new DialogViewController(UITableViewStyle.Plain, root);
-                dvc.NavigationItem.HidesBackButton = true;  
-                dvc.Title = NSBundle.MainBundle.LocalizedString ("More", "More");
-                this.PushViewController(dvc, false);
-            }
-            else
-            {
-                // refresh the dialog view controller with the new root
-                var oldroot = dvc.Root;
-                dvc.Root = root;
-                oldroot.Dispose();
-                dvc.ReloadData();
-            }
-   
+                InitializeComponent();
+
             // set the background
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
             dvc.TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
             
-            base.ViewDidAppear(animated);         
+            base.ViewDidAppear(animated);  
 		}
+
+        public override void ViewDidDisappear(bool animated)
+        {
+            TraceHelper.AddMessage("More: ViewDidDisppear");
+            base.ViewDidDisappear(animated);
+        }
 		
-		public override void DidReceiveMemoryWarning ()
+		public override void DidReceiveMemoryWarning()
 		{
+            TraceHelper.AddMessage("More: DidReceiveMemoryWarning");
 			// Releases the view if it doesn't have a superview.
-			base.DidReceiveMemoryWarning ();
-			
-			// Release any cached data, images, etc that aren't in use.
-		}
-		
-		public override void ViewDidUnload ()
-		{
-			base.ViewDidUnload ();
-			
-			// Release any retained subviews of the main view.
-			// e.g. this.myOutlet = null;
+			base.DidReceiveMemoryWarning();
 		}
 		
 		public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
@@ -113,5 +78,68 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 				return true;
 			}
 		}	
+
+        private void Cleanup()
+        {
+            if (dvc != null)
+                this.ViewControllers = new UIViewController[0];
+            dvc = null;
+        }
+
+        private void InitializeComponent()
+        {
+            var root = new RootElement("More")
+            {
+                new Section()
+                {
+                    new StyledStringElement("Add Folder", delegate 
+                    { 
+                        //var form = new FolderEditor(this.NavigationController, null);
+                        var form = new FolderEditor(this, null);
+                        form.PushViewController();
+                    })
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    },
+                    new StyledStringElement("Add List", delegate 
+                    { 
+                        //r form = new ListEditor(this.NavigationController, null, null, null);
+                        var form = new ListEditor(this, null, null, null);
+                        form.PushViewController();
+                    })
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    },
+                    new StyledStringElement("Erase All Data", delegate
+                    {
+                        MessageBoxResult result = MessageBox.Show(
+                            "are you sure you want to erase all data on the phone?  unless you connected the phone to an account, your data will be not be retrievable.",
+                            "confirm erasing all data",
+                            MessageBoxButton.OKCancel);
+                        if (result == MessageBoxResult.Cancel)
+                            return;
+            
+                        App.ViewModel.EraseAllData();
+                    })
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    },
+                    new StyledStringElement("Debug", DebugPage)
+                    {
+                        Accessory = UITableViewCellAccessory.DisclosureIndicator,
+                        BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground)
+                    }
+                },
+            };
+
+            // create and push the dialog view onto the nav stack
+            dvc = new DialogViewController(UITableViewStyle.Plain, root);
+            dvc.NavigationItem.HidesBackButton = true;  
+            dvc.Title = NSBundle.MainBundle.LocalizedString ("More", "More");
+            this.PushViewController(dvc, true);
+        }
 	}
 }

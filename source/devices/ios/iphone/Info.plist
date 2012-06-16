@@ -13,7 +13,7 @@
 	<key>CFBundleVersion</key>
 	<string>0.1</string>
 	<key>MinimumOSVersion</key>
-	<string>4.0</string>
+	<string>4.3</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
@@ -21,6 +21,7 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>

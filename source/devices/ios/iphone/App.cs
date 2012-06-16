@@ -49,7 +49,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		public override bool FinishedLaunching (UIApplication app, NSDictionary options)
 		{
 			// trace event
-			TraceHelper.StartMessage("App: Loaded");
+            TraceHelper.StartMessage("App: Loaded");
           
             // if data isn't loaded from storage yet, load the app data
             if (!App.ViewModel.IsDataLoaded)
@@ -64,6 +64,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			var folders = new UINavigationController(new FoldersViewController(UITableViewStyle.Plain));
 			var settings = new SettingsPage();
 			var more = new MoreViewController();
+            //var more = new UINavigationController(new MoreViewController());
 			
 			tabBarController = new UITabBarController ();
 			tabBarController.ViewControllers = new UIViewController [] {

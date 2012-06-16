@@ -68,8 +68,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     NavigateBack();
                 });
 
-                UIImage actionsBackButtonImage = new UIImage("Images/actions-back-button.png");
-                UIImage actionsBackButtonImageSelected = new UIImage("Images/actions-back-button-selected.png");                
+                UIImage actionsBackButtonImage = UIImageCache.GetUIImage("Images/actions-back-button.png");
+                UIImage actionsBackButtonImageSelected = UIImageCache.GetUIImage("Images/actions-back-button-selected.png");                
                 UIButton actionsBackButton = UIButton.FromType(UIButtonType.Custom);
                 actionsBackButton.SetImage(actionsBackButtonImage, UIControlState.Normal);
                 actionsBackButton.SetImage(actionsBackButtonImageSelected, UIControlState.Selected);
@@ -96,10 +96,18 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // if moving from the item page to its parent (e.g. the schedule tab), call ViewDidAppear on that controller 
             actionsViewController.ViewDisappearing += (sender, e) => 
             {
-                // this property should be called "IsMovingToParentViewController" - it is a bug in the property naming, 
-                // not a bug in the code
-                if (actionsViewController.IsMovingFromParentViewController)
-                    controller.ViewDidAppear(false);
+                /* 
+                if (UIDevice.CurrentDevice.CheckSystemVersion(5, 0)) 
+                {
+                    // this property should be called "IsMovingToParentViewController" - it is a bug in the property naming, 
+                    // not a bug in the code
+                    if (actionsViewController.IsMovingFromParentViewController)
+                        controller.ViewDidAppear(false);
+                }
+                */
+                // the IsMovingToParentViewController method is only available on iOS 5.0 so the code above doesn't work generally.
+                // it does not appear to hurt anything to always call ViewDidAppear (even when pushing deeper into the nav stack)
+                controller.ViewDidAppear(false);
             };
 
 			// push the "view item" view onto the nav stack
@@ -569,12 +577,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     element = dateTimeElement;
                     break;
                 case DisplayTypes.Checkbox:
-					/*
-					BooleanImageElement boolElement = new BooleanImageElement(field.DisplayName, (bool) currentValue, 
-				    	new UIImage("Images/first.png"), new UIImage("Images/second.png"));
-					boolElement.ValueChanged += delegate { pi.SetValue(container, boolElement.Value, null); };
-					element = boolElement;
-					*/
 					CheckboxElement checkboxElement = new CheckboxElement(field.DisplayName, currentValue == null ? false : (bool) currentValue);
                     checkboxElement.Tapped += delegate { pi.SetValue(container, checkboxElement.Value, null); };
 					element = checkboxElement;

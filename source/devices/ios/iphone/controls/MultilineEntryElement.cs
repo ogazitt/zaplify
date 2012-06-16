@@ -89,7 +89,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				Text = Value ?? "",
 				Tag = 1,
 				Font = font,
-				BackgroundColor = UIColor.FromRGB (247, 247, 247),
+				BackgroundColor = UIDevice.CurrentDevice.CheckSystemVersion(5, 0) ? UIColor.FromRGB (247, 247, 247) : UIColor.White,
 			};
 		}
 
@@ -113,7 +113,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			if (entry == null){
 				SizeF size = ComputeEntryPosition (tv, cell);
 				float yOffset = (GetHeight(this.GetContainerTableView(), IndexPath) - size.Height) / 2;
-				float width = cell.ContentView.Bounds.Width - size.Width;
+				float width = cell.ContentView.Bounds.Width - size.Width - 2;  // remove two pixels to fix up appearance in case this is the only control in section
 
 				entry = CreateTextView (new RectangleF (size.Width, yOffset, width, size.Height));
                 if (AcceptReturns == false)
@@ -186,6 +186,16 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 
 			Value = newValue;
 		}
+
+        protected override void Dispose (bool disposing)
+        {
+            if (disposing){
+                if (entry != null){
+                    entry.Dispose ();
+                    entry = null;
+                }
+            }
+        }
 	}	
 }
 

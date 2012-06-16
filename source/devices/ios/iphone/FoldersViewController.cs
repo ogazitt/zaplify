@@ -22,48 +22,72 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
      
 		public FoldersViewController(UITableViewStyle style) : base()
 		{
+            TraceHelper.AddMessage("Folders: constructor");
 			this.Title = NSBundle.MainBundle.LocalizedString ("Folders", "Folders");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/33-cabinet.png");
-            InitializeComponent();
 		}
         
         public override void ViewDidLoad()
         {
+            TraceHelper.AddMessage("Folders: ViewDidLoad");
             base.ViewDidLoad();
+            InitializeComponent();
+
+            SortFolders();
+            TableView.DataSource = new TableDataSource(this);
+            TableView.Delegate = new TableDelegate(this);
+            this.thisController = this;
         }
 		
-		public override void ViewDidAppear (bool animated)
+        public override void ViewDidUnload()
+        {
+            TraceHelper.AddMessage("Folders: ViewDidUnload");
+
+            // Release any retained subviews of the main view.
+            thisController = null;
+            Folders = null;
+            if (TableView != null)
+                TableView.Dispose();
+            TableView = null;
+            if (Toolbar != null)
+                Toolbar.Dispose();
+            Toolbar = null;
+            this.NavigationController.ViewControllers = new UIViewController[0];
+            base.ViewDidUnload();
+        }
+
+        public override void ViewDidAppear(bool animated)
 		{
-            // trace event
-            TraceHelper.AddMessage("FoldersView: ViewDidAppear");
+            TraceHelper.AddMessage("Folders: ViewDidAppear");
 
             // set the background
             TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.TableBackground);
             TableView.SeparatorColor = UIColorHelper.FromString(App.ViewModel.Theme.TableSeparatorBackground);
 
             SortFolders();
-            TableView.DataSource = new TableDataSource(this);
-            TableView.Delegate = new TableDelegate(this);
-            this.thisController = this;
-            //this.TableView.BackgroundColor = UIColor.Purple;
             TableView.ReloadData();
 			base.ViewDidAppear(animated);
+
+            // HACK: touch the ViewControllers array to refresh it (in case the user popped the nav stack)
+            // this is to work around a bug in monotouch (https://bugzilla.xamarin.com/show_bug.cgi?id=1889)
+            // where the UINavigationController leaks UIViewControllers when the user pops the nav stack
+            if (this.NavigationController.ViewControllers.Length > 0) {}
 		}
 		
-		public override void DidReceiveMemoryWarning ()
+        public override void ViewDidDisappear(bool animated)
+        {
+            TraceHelper.AddMessage("Folders: ViewDidDisappear");
+            base.ViewDidDisappear(animated);
+        }
+
+		public override void DidReceiveMemoryWarning()
 		{
-			// Releases the view if it doesn't have a superview.
-			base.DidReceiveMemoryWarning ();
+            TraceHelper.AddMessage("Folders: DidReceiveMemoryWarning");
+
+            // Releases the view if it doesn't have a superview.
+			base.DidReceiveMemoryWarning();
 			
 			// Release any cached data, images, etc that aren't in use.
-		}
-		
-		public override void ViewDidUnload ()
-		{
-			base.ViewDidUnload ();
-			
-			// Release any retained subviews of the main view.
-			// e.g. this.myOutlet = null;
 		}
 		
 		public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
@@ -145,7 +169,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			{
 				controller = c;  
 			}
-			 
+
 			public override void RowSelected (UITableView tableView, NSIndexPath indexPath)
 			{
 				UIViewController nextController = null;
@@ -171,7 +195,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 controller = c;
 				cellID = "folderCellID";
 			}
-	 	 
+
 			public override int RowsInSection (UITableView tableview, int section)
 			{
 				return controller.Folders.Count;
@@ -179,15 +203,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	 
 			public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
 			{
-				// For more information on why this is necessary, see the Apple docs
 				var row = indexPath.Row;
 				UITableViewCell cell = tableView.DequeueReusableCell (cellID);
 	 
-				if (cell == null) {
-					// See the styles demo for different UITableViewCellAccessory
+				if (cell == null) 
+                {
 					cell = new UITableViewCell (UITableViewCellStyle.Default, cellID);
 					cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
-					cell.ImageView.Image = new UIImage("Images/appbar.folder.rest.png");
+					cell.ImageView.Image = UIImageCache.GetUIImage("Images/appbar.folder.rest.png");
 				}
 	 
 				cell.TextLabel.Text = controller.Folders[row].Name;

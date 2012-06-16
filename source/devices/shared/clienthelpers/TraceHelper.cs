@@ -19,18 +19,36 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         private static List<string> traceMessages = new List<string>();
 
         // start time
-        private static DateTime startTime;
+        private static DateTime startTime = DateTime.Now;
 
         // file to store messages in
         const string filename = "trace.txt";
+
+        private static string sessionID;
+        public static string SessionID 
+        { 
+            get 
+            { 
+                if (sessionID == null)
+                    sessionID = String.Format("{0}-{1}", Environment.MachineName, DateTime.Now.Ticks);
+                return sessionID; 
+            } 
+        }
 
         /// <summary>
         /// Add a message to the folder
         /// </summary>
         public static void AddMessage(string msg)
         {
+            if (traceMessages.Count == 0)
+                traceMessages.Add("Session: " + SessionID);
+
             TimeSpan ts = DateTime.Now - startTime;
-            string str = String.Format("  {0}: {1}", ts.TotalMilliseconds, msg);
+            double ms = ts.TotalMilliseconds;
+#if IOS     // IOS appears to express this in microseconds
+            ms /= 1000d;
+#endif
+            string str = String.Format("  {0}: {1}", ms, msg);
             traceMessages.Add(str);
         }
 
@@ -44,6 +62,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
         public static void StartMessage(string msg)
         {
+            if (traceMessages.Count == 0)
+                traceMessages.Add("Session: " + SessionID);
+
             // capture current time
             startTime = DateTime.Now;
 
@@ -67,7 +88,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             string contents = StorageHelper.ReadCrashReport();
             if (contents != null)
+            {
+                contents = "Crash Report\n" + contents;
                 Send(user, contents, del, networkDel);
+            }
         }
  
         public static void SendMessages(User user)

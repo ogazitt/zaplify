@@ -13,7 +13,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 {
     public class ContactPickerHelper
     {
-        const string ZaplifyContactHeader = "zaplify";
+        const string ZaplifyContactHeader = "zaplify:";
 
         /// <summary>
         /// Processes the contact - creates a new contact if one doesn't exist, or refreshes the contact
@@ -41,7 +41,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         {
             // find the contact in the address book
             var book = new AddressBook(); 
-            var contact = book.FirstOrDefault(c => c.Id == selectedPerson.Id.ToString());
+            Contact contact = null;
+            if (book.LoadSupported)
+                contact = book.Load(selectedPerson.Id.ToString());
+            else
+                contact = book.FirstOrDefault(c => c.Id == selectedPerson.Id.ToString());
 
             if (contact == null)
                 return;
@@ -101,6 +105,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // use the native address book because the cross-platform AddressBook class is read-only
             var ab = new ABAddressBook();
             var contactToModify = ab.GetPerson(selectedPerson.Id);
+
+            /* RelatedNames doesn't work on a real device (iPad)
             var relatedNames = contactToModify.GetRelatedNames().ToMutableMultiValue();
             if (relatedNames.Any(name => name.Label == ZaplifyContactHeader))
             {
@@ -111,6 +117,24 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             // add the Zaplify related name field with the itemID value
             relatedNames.Add(item.ID.ToString(), new MonoTouch.Foundation.NSString(ZaplifyContactHeader));
             contactToModify.SetRelatedNames(relatedNames);
+            */
+
+            var zapField = contactToModify.Note;
+            if (zapField == null)
+                contactToModify.Note = ZaplifyContactHeader + item.ID.ToString();
+            else
+            {
+                if (zapField.Contains(ZaplifyContactHeader))
+                {
+                    var idstring = GetContactID(zapField);
+                    if (idstring != null)
+                        contactToModify.Note = zapField.Replace(idstring, item.ID.ToString());
+                    else
+                        contactToModify.Note += String.Format("\n{0}{1}", ZaplifyContactHeader, item.ID.ToString());
+                }
+                else
+                    contactToModify.Note += String.Format("\n{0}{1}", ZaplifyContactHeader, item.ID.ToString());
+            }
 
             // save changes to the address book
             ab.Save();
@@ -174,6 +198,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
         private static Item GetExistingContact(ABPerson selectedPerson)
         {
+            /* RelatedNames doesn't work on a real device (iPad)
             var list = selectedPerson.GetRelatedNames().ToList();
             if (list.Any(name => name.Label == ZaplifyContactHeader))
             {
@@ -182,6 +207,34 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 return App.ViewModel.Items.FirstOrDefault(i => i.ID == id);
             }
             return null;
+            */
+            if (selectedPerson == null || selectedPerson.Note == null)
+                return null;
+            if (selectedPerson.Note.Contains(ZaplifyContactHeader))
+            {
+                var zapField = selectedPerson.Note;
+                var idstring = GetContactID(zapField);
+                if (idstring == null)
+                    return null;
+                Guid id = new Guid(idstring);
+                return App.ViewModel.Items.FirstOrDefault(i => i.ID == id);
+            }
+            return null;
+        }
+
+        private static string GetContactID(string zapField)
+        {
+            string idstring = null;
+            try 
+            {
+                var index = zapField.IndexOf(ZaplifyContactHeader);
+                idstring = zapField.Substring(index + ZaplifyContactHeader.Length, Guid.Empty.ToString().Length);
+            } 
+            catch (Exception ex) 
+            {
+                TraceHelper.AddMessage(String.Format("GetContactID: could not get contact ID from field {0}; ex: {1}", zapField, ex.Message));
+            }
+            return idstring;
         }
     }
 }

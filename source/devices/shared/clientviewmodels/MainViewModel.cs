@@ -29,7 +29,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
         }
 
-        public bool retrievedConstants = false;
+        private bool retrievedConstants = false;
 
         public bool IsDataLoaded { get; set; }
 
@@ -730,16 +730,17 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             // if the record is null, this means we've processed all the pending changes
             if (record == null)
             {
+                // if we were playing the user queue (and are now done), start playing the system queue
                 if (queueName == RequestQueue.UserQueue)
                 {
-                    // retrieve the Service's (now authoritative) data
-                    GetUserData();
+                    // prepare the system queue for playing (this will catch any FolderID / ItemID discrepancies between server and client $ClientSettings)
+                    RequestQueue.PrepareSystemQueueForPlaying();
+                    PlayQueue(RequestQueue.SystemQueue);
                 }
                 else
                 {
-                    // we just finished processing the last request on the system queue - signal any registered event handlers
-                    if (SyncComplete != null)
-                        SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
+                    // retrieve the Service's (now authoritative) data
+                    GetUserData();
                 }
                 return;
             }
@@ -1001,19 +1002,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 // store the $ClientSettings folder
                 if (csf != null)
                     ClientSettings = csf;
-
-                // prepare the system queue for playing (this will replace any guids that came from the service)
-                RequestQueue.PrepareSystemQueueForPlaying();
-
-                // play the system queue
-                PlayQueue(RequestQueue.SystemQueue);
             }
-            else
-            {
-                // invoke the SyncComplete event handler if it was set
-                if (SyncComplete != null)
-                    SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
-            }
+
+            // invoke the SyncComplete event handler if it was set
+            if (SyncComplete != null)
+                SyncComplete(this, new SyncCompleteEventArgs(SyncCompleteArg));
         }
 
         public delegate void NetworkOperationInProgressCallbackDelegate(bool operationInProgress, OperationStatus status);

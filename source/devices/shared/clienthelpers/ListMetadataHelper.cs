@@ -191,7 +191,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // get the list item 
             Item listItem = null;
             if (clientSettings.Items.Any(i => i.Name == name && i.ParentID == null))
-                listItem = clientSettings.Items.Single(i => i.Name == name && i.ParentID == null);
+                listItem = clientSettings.Items.First(i => i.Name == name && i.ParentID == null);
             else
             {
                 DateTime now = DateTime.UtcNow;

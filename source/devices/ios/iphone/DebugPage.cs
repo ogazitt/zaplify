@@ -11,7 +11,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	{
 		public void DebugPage()
 		{
-			// render URL and status
+            TraceHelper.AddMessage("Debug: constructor");
+
+            // render URL and status
 			var serviceUrl = new EntryElement("URL", "URL to connect to", WebServiceHelper.BaseUrl);
             var service = new Section("Service")
 			{
@@ -19,7 +21,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 new StringElement("Store New Service URL", delegate 
                 { 
                     serviceUrl.FetchValue(); 
-                    WebServiceHelper.BaseUrl = serviceUrl.Value; 
+                    // validate that this is a good URL before storing it (a bad URL can hose the phone client)
+                    Uri uri = null;
+                    if (Uri.TryCreate(serviceUrl.Value, UriKind.RelativeOrAbsolute, out uri) && 
+                        (uri.Scheme == "http" || uri.Scheme == "https"))
+                        WebServiceHelper.BaseUrl = serviceUrl.Value; 
+                    else
+                        serviceUrl.Value = WebServiceHelper.BaseUrl;
                 }),
 				new StringElement("Connected", App.ViewModel.LastNetworkOperationStatus.ToString()),
 			};
@@ -126,7 +134,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
 			var dvc = new DialogViewController (root, true);
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
-			this.PushViewController (dvc, true);
+            this.PushViewController (dvc, true);
+            //this.NavigationController.PushViewController (dvc, true);
 		}
 	}
 }

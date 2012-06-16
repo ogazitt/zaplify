@@ -25,10 +25,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	{
         private DialogViewController dialogViewController;
 		private RootElement ListsRootElement;
-        private ButtonListElement[] AddButtons = new ButtonListElement[3];
+        private ButtonListElement[] AddButtons; 
 		private List<ClientEntity> lists;
         private List<Button> buttonList;
-        private Section listsSection = null;
+        private Section listsSection;
+
         public MultilineEntryElement Name;
         
         private SpeechPopupDelegate SpeechPopupDelegate = new SpeechPopupDelegate();
@@ -47,6 +48,28 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			this.Title = NSBundle.MainBundle.LocalizedString ("Add Item", "Add Item");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/180-stickynote.png");
 		}
+
+        public override void ViewDidLoad()
+        {
+            TraceHelper.AddMessage("Add: ViewDidLoad");
+            InitializeComponent();
+            base.ViewDidLoad();
+        }
+
+        public override void ViewDidUnload()
+        {
+            TraceHelper.AddMessage("Add: ViewDidUnload");
+            if (dialogViewController != null)
+                this.ViewControllers = new UIViewController[0];
+            dialogViewController = null;
+            ListsRootElement = null;
+            AddButtons = null;
+            lists = null;
+            buttonList = null;
+            listsSection = null;
+            Name = null;
+            base.ViewDidUnload();
+        }
 		
 		public override void ViewDidAppear(bool animated)
 		{
@@ -70,18 +93,27 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (b != null)
                     listsSection.Insert(listsSection.Count, UITableViewRowAnimation.None, b);
 
+            // HACK: touch the ViewControllers array to refresh it (in case the user popped the nav stack)
+            // this is to work around a bug in monotouch (https://bugzilla.xamarin.com/show_bug.cgi?id=1889)
+            // where the UINavigationController leaks UIViewControllers when the user pops the nav stack
+            if (this.NavigationController != null && this.NavigationController.ViewControllers != null)
+                if (this.NavigationController.ViewControllers.Length > 0) {}
+
             base.ViewDidAppear(animated);
-		}
+
+        }
 		
         public override void ViewDidDisappear(bool animated)
         {
-            // trace event
             TraceHelper.AddMessage("Add: ViewDidDisappear");
 
             dialogViewController.ReloadComplete();
             App.ViewModel.SyncComplete -= RefreshHandler;
             App.ViewModel.SyncCompleteArg = null;
             NuanceHelper.Cleanup();
+
+            // force the soft keyboard to dismiss
+            dialogViewController.TableView.EndEditing(true);
             base.ViewDidDisappear(animated);
         }
         
@@ -306,8 +338,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             };
          
             // create and push the dialog view onto the nav stack
-            dialogViewController = new DialogViewController(root);
-            dialogViewController.NavigationItem.HidesBackButton = true;  
+            dialogViewController = new DialogViewController(root, false);
+            //dialogViewController.NavigationItem.HidesBackButton = true;  
             dialogViewController.Title = NSBundle.MainBundle.LocalizedString("Add Item", "Add Item");
 
             // set up the "pull to refresh" feature
@@ -323,6 +355,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
         private void CreateAddButtons()
         {
+            if (AddButtons == null)
+                AddButtons = new ButtonListElement[3];
+
             // get all the lists
             var entityRefItems = App.ViewModel.GetListsOrderedBySelectedCount();
 
@@ -400,7 +435,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                         // (do not sync for operations against $ClientSettings)
                                         //if (String.IsNullOrWhiteSpace(Name.Value))
                                         //    App.ViewModel.SyncWithService();
-                                    }) { Image = new UIImage("Images/appbar.folder.rest.png") },                                      
+                                    }) { Image = UIImageCache.GetUIImage("Images/appbar.folder.rest.png") },                                      
                                     from li in f.Items
                                         where li.IsList == true && li.ItemTypeID != SystemItemTypes.Reference
                                         orderby li.Name ascending
@@ -412,10 +447,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                             // (do not sync for operations against $ClientSettings)
                                             //if (String.IsNullOrWhiteSpace(Name.Value))
                                             //    App.ViewModel.SyncWithService();
-                                        }) { Image = new UIImage("Images/179-notepad.png") }
+                                        }) { Image = UIImageCache.GetUIImage("Images/179-notepad.png") }
                                 }
                         };
-                        var dvc = new DialogViewController(ListsRootElement);
+                        var dvc = new DialogViewController(ListsRootElement, true);
                         dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground); 
                         dvc.NavigationItem.HidesBackButton = false;
                         dialogViewController.NavigationController.PushViewController(dvc, true); 

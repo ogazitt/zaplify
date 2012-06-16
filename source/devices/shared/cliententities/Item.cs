@@ -349,7 +349,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             // this may fail if this item doesn't have this field set yet
             if (fieldValues.Any(fv => fv.FieldName == fieldName))
             {
-                fieldValue = fieldValues.Single(fv => fv.FieldName == fieldName);
+                fieldValue = fieldValues.First(fv => fv.FieldName == fieldName);
                 
                 // store the new FieldValue in the dictionary
                 fieldValueDict[fieldName] = fieldValue;
@@ -363,13 +363,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                 if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
                     return null;
 
-                Field field = null;
-                try
-                {   // try to find the fieldName among the "supported" fields of the itemtype 
-                    // this may fail if this itemtype doesn't support this field name
-                    field = it.Fields.Single(f => f.Name == fieldName);
-                }
-                catch (Exception)
+                // try to find the fieldName among the "supported" fields of the itemtype 
+                // this may fail if this itemtype doesn't support this field name
+                Field field = it.Fields.FirstOrDefault(f => f.Name == fieldName);
+                if (field == null)
                 {
                     // manufacture a synthetic, generic field which has a default FieldType
                     field = new Field() { Name = fieldName, FieldType = FieldTypes.String };
@@ -390,19 +387,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             ItemType it;
             if (ItemType.ItemTypes.TryGetValue(this.ItemTypeID, out it) == false)
                 return null;
-            try
-            {
-                // try to find the fieldID among the "supported" fields of the itemtype 
-                // this may fail if this itemtype doesn't support this field name
-                Field field = it.Fields.Single(f => f.ID == fieldID);
-                
-                // delegate to GetFieldValue(Guid fieldID)
-                return GetFieldValue(field, create);
-            }
-            catch (Exception)
-            {
+
+            // try to find the fieldName among the "supported" fields of the itemtype 
+            Field field = it.Fields.FirstOrDefault(f => f.ID == fieldID);
+            if (field == null)
                 return null;
-            }
+
+            // delegate to GetFieldValue(Guid fieldID)
+            return GetFieldValue(field, create);
         }
         
         // get FieldValue of this Item for the given Field
@@ -421,14 +413,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 
             // get the fieldvalue associated with this field
             // this may fail if this item doesn't have this field set yet
-            try
+            fieldValue = fieldValues.FirstOrDefault(fv => fv.FieldName == field.Name);
+            if (fieldValue != null)
             {
-                fieldValue = fieldValues.Single(fv => fv.FieldName == field.Name);
-                
                 // store the new FieldValue in the dictionary
                 fieldValueDict[field.Name] = fieldValue;
             }
-            catch (Exception)
+            else
             {
                 // if the caller wishes to create a new FieldValue, do so now
                 if (create)

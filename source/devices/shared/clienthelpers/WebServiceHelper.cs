@@ -240,14 +240,25 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             // this code is non-reentrant
             if (isRequestInProgress == true)
+            {
+
                 return;
+            }
 
             // signal that a network operation is starting
             if (netOpInProgressDel != null)
                 netOpInProgressDel.DynamicInvoke(true, OperationStatus.Started);
 
+            Uri uri = null;
+            if (Uri.TryCreate(url, UriKind.RelativeOrAbsolute, out uri) == false || 
+                uri.Scheme != "http" && uri.Scheme != "https") 
+            {
+                TraceHelper.AddMessage("InvokeWebServiceRequest: bad URL: " + url);
+                return;
+            }
+
 #if IOS
-			request = (HttpWebRequest) WebRequest.Create(url);
+			request = (HttpWebRequest) WebRequest.Create(uri);
 #else
 			request = WebRequest.CreateHttp(url);
 #endif

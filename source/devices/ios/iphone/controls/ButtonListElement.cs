@@ -62,7 +62,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 			cell.Accessory = UITableViewCellAccessory.None;
 			cell.SelectionStyle = UITableViewCellSelectionStyle.None;
             if (App.ViewModel.Theme == null)
-			    cell.BackgroundColor = UIColor.FromPatternImage(new UIImage("Images/background.png"));
+			    cell.BackgroundColor = UIColor.FromPatternImage(UIImageCache.GetUIImage("Images/background.png"));
             else
                 cell.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
 			
@@ -92,7 +92,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				if (btn.Background != null)
 				{
 					// set the background image, and also change the font color to white 
-					button.SetBackgroundImage(new UIImage(btn.Background), UIControlState.Normal);
+					button.SetBackgroundImage(UIImageCache.GetUIImage(btn.Background), UIControlState.Normal);
 					button.SetTitleColor(btn.TextColor ?? UIColor.White, UIControlState.Normal);
 					button.Font = btn.Font ?? UIFont.BoldSystemFontOfSize(17);
 				}

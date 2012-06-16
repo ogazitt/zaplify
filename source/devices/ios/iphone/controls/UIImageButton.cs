@@ -26,6 +26,12 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
 				Clicked(this, new EventArgs());
 			//base.TouchesEnded(touches, evt);
 		}
+
+        protected override void Dispose(bool isDisposing)
+        {
+            Clicked = null;
+            base.Dispose(isDisposing);
+        }
 	}
 }
 

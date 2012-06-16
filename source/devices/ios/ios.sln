@@ -62,10 +62,6 @@ Global
 		$0.CSharpFormattingPolicy = $3
 		$3.IndentSwitchBody = True
 		$3.StatementBraceStyle = NextLine
-		$3.PlaceElseOnNewLine = True
-		$3.PlaceCatchOnNewLine = True
-		$3.PlaceFinallyOnNewLine = True
-		$3.PlaceWhileOnNewLine = True
 		$3.BeforeMethodDeclarationParentheses = False
 		$3.BeforeMethodCallParentheses = False
 		$3.BeforeConstructorDeclarationParentheses = False
@@ -105,5 +101,6 @@ Global
 		$12.LineAlign = 0
 		$11.inheritsSet = Mono
 		description = Zaplify
+		version = 0.1.1
 	EndGlobalSection
 EndGlobal

@@ -20,8 +20,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 		private User user;
 		private Element Email;
 		private Element Password;
-        private ThemedRootElement Root;
-        private ThemedRootElement AccountRootElement;
         private bool accountOperationSuccessful = false;
         private DialogViewController dvc = null;
 
@@ -35,34 +33,49 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
 		public SettingsPage()
 		{
-			// trace event
             TraceHelper.AddMessage("Settings: constructor");
 
 			this.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
 			this.TabBarItem.Image = UIImage.FromBundle ("Images/20-gear2.png");
 		}
 		
+        public override void ViewDidLoad()
+        {
+            TraceHelper.AddMessage("Settings: ViewDidLoad");
+            InitializeComponent();
+            base.ViewDidLoad();
+        }
+
+        public override void ViewDidUnload()
+        {
+            TraceHelper.AddMessage("Settings: ViewDidLoad");
+            if (dvc != null)
+                this.ViewControllers = new UIViewController[0];
+            Email = null;
+            Password = null;
+            dvc = null;
+            base.ViewDidUnload();
+        }
+
 		public override void ViewDidAppear(bool animated)
 		{
-			// trace event
             TraceHelper.AddMessage("Settings: ViewDidAppear");
 			
             if (dvc == null)
                 InitializeComponent();
             else
-                InitializeRoot();
+                CreateRoot();
 
             // set the background
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
+            dvc.ReloadData();
 			
 			base.ViewDidAppear(animated);
-		}
+        }
 		
 	 	public override void ViewDidDisappear(bool animated)
 		{
-			if (accountOperationSuccessful)
-			{
-			}
+            TraceHelper.AddMessage("Settings: ViewDidDisappear");
 			base.ViewDidDisappear(animated);
 		}
 		
@@ -134,7 +147,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 // reset the settings page
                 accountOperationSuccessful = false;
                 dvc.NavigationController.PopViewControllerAnimated(true);
-                InitializeRoot();
+                ResignFirstResponder();
+                CreateRoot();
                 dvc.ReloadData();
             }
         }
@@ -158,7 +172,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						if (user.Password == null)
                             user.Password = pswd;
                         App.ViewModel.User = user;
+                        // prepare the user queue and remove the system queue (the $ClientSettings will be lost because the server is authoritative)
                         RequestQueue.PrepareUserQueueForAccountConnect();
+                        RequestQueue.DeleteQueue(RequestQueue.SystemQueue);
 	                    App.ViewModel.SyncWithService();
 	                    break;
 	                case HttpStatusCode.NotFound:
@@ -183,9 +199,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (accountOperationSuccessful)
                 {
                     dvc.NavigationController.PopViewControllerAnimated(true);
-                    InitializeRoot();
+                    CreateRoot();
                     dvc.ReloadData();
                 }
+                ResignFirstResponder();
             });
         }
 
@@ -239,9 +256,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 if (accountOperationSuccessful)
                 {
                     dvc.NavigationController.PopViewControllerAnimated(true);
-                    InitializeRoot();
+                    CreateRoot();
                     dvc.ReloadData();
                 }
+                ResignFirstResponder();
             });
         }
 		
@@ -249,9 +267,10 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             
         #region Helpers
 
-        private void InitializeAccountSettings()
+        private RootElement InitializeAccountSettings()
         {
             user = App.ViewModel.User;  
+            ThemedRootElement accountRootElement = null;
 
             // initialize the Account element based on whether connected or disconnected
             if (IsConnected)
@@ -273,7 +292,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 button.Margin = 0f;
 
                 // create the account root element
-                AccountRootElement = new ThemedRootElement("Account")
+                accountRootElement = new ThemedRootElement("Account")
                 {
                     new Section()
                     {
@@ -304,7 +323,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 connectButton.Margin = 0f;
 
                 // create the account root element
-                AccountRootElement = new ThemedRootElement("Account")
+                accountRootElement = new ThemedRootElement("Account")
                 {
                     new Section()
                     {
@@ -322,32 +341,45 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 };
             }   
 
-            Root[0].Insert(0, UITableViewRowAnimation.None, AccountRootElement);
+            return accountRootElement;
         }
 
         private void InitializeComponent()
         {
-            InitializeRoot();
-
-            // push the view onto the nav stack
-            dvc = new DialogViewController(Root);
+            // create and push the view onto the nav stack
+            dvc = new DialogViewController(new ThemedRootElement("Settings"));
             dvc.NavigationItem.HidesBackButton = true;  
             dvc.Title = NSBundle.MainBundle.LocalizedString ("Settings", "Settings");
             dvc.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground);
             this.PushViewController(dvc, false);
         }
 
-        private void InitializeRoot()
+        private void CreateRoot()
         {
-            // create the root for all settings 
-            if (Root == null)
-                Root = new ThemedRootElement("Settings");
+            // create the root for all settings.  note that the RootElement is cleared and recreated, as opposed to 
+            // new'ed up from scratch.  this is by design - otherwise we don't get correct behavior on page transitions
+            // when the theme is changed.
+            if (dvc.Root == null)
+                dvc.Root = new ThemedRootElement("Settings");
             else
-                Root.Clear();
-            Root.Add(new Section());
+            {
+                // clean up any existing state for the existing root element
+                if (dvc.Root.Count > 0)
+                {
+                    // force the dismissal of the keyboard in the account settings page if it was created
+                    if (dvc.Root[0].Count > 0)
+                    {
+                        var tableView = dvc.Root[0][0].GetContainerTableView();
+                        if (tableView != null)
+                            tableView.EndEditing(true);
+                    }
+                }
+                // clearing the root will cascade the Dispose call on its children
+                dvc.Root.Clear();
+            }
 
             // create the account root element
-            InitializeAccountSettings();
+            dvc.Root.Add(new Section() { InitializeAccountSettings() });
 
             // initialize other phone settings by creating a radio element list for each phone setting
             var elements = (from ps in PhoneSettings.Settings.Keys select (Element) new ThemedRootElement(ps, new RadioGroup(null, 0))).ToList();
@@ -362,7 +394,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     viewController.ViewDisappearing += delegate 
                     { 
                         var parent = viewController.Root.GetImmediateRootElement() as RootElement;
-                        parent.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground); 
+                        if (parent != null && parent.TableView != null)
+                            parent.TableView.BackgroundColor = UIColorHelper.FromString(App.ViewModel.Theme.PageBackground); 
                     };
                 };
                 
@@ -422,7 +455,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 
             // attach the other settings pages to the root element using Insert instead of AddAll so as to disable animation
             foreach (var e in elements)
-                Root[0].Insert(Root[0].Count, UITableViewRowAnimation.None, e);
+                dvc.Root[0].Insert(dvc.Root[0].Count, UITableViewRowAnimation.None, e);
         }
         
         #endregion Helpers
