@@ -29,8 +29,13 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         { 
             get 
             { 
+#if IOS
+                var deviceName = Environment.MachineName;
+#else
+                var deviceName = Microsoft.Phone.Info.DeviceStatus.DeviceName;
+#endif
                 if (sessionID == null)
-                    sessionID = String.Format("{0}-{1}", Environment.MachineName, DateTime.Now.Ticks);
+                    sessionID = String.Format("{0}-{1}", deviceName, DateTime.Now.Ticks);
                 return sessionID; 
             } 
         }
