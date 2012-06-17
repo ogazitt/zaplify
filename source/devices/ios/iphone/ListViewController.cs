@@ -44,20 +44,20 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         public override void ViewDidLoad()
         {
             TraceHelper.AddMessage("ListView: ViewDidLoad");
-            base.ViewDidLoad();
             Source = new ListTableDataSource(this);
             InitializeComponent();
             TableView.DataSource = Source;
             TableView.Delegate = new ListTableDelegate(this);
+            base.ViewDidLoad();
         }
 
         public override void ViewDidUnload()
         {
             TraceHelper.AddMessage("ListView: ViewDidUnload");
-            base.ViewDidUnload ();
 
             // Release any retained subviews of the main view.
             Cleanup();
+            base.ViewDidUnload ();
         }
         
 		public override void ViewDidAppear(bool animated)
@@ -144,19 +144,17 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			// reload the data
 			TableView.ReloadData();
 
-			// call the base class implementation
-			base.ViewDidAppear(animated);
-
             // HACK: touch the ViewControllers array to refresh it (in case the user popped the nav stack)
             // this is to work around a bug in monotouch (https://bugzilla.xamarin.com/show_bug.cgi?id=1889)
             // where the UINavigationController leaks UIViewControllers when the user pops the nav stack
             if (this.NavigationController.ViewControllers.Length > 0) {}
+
+            base.ViewDidAppear(animated);
         }
 		
         public override void ViewDidDisappear(bool animated)
         {
             TraceHelper.AddMessage("ListView: ViewDidDisappear");
-            base.ViewDidDisappear(animated);
 
             // search for the current controller in the nav stack
             bool found = false;
@@ -179,6 +177,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 Cleanup();
                 //this.Dispose();
             }
+
+            base.ViewDidDisappear(animated);
         }
 
 		public override void DidReceiveMemoryWarning ()
@@ -211,9 +211,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         private void Cleanup()
         {
             folder = null;
-            //List = null;
-            //Sections = null;
-        
             listID = null;
             parentController = null;
 
@@ -685,7 +682,9 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 						else
 							checkBox.Frame = cell.ImageView.Frame;
 
-                        checkBox.Clicked += (sender, e) => 
+                        checkBox.Clicked += CompleteCheckbox_Click;
+                            /*
+                            (sender, e) => 
                         {
                             // trace data
                             TraceHelper.StartMessage("CompleteCheckbox Click");
@@ -732,6 +731,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             // trace data
                             TraceHelper.AddMessage("Finished CompleteCheckbox Click");
                         };
+                        */
                  
 						checkBox.UserInteractionEnabled = true;	
 						cell.AddSubview(checkBox);
@@ -864,7 +864,6 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 TraceHelper.StartMessage("CompleteCheckbox Click");
     
                 // get the item that was just updated, and ensure the Complete flag is in the correct state
-                //Item item = folder.Items.Single<Item>(t => t.ID == itemID);
                 UICheckbox checkBox = (UICheckbox) sender;
                 Item item = (Item) checkBox.UserState;
     
@@ -896,9 +895,8 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 StorageHelper.WriteFolder(Folder);
     
                 // reorder the item in the folder and the ListBox
-                //controller.TableView.ReloadData();
                 SortList();
-                //TableView.ReloadData();
+                controller.TableView.ReloadData();
     
                 // trigger a sync with the Service 
                 App.ViewModel.SyncWithService();
