@@ -229,6 +229,12 @@ Control.Text.render = function Control$Text$render($element, item, field, tag, t
     var tag = (tag == null) ? 'span' : tag;
     var $tag;
     var value = item.GetFieldValue(field);
+    if (field.DisplayType == DisplayTypes.DatePicker) {
+        value = Control.DateTime.formatDate(value);
+    } else if (field.DisplayType == DisplayTypes.DateTimePicker) {
+        value = Control.DateTime.format(value);
+    }
+
     if (value != null) {
         $tag = $('<' + tag + '/>').appendTo($element);
         $tag.addClass(field.Class);
@@ -457,12 +463,16 @@ Control.Text.insert = function Control$Text$insert($input) {
         list.InsertItem(item);
     }
 }
-// handler for updating text 
+// handler for updating text
 Control.Text.update = function Control$Text$update($input) {
     var item = $input.data('item');
     var field = $input.data('field');
     var value = $input.val();
     var currentValue = item.GetFieldValue(field);
+    if (field.FieldType == FieldTypes.DateTime) {
+        // store DateTime fields in UTC format
+        value = Control.DateTime.formatUTC(value);
+    }
     if (value != currentValue) {
         var updatedItem = item.Copy();
         updatedItem.SetFieldValue(field, value);
@@ -681,7 +691,8 @@ Control.DateTime.renderDatePicker = function Control$DateTime$renderDatePicker($
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.formatDate(item.GetFieldValue(field)));
+    //$date.val(item.GetFieldValue(field));
     $date.datepicker({
         numberOfMonths: 2,
         onClose: function (value, picker) { Control.DateTime.update(picker.input); }
@@ -694,7 +705,8 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.format(item.GetFieldValue(field)));
+    //$date.val(item.GetFieldValue(field));
     $date.datetimepicker({
         ampm: true,
         timeFormat: 'h:mm TT',
@@ -709,6 +721,31 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
 
 Control.DateTime.update = function Control$DateTime$update($input) {
     Control.Text.update($input);
+}
+
+// format for DateTime
+Control.DateTime.format = function Control$DateTime$format(text) {
+    if (text != null && text.length > 0) {
+        var date = new Date(text);
+        return date.format();
+    }
+    return text;
+}
+// format for Date only
+Control.DateTime.formatDate = function Control$DateTime$formatDate(text) {
+    if (text != null && text.length > 0) {
+        var date = new Date(text);
+        return date.format("longDate");
+    }
+    return text;
+}
+// format for UTC for storage
+Control.DateTime.formatUTC = function Control$DateTime$formatUTC(text) {
+    if (text != null && text.length > 0) {
+        var date = new Date(text);
+        return date.format("isoUtcDateTime");
+    }
+    return text;
 }
 
 // ---------------------------------------------------------

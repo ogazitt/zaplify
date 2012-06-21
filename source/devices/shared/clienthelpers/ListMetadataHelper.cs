@@ -130,11 +130,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             var metadataList = GetListMetadataList(clientSettings);
             var selectedCountLists = clientSettings.Items.Where(i =>
                 i.ParentID == metadataList.ID &&
-                i.FieldValues.Any(fv => fv.FieldName == FieldNames.SelectedCount)).ToList();
+                i.FieldValues.Any(fv => fv.FieldName == ExtendedFieldNames.SelectedCount)).ToList();
 
             var orderedLists = new List<SelectedCount>();
             foreach (var l in selectedCountLists)
-                orderedLists.Add(new SelectedCount() { EntityRefItem = l, Count = Convert.ToInt32(l.GetFieldValue(FieldNames.SelectedCount).Value) });
+                orderedLists.Add(new SelectedCount() { EntityRefItem = l, Count = Convert.ToInt32(l.GetFieldValue(ExtendedFieldNames.SelectedCount).Value) });
 
             // return the ordered lists
             return orderedLists.OrderByDescending(sc => sc.Count).ThenBy(sc => sc.EntityRefItem.Name).Select(sc => sc.EntityRefItem).ToList();
@@ -143,21 +143,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public static void IncrementListSelectedCount(Folder clientSettings, ClientEntity list)
         {
             // get, increment, and store the selected count for a list
-            string countString = GetListMetadataValue(clientSettings, list, FieldNames.SelectedCount);
+            string countString = GetListMetadataValue(clientSettings, list, ExtendedFieldNames.SelectedCount);
             int count = Convert.ToInt32(countString);
             count++;
             countString = count.ToString();
-            StoreListMetadataValue(clientSettings, list, FieldNames.SelectedCount, countString);
+            StoreListMetadataValue(clientSettings, list, ExtendedFieldNames.SelectedCount, countString);
         }
 
         public static string GetListSortOrder(Folder clientSettings, ClientEntity list)
         {
-            return GetListMetadataValue(clientSettings, list, FieldNames.SortBy);
+            return GetListMetadataValue(clientSettings, list, ExtendedFieldNames.SortBy);
         }
 
         public static void StoreListSortOrder(Folder clientSettings, ClientEntity list, string listSortOrder)
         {
-            StoreListMetadataValue(clientSettings, list, FieldNames.SortBy, listSortOrder);
+            StoreListMetadataValue(clientSettings, list, ExtendedFieldNames.SortBy, listSortOrder);
         }
 
         public static Item GetDefaultList(Folder clientSettings, Guid itemType)

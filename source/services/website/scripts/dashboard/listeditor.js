@@ -172,14 +172,14 @@ ListView.prototype.renderField = function ($element, item, field) {
     var $field;
     switch (field.Name) {
         case FieldNames.DueDate:
-            if (item.GetFieldValue(FieldNames.Complete) != true) {
+            if (field.DisplayType == DisplayTypes.DateTimePicker) {
+                $field = Control.Text.render($element, item, field, 'small', 'On ');
+            }
+            else if (item.GetFieldValue(FieldNames.Complete) != true) {
                 $field = Control.Text.render($element, item, field, 'small', 'Due on ');
             }
             break;
-        case FieldNames.StartTime:
-            $field = Control.Text.render($element, item, field, 'small', 'On ');
-            break;
-        case FieldNames.EndTime:
+        case FieldNames.EndDate:
             $field = Control.Text.render($element, item, field, 'small', 'until ');
             break;
         case FieldNames.CompletedOn:

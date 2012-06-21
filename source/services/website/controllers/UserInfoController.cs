@@ -21,8 +21,8 @@
         public ActionResult PossibleContacts(string startsWith = null, string contains = null, int maxCount = 10)
         {
             JsContactsResult contactsResults = new JsContactsResult();
-            Folder userFolder = StorageContext.GetOrCreateUserFolder(CurrentUser);
-            Item possibleContactsList = StorageContext.GetOrCreateUserItemTypeList(CurrentUser, SystemItemTypes.Contact);
+            Folder userFolder = StorageContext.UserFolder.Get(CurrentUser);
+            Item possibleContactsList = StorageContext.UserFolder.GetListForItemType(CurrentUser, SystemItemTypes.Contact);
             if (possibleContactsList != null)
             {
                 Dictionary<string, string> contacts = new Dictionary<string, string>();

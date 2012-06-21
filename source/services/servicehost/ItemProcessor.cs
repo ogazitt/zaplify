@@ -16,13 +16,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
         protected UserStorageContext userContext;
         protected User currentUser;
 
-        /// <summary>
-        /// Factory method to create a new item processor based on the item type
-        /// </summary>
-        /// <param name="userContext">User storage context</param>
-        /// <param name="currentUser">Current user</param>
-        /// <param name="itemTypeID">Guid representing the item type ID</param>
-        /// <returns>A new ItemProcessor subtype</returns>
+        // Factory method to create a new item processor based on the item type
         public static ItemProcessor Create(UserStorageContext userContext, User currentUser, Guid itemTypeID)
         {
             if (itemTypeID == SystemItemTypes.Contact)
@@ -34,13 +28,10 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return null;
         }
 
-        /// <summary>
-        /// Process a new item that is being created.  The default 
-        /// implementation extracts the intent in an itemtype-specific way
-        /// and attaches the intent to the item's fieldvalues.
-        /// </summary>
-        /// <param name="item">Item to create</param>
-        /// <returns>true if already processed, false if subclass needs to process</returns>
+
+        // Process a new item that is being created  
+        // Extracts the intent based on ItemType and extends as FieldValue on Item
+        // return true to indicate to sub-classes that processing is complete
         public virtual bool ProcessCreate(Item item)
         {
             var intent = ExtractIntent(item);
@@ -49,24 +40,17 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return false;
         }
 
-        /// <summary>
-        /// Process an item that is being deleted.  The default implementation does nothing.
-        /// </summary>
-        /// <param name="item">Item to create</param>
-        /// <returns>true if already processed, false if subclass needs to process</returns>
+        // Process an item that is being deleted.  
+        // Default implementation does nothing.
+        // return true to indicate to sub-classes that processing is complete
         public virtual bool ProcessDelete(Item item)
         {
             return false;
         }
 
-        /// <summary>
-        /// Process an update.  The default implementation checks if the
-        /// name or itemtype have changed - if so, this is equivalent to creating 
-        /// a new item.  
-        /// </summary>
-        /// <param name="oldItem">Old item</param>
-        /// <param name="newItem">New item</param>
-        /// <returns>true if already processed, false if subclass needs to process</returns>
+        // Process an item being updated.  
+        // Default implementation checks to see if Name or ItemType have changed
+        // which is equivalent to a new Item being created 
         public virtual bool ProcessUpdate(Item oldItem, Item newItem)
         {
             if (newItem.Name != oldItem.Name || newItem.ItemTypeID != oldItem.ItemTypeID)
@@ -87,25 +71,19 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return false;
         }
 
-        /// <summary>
-        /// Create and attach an Intent fieldvalue to the item
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="intent"></param>
+
+        // Create and add an Intent FieldValue to the item
         protected void CreateIntentFieldValue(Item item, string intent)
         {
-            item.GetFieldValue(FieldNames.Intent, true).Value = intent;
+            item.GetFieldValue(ExtendedFieldNames.Intent, true).Value = intent;
             TraceLog.TraceDetail(String.Format("Assigned {0} intent to item {1}", intent, item.Name));
         }
 
-        /// <summary>
-        /// The intent of an item is a normalized string that is a key into an itemtype-specific meaning for the item
-        /// For example, the intent of a Task is the Workflow that it triggers; 
-        /// The intent of a ListItem, ShoppingItem, or Grocery is the lowercased name.
-        /// Default implementation for the intent of an item is the item's name, lowercased
-        /// </summary>
-        /// <param name="item">Item to extract an intent from</param>
-        /// <returns>string representing intent</returns>
+
+        // The Intent of an Item is a normalized string that used to infer meaning for the item
+        // Intent is may be determined differently based on ItemType
+        // For example, simple NLP is used to determine Intent for a Task to help select a Workflow 
+        // Default implementation for the Intent of an item is to lowercase the item name.
         protected virtual string ExtractIntent(Item item)
         {
             return item.Name.ToLower();
@@ -164,8 +142,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         return false;
                     }
 
-                    // get or create an entityref in the entity ref list in the $User folder
-                    var entityRefItem = userContext.GetOrCreateEntityRef(currentUser, newItem);
+                    // get or create an EntityRef in the UserFolder EntityRefs list
+                    var entityRefItem = userContext.UserFolder.GetEntityRef(currentUser, newItem);
                     if (entityRefItem == null)
                     {
                         TraceLog.TraceError(FacebookHelper.TRACE_NO_CONTACT_ENTITYREF);
@@ -272,7 +250,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
             // get the "intent" which in this case is the normalized name 
             var intentName = item.Name.ToLower();
-            var intentFV = item.GetFieldValue(FieldNames.Intent);
+            var intentFV = item.GetFieldValue(ExtendedFieldNames.Intent);
             if (intentFV != null && intentFV.Value != null)
                 intentName = intentFV.Value;
 
@@ -402,16 +380,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         private FieldValue GetGroceryCategoryFieldValue(Item item, bool create = false)
         {
-            // get the known grocery item list under the $User folder
-            var knownGroceryItems = userContext.GetOrCreateUserItemTypeList(currentUser, SystemItemTypes.Grocery);
+            // get or create the list for Grocery item types in the UserFolder
+            var knownGroceryItems = userContext.UserFolder.GetListForItemType(currentUser, SystemItemTypes.Grocery);
             if (knownGroceryItems == null)
                 return null;
 
             Item groceryItem = null;
             FieldValue groceryCategoryFV = null;
 
-            // get the normalized name for the grocery (stored in FieldNames.Intent) or resort to lowercased item name
-            var intentFV = item.GetFieldValue(FieldNames.Intent);
+            // get the normalized name for the grocery (stored in Intent) or resort to lowercased item name
+            var intentFV = item.GetFieldValue(ExtendedFieldNames.Intent);
             var itemName = intentFV != null && intentFV.Value != null ? intentFV.Value : item.Name.ToLower();
             
             if (userContext.Items.Any(i => i.Name == itemName && i.ParentID == knownGroceryItems.ID))
