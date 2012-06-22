@@ -698,8 +698,20 @@
             // get or create the ClientFolder for given user
             public Folder Get(User user)
             {
-                return storage.GetOrCreateFolder(user, SystemEntities.User, SystemItemTypes.System);
+                return storage.GetOrCreateFolder(user, SystemEntities.ClientSettings, SystemItemTypes.NameValue);
             }
+
+            // get or create the UserProfile list in the ClientSettings for given user
+            public Item GetUserProfileList(User user)
+            {
+                Folder clientFolder = Get(user);
+                if (clientFolder != null)
+                {
+                    return storage.GetOrCreateList(user, clientFolder, SystemEntities.UserProfile);
+                }
+                return null;
+            }
+
         }
     }
 }

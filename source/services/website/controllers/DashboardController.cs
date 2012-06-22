@@ -23,6 +23,10 @@
                 model.RenewFBToken = renewFBToken;
                 model.ConsentStatus = consentStatus;
                 // TODO: if consent fails, un-Choose the Suggestion
+
+                // synchronize with Calendar
+                GoogleClient client = new GoogleClient(CurrentUser, StorageContext);
+                client.SynchronizeCalendar();
             }
             catch
             {

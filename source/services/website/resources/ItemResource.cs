@@ -74,6 +74,13 @@
                 try
                 {
                     Item requestedItem = this.StorageContext.Items.Include("ItemTags").Include("FieldValues").Single<Item>(t => t.ID == id);
+                    
+                    // process the delete BEFORE deleting item, fields, references, etc.
+                    ItemProcessor ip = ItemProcessor.Create(CurrentUser, StorageContext, requestedItem.ItemTypeID);
+                    if (ip != null)
+                    {   // do itemtype-specific processing
+                        ip.ProcessDelete(requestedItem);
+                    }
 
                     // delete all the itemtags associated with this item
                     if (requestedItem.ItemTags != null && requestedItem.ItemTags.Count > 0)
@@ -94,13 +101,6 @@
                     multipleItemsDeleted = DeleteItemChildrenRecursively(StorageContext, requestedItem);
                     // delete all ItemRef FieldValues with Value of this item.ID
                     multipleItemsDeleted |= DeleteItemReferences(CurrentUser, StorageContext, requestedItem);
-
-                    // process the delete
-                    ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, requestedItem.ItemTypeID);
-                    if (ip != null)
-                    {   // do itemtype-specific processing
-                        ip.ProcessDelete(requestedItem);
-                    }
 
                     // TODO: indicate using TimeStamp that multiple items were deleted
 
@@ -221,7 +221,7 @@
                 if (clientItem.LastModified == null || clientItem.LastModified.Date == DateTime.MinValue.Date)
                     clientItem.LastModified = now;
 
-                ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, clientItem.ItemTypeID);
+                ItemProcessor ip = ItemProcessor.Create(CurrentUser, StorageContext, clientItem.ItemTypeID);
                 if (ip != null)
                 {   // do itemtype-specific processing
                     ip.ProcessCreate(clientItem);
@@ -349,7 +349,7 @@
                         changed = true;
                     }
 
-                    ItemProcessor ip = ItemProcessor.Create(StorageContext, CurrentUser, newItem.ItemTypeID);
+                    ItemProcessor ip = ItemProcessor.Create(CurrentUser, StorageContext, newItem.ItemTypeID);
                     if (ip != null)
                     {   // do itemtype-specific processing
                         ip.ProcessUpdate(originalItem, newItem);

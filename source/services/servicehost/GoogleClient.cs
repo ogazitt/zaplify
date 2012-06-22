@@ -43,12 +43,21 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {   // ensure UserCredentials are present
                 this.user = storage.GetUser(user.ID, true);
             }
-            this.googleAuthenticator = CreateGoogleAuthenticator(GetAccessToken);
+            UserCredential googleConsent = this.user.GetCredential(UserCredential.GoogleConsent);
+            if (googleConsent != null)
+            {
+                this.googleAuthenticator = CreateGoogleAuthenticator(GetAccessToken);
+            }
         }
 
         public OAuth2Authenticator<WebServerClient> Authenticator
         {
             get { return googleAuthenticator; }
+        }
+
+        public bool ConnectToCalendar
+        {   // TODO: add setting that allows user to opt-in or out
+            get { return (Authenticator != null); }
         }
 
         public CalendarService CalendarService
@@ -152,18 +161,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return new List<Event>(events.Items);
         }
 
-        public List<Event> GetModifiedCalendarEvents(DateTime utcModifiedAfter)
-        {
-            EventsResource.ListRequest eventListReq = this.CalendarService.Events.List(UserCalendar);
-            eventListReq.UpdatedMin = XmlConvert.ToString(utcModifiedAfter, XmlDateTimeSerializationMode.Utc);
-            Events events = eventListReq.Fetch();
-
-            List<Event> zapEvents = events.Items.Where(e =>
-                e.ExtendedProperties != null && e.ExtendedProperties.Private != null &&
-                e.ExtendedProperties.Private.ContainsKey(ExtensionItemID)).ToList();
-            return zapEvents;
-        }
-
         public Event GetCalendarEvent(string id)
         {
             EventsResource.GetRequest eventGetReq = this.CalendarService.Events.Get(UserCalendar, id);
@@ -171,28 +168,73 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return calEvent;
         }
 
-        public int SyncModifiedCalendarEvents(DateTime utcModifiedAfter)
+        public int SynchronizeCalendar()
         {
             int itemsUpdated = 0;
-            var modifiedEvents = GetModifiedCalendarEvents(utcModifiedAfter);
-            foreach (Event e in modifiedEvents)
+            if (ConnectToCalendar)
             {
-                Guid itemID = new Guid(e.ExtendedProperties.Private[ExtensionItemID]);
-                Item item = storage.GetItem(user, itemID);
-                if (item != null)
-                {
-                    if (item.Name != e.Summary) { item.Name = e.Summary; }
-                    // TODO: only update dates if different
-                    item.GetFieldValue(FieldNames.DueDate).Value = e.Start.DateTime;
-                    item.GetFieldValue(FieldNames.EndDate).Value = e.End.DateTime;
-                    itemsUpdated++;
+                Item userProfile = storage.ClientFolder.GetUserProfileList(user);
+                Item metaItem = storage.UserFolder.GetEntityRef(user, userProfile);
+                FieldValue fvCalLastSync = metaItem.GetFieldValue(ExtendedFieldNames.CalLastSync, true);
+                DateTime lastSyncTime;
+                if (fvCalLastSync.Value == null)
+                {   // first-time, use consent token last modified date
+                    UserCredential googleConsent = user.GetCredential(UserCredential.GoogleConsent);
+                    lastSyncTime = googleConsent.LastModified;
                 }
+                else
+                {
+                    lastSyncTime = DateTime.Parse(fvCalLastSync.Value);
+                }
+                fvCalLastSync.Value = XmlConvert.ToString(DateTime.UtcNow, XmlDateTimeSerializationMode.Utc);
+                itemsUpdated = SynchronizeCalendar(lastSyncTime);
             }
-            if (itemsUpdated > 0) { storage.SaveChanges(); }
             return itemsUpdated;
         }
 
-        public string AddCalendarEvent(Item item)
+        int SynchronizeCalendar(DateTime utcModifiedAfter)
+        {
+            int itemsUpdated = 0;
+            try
+            {
+                var modifiedEvents = GetModifiedCalendarEvents(utcModifiedAfter);
+                foreach (Event e in modifiedEvents)
+                {
+                    Guid itemID = new Guid(e.ExtendedProperties.Private[ExtensionItemID]);
+                    Item item = storage.GetItem(user, itemID);
+                    if (item != null)
+                    {
+                        if (item.Name != e.Summary) { item.Name = e.Summary; }
+                        // TODO: only update dates if different
+                        item.GetFieldValue(FieldNames.DueDate).Value = e.Start.DateTime;
+                        item.GetFieldValue(FieldNames.EndDate).Value = e.End.DateTime;
+                        itemsUpdated++;
+                    }
+                }
+                if (itemsUpdated > 0) { storage.SaveChanges(); }
+            }
+            catch (Exception e)
+            {
+                TraceLog.TraceException("Could not get modified Calendar events", e);
+            }
+            return itemsUpdated;
+        }
+
+        List<Event> GetModifiedCalendarEvents(DateTime utcModifiedAfter)
+        {
+            EventsResource.ListRequest eventListReq = this.CalendarService.Events.List(UserCalendar);
+            eventListReq.UpdatedMin = XmlConvert.ToString(utcModifiedAfter, XmlDateTimeSerializationMode.Utc);
+            Events events = eventListReq.Fetch();
+            if (events.Items != null)
+            {
+                return events.Items.Where(e =>
+                e.ExtendedProperties != null && e.ExtendedProperties.Private != null &&
+                e.ExtendedProperties.Private.ContainsKey(ExtensionItemID)).ToList();
+            }
+            return new List<Event>();
+        }
+
+        public bool AddCalendarEvent(Item item)
         {
             DateTime utcStartTime, utcEndTime;
             FieldValue fvStartTime = item.GetFieldValue(FieldNames.DueDate);
@@ -223,35 +265,28 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 //calEvent.Gadget.IconLink = calEvent.Gadget.Link + GadgetIconPath;
                 //calEvent.Gadget.Display = "icon";
 
-                EventsResource.InsertRequest eventInsertReq = this.CalendarService.Events.Insert(calEvent, UserCalendar);
-                Event result = eventInsertReq.Fetch();
-                
-                // associate event id with Item in UserFolder EntityRefs
-                Item metaItem = storage.UserFolder.GetEntityRef(user, item);
-                FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
-                fvCalEventID.Value = result.Id;
-                storage.SaveChanges();
+                try
+                {
+                    EventsResource.InsertRequest eventInsertReq = this.CalendarService.Events.Insert(calEvent, UserCalendar);
+                    Event result = eventInsertReq.Fetch();
 
-                return result.Id;
+                    // associate event id with Item in UserFolder EntityRefs
+                    Item metaItem = storage.UserFolder.GetEntityRef(user, item);
+                    FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
+                    fvCalEventID.Value = result.Id;
+                    storage.SaveChanges();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    TraceLog.TraceException("Could not add appointment to Calendar", e);
+                }
             }
-            return null;
+            return false;
         }
 
-#if false
-        public bool UpdateCalendarEvent(Item newItem, Item oldItem)
-        {   // only update if Name, DueDate, or EndDate has changed
-            FieldValue fvNewStart = newItem.GetFieldValue(FieldNames.DueDate);
-            FieldValue fvNewEnd = newItem.GetFieldValue(FieldNames.EndDate);
-            FieldValue fvOldStart = oldItem.GetFieldValue(FieldNames.DueDate);
-            FieldValue fvOldEnd = oldItem.GetFieldValue(FieldNames.EndDate);
-            if (newItem.Name != oldItem.Name ||
-                (fvNewStart != null && !string.IsNullOrEmpty(fvNewStart.Value) && fvOldStart != null && fvNewStart.Value != fvOldStart.Value) ||
-                (fvNewEnd != null && !string.IsNullOrEmpty(fvNewEnd.Value) && fvOldEnd != null && fvNewEnd.Value != fvOldEnd.Value))
-            {
-#endif
-        public string UpdateCalendarEvent(Item item)
+        public bool UpdateCalendarEvent(Item item)
         {   // assumes check for changes was made before
-            string eventID = null;
             FieldValue fvStartTime = item.GetFieldValue(FieldNames.DueDate);
             FieldValue fvEndTime = item.GetFieldValue(FieldNames.EndDate);
             if (fvStartTime != null && !string.IsNullOrEmpty(fvStartTime.Value) &&
@@ -264,28 +299,65 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
                     if (string.IsNullOrEmpty(fvCalEventID.Value))
                     {   // add CalendarEvent for this Item
-                        eventID = AddCalendarEvent(item);
+                        return AddCalendarEvent(item);
                     }
                     else
                     {
                         Event calEvent = GetCalendarEvent(fvCalEventID.Value);
                         if (calEvent == null)
                         {   // may have been deleted, add another CalendarEvent for modified Item
-                            eventID = AddCalendarEvent(item);
+                            return AddCalendarEvent(item);
                         }
                         else
                         {   // update existing CalendarEvent
-                            calEvent.Summary = item.Name;
-                            calEvent.Start.DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc);
-                            calEvent.End.DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc);
-                            EventsResource.PatchRequest eventPatchReq = this.CalendarService.Events.Patch(calEvent, UserCalendar, calEvent.Id);
-                            Event updatedCalEvent = eventPatchReq.Fetch();
-                            eventID = updatedCalEvent.Id;
+                            TimeSpan duration = utcEndTime - utcStartTime;
+                            if (duration.Minutes >= 0)
+                            {   // ensure startTime is BEFORE endTime
+                                calEvent.Summary = item.Name;
+                                calEvent.Start.DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc);
+                                calEvent.End.DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc);
+                                if (calEvent.Status == "cancelled") { calEvent.Status = "confirmed"; }
+                                try
+                                {
+                                    EventsResource.PatchRequest eventPatchReq = this.CalendarService.Events.Patch(calEvent, UserCalendar, calEvent.Id);
+                                    Event updatedCalEvent = eventPatchReq.Fetch();
+                                    return true;
+                                }
+                                catch (Exception e)
+                                {
+                                    TraceLog.TraceException("Could not update appointment to Calendar", e);
+                                }
+                            }
                         }
                     }
                 }
             }
-            return eventID;
+            return false;
+        }
+
+        public bool RemoveCalendarEvent(Item item)
+        {   // remove CalendarEvent
+            Item metaItem = storage.UserFolder.GetEntityRef(user, item);
+            FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
+            if (!string.IsNullOrEmpty(fvCalEventID.Value))
+            {   // CalendarEvent has been added for this Item
+                try
+                {                
+                    Event calEvent = GetCalendarEvent(fvCalEventID.Value);
+                    if (calEvent != null)
+                    {   // remove existing CalendarEvent
+                        EventsResource.DeleteRequest eventDeleteReq = this.CalendarService.Events.Delete(UserCalendar, calEvent.Id);
+                        string result = eventDeleteReq.Fetch();
+                        // EntityRef holding association will get cleaned up when Item is deleted
+                        return (result == string.Empty);
+                    }
+                }
+                catch (Exception e)
+                {
+                    TraceLog.TraceException("Could not remove appointment from Calendar", e);
+                }
+            }
+            return false;
         }
 
         static DateTime? lastCheck;

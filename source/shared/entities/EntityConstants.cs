@@ -137,6 +137,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string SubjectHint = "SubjectHint";    // String       hint as to subject of intent (extracted from name)
         
         public const string GeoLocation = "GeoLocation";    // String       general location of user or contact (e.g. Seattle, WA)
+        public const string CalLastSync = "CalLastSync";    // DateTime     timestamp of last time Calendar changes were synchronized with Items  
         public const string CalEventID = "CalEventID";      // String       identifier for a Calendar event to associate with an Item  
 
         public const string SelectedCount = "SelectedCount";// Integer      count of number of times selected (e.g. MRU)
@@ -260,6 +261,9 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         // ClientSettings list containing items which associate an ItemType with an actual folder or list
         // used to determine where system generated items of a given ItemType should be added (shared by all clients)
         public const string DefaultLists = "DefaultLists";
+
+        // ClientSettings list containing items which contain UserProfile information
+        public const string UserProfile = "UserProfile";
 
         // ClientSettings list containing information shared by all phone devices (e.g. MRU, etc.)      
         public const string ListMetadata = "ListMetadata";              // TODO: should rename to indicate shared phone settings

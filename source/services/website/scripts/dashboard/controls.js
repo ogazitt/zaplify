@@ -464,7 +464,7 @@ Control.Text.insert = function Control$Text$insert($input) {
     }
 }
 // handler for updating text
-Control.Text.update = function Control$Text$update($input) {
+Control.Text.update = function Control$Text$update($input, activeItem) {
     var item = $input.data('item');
     var field = $input.data('field');
     var value = $input.val();
@@ -476,7 +476,7 @@ Control.Text.update = function Control$Text$update($input) {
     if (value != currentValue) {
         var updatedItem = item.Copy();
         updatedItem.SetFieldValue(field, value);
-        item.Update(updatedItem);
+        item.Update(updatedItem, activeItem);
     }
 }
 // handler for updating address
@@ -691,8 +691,7 @@ Control.DateTime.renderDatePicker = function Control$DateTime$renderDatePicker($
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(Control.DateTime.formatDate(item.GetFieldValue(field)));
-    //$date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.formatDate(item.GetFieldValue(field), 'shortDate'));
     $date.datepicker({
         numberOfMonths: 2,
         onClose: function (value, picker) { Control.DateTime.update(picker.input); }
@@ -705,8 +704,7 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(Control.DateTime.format(item.GetFieldValue(field)));
-    //$date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.format(item.GetFieldValue(field), 'shortDateTime'));
     $date.datetimepicker({
         ampm: true,
         timeFormat: 'h:mm TT',
@@ -720,14 +718,15 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
 }
 
 Control.DateTime.update = function Control$DateTime$update($input) {
-    Control.Text.update($input);
+    // suppress refresh to prevent jquery-ui bug using multiple datetimepickers
+    Control.Text.update($input, null);
 }
 
 // format for DateTime
-Control.DateTime.format = function Control$DateTime$format(text) {
+Control.DateTime.format = function Control$DateTime$format(text, mask) {
     if (text != null && text.length > 0) {
         var date = new Date(text);
-        return date.format();
+        return date.format(mask);
     }
     return text;
 }
@@ -1091,7 +1090,7 @@ Control.DateFormat = function Control$DateFormat() {
 
 // common format strings
 Control.DateFormat.masks = {
-    "default": "mmmm dd, yyyy h:MM TT",
+    "default": "ddd, mmm dd, yyyy h:MM TT",
     shortDate: "m/d/yy",
     mediumDate: "mmm d, yyyy",
     longDate: "mmmm d, yyyy",
@@ -1101,6 +1100,7 @@ Control.DateFormat.masks = {
     longTime: "h:MM:ss TT Z",
     isoDate: "yyyy-mm-dd",
     isoTime: "HH:MM:ss",
+    shortDateTime: "mm/dd/yyyy h:MM TT",
     isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",
     isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
 };
