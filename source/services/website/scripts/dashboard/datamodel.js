@@ -543,6 +543,7 @@ Folder.prototype.IsExpanded = function () { return DataModel.UserSettings.IsFold
 Folder.prototype.Expand = function (expand) { DataModel.UserSettings.ExpandFolder(this.ID, expand); };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function (excludeListItems) { return DataModel.GetItems(this, null, excludeListItems); };
+Folder.prototype.GetItem = function (itemID) { return this.Items[itemID]; }
 Folder.prototype.GetItemByName = function (name, parentID) {
     for (id in this.Items) {
         var item = this.Items[id];
@@ -611,7 +612,12 @@ function Item() { };
 Item.Extend = function Item$Extend(item) { return $.extend(new Item(), item); }         // extend with Item prototypes
 
 // Item public functions
-Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
+Item.prototype.Copy = function () {                                                     // deep copy
+    // sanity check, use most current Item in DataModel if it exists
+    var folder = this.GetFolder();
+    var currentThis = (folder == null) ? this : folder.GetItem(this.ID);
+    return $.extend(true, new Item(), (currentThis == null) ? this : currentThis);
+};         
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.IsDefault = function () {
     var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);

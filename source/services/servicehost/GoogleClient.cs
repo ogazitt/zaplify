@@ -124,17 +124,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 {
                     SettingsResource.ListRequest calSettingReq = this.CalendarService.Settings.List();
                     calSettings = calSettingReq.Fetch();
-
-                    CalendarListResource.ListRequest calListReq = this.CalendarService.CalendarList.List();
-                    CalendarList calList = calListReq.Fetch();
-
-                    string calendarId = calList.Items.First().Id;
-                    CalendarsResource.GetRequest calReq = this.CalendarService.Calendars.Get(calendarId);
-                    Calendar calendar = calReq.Fetch();
-
-                    EventsResource.ListRequest eventListReq = this.CalendarService.Events.List(calendarId);
-                    Events events = eventListReq.Fetch();
-
                 }
                 return calSettings;
             }
@@ -163,8 +152,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         public Event GetCalendarEvent(string id)
         {
-            EventsResource.GetRequest eventGetReq = this.CalendarService.Events.Get(UserCalendar, id);
-            Event calEvent = eventGetReq.Fetch();
+            Event calEvent = null;
+            try
+            {
+                EventsResource.GetRequest eventGetReq = this.CalendarService.Events.Get(UserCalendar, id);
+                calEvent = eventGetReq.Fetch();
+            }
+            catch (Exception e)
+            {
+                TraceLog.TraceException(string.Format("Could not get Calendar event with id: '{0}'", id), e);
+            }
             return calEvent;
         }
 
@@ -311,7 +308,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
                         else
                         {   // update existing CalendarEvent
                             TimeSpan duration = utcEndTime - utcStartTime;
-                            if (duration.Minutes >= 0)
+                            if (duration.TotalMinutes >= 0)
                             {   // ensure startTime is BEFORE endTime
                                 calEvent.Summary = item.Name;
                                 calEvent.Start.DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc);
@@ -362,37 +359,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         static DateTime? lastCheck;
         public void ForceAuthentication()
-        {
-            var settings = CalendarSettings;
-#if false
-            // TEST CODE
-            if (lastCheck == null)
-            {
-                UserStorageContext exStorage = Storage.NewUserContext;
-                Item item = exStorage.Items.Include("FieldValues").Single<Item>(i => i.UserID == user.ID && i.Name == "ZaplifyTest" && i.ParentID == null);
-                Item metaItem = exStorage.UserFolder.GetEntityRef(user, item);
-                FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID);
-                if (fvCalEventID == null)
-                {
-                    AddCalendarEvent(item);
-                }
-                else
-                {
-                    FieldValue fvEndDate = item.GetFieldValue(FieldNames.EndDate);
-                    DateTime endTime = DateTime.Parse(fvEndDate.Value);
-                    endTime = endTime.AddHours(1);
-                    fvEndDate.Value = XmlConvert.ToString(endTime, XmlDateTimeSerializationMode.Utc);
-                    UpdateCalendarEvent(item);
-                    exStorage.SaveChanges();
-                }
-                lastCheck = DateTime.UtcNow;
-            }
-            else
-            {
-                SyncModifiedCalendarEvents(lastCheck.Value);
-                lastCheck = null;
-            }
-#endif
+        {   // attempt to access Calendar settings to force authentication
+            SettingsResource.ListRequest calSettingReq = this.CalendarService.Settings.List();
+            calSettingReq.Fetch();
         }
 
         IAuthorizationState GetAccessToken(WebServerClient client)
