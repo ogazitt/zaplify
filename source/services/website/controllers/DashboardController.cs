@@ -18,10 +18,6 @@
             UserDataModel model = new UserDataModel(this);
             try
             {   
-                // synchronize with Calendar (do this BEFORE getting UserData)
-                GoogleClient client = new GoogleClient(CurrentUser, StorageContext);
-                client.SynchronizeCalendar();
-                
                 // force access to validate current user
                 var userData = model.UserData;
                 UserDataModel.CurrentTheme = model.UserTheme;

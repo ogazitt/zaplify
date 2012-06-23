@@ -19,9 +19,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 {
     public class GoogleClient
     {
-        const string UTCTimeZone = "Europe/Zurich";
         const string ExtensionItemID = "ZapItemID";
-        const string GadgetIconPath = "/content/images/zaplogo.png";
+        //const string GadgetIconPath = "/content/images/zaplogo.png";
 
         User user;
         UserStorageContext storage;
@@ -89,28 +88,37 @@ namespace BuiltSteady.Zaplify.ServiceHost
             get
             {
                 if (userCalendar == null)
-                {   // TODO: check and store value in ClientSettings
-
-                    var userCalendars = UserCalendars;
-                    foreach (var cal in userCalendars)
-                    {
-                        if (cal.AccessRole == "owner")
-                        {   // must have owner access
-                            if (user.Email.Equals(cal.Id, StringComparison.OrdinalIgnoreCase))
-                            {   // user.email matches calendar id (this is best match)
-                                userCalendar = cal.Id;
-                                break;
-                            }
-                            if (user.Email.Equals(cal.Summary, StringComparison.OrdinalIgnoreCase))
-                            {   // user.email matches calendar summary (this is next best match)
-                                userCalendar = cal.Id;
-                            }
-                            if (userCalendar == null)
-                            {   // use first owner calendar if user.email cannot be matched
-                                userCalendar = cal.Id;
+                {   // TODO: temporarily attach as ExtendedFieldName to UserProfile list
+                    // Need to resolve how UserProfile information is stored (ItemType, Expando, or Json)
+                    Item userProfile = storage.ClientFolder.GetUserProfile(user);
+                    FieldValue fvCalendarID = userProfile.GetFieldValue(ExtendedFieldNames.CalendarID, true);
+                    if (fvCalendarID == null || string.IsNullOrEmpty(fvCalendarID.Value))
+                    {   // find best candidate in list of user calendars
+                        var userCalendars = UserCalendars;
+                        foreach (var cal in userCalendars)
+                        {
+                            if (cal.AccessRole == "owner")
+                            {   // must have owner access
+                                if (user.Email.Equals(cal.Id, StringComparison.OrdinalIgnoreCase))
+                                {   // user.email matches calendar id (this is best match)
+                                    userCalendar = cal.Id;
+                                    break;
+                                }
+                                if (user.Email.Equals(cal.Summary, StringComparison.OrdinalIgnoreCase))
+                                {   // user.email matches calendar summary (this is next best match)
+                                    userCalendar = cal.Id;
+                                }
+                                if (userCalendar == null)
+                                {   // use first owner calendar if user.email cannot be matched
+                                    userCalendar = cal.Id;
+                                }
                             }
                         }
+                        // save CalendarID
+                        fvCalendarID.Value = userCalendar;
+                        storage.SaveChanges();
                     }
+                    userCalendar = fvCalendarID.Value;
                 }
                 return userCalendar;
             }
@@ -170,7 +178,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
             int itemsUpdated = 0;
             if (ConnectToCalendar)
             {
-                Item userProfile = storage.ClientFolder.GetUserProfileList(user);
+                Item userProfile = storage.ClientFolder.GetUserProfile(user);
                 Item metaItem = storage.UserFolder.GetEntityRef(user, userProfile);
                 FieldValue fvCalLastSync = metaItem.GetFieldValue(ExtendedFieldNames.CalLastSync, true);
                 DateTime lastSyncTime;
@@ -200,11 +208,12 @@ namespace BuiltSteady.Zaplify.ServiceHost
                     Guid itemID = new Guid(e.ExtendedProperties.Private[ExtensionItemID]);
                     Item item = storage.GetItem(user, itemID);
                     if (item != null)
-                    {
-                        if (item.Name != e.Summary) { item.Name = e.Summary; }
-                        // TODO: only update dates if different
+                    {   // Name, DueDate, EndDate, and Description (support Location?)
+                        item.Name = e.Summary;
                         item.GetFieldValue(FieldNames.DueDate).Value = e.Start.DateTime;
                         item.GetFieldValue(FieldNames.EndDate).Value = e.End.DateTime;
+                        FieldValue fvDescription = item.GetFieldValue(FieldNames.Description, (e.Description != null));
+                        if (fvDescription != null) { fvDescription.Value = e.Description; }
                         itemsUpdated++;
                     }
                 }
@@ -244,30 +253,41 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 Event calEvent = new Event()
                 {
                     Summary = item.Name,
-                    Start = new EventDateTime() { DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc), TimeZone = UTCTimeZone },
-                    End = new EventDateTime() { DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc), TimeZone = UTCTimeZone },
+                    Start = new EventDateTime() { DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc) },
+                    End = new EventDateTime() { DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc) },
                     ExtendedProperties = new Event.ExtendedPropertiesData(),
-                    //Gadget = new Event.GadgetData()
                 };
-                // attach Item.ID as private extended property
+                // add item id as private extended property for event
                 calEvent.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
                 calEvent.ExtendedProperties.Private.Add(ExtensionItemID, item.ID.ToString());
-                
-                // TODO: override default reminders for day or longer events
-                //calEvent.Reminders.Overrides.Add(new EventReminder() { Minutes = reminderMinutes });
 
-                // use gadget properties to link back to Zaplify
-                //Uri requestUri = System.Web.HttpContext.Current.Request.Url;
-                //calEvent.Gadget.Link = string.Format("{0}://{1}", requestUri.Scheme, requestUri.Authority);
-                //calEvent.Gadget.IconLink = calEvent.Gadget.Link + GadgetIconPath;
-                //calEvent.Gadget.Display = "icon";
+                FieldValue fvDescription = item.GetFieldValue(FieldNames.Description);
+                if (fvDescription != null && !string.IsNullOrEmpty(fvDescription.Value))
+                {  
+                    calEvent.Description = fvDescription.Value;
+                }                
+
+                // TODO: investigate using Gadget to support link back to Zaplify
 
                 try
                 {
                     EventsResource.InsertRequest eventInsertReq = this.CalendarService.Events.Insert(calEvent, UserCalendar);
                     Event result = eventInsertReq.Fetch();
 
-                    // associate event id with Item in UserFolder EntityRefs
+                    if (result.HtmlLink != null)
+                    {   // add event HtmlLink as a WebLink in item
+                        FieldValue fvWebLinks = item.GetFieldValue(FieldNames.WebLinks, true);
+                        JsonWebLink webLink = new JsonWebLink() { Name = "Calendar Event", Url = result.HtmlLink };
+                        List<JsonWebLink> webLinks = (string.IsNullOrEmpty(fvWebLinks.Value)) ?
+                            new List<JsonWebLink>() : JsonSerializer.Deserialize<List<JsonWebLink>>(fvWebLinks.Value);
+                        //var webLink = new { Name = "Calendar Event", Url = result.HtmlLink };
+                        //var webLinks = (string.IsNullOrEmpty(fvWebLinks.Value)) ?
+                        //    new List<object>() : JsonSerializer.Deserialize<List<object>>(fvWebLinks.Value);
+                        webLinks.Add(webLink);
+                        fvWebLinks.Value = JsonSerializer.Serialize(webLinks);
+                    }
+
+                    // add event id to UserFolder EntityRefs for item
                     Item metaItem = storage.UserFolder.GetEntityRef(user, item);
                     FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
                     fvCalEventID.Value = result.Id;
@@ -313,6 +333,9 @@ namespace BuiltSteady.Zaplify.ServiceHost
                                 calEvent.Summary = item.Name;
                                 calEvent.Start.DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc);
                                 calEvent.End.DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc);
+                                FieldValue fvDescription = item.GetFieldValue(FieldNames.Description);
+                                if (fvDescription != null) { calEvent.Description = fvDescription.Value; }
+     
                                 if (calEvent.Status == "cancelled") { calEvent.Status = "confirmed"; }
                                 try
                                 {
@@ -357,7 +380,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
             return false;
         }
 
-        static DateTime? lastCheck;
         public void ForceAuthentication()
         {   // attempt to access Calendar settings to force authentication
             SettingsResource.ListRequest calSettingReq = this.CalendarService.Settings.List();

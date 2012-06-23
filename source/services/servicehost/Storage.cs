@@ -326,7 +326,7 @@
             {   // get the list with given name in given folder
                 if (Items.Any(i => i.UserID == user.ID && i.FolderID == folder.ID && i.Name == name))
                 {
-                    return Items.Single(i => i.UserID == user.ID && i.FolderID == folder.ID && i.Name == name);
+                    return Items.Include("FieldValues").Single(i => i.UserID == user.ID && i.FolderID == folder.ID && i.Name == name);
                 }
                 else
                 {   // create new list with given name in given folder
@@ -702,7 +702,7 @@
             }
 
             // get or create the UserProfile list in the ClientSettings for given user
-            public Item GetUserProfileList(User user)
+            public Item GetUserProfile(User user)
             {
                 Folder clientFolder = Get(user);
                 if (clientFolder != null)
@@ -711,7 +711,6 @@
                 }
                 return null;
             }
-
         }
     }
 }

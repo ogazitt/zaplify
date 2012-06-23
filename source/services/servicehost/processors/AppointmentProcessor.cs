@@ -60,12 +60,16 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
             // update appointment on Calendar (if available)
             if (client.ConnectToCalendar)
-            {   // only update if Name, DueDate, or EndDate has changed
+            {   // update if Name, DueDate, EndDate, or Description have changed
                 FieldValue fvOldStart = oldItem.GetFieldValue(FieldNames.DueDate);
-                FieldValue fvOldEnd = oldItem.GetFieldValue(FieldNames.EndDate);
                 FieldValue fvNewStart = newItem.GetFieldValue(FieldNames.DueDate);
+                FieldValue fvOldEnd = oldItem.GetFieldValue(FieldNames.EndDate);
                 FieldValue fvNewEnd = newItem.GetFieldValue(FieldNames.EndDate);
-                if (newItem.Name != oldItem.Name ||
+                FieldValue fvOldDesc = oldItem.GetFieldValue(FieldNames.Description);
+                FieldValue fvNewDesc = newItem.GetFieldValue(FieldNames.Description);
+                string oldDesc = (fvOldDesc == null) ? null : fvOldDesc.Value;
+                string newDesc = (fvNewDesc == null) ? null : fvNewDesc.Value;
+                if (newItem.Name != oldItem.Name || newDesc != oldDesc ||
                     (fvNewStart != null && !string.IsNullOrEmpty(fvNewStart.Value) && (fvOldStart == null || fvNewStart.Value != fvOldStart.Value)) ||
                     (fvNewEnd != null && !string.IsNullOrEmpty(fvNewEnd.Value) && (fvOldEnd == null || fvNewEnd.Value != fvOldEnd.Value)))
                 {

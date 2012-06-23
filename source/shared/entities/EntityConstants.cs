@@ -31,12 +31,6 @@ using BuiltSteady.Zaplify.ServerEntities;
 namespace BuiltSteady.Zaplify.Shared.Entities
 {
 
-    public class SystemUsers
-    {
-        public static Guid System = new Guid("00000000-0000-0000-0000-000000000001");
-        public static Guid User = new Guid("00000000-0000-0000-0000-000000000002");
-    }
-
     public class SystemItemTypes
     {   
         // standard item types
@@ -81,88 +75,6 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string System = "System";
         public const string Reference = "Reference";
         public const string NameValue = "NameValue";
-    }
-
-    public class ActionNames
-    {                                                       // FieldNames:
-        public const string Navigate = "Navigate";          // Contacts, Locations
-        public const string Postpone = "Postpone";          // DueDate
-        public const string AddToCalendar = "AddToCalendar";// DueDate
-        public const string Map = "Map";                    // Address
-        public const string Call = "Call";                  // Phone, HomePhone, WorkPhone
-        public const string TextMessage = "TextMessage";    // Phone
-        public const string Browse = "Browse";              // WebLink
-        public const string SendEmail = "SendEmail";        // Email
-        //public const string PostToFacebook = "PostToFacebook";  
-        //public const string Tweet = "Tweet";             
-    }
-
-    public class FieldNames
-    {                                                       // FieldType:   Semantic:
-        public const string Name = "Name";                  // String       friendly name (all items have a name)
-        public const string Description = "Description";    // String       additional notes or comments
-        public const string Priority = "Priority";          // Integer      importance
-        public const string Complete = "Complete";          // Boolean      task is complete
-        public const string CompletedOn = "CompletedOn";    // DateTime     time at which task is marked complete
-        public const string DueDate = "DueDate";            // DateTime     task due or appointment start time
-        public const string EndDate = "EndDate";            // DateTime     appointment end time
-        public const string Birthday = "Birthday";          // DateTime     user or contact birthday
-        public const string Address = "Address";            // Address      address of a location
-        public const string WebLink = "WebLink";            // Url          single web links (TODO: NOT BEING USED)
-        public const string WebLinks = "WebLinks";          // Json         list of web links [{Name:"name", Url:"link"}, ...] 
-        public const string Email = "Email";                // Email        email address 
-        public const string Phone = "Phone";                // Phone        phone number (cell phone)
-        public const string HomePhone = "HomePhone";        // Phone        home phone 
-        public const string WorkPhone = "WorkPhone";        // Phone        work phone
-        public const string Amount = "Amount";              // String       quantity (need format for units, etc.)
-        public const string Cost = "Cost";                  // Currency     price or cost (need format for different currencies)
-        public const string ItemTags = "ItemTags";          // TagIDs       extensible list of tags for marking items
-        public const string EntityRef = "EntityRef";        // Guid         id of entity being referenced
-        public const string EntityType = "EntityType";      // String       type of entity (User, Folder, or Item)
-        public const string Contacts = "Contacts";          // Guid         id of list being referenced which contains contact items
-        public const string Locations = "Locations";        // Guid         id of list being referenced which contains location items
-        public const string Value = "Value";                // String       value for NameValue items
-        public const string Category = "Category";          // String       category (to organize item types e.g. Grocery)
-        public const string LatLong = "LatLong";            // String       comma-delimited geo-location lat,long
-        public const string FacebookID = "FacebookID";      // String       facebook id for user or contact
-        public const string Sources = "Sources";            // String       comma-delimited list of sources of information (e.g. Facebook) 
-
-        public const string Gender = "Gender";              // String       male or female
-        public const string Picture = "Picture";            // Url          link to an image
-    }
-
-    public class ExtendedFieldNames
-    {  
-        public const string Intent = "Intent";              // String       normalized intent to help select workflows (extracted from name)
-        public const string SubjectHint = "SubjectHint";    // String       hint as to subject of intent (extracted from name)
-        
-        public const string GeoLocation = "GeoLocation";    // String       general location of user or contact (e.g. Seattle, WA)
-        public const string CalLastSync = "CalLastSync";    // DateTime     timestamp of last time Calendar changes were synchronized with Items  
-        public const string CalEventID = "CalEventID";      // String       identifier for a Calendar event to associate with an Item  
-
-        public const string SelectedCount = "SelectedCount";// Integer      count of number of times selected (e.g. MRU)
-        public const string SortBy = "SortBy";              // String       field name to sort a list of items by
-    }
-
-    public class SuggestionTypes
-    {
-        public const string ChooseOne = "ChooseOne";
-        public const string ChooseOneSubject = "ChooseOneSubject";
-        public const string ChooseMany = "ChooseMany";
-        public const string ChooseManyWithChildren = "ChooseManyWithChildren";
-        public const string GetFBConsent = "GetFBConsent";
-        public const string GetGoogleConsent = "GetGoogleConsent";
-        public const string GetADConsent = "GetADConsent";
-        public const string NavigateLink = "NavigateLink";
-        public const string RefreshEntity = "RefreshEntity";
-    }
-
-    public class Reasons
-    {
-        public const string Chosen = "Chosen";
-        public const string Ignore = "Ignore";
-        public const string Like = "Like";
-        public const string Dislike = "Dislike";
     }
 
     public class FieldTypes
@@ -215,11 +127,66 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string ItemTypes = "ItemTypes";
     }
 
-    public class EntityTypes
-    {
-        public const string User = "User";
-        public const string Folder = "Folder";
-        public const string Item = "Item";
+    public class FieldNames
+    {                                                       // FieldType:   Semantic:
+        public const string Name = "Name";                  // String       friendly name (all items have a name)
+        public const string Description = "Description";    // String       additional notes or comments
+        public const string Priority = "Priority";          // Integer      importance
+        public const string Complete = "Complete";          // Boolean      task is complete
+        public const string CompletedOn = "CompletedOn";    // DateTime     time at which task is marked complete
+        public const string DueDate = "DueDate";            // DateTime     task due or appointment start time
+        public const string EndDate = "EndDate";            // DateTime     appointment end time
+        public const string Birthday = "Birthday";          // DateTime     user or contact birthday
+        public const string Address = "Address";            // Address      address of a location
+        public const string WebLink = "WebLink";            // Url          single web links (TODO: NOT BEING USED)
+        public const string WebLinks = "WebLinks";          // Json         list of web links [{Name:"name", Url:"link"}, ...] 
+        public const string Email = "Email";                // Email        email address 
+        public const string Phone = "Phone";                // Phone        phone number (cell phone)
+        public const string HomePhone = "HomePhone";        // Phone        home phone 
+        public const string WorkPhone = "WorkPhone";        // Phone        work phone
+        public const string Amount = "Amount";              // String       quantity (need format for units, etc.)
+        public const string Cost = "Cost";                  // Currency     price or cost (need format for different currencies)
+        public const string ItemTags = "ItemTags";          // TagIDs       extensible list of tags for marking items
+        public const string EntityRef = "EntityRef";        // Guid         id of entity being referenced
+        public const string EntityType = "EntityType";      // String       type of entity (User, Folder, or Item)
+        public const string Contacts = "Contacts";          // Guid         id of list being referenced which contains contact items
+        public const string Locations = "Locations";        // Guid         id of list being referenced which contains location items
+        public const string Value = "Value";                // String       value for NameValue items
+        public const string Category = "Category";          // String       category (to organize item types e.g. Grocery)
+        public const string LatLong = "LatLong";            // String       comma-delimited geo-location lat,long
+        public const string FacebookID = "FacebookID";      // String       facebook id for user or contact
+        public const string Sources = "Sources";            // String       comma-delimited list of sources of information (e.g. Facebook) 
+
+        public const string Gender = "Gender";              // String       male or female
+        public const string Picture = "Picture";            // Url          link to an image
+    }
+
+    public class ExtendedFieldNames
+    {  
+        public const string Intent = "Intent";              // String       normalized intent to help select workflows (extracted from name)
+        public const string SubjectHint = "SubjectHint";    // String       hint as to subject of intent (extracted from name)
+        
+        public const string GeoLocation = "GeoLocation";    // String       general location of user or contact (e.g. Seattle, WA)
+        public const string CalendarID = "CalendarID";      // String       identifier for Calendar integrate Appointments with  
+        public const string CalEventID = "CalEventID";      // String       identifier for a Calendar event to associate with an Item  
+        public const string CalLastSync = "CalLastSync";    // DateTime     timestamp of last time Calendar changes were synchronized with Items  
+
+        public const string SelectedCount = "SelectedCount";// Integer      count of number of times selected (e.g. MRU)
+        public const string SortBy = "SortBy";              // String       field name to sort a list of items by
+    }
+
+    public class ActionNames
+    {                                                       // FieldNames:
+        public const string Navigate = "Navigate";          // Contacts, Locations
+        public const string Postpone = "Postpone";          // DueDate
+        public const string AddToCalendar = "AddToCalendar";// DueDate
+        public const string Map = "Map";                    // Address
+        public const string Call = "Call";                  // Phone, HomePhone, WorkPhone
+        public const string TextMessage = "TextMessage";    // Phone
+        public const string Browse = "Browse";              // WebLink
+        public const string SendEmail = "SendEmail";        // Email
+        //public const string PostToFacebook = "PostToFacebook";  
+        //public const string Tweet = "Tweet";             
     }
 
     public class Permissions
@@ -249,6 +216,40 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         public const string Directory = "Directory";
         public const string Facebook = "Facebook";
         public const string Local = "Local";
+    }
+
+    public class SuggestionTypes
+    {
+        public const string ChooseOne = "ChooseOne";
+        public const string ChooseOneSubject = "ChooseOneSubject";
+        public const string ChooseMany = "ChooseMany";
+        public const string ChooseManyWithChildren = "ChooseManyWithChildren";
+        public const string GetFBConsent = "GetFBConsent";
+        public const string GetGoogleConsent = "GetGoogleConsent";
+        public const string GetADConsent = "GetADConsent";
+        public const string NavigateLink = "NavigateLink";
+        public const string RefreshEntity = "RefreshEntity";
+    }
+
+    public class Reasons
+    {
+        public const string Chosen = "Chosen";
+        public const string Ignore = "Ignore";
+        public const string Like = "Like";
+        public const string Dislike = "Dislike";
+    }
+
+    public class EntityTypes
+    {
+        public const string User = "User";
+        public const string Folder = "Folder";
+        public const string Item = "Item";
+    }
+
+    public class SystemUsers
+    {
+        public static Guid System = new Guid("00000000-0000-0000-0000-000000000001");
+        public static Guid User = new Guid("00000000-0000-0000-0000-000000000002");
     }
 
     // names used by the system to store and manage system information associated with each User
@@ -752,4 +753,17 @@ namespace BuiltSteady.Zaplify.Shared.Entities
         }
 
     }
+
+    // ************************************************************************
+    // Shared Json objects
+    // ************************************************************************
+
+    public struct JsonWebLink
+    {
+        public string Name;
+        public string Url;
+    }
+
+
+
 }
