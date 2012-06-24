@@ -188,7 +188,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         public void ReOrderItem(Item itemlist, Item item)
         {
             // if this is a categorized sort, we need to rebuild the list completely
-            if (Categorize())
+            if (list == null || Categorize())
             {
                 RenderList(itemlist);
                 return;
