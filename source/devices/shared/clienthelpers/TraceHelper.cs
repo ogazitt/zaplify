@@ -36,7 +36,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 #else
                     var deviceName = Microsoft.Phone.Info.DeviceStatus.DeviceName;
 #endif
-                    sessionToken = String.Format("{0}-{1}", deviceName, DateTime.Now.Ticks);
+                    sessionToken = String.Format("{0} {1}", deviceName, DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff"));
                 }
                 return sessionToken; 
             } 
