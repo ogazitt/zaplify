@@ -24,14 +24,21 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         // file to store messages in
         const string filename = "trace.txt";
 
-        private static string sessionID;
-        public static string SessionID 
+        private static string sessionToken;
+        public static string SessionToken 
         { 
             get 
-            { 
-                if (sessionID == null)
-                    sessionID = String.Format("{0}-{1}", Environment.MachineName, DateTime.Now.Ticks);
-                return sessionID; 
+            {
+                if (sessionToken == null)
+                {
+#if IOS
+                    var deviceName = Environment.MachineName;
+#else
+                    var deviceName = Microsoft.Phone.Info.DeviceStatus.DeviceName;
+#endif
+                    sessionToken = String.Format("{0}-{1}", deviceName, DateTime.Now.Ticks);
+                }
+                return sessionToken; 
             } 
         }
 
@@ -41,7 +48,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public static void AddMessage(string msg)
         {
             if (traceMessages.Count == 0)
-                traceMessages.Add("Session: " + SessionID);
+                traceMessages.Add("Session: " + SessionToken);
 
             TimeSpan ts = DateTime.Now - startTime;
             double ms = ts.TotalMilliseconds;
@@ -63,7 +70,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public static void StartMessage(string msg)
         {
             if (traceMessages.Count == 0)
-                traceMessages.Add("Session: " + SessionID);
+                traceMessages.Add("Session: " + SessionToken);
 
             // capture current time
             startTime = DateTime.Now;

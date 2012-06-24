@@ -11,25 +11,42 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.Shared.Entities;
+    using Microsoft.WindowsAzure.ServiceRuntime;
 
     public static class HostEnvironment
     {
         public const string AzureStorageAccountConfigKey = "AzureStorageAccount";
+        public const string MailWorkerTimeoutConfigKey = "MailWorkerTimeout";
+        public const string MailWorkerCountConfigKey = "MailWorkerCount";
+        public const string WorkflowWorkerTimeoutConfigKey = "WorkflowWorkerTimeout";
+        public const string WorkflowWorkerCountConfigKey = "WorkflowWorkerCount";
+        const string DeploymentNameConfigKey = "DeploymentName";
         const string UserDataConnectionConfigKey = "UsersConnection";
         const string UserAccountConnectionConfigKey = "UsersConnection";
         const string SuggestionsConnectionConfigKey = "SuggestionsConnection";
         const string DataServicesConnectionConfigKey = "DataServicesConnection";
         const string DataServicesEndpointConfigKey = "DataServicesEndpoint";
         const string AzureDiagnosticsConnectionString = "Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString";
+        const string AzureLoggingEnabledConfigKey = "AzureLoggingEnabled";
+        const string SplunkLoggingEnabledConfigKey = "SplunkLoggingEnabled";
+        const string SplunkServerEndpointConfigKey = "SplunkServerEndpoint";
+        const string SplunkLocalPortConfigKey = "SplunkLocalPort";
+        const string TraceFolderConfigKey = "TraceFolder";
 
         static bool? isAzure;               // true for either Azure or DevFabric
         static bool? isAzureDevFabric;      // only true in DevFabric
+        static bool? isAzureLoggingEnabled;
+        static bool? isSplunkLoggingEnabled;
+        static int?  splunkLocalPort;
+        static string deploymentName;
         static string userDataConnection;
         static string userAccountConnection;
         static string suggestionsConnection;
         static string dataServicesConnection;
         static string dataServicesEndpoint;
         static string lexiconFileName;
+        static string traceDirectoryName;
+        static string splunkServerEndpoint;
 
         public static bool IsAzure
         {   // running in an Azure environment
@@ -66,6 +83,44 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public static bool IsAzureLoggingEnabled
+        {
+            get
+            {
+                if (!isAzureLoggingEnabled.HasValue)
+                {
+                    int? value = ConfigurationSettings.GetAsNullableInt(AzureLoggingEnabledConfigKey);
+                    isAzureLoggingEnabled = (value != null && (int)value > 0);
+                }
+                return isAzureLoggingEnabled.Value;
+            }
+        }
+
+        public static bool IsSplunkLoggingEnabled
+        {
+            get
+            {
+                if (!isSplunkLoggingEnabled.HasValue)
+                {
+                    int? value = ConfigurationSettings.GetAsNullableInt(SplunkLoggingEnabledConfigKey);
+                    isSplunkLoggingEnabled = (value != null && (int)value > 0);
+                }
+                return isSplunkLoggingEnabled.Value;
+            }
+        }
+
+        public static int SplunkLocalPort
+        {
+            get
+            {
+                if (!splunkLocalPort.HasValue)
+                {
+                    splunkLocalPort = ConfigurationSettings.GetAsNullableInt(SplunkLocalPortConfigKey) ?? 9237;
+                }
+                return splunkLocalPort.Value;
+            }
+        }
+
         static string versionCheckStatus = null;
         public static bool DataVersionCheck(out string status)
         {
@@ -73,31 +128,51 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {
                 versionCheckStatus = string.Empty;
                 UserStorageContext userStorage = Storage.NewUserContext;
-                var dbSchemaVersion = userStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Schema);
-                var dbConstantsVersion = userStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Constants);
-                if (dbSchemaVersion.VersionString != UserConstants.SchemaVersion)
+                var dbSchemaVersion = userStorage.Versions.FirstOrDefault(v => v.VersionType == DatabaseVersion.Schema);
+                var dbConstantsVersion = userStorage.Versions.FirstOrDefault(v => v.VersionType == DatabaseVersion.Constants);
+                if (dbSchemaVersion == null || dbSchemaVersion.VersionString != UserConstants.SchemaVersion)
                 {
-                    versionCheckStatus += string.Format("UserSchema version mismatch: Code='{0}' Database='{1}' <br/>", UserConstants.SchemaVersion, dbSchemaVersion.VersionString);
+                    versionCheckStatus += string.Format("UserSchema version mismatch: Code='{0}' Database='{1}' <br/>", 
+                        UserConstants.SchemaVersion, 
+                        dbSchemaVersion == null ? "<none>" : dbSchemaVersion.VersionString);
                 }
-                if (dbConstantsVersion.VersionString != UserConstants.ConstantsVersion)
+                if (dbConstantsVersion == null || dbConstantsVersion.VersionString != UserConstants.ConstantsVersion)
                 {
-                    versionCheckStatus += string.Format("UserConstants version mismatch: Code='{0}' Database='{1}' <br/>", UserConstants.ConstantsVersion, dbConstantsVersion.VersionString);
+                    versionCheckStatus += string.Format("UserConstants version mismatch: Code='{0}' Database='{1}' <br/>", 
+                        UserConstants.ConstantsVersion, 
+                        dbConstantsVersion == null ? "<none>" : dbConstantsVersion.VersionString);
                 }
 
                 SuggestionsStorageContext workflowStorage = Storage.NewSuggestionsContext;
-                dbSchemaVersion = workflowStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Schema);
-                dbConstantsVersion = workflowStorage.Versions.Single(v => v.VersionType == DatabaseVersion.Constants);
-                if (dbSchemaVersion.VersionString != WorkflowConstants.SchemaVersion)
+                dbSchemaVersion = workflowStorage.Versions.FirstOrDefault(v => v.VersionType == DatabaseVersion.Schema);
+                dbConstantsVersion = workflowStorage.Versions.FirstOrDefault(v => v.VersionType == DatabaseVersion.Constants);
+                if (dbSchemaVersion == null || dbSchemaVersion.VersionString != WorkflowConstants.SchemaVersion)
                 {
-                    versionCheckStatus += string.Format("WorkflowSchema version mismatch: Code='{0}' Database='{1}' <br/>", WorkflowConstants.SchemaVersion, dbSchemaVersion.VersionString);
+                    versionCheckStatus += string.Format("WorkflowSchema version mismatch: Code='{0}' Database='{1}' <br/>", 
+                        WorkflowConstants.SchemaVersion,
+                        dbSchemaVersion == null ? "<none>" : dbSchemaVersion.VersionString);
                 }
-                if (dbConstantsVersion.VersionString != WorkflowConstants.ConstantsVersion)
+                if (dbConstantsVersion == null || dbConstantsVersion.VersionString != WorkflowConstants.ConstantsVersion)
                 {
-                    versionCheckStatus += string.Format("WorkflowConstants version mismatch: Code='{0}' Database='{1}' <br/>", WorkflowConstants.ConstantsVersion, dbConstantsVersion.VersionString);
+                    versionCheckStatus += string.Format("WorkflowConstants version mismatch: Code='{0}' Database='{1}' <br/>", 
+                        WorkflowConstants.ConstantsVersion, 
+                        dbConstantsVersion == null ? "<none>" : dbConstantsVersion.VersionString);
                 }
             }
             status = versionCheckStatus;
             return (versionCheckStatus.Length == 0);
+        }
+
+        public static string DeploymentName
+        {
+            get
+            {
+                if (deploymentName == null)
+                {
+                    deploymentName = ConfigurationSettings.Get(DeploymentNameConfigKey);
+                }
+                return deploymentName;
+            }
         }
 
         public static string UserDataConnection
@@ -171,6 +246,18 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public static string SplunkServerEndpoint
+        {
+            get
+            {
+                if (splunkServerEndpoint == null)
+                {
+                    splunkServerEndpoint = ConfigurationSettings.Get(SplunkServerEndpointConfigKey);
+                }
+                return splunkServerEndpoint;
+            }
+        }
+
         public static string LexiconFileName
         {
             get
@@ -211,6 +298,30 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public static string TraceDirectory
+        {
+            get
+            {
+                if (traceDirectoryName == null)
+                {
+                    traceDirectoryName = GetLocalResourceRootPath(TraceFolderConfigKey);
+                    /*
+                    if (HttpContext.Current != null)
+                    {
+                        // web role
+                        traceDirectoryName = HttpContext.Current.Server.MapPath(@"~/trace");
+                    }
+                    else
+                    {
+                        // worker role (or web role OnStart method)
+                        traceDirectoryName = Path.Combine(Directory.GetCurrentDirectory(), @"trace");
+                    }
+                     */
+                }
+                return traceDirectoryName;
+            }
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         static bool IsAzureEnvironmentAvailable()
         {
@@ -226,6 +337,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
 #region // Azure property helpers
         // should only be invoked from within a codepath that has verified IsAzure is true
+        public const string Website = "Website";
+        public const string WorkerRole = "WorkerRole";
         public static string AzureRoleName
         {
             [MethodImpl(MethodImplOptions.NoInlining)]

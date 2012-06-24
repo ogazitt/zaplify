@@ -163,7 +163,6 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                         Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact).ToList();
 
             // get all the user's friends and add them as serialized contacts to the possible contacts list
-            float sort = 1f;
             DateTime now = DateTime.UtcNow;
             try
             {

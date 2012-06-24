@@ -1058,7 +1058,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             double width = Math.Max(420f, AddButtonsStackPanel.ActualWidth) / 2;
 
             // get all the lists
-            var entityRefItems = ListMetadataHelper.GetListsOrderedBySelectedCount(App.ViewModel.ClientSettings);
+            var entityRefItems = App.ViewModel.GetListsOrderedBySelectedCount();
             lists = new List<ClientEntity>();
             foreach (var entityRefItem in entityRefItems)
             {

@@ -14,7 +14,7 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         public static string Serialize(object body)
         {
-            return JsonConvert.SerializeObject(body);
+            return JsonConvert.SerializeObject(body, new JsonSerializerSettings() { DateFormatHandling = DateFormatHandling.MicrosoftDateFormat });
         }
     }
 

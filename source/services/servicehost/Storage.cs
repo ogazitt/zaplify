@@ -1,12 +1,11 @@
 ﻿namespace BuiltSteady.Zaplify.ServiceHost
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.Shared.Entities;
-    using System.Collections.Generic;
-    using System.Collections;
 
     public static class Storage
     {
@@ -414,7 +413,7 @@
             }            
         }
 
-        public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody)
+        public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody, string session = null)
         {
             Operation operation = null;
             try
@@ -446,6 +445,7 @@
                     StatusCode = (int?)code,
                     Body = JsonSerializer.Serialize(body),
                     OldBody = JsonSerializer.Serialize(oldBody),
+                    Session = session,
                     Timestamp = DateTime.Now
                 };
                 Operations.Add(operation);

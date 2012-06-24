@@ -15,13 +15,13 @@ namespace Website
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
-            config.Logs.ScheduledTransferPeriod = TimeSpan.FromMinutes(1.0);
-            config.Logs.BufferQuotaInMB = 1000;
-            config.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
+            // initialize azure logging (this logger should come first)
+            if (HostEnvironment.IsAzureLoggingEnabled)
+                TraceLog.InitializeAzureLogging();
 
-            // don't need to start diagnostics since it's automatically started with the Import Diagnostics in in ServiceDefinition.csdef
-            DiagnosticMonitor.Start("Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString", config);
+            // initialize splunk logging
+            if (HostEnvironment.IsSplunkLoggingEnabled)
+                TraceLog.InitializeSplunkLogging();
 
             // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
             TraceLog.TraceFunction();

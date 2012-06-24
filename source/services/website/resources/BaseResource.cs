@@ -22,6 +22,7 @@
     {
         const string authorizationHeader = "Authorization";
         const string authRequestHeader = "Cookie";
+        const string sessionHeader = "X-Zaplify-Session";
         protected UserStorageContext storageContext = null;
         User currentUser = null;
 
@@ -122,7 +123,7 @@
             TraceLog.TraceFunction();
 
             IEnumerable<string> header = new List<string>();
-            if (!req.Headers.TryGetValues(authorizationHeader, out header) == false)
+            if (req.Headers.TryGetValues(authorizationHeader, out header))
             {   // process basic authorization header
                 string[] headerParts = header.ToArray<string>()[0].Split(' ');
                 if (headerParts.Length > 1 && headerParts[0].Equals("Basic", StringComparison.OrdinalIgnoreCase))
@@ -135,6 +136,16 @@
                 }
             }
             return null;
+        }
+
+        protected string GetSessionFromMessageHeaders(HttpRequestMessage req)
+        {
+            // get the session from the session header if it's present
+            string session = null;
+            IEnumerable<string> header = new List<string>();
+            if (req.Headers.TryGetValues(sessionHeader, out header))
+                session = header.ToArray<string>()[0];
+            return session;
         }
 
         // base code to process message and deserialize body to expected type
@@ -178,7 +189,6 @@
 
             try
             {
-
                 // initialize the body / oldbody
                 object body = entity;
                 object oldBody = null;
@@ -259,8 +269,13 @@
                 }
                 else
                     user = CurrentUser;
+
+                // get the session from the session header if it's present
+                TraceLog.Session = GetSessionFromMessageHeaders(req);
+
+                // create the operation
                 if (user != null)
-                    operation = this.StorageContext.CreateOperation(user, req.Method.Method, null, body, oldBody);
+                    operation = this.StorageContext.CreateOperation(user, req.Method.Method, null, body, oldBody, TraceLog.Session);
 
                 return HttpStatusCode.OK;
             }

@@ -30,6 +30,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         const string authorizationHeader = "Authorization";
         const string authResponseHeader = "Set-Cookie";
         const string authRequestHeader = "Cookie";
+        const string sessionHeader = "X-Zaplify-Session";
         static string authCookie = null;
         static HttpWebRequest request = null;
         static bool isRequestInProgress = false;        // only one network operation at a time
@@ -276,6 +277,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 string encodedCreds = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(credentials));
                 request.Headers[authorizationHeader] = string.Format("Basic {0}", encodedCreds);
             }
+
+            // set the session ID header
+            var sessionToken = TraceHelper.SessionToken;
+            if (sessionToken != null)
+                request.Headers[sessionHeader] = sessionToken;
 
             // if this is a GET request, we can execute from here
             if (request.Method == "GET")

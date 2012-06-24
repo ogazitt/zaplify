@@ -165,6 +165,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost
             Guid entityID = operation.EntityID;
             string entityType = operation.EntityType.Trim();
             string operationType = operation.OperationType.Trim();
+            TraceLog.Session = operation.Session;
 
             // try to get a strongly-typed entity (item, folder, user...)
             ServerEntity entity = null, oldEntity = null;
