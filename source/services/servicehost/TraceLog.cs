@@ -255,7 +255,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         private static string MethodInfoText()
         {
+#if DEBUG
             StackTrace st = new StackTrace(2, true);
+#else
+            StackTrace st = new StackTrace(1, true);
+#endif
             StackFrame sf = st.GetFrame(0);
             return StackFrameText(sf);
         }
@@ -279,7 +283,11 @@ namespace BuiltSteady.Zaplify.ServiceHost
 
         private static string StackTraceText(int depth)
         {
+#if DEBUG
             StackTrace st = new StackTrace(2, true);
+#else
+            StackTrace st = new StackTrace(1, true);
+#endif
             StackFrame[] frames = st.GetFrames();
             StringBuilder sb = new StringBuilder();
             int i = 0;
