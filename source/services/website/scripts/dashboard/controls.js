@@ -230,7 +230,7 @@ Control.Text.render = function Control$Text$render($element, item, field, tag, t
     var $tag;
     var value = item.GetFieldValue(field);
     if (field.DisplayType == DisplayTypes.DatePicker) {
-        value = Control.DateTime.formatDate(value);
+        value = Control.DateTime.format(value);
     } else if (field.DisplayType == DisplayTypes.DateTimePicker) {
         value = Control.DateTime.format(value);
     }
@@ -691,7 +691,7 @@ Control.DateTime.renderDatePicker = function Control$DateTime$renderDatePicker($
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(Control.DateTime.formatDate(item.GetFieldValue(field), 'shortDate'));
+    $date.val(Control.DateTime.format(item.GetFieldValue(field), 'shortDate'));
     $date.datepicker({
         numberOfMonths: 2,
         onClose: function (value, picker) { Control.DateTime.update(picker.input); }
@@ -725,26 +725,15 @@ Control.DateTime.update = function Control$DateTime$update($input) {
 // format for DateTime
 Control.DateTime.format = function Control$DateTime$format(text, mask) {
     if (text != null && text.length > 0) {
-        var date = new Date(text);
+        var date = new Date();
+        date = date.parseRFC3339(text);
         return date.format(mask);
-    }
-    return text;
-}
-// format for Date only
-Control.DateTime.formatDate = function Control$DateTime$formatDate(text) {
-    if (text != null && text.length > 0) {
-        var date = new Date(text);
-        return date.format("longDate");
     }
     return text;
 }
 // format for UTC for storage
 Control.DateTime.formatUTC = function Control$DateTime$formatUTC(text) {
-    if (text != null && text.length > 0) {
-        var date = new Date(text);
-        return date.format("isoUtcDateTime");
-    }
-    return text;
+    return Control.DateTime.format(text, "isoUtcDateTime");
 }
 
 // ---------------------------------------------------------
@@ -1120,4 +1109,35 @@ Control.DateFormat.i18n = {
 // extend Date object with format prototype
 Date.prototype.format = function (mask, utc) {
     return Control.DateFormat(this, mask, utc);
+};
+
+// parse RFC3339 datetime format for downlevel browsers
+Date.prototype.parseRFC3339 = function (text) {
+    var regexp = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))/;
+
+    if (text.toString().match(new RegExp(regexp))) {
+        var d = text.match(new RegExp(regexp));
+        var offset = 0;
+
+        this.setUTCDate(1);
+        this.setUTCFullYear(parseInt(d[1], 10));
+        this.setUTCMonth(parseInt(d[3], 10) - 1);
+        this.setUTCDate(parseInt(d[5], 10));
+        this.setUTCHours(parseInt(d[7], 10));
+        this.setUTCMinutes(parseInt(d[9], 10));
+        this.setUTCSeconds(parseInt(d[11], 10));
+        if (d[12])
+            this.setUTCMilliseconds(parseFloat(d[12]) * 1000);
+        else
+            this.setUTCMilliseconds(0);
+        if (d[13] != 'Z') {
+            offset = (d[15] * 60) + parseInt(d[17], 10);
+            offset *= ((d[14] == '-') ? -1 : 1);
+            this.setTime(this.getTime() - offset * 60 * 1000);
+        }
+    }
+    else {
+        this.setTime(Date.parse(text));
+    }
+    return this;
 };
