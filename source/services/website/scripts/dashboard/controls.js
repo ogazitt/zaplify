@@ -725,9 +725,13 @@ Control.DateTime.update = function Control$DateTime$update($input) {
 // format for DateTime
 Control.DateTime.format = function Control$DateTime$format(text, mask) {
     if (text != null && text.length > 0) {
-        var date = new Date();
-        date = date.parseRFC3339(text);
-        return date.format(mask);
+        try {
+            var date = new Date();
+            date = date.parseRFC3339(text);
+            return date.format(mask);
+        } catch (e) {
+            // if not a valid date, just return text
+        }
     }
     return text;
 }
