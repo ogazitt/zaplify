@@ -18,6 +18,7 @@ using BuiltSteady.Zaplify.Devices.ClientEntities;
 using BuiltSteady.Zaplify.Devices.ClientViewModels;
 using BuiltSteady.Zaplify.Devices.ClientHelpers;
 using BuiltSteady.Zaplify.Shared.Entities;
+using Microsoft.Phone.Shell;
 
 namespace BuiltSteady.Zaplify.Devices.WinPhone
 {
@@ -42,6 +43,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (IsConnected)
                 MainPivot.SelectedIndex = 1;
 
+            MainPivot.SelectionChanged += new SelectionChangedEventHandler(MainPivot_SelectionChanged);
             BackKeyPress += new EventHandler<CancelEventArgs>(SettingsPage_BackKeyPress);
         }
 
@@ -240,13 +242,26 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(App.ViewModel.NetworkOperationInProgressCallback));
         }
 
-        private void SettingsPage_BackKeyPress(object sender, CancelEventArgs e)
+        void MainPivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // trace page navigation
-            TraceHelper.StartMessage("Settings: Navigate back");
+            // remove all existing buttons from the application bar
+            ApplicationBar.Buttons.Clear();
 
-            // navigate back
-            NavigationService.GoBack();
+            // do tab-specific processing (e.g. adding the Save button)
+            switch (MainPivot.SelectedIndex)
+            {
+                case 0: // account
+                    break;
+                case 1: // settings
+                    var saveButton = new ApplicationBarIconButton()
+                    {
+                        Text = "save",
+                        IconUri = new Uri("/Images/appbar.save.rest.png", UriKind.Relative)
+                    };
+                    saveButton.Click += new EventHandler(SaveButton_Click);
+                    ApplicationBar.Buttons.Add(saveButton);
+                    break;
+            }
         }
 
         // Event handlers for settings tab
@@ -286,17 +301,20 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
 
             // queue up a server request
-            RequestQueue.EnqueueRequestRecord(RequestQueue.UserQueue, new RequestQueue.RequestRecord()
+            if (App.ViewModel.ClientSettings.ID != Guid.Empty)
             {
-                ReqType = RequestQueue.RequestRecord.RequestType.Update,
-                Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
-                BodyTypeName = "Item",
-                ID = phoneSettingsItem.ID,
-                IsDefaultObject = true
-            });
+                RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
+                {
+                    ReqType = RequestQueue.RequestRecord.RequestType.Update,
+                    Body = new List<Item>() { phoneSettingsItemCopy, phoneSettingsItem },
+                    BodyTypeName = "Item",
+                    ID = phoneSettingsItem.ID,
+                    IsDefaultObject = true
+                });
 
-            // sync with the server
-            App.ViewModel.SyncWithService();
+                // sync with the server
+                App.ViewModel.SyncWithService();
+            }
 
             // trace page navigation
             TraceHelper.StartMessage("Settings: Navigate back");
@@ -305,6 +323,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             App.ViewModel.NotifyPropertyChanged("BackgroundColor");
 
             // go back to main page
+            NavigationService.GoBack();
+        }
+
+        private void SettingsPage_BackKeyPress(object sender, CancelEventArgs e)
+        {
+            // trace page navigation
+            TraceHelper.StartMessage("Settings: Navigate back");
+
+            // navigate back
             NavigationService.GoBack();
         }
 
@@ -328,7 +355,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         if (user.Password == null)
                             user.Password = Password.Password;
                         App.ViewModel.User = user;
+                        // prepare for sync by cleaning out the user queue and deleting the system queue ($ClientSettings comes from the server account)
                         RequestQueue.PrepareUserQueueForAccountConnect();
+                        RequestQueue.DeleteQueue(RequestQueue.SystemQueue);
                         App.ViewModel.SyncWithService();
                         break;
                     case HttpStatusCode.NotFound:

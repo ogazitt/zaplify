@@ -310,7 +310,7 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     public class UserConstants
     {
-        public static string SchemaVersion { get { return "1.0.2012.0612"; } }
+        public static string SchemaVersion { get { return "1.0.2012.0622"; } }
         public static string ConstantsVersion { get { return "2012-06-19"; } }
 
         public static List<ActionType> DefaultActionTypes()

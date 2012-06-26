@@ -9,13 +9,22 @@
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-      
+
       <Setting name="MailWorkerCount" value="1" />
+      <Setting name="MailWorkerTimeout" value="60" />
       <Setting name="WorkflowWorkerCount" value="1" />
-      
+      <Setting name="WorkflowWorkerTimeout" value="5" />
+
       <!-- Google Client 'ZaplifyDev1' -->
       <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com"/>
       <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z"/>
+
+      <!-- Logging configuration -->
+      <Setting name="DeploymentName" value="Dev1"/>
+      <Setting name="AzureLoggingEnabled" value="1"/>
+      <Setting name="SplunkLoggingEnabled" value="1"/>
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
+      <Setting name="SplunkLocalPort" value="9237"/>
 
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -47,6 +56,13 @@
       <!-- Google Client 'ZaplifyDev1' -->
       <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com"/>
       <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z"/>
+
+      <!-- Logging configuration -->
+      <Setting name="DeploymentName" value="Dev1"/>
+      <Setting name="AzureLoggingEnabled" value="1"/>
+      <Setting name="SplunkLoggingEnabled" value="1"/>
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
+      <Setting name="SplunkLocalPort" value="9237"/>
 
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />

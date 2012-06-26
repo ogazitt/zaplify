@@ -173,4 +173,7 @@
     <None Include="UserDatabase.Production.publish.xml" />
     <None Include="UserDatabase.Local.publish.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="UserDatabase.refactorlog" />
+  </ItemGroup>
 </Project>

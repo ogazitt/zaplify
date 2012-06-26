@@ -407,7 +407,7 @@
                             var contact = ev.Results.FirstOrDefault();
                             if (contact == null)
                                 return;
-                            var newItem = ContactPickerHelper.ProcessContact(contact);
+                            var newItem = ContactPickerHelper.ProcessContact(contact, list);
 
                             // sync with the service
                             App.ViewModel.SyncWithService();

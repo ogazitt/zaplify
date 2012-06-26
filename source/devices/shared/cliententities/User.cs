@@ -147,7 +147,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             }
         }
 
-        // local property
+        // local properties
         public bool Synced { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;

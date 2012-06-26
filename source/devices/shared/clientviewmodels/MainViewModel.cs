@@ -374,23 +374,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             }
         }
 
-        private ObservableCollection<string> traceMessages;
-        public ObservableCollection<string> TraceMessages
-        {
-            get
-            {
-                return traceMessages;
-            }
-            set
-            {
-                if (value != traceMessages)
-                {
-                    traceMessages = value;
-                    NotifyPropertyChanged("TraceMessages");
-                }
-            }
-        }
-
         private User user;
         public User User
         {

@@ -14,6 +14,7 @@ namespace BuiltSteady.Zaplify.ServerEntities
         public string Body { get; set; }
         public string OldBody { get; set; }
         public int? StatusCode { get; set; }
+        public string Session { get; set; }
         public DateTime Timestamp { get; set; }
         
         public override string ToString()

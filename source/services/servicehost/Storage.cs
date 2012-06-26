@@ -1,12 +1,11 @@
 ﻿namespace BuiltSteady.Zaplify.ServiceHost
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.Shared.Entities;
-    using System.Collections.Generic;
-    using System.Collections;
 
     // ****************************************************************************
     // static class for getting storage contexts
@@ -210,52 +209,6 @@
         public DbSet<Tag> Tags { get; set; }
         public DbSet<User> Users { get; set; }
 
-        // add an operation to the Operations table
-        public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody)
-        {
-            Operation operation = null;
-            try
-            {   // add the operation to the Operations table
-                string name;
-                Type bodyType = body.GetType();
-                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
-                if (body is Suggestion)
-                {   // Suggestion does not have a Name property, use GroupDisplayName property
-                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
-                }
-                else
-                {
-                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
-                }
-
-                operation = new Operation()
-                {
-                    ID = Guid.NewGuid(),
-                    UserID = user.ID,
-                    Username = user.Name,
-                    EntityID = id,
-                    EntityName = name,
-                    EntityType = bodyType.Name,
-                    OperationType = opType,
-                    StatusCode = (int?)code,
-                    Body = JsonSerializer.Serialize(body),
-                    OldBody = JsonSerializer.Serialize(oldBody),
-                    Timestamp = DateTime.Now
-                };
-                Operations.Add(operation);
-                if (SaveChanges() < 1)
-                {   // log failure to record operation
-                    TraceLog.TraceError("Failed to record operation: " + opType);
-                }
-            }
-            catch (Exception ex)
-            {   // log failure to record operation
-                TraceLog.TraceException("Failed to record operation", ex);
-            }
-
-            return operation;
-        }
-        
         // get User by ID (optionally include UserCredentials)
         public User GetUser(Guid id, bool includeCredentials = false)
         {
@@ -396,6 +349,52 @@
                 TraceLog.TraceException(string.Format("Could not find or create list by value '{0}' in folder '{1}' for user '{2}'", value, folder.Name, user.Name), ex);
                 return null;
             }
+        }
+
+        // add an operation to the Operations table
+        public Operation CreateOperation(User user, string opType, int? code, object body, object oldBody, string session = null)
+        {
+            Operation operation = null;
+            try
+            {   // add the operation to the Operations table
+                string name;
+                Type bodyType = body.GetType();
+                Guid id = (Guid)bodyType.GetProperty("ID").GetValue(body, null);
+                if (body is Suggestion)
+                {   // Suggestion does not have a Name property, use GroupDisplayName property
+                    name = (string)bodyType.GetProperty("GroupDisplayName").GetValue(body, null);
+                }
+                else
+                {
+                    name = (string)bodyType.GetProperty("Name").GetValue(body, null);
+                }
+
+                operation = new Operation()
+                {
+                    ID = Guid.NewGuid(),
+                    UserID = user.ID,
+                    Username = user.Name,
+                    EntityID = id,
+                    EntityName = name,
+                    EntityType = bodyType.Name,
+                    OperationType = opType,
+                    StatusCode = (int?)code,
+                    Body = JsonSerializer.Serialize(body),
+                    OldBody = JsonSerializer.Serialize(oldBody),
+                    Session = session,
+                    Timestamp = DateTime.Now
+                };
+                Operations.Add(operation);
+                if (SaveChanges() < 1)
+                {   // log failure to record operation
+                    TraceLog.TraceError("Failed to record operation: " + opType);
+                }
+            }
+            catch (Exception ex)
+            {   // log failure to record operation
+                TraceLog.TraceException("Failed to record operation", ex);
+            }
+            return operation;
         }
 
         // check if schema version in User database and EntityConstants match
@@ -573,7 +572,6 @@
                 return false;
             }
         }
-
 
         // ****************************************************************************
         // nested accessor for UserFolder

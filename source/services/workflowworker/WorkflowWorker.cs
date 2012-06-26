@@ -12,7 +12,22 @@ namespace BuiltSteady.Zaplify.WorkflowWorker
 {
     public class WorkflowWorker : IWorker
     {
-        public int Timeout { get { return 5000; } } // 5 seconds
+        private int? timeout;
+        public int Timeout 
+        { 
+            get 
+            {
+                if (!timeout.HasValue)
+                {
+                    timeout = ConfigurationSettings.GetAsNullableInt(HostEnvironment.WorkflowWorkerTimeoutConfigKey);
+                    if (timeout == null)
+                        timeout = 5000;  // default to 5 seconds
+                    else
+                        timeout *= 1000;  // convert to ms
+                }
+                return timeout.Value;
+            }
+        }
 
         public void Start()
         {

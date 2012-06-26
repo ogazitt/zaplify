@@ -23,11 +23,11 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// <param name='selectedPerson'>
         /// Selected person from the people picker
         /// </param>
-        public static Item ProcessContact(Contact selectedPerson)
+        public static Item ProcessContact(Contact selectedPerson, Item list = null)
         {
             var contact = GetExistingContact(selectedPerson);
             if (contact == null)
-                contact = CreateNewContact(selectedPerson);
+                contact = CreateNewContact(selectedPerson, list);
 
             // add the contact info from the phone address book to the new contact
             AddContactInfo(selectedPerson, contact);
@@ -108,13 +108,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // can't find a way to do this currently :-(
         }
 
-        private static Item CreateNewContact(Contact selectedPerson)
+        private static Item CreateNewContact(Contact selectedPerson, Item list = null)
         {
             Guid id = Guid.NewGuid();
             // get the default list for contacts
             Guid folderID;
             Guid? parentID = null;
-            ClientEntity defaultList = App.ViewModel.GetDefaultList(SystemItemTypes.Contact);
+
+            ClientEntity defaultList = list ??  App.ViewModel.GetDefaultList(SystemItemTypes.Contact);
             if (defaultList == null)
             {
                 TraceHelper.AddMessage("CreateNewContact: error - could not find default contact list");
@@ -123,7 +124,8 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (defaultList is Item)
             {
                 folderID = ((Item)defaultList).FolderID;
-                parentID = defaultList.ID;
+                if (defaultList.ID != Guid.Empty)
+                    parentID = defaultList.ID;
             }
             else
             {
