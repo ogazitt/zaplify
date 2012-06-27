@@ -717,6 +717,35 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
     return $date;
 }
 
+Control.DateTime.renderRange = function Control$DateTime$renderRange($element, item, fieldStart, fieldEnd, tag) {
+    var tag = (tag == null) ? 'span' : tag;
+    var $tag, value;
+    var startValue = item.GetFieldValue(fieldStart);
+    var endValue = item.GetFieldValue(fieldEnd);
+    if (fieldStart.FieldType == FieldTypes.DateTime && fieldEnd.FieldType == FieldTypes.DateTime) {
+        var startDate = new Date().parseRFC3339(startValue);
+        var endDate = new Date().parseRFC3339(endValue);
+        if (startDate.toDateString() == endDate.toDateString()) {
+            // display range as same day
+            var endParts = endDate.format().split(' ');
+            var endHour = endParts[endParts.length - 2] + ' ' + endParts[endParts.length - 1];
+            value = 'On ' + startDate.format() + ' to ' + endHour;
+        } else {
+            // display range as multiple days
+            value = 'From ' + startDate.format() + ' until ' + endDate.format();
+        }
+    } else {
+        value = 'From ' + startValue + ' until ' + endValue;
+    }
+
+    if (value != null) {
+        $tag = $('<' + tag + '/>').appendTo($element);
+        $tag.addClass(fieldStart.Class);
+        $tag.html(value);
+    }
+    return $tag;
+}
+
 Control.DateTime.update = function Control$DateTime$update($input) {
     // suppress refresh to prevent jquery-ui bug using multiple datetimepickers
     Control.Text.update($input, null);
@@ -726,8 +755,7 @@ Control.DateTime.update = function Control$DateTime$update($input) {
 Control.DateTime.format = function Control$DateTime$format(text, mask) {
     if (text != null && text.length > 0) {
         try {
-            var date = new Date();
-            date = date.parseRFC3339(text);
+            var date = new Date().parseRFC3339(text);
             return date.format(mask);
         } catch (e) {
             // if not a valid date, just return text
