@@ -336,9 +336,9 @@ Control.Text.autoCompletePlace = function Control$Text$autoCompletePlace($input,
     var autoComplete = new google.maps.places.Autocomplete($input[0]);
 
     // TODO: temporary bound to Seattle area (calculate bounds from UserProfile GeoLocation)
-    var getBounds = function (lat, long) {
+    var getBounds = function (lat, lng) {
         var x = 0.5;
-        return new google.maps.LatLngBounds(new google.maps.LatLng(lat - x, long - x), new google.maps.LatLng(lat + x, long + x));
+        return new google.maps.LatLngBounds(new google.maps.LatLng(lat - x, lng - x), new google.maps.LatLng(lat + x, lng + x));
     }
     var seattleArea = getBounds(47.65, -122.3);
     autoComplete.setBounds(seattleArea);
