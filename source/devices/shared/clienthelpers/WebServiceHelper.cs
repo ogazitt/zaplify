@@ -14,6 +14,7 @@ using SharpCompress.Writer.GZip;
 #endif
 
 using BuiltSteady.Zaplify.Devices.ClientEntities;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
@@ -30,7 +31,6 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         const string authorizationHeader = "Authorization";
         const string authResponseHeader = "Set-Cookie";
         const string authRequestHeader = "Cookie";
-        const string sessionHeader = "X-Zaplify-Session";
         static string authCookie = null;
         static HttpWebRequest request = null;
         static bool isRequestInProgress = false;        // only one network operation at a time
@@ -260,11 +260,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
 #if IOS
 			request = (HttpWebRequest) WebRequest.Create(uri);
+            request.UserAgent = UserAgents.IOSPhone;
 #else
 			request = WebRequest.CreateHttp(url);
+            request.UserAgent = UserAgents.WinPhone;
 #endif
             request.Accept = "application/json";
-            request.UserAgent = "Zaplify-WinPhone";
             request.Method = verb == null ? "GET" : verb;
 
             if (authCookie != null)
@@ -281,7 +282,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // set the session ID header
             var sessionToken = TraceHelper.SessionToken;
             if (sessionToken != null)
-                request.Headers[sessionHeader] = sessionToken;
+                request.Headers[HttpApplicationHeaders.Session] = sessionToken;
 
             // if this is a GET request, we can execute from here
             if (request.Method == "GET")
@@ -351,8 +352,11 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // serialize a request body if one was passed in (and the verb will take it)
             if (state.RequestBody != null && request.Method != "GET")
             {
-                request.UserAgent = "Zaplify-WinPhone";
-
+#if IOS
+                request.UserAgent = UserAgents.IOSPhone;
+#else
+                request.UserAgent = UserAgents.WinPhone;
+#endif
                 // a null request body means that the caller wants to get the stream back and write to it directly
                 if (state.RequestBody as Delegate != null)
                 {

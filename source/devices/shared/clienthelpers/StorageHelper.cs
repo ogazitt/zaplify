@@ -53,27 +53,56 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         }
 
         /// <summary>
-        /// Read the contents of the ClientSettings Folder XML file from isolated storage
+        /// Read the contents of the $Client folder XML file from isolated storage
         /// </summary>
         /// <returns>retrieved folder</returns>
-        public static Folder ReadClientSettings()
+        public static Folder ReadClient()
         {
-            return InternalReadFile<Folder>(SystemEntities.ClientSettings);
+            return InternalReadFile<Folder>(SystemEntities.Client);
         }
 
         /// <summary>
-        /// Write the ClientSettings Folder XML to isolated storage
+        /// Write the $Client folder XML to isolated storage
         /// </summary>
-        public static void WriteClientSettings(Folder folder)
+        public static void WriteClient(Folder folder)
         {
             // save all the system entity ID's
-            WriteSystemEntityID(SystemEntities.ClientSettings, folder.ID);
+            WriteSystemEntityID(SystemEntities.Client, folder.ID);
             foreach (var item in folder.Items)
             {
                 if (item == null)
                     continue;
-                if (item.Name != SystemEntities.DefaultLists &&
-                    item.Name != SystemEntities.ListMetadata &&
+                if (item.Name != SystemEntities.DefaultLists)
+                    continue;
+                WriteSystemEntityID(item.Name, item.ID);
+            }
+
+            // make a copy and do the write on the background thread
+            var copy = new Folder(folder);
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.Client); });
+        }
+
+        /// <summary>
+        /// Read the contents of the $PhoneClient folder XML file from isolated storage
+        /// </summary>
+        /// <returns>retrieved folder</returns>
+        public static Folder ReadPhoneClient()
+        {
+            return InternalReadFile<Folder>(SystemEntities.PhoneClient);
+        }
+
+        /// <summary>
+        /// Write the $PhoneClient folder XML to isolated storage
+        /// </summary>
+        public static void WritePhoneClient(Folder folder)
+        {
+            // save all the system entity ID's
+            WriteSystemEntityID(SystemEntities.PhoneClient, folder.ID);
+            foreach (var item in folder.Items)
+            {
+                if (item == null)
+                    continue;
+                if (item.Name != SystemEntities.ListMetadata &&
                     item.Name != SystemEntities.PhoneSettings)
                     continue;
                 WriteSystemEntityID(item.Name, item.ID);
@@ -81,8 +110,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
             // make a copy and do the write on the background thread
             var copy = new Folder(folder);
-            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.ClientSettings); });
+            ThreadPool.QueueUserWorkItem(delegate { InternalWriteFile<Folder>(copy, SystemEntities.PhoneClient); });
         }
+
 
         /// <summary>
         /// Get the Default Folder ID from isolated storage

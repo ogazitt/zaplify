@@ -88,37 +88,38 @@ namespace BuiltSteady.Zaplify.ServiceHost
             get
             {
                 if (userCalendar == null)
-                {   // TODO: temporarily attach as ExtendedFieldName to UserProfile list
-                    // Need to resolve how UserProfile information is stored (ItemType, Expando, or Json)
-                    Item userProfile = storage.ClientFolder.GetUserProfile(user);
-                    FieldValue fvCalendarID = userProfile.GetFieldValue(ExtendedFieldNames.CalendarID, true);
-                    if (fvCalendarID == null || string.IsNullOrEmpty(fvCalendarID.Value))
-                    {   // find best candidate in list of user calendars
-                        var userCalendars = UserCalendars;
-                        foreach (var cal in userCalendars)
-                        {
-                            if (cal.AccessRole == "owner")
-                            {   // must have owner access
-                                if (user.Email.Equals(cal.Id, StringComparison.OrdinalIgnoreCase))
-                                {   // user.email matches calendar id (this is best match)
-                                    userCalendar = cal.Id;
-                                    break;
-                                }
-                                if (user.Email.Equals(cal.Summary, StringComparison.OrdinalIgnoreCase))
-                                {   // user.email matches calendar summary (this is next best match)
-                                    userCalendar = cal.Id;
-                                }
-                                if (userCalendar == null)
-                                {   // use first owner calendar if user.email cannot be matched
-                                    userCalendar = cal.Id;
+                {
+                    CalendarSettings calendarSettings = storage.ClientFolder.GetCalendarSettings(user);
+                    if (calendarSettings != null)
+                    {
+                        if (calendarSettings.CalendarID == null)
+                        {   // find best candidate in list of user calendars
+                            var userCalendars = UserCalendars;
+                            foreach (var cal in userCalendars)
+                            {
+                                if (cal.AccessRole == "owner")
+                                {   // must have owner access
+                                    if (user.Email.Equals(cal.Id, StringComparison.OrdinalIgnoreCase))
+                                    {   // user.email matches calendar id (this is best match)
+                                        userCalendar = cal.Id;
+                                        break;
+                                    }
+                                    if (user.Email.Equals(cal.Summary, StringComparison.OrdinalIgnoreCase))
+                                    {   // user.email matches calendar summary (this is next best match)
+                                        userCalendar = cal.Id;
+                                    }
+                                    if (userCalendar == null)
+                                    {   // use first owner calendar if user.email cannot be matched
+                                        userCalendar = cal.Id;
+                                    }
                                 }
                             }
+                            // save CalendarID
+                            calendarSettings.CalendarID = userCalendar;
+                            storage.SaveChanges();
                         }
-                        // save CalendarID
-                        fvCalendarID.Value = userCalendar;
-                        storage.SaveChanges();
+                        userCalendar = calendarSettings.CalendarID;
                     }
-                    userCalendar = fvCalendarID.Value;
                 }
                 return userCalendar;
             }
@@ -178,21 +179,22 @@ namespace BuiltSteady.Zaplify.ServiceHost
             int itemsUpdated = 0;
             if (ConnectToCalendar)
             {
-                Item userProfile = storage.ClientFolder.GetUserProfile(user);
-                Item metaItem = storage.UserFolder.GetEntityRef(user, userProfile);
-                FieldValue fvCalLastSync = metaItem.GetFieldValue(ExtendedFieldNames.CalLastSync, true);
-                DateTime lastSyncTime;
-                if (fvCalLastSync.Value == null)
-                {   // first-time, use consent token last modified date
-                    UserCredential googleConsent = user.GetCredential(UserCredential.GoogleConsent);
-                    lastSyncTime = googleConsent.LastModified;
-                }
-                else
+                CalendarSettings calendarSettings = storage.ClientFolder.GetCalendarSettings(user);
+                if (calendarSettings != null)
                 {
-                    lastSyncTime = DateTime.Parse(fvCalLastSync.Value);
+                    DateTime lastSyncTime;
+                    if (calendarSettings.LastSync == null)
+                    {   // first-time, use consent token last modified date
+                        UserCredential googleConsent = user.GetCredential(UserCredential.GoogleConsent);
+                        lastSyncTime = googleConsent.LastModified;
+                    }
+                    else
+                    {
+                        lastSyncTime = (DateTime)calendarSettings.LastSync;
+                    }
+                    calendarSettings.LastSync = DateTime.UtcNow;
+                    itemsUpdated = SynchronizeCalendar(lastSyncTime);
                 }
-                fvCalLastSync.Value = XmlConvert.ToString(DateTime.UtcNow, XmlDateTimeSerializationMode.Utc);
-                itemsUpdated = SynchronizeCalendar(lastSyncTime);
             }
             return itemsUpdated;
         }

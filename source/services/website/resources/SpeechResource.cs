@@ -19,6 +19,7 @@
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models;
     using BuiltSteady.Zaplify.ServerEntities;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.ServiceHost;
 
     // singleton service, which manages thread-safety on its own
@@ -76,7 +77,7 @@
                 // retrieve and set the stream to recognize
                 Stream stream = req.Content.ReadAsStreamAsync().Result;
                 IEnumerable<string> values = new List<string>();
-                if (req.Headers.Contains("Zaplify-Speech-Encoding") == true)
+                if (req.Headers.Contains(HttpApplicationHeaders.SpeechEncoding) == true)
                     stream = GetStream(req);
                 sre.SetInputToAudioStream(stream, formatInfo);
 
@@ -249,7 +250,7 @@
 
             // get the content type
             IEnumerable<string> values = new List<string>();
-            if (req.Headers.TryGetValues("Zaplify-Speech-Encoding", out values) == true)
+            if (req.Headers.TryGetValues(HttpApplicationHeaders.SpeechEncoding, out values) == true)
                 contentType = values.ToArray<string>()[0];
             else
                 return stream;

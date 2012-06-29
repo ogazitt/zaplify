@@ -127,7 +127,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 var phoneSetting = PhoneSettings.Settings[setting];
                 //var bindingList = (from l in list select new { Name = l }).ToList();
                 var bindingList = phoneSetting.Values;
-                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
+                var value = PhoneSettingsHelper.GetPhoneSetting(App.ViewModel.PhoneClientFolder, setting);
                 int selectedIndex = 0;
                 if (value != null && bindingList.Any(ps => ps.Name == value))
                 {
@@ -280,7 +280,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // get current version of phone settings
-            var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
+            var phoneSettingsItemCopy = new Item(PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder), true);
 
             // loop through the settings and store the new value
             foreach (var element in SettingsPanel.Children)
@@ -294,14 +294,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 string value = phoneSetting.Values[listPicker.SelectedIndex].Name;
 
                 // store the key/value pair in phone settings (without syncing)
-                ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+                PhoneSettingsHelper.StorePhoneSetting(App.ViewModel.PhoneClientFolder, key, value);
             }
 
             // get the new version of phone settings
-            var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+            var phoneSettingsItem = PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder);
 
             // queue up a server request
-            if (App.ViewModel.ClientSettings.ID != Guid.Empty)
+            if (App.ViewModel.PhoneClientFolder.ID != Guid.Empty)
             {
                 RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                 {

@@ -9,6 +9,7 @@
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
     using BuiltSteady.Zaplify.Shared.Entities;
+    using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Controllers;
     using BuiltSteady.Zaplify.Website.Resources;
 
@@ -96,12 +97,12 @@
         public string ConsentStatus { get; set; }
 
         public string UserTheme
-        {
+        {   // TODO: replace this by using WebDisplaySettings
             get
             {
                 foreach (var folder in UserData.Folders)
                 {
-                    if (folder.Name.Equals(SystemEntities.ClientSettings))
+                    if (folder.Name.Equals(SystemEntities.Client))
                     {
                         foreach (var item in folder.Items)
                         {
@@ -146,13 +147,31 @@
 
                     // retrieve non-system folders for this user 
                     // (does not include other user folders this user has been given access to via FolderUsers)
-                    List<Folder> folders = this.StorageContext.Folders.
-                        Include("FolderUsers").
-                        Include("Items.ItemTags").
-                        Include("Items.FieldValues").
-                        Where(f => f.UserID == userData.ID && f.ItemTypeID != SystemItemTypes.System).
-                        OrderBy(f => f.SortOrder).
-                        ToList();
+                    List<Folder> folders;
+                    if (HttpHeaderHelper.IsPhoneDevice())
+                    {   // exclude $WebClient folder
+                        folders = this.StorageContext.Folders.
+                            Include("FolderUsers").
+                            Include("Items.ItemTags").
+                            Include("Items.FieldValues").
+                            Where(f => f.UserID == userData.ID && 
+                                f.ItemTypeID != SystemItemTypes.System &&
+                                f.Name != SystemEntities.WebClient).
+                            OrderBy(f => f.SortOrder).
+                            ToList();
+                    }
+                    else
+                    {   // exclude $PhoneClient folder
+                        folders = this.StorageContext.Folders.
+                            Include("FolderUsers").
+                            Include("Items.ItemTags").
+                            Include("Items.FieldValues").
+                            Where(f => f.UserID == userData.ID &&
+                                f.ItemTypeID != SystemItemTypes.System &&
+                                f.Name != SystemEntities.PhoneClient).
+                            OrderBy(f => f.SortOrder).
+                            ToList();
+                    }
 
                     if (folders != null && folders.Count > 0)
                     {

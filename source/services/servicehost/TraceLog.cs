@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Diagnostics;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using System.Text;
-using Microsoft.WindowsAzure.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Web;
+using Microsoft.WindowsAzure.Diagnostics;
+using Microsoft.WindowsAzure.ServiceRuntime;
+
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
@@ -50,9 +50,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 else
                 {
                     // for the web role, grab the session ID from the request header and fall back to thread-local storage
-                    const string sessionHeader = "X-Zaplify-Session";
                     if (HttpContext.Current != null)
-                        return HttpContext.Current.Request.Headers[sessionHeader];
+                        return HttpContext.Current.Request.Headers[HttpApplicationHeaders.Session];
                     else
                         return session;
                 }

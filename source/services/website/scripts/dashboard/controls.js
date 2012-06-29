@@ -54,16 +54,21 @@ Control.collapse = function Control$collapse($element, animate, callback) {
     }
 }
 
-Control.alert = function Control$alert(message, header) {
+Control.alert = function Control$alert(message, header, handlerClose) {
     var $modalMessage = $('#modalMessage');
     if ($modalMessage.length == 0) {
         message.replace('<br\>', '\r');
         alert(message);
+        if (handlerClose != null) { handlerClose(); }
     } else {
         if (header == null) { header = "Warning!"; }
         $modalMessage.find('.modal-header h3').html(header);
         $modalMessage.find('.modal-body p').html(message);
         $modalMessage.modal('show');
+        if (handlerClose != null) {
+            $modalMessage.find('.modal-header .close').click(function () { handlerClose(); });
+            $modalMessage.find('.modal-footer .btn-primary').click(function () { handlerClose(); });
+        }
     }
 }
 
@@ -722,22 +727,23 @@ Control.DateTime.renderRange = function Control$DateTime$renderRange($element, i
     var $tag, value;
     var startValue = item.GetFieldValue(fieldStart);
     var endValue = item.GetFieldValue(fieldEnd);
-    if (fieldStart.FieldType == FieldTypes.DateTime && fieldEnd.FieldType == FieldTypes.DateTime) {
-        var startDate = new Date().parseRFC3339(startValue);
-        var endDate = new Date().parseRFC3339(endValue);
-        if (startDate.toDateString() == endDate.toDateString()) {
-            // display range as same day
-            var endParts = endDate.format().split(' ');
-            var endHour = endParts[endParts.length - 2] + ' ' + endParts[endParts.length - 1];
-            value = 'On ' + startDate.format() + ' to ' + endHour;
+    if (startValue != null && endValue != null) {
+        if (fieldStart.FieldType == FieldTypes.DateTime && fieldEnd.FieldType == FieldTypes.DateTime) {
+            var startDate = new Date().parseRFC3339(startValue);
+            var endDate = new Date().parseRFC3339(endValue);
+            if (startDate.toDateString() == endDate.toDateString()) {
+                // display range as same day
+                var endParts = endDate.format().split(' ');
+                var endHour = endParts[endParts.length - 2] + ' ' + endParts[endParts.length - 1];
+                value = 'On ' + startDate.format() + ' to ' + endHour;
+            } else {
+                // display range as multiple days
+                value = 'From ' + startDate.format() + ' until ' + endDate.format();
+            }
         } else {
-            // display range as multiple days
-            value = 'From ' + startDate.format() + ' until ' + endDate.format();
+            value = 'From ' + startValue + ' until ' + endValue;
         }
-    } else {
-        value = 'From ' + startValue + ' until ' + endValue;
     }
-
     if (value != null) {
         $tag = $('<' + tag + '/>').appendTo($element);
         $tag.addClass(fieldStart.Class);

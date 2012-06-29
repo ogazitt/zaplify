@@ -1,28 +1,25 @@
 ﻿namespace BuiltSteady.Zaplify.Website.Helpers
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
-    using System.ServiceModel.Dispatcher;
-    using System.ServiceModel.Channels;
     using System.ServiceModel;
+    using System.ServiceModel.Channels;
     using System.ServiceModel.Description;
+    using System.ServiceModel.Dispatcher;
     using Microsoft.ApplicationServer.Http.Channels;
-
     using BuiltSteady.Zaplify.ServiceHost;
-    using System.IO;
-    using System.Collections.Generic;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     public class LoggingMessageTracer : IDispatchMessageInspector,
         IClientMessageInspector
     {
-        const string sessionHeader = "X-Zaplify-Session";
-
         private Message TraceHttpRequestMessage(HttpRequestMessage msg)
         {
             // get the session from the session header if it's present
             IEnumerable<string> header = new List<string>();
-            if (msg.Headers.TryGetValues(sessionHeader, out header))
+            if (msg.Headers.TryGetValues(HttpApplicationHeaders.Session, out header))
                 TraceLog.Session = header.ToArray<string>()[0];
 
             // trace request

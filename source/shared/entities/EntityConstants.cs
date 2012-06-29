@@ -165,11 +165,8 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     {  
         public const string Intent = "Intent";              // String       normalized intent to help select workflows (extracted from name)
         public const string SubjectHint = "SubjectHint";    // String       hint as to subject of intent (extracted from name)
-        
-        public const string GeoLocation = "GeoLocation";    // String       general location of user or contact (e.g. Seattle, WA)
-        public const string CalendarID = "CalendarID";      // String       identifier for Calendar integrate Appointments with  
+       
         public const string CalEventID = "CalEventID";      // String       identifier for a Calendar event to associate with an Item  
-        public const string CalLastSync = "CalLastSync";    // DateTime     timestamp of last time Calendar changes were synchronized with Items  
 
         public const string SelectedCount = "SelectedCount";// Integer      count of number of times selected (e.g. MRU)
         public const string SortBy = "SortBy";              // String       field name to sort a list of items by
@@ -255,28 +252,32 @@ namespace BuiltSteady.Zaplify.Shared.Entities
     // names used by the system to store and manage system information associated with each User
     public class SystemEntities
     {   
-        // each user will have a system folder and lists for maintaining settings and information
-        // which are managed and used by the various clients (web, phone devices, etc.)
-        public const string ClientSettings = "$ClientSettings";         // root system folder for User client settings
+        // each user will have a seet of system folders for maintaining settings and information
+        // these settings will be organized for the clients that need the information (shared, web, phone)
+        public const string Client = "$Client";                 // shared client folder
+        public const string WebClient = "$WebClient";           // web client folder
+        public const string PhoneClient = "$PhoneClient";       // phone client folder
 
-        // ClientSettings list containing items which associate an ItemType with an actual folder or list
-        // used to determine where system generated items of a given ItemType should be added (shared by all clients)
+        // $Client list containing items which associate an ItemType with an actual folder or list
+        // used to determine where system generated items of a given ItemType should be added
         public const string DefaultLists = "DefaultLists";
 
-        // ClientSettings list containing items which contain UserProfile information
+        // $Client item containing field values which contain UserProfile information
         public const string UserProfile = "UserProfile";
+        // $Client NameValue item containing json object for Calendar settings
+        public const string CalendarSettings = "CalendarSettings";
 
-        // ClientSettings list containing information shared by all phone devices (e.g. MRU, etc.)      
-        public const string ListMetadata = "ListMetadata";              // TODO: should rename to indicate shared phone settings
+        // $PhoneClient list containing information shared by all phone devices (e.g. MRU, etc.)      
+        public const string ListMetadata = "ListMetadata";             
         
-        // ClientSettings item containing information for specific phone devices (serialized as json)    
+        // $PhoneClient NameValue item containing json object for specific phone devices   
 #if IOS
         public const string PhoneSettings = "iPhoneSettings";
 #else
         public const string PhoneSettings = "WinPhoneSettings";
 #endif  
       
-        // ClientSettings items containing information for web client (serialized as json)
+        // $WebClient NameValue items containing json objects for web client
         public const string WebViewState = "WebViewState";              // e.g. SelectedItem
         public const string WebPreferences = "WebPreferences";          // e.g. Theme
     
@@ -656,16 +657,54 @@ namespace BuiltSteady.Zaplify.Shared.Entities
             // make this defaultList for Locations
             defaultLists.Add(SystemItemTypes.Location, folder);
 
+#if !CLIENT
+            folderID = Guid.NewGuid();
+            folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = folderID, UserID = currentUser.ID, PermissionID = Permissions.Full };
+            // create $WebClient folder
+            folder = new Folder()
+            {
+                ID = folderID,
+                SortOrder = 0,
+                Name = SystemEntities.WebClient,
+                ItemTypeID = SystemItemTypes.NameValue,
+                Items = new List<Item>(),
+                UserID = currentUser.ID,
+                FolderUsers = new List<FolderUser>() { folderUser }
+            };
+            folders.Add(folder);
+#endif
+
             folderID = Guid.NewGuid();
 #if !CLIENT
             folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = folderID, UserID = currentUser.ID, PermissionID = Permissions.Full };
 #endif
-            // create $ClientSettings folder
+            // create $PhoneClient folder
+            folder = new Folder()
+            {
+                ID = folderID,
+                SortOrder = 0,
+                Name = SystemEntities.PhoneClient,
+                ItemTypeID = SystemItemTypes.NameValue,
+#if CLIENT
+                Items = new ObservableCollection<Item>(),
+#else
+                Items = new List<Item>(), 
+                UserID = currentUser.ID, 
+                FolderUsers = new List<FolderUser>() { folderUser }
+#endif
+            };
+            folders.Add(folder);
+
+            folderID = Guid.NewGuid();
+#if !CLIENT
+            folderUser = new FolderUser() { ID = Guid.NewGuid(), FolderID = folderID, UserID = currentUser.ID, PermissionID = Permissions.Full };
+#endif
+            // create $Client folder
             folder = new Folder() 
             {
                 ID = folderID, 
                 SortOrder = 0, 
-                Name = SystemEntities.ClientSettings, 
+                Name = SystemEntities.Client, 
                 ItemTypeID = SystemItemTypes.NameValue,
 #if CLIENT
                 Items = new ObservableCollection<Item>(),
@@ -754,16 +793,18 @@ namespace BuiltSteady.Zaplify.Shared.Entities
 
     }
 
-    // ************************************************************************
-    // Shared Json objects
-    // ************************************************************************
-
-    public struct JsonWebLink
+    public class UserAgents
     {
-        public string Name;
-        public string Url;
+        // user agents for devices
+        public const string WinPhone = "Zaplify-WinPhone";
+        public const string IOSPhone = "Zaplify-IOSPhone";
     }
 
-
+    public class HttpApplicationHeaders
+    {
+        // custom Http headers used by application
+        public const string SpeechEncoding = "X-Zaplify-Speech-Encoding";
+        public const string Session = "X-Zaplify-Session";
+    }
 
 }

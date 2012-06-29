@@ -6,7 +6,9 @@
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     // wrapper around the type which contains the status code
     public class MessageWrapper<T>
@@ -25,7 +27,7 @@
             MessageWrapper<T> messageWrapper = new MessageWrapper<T>() { StatusCode = statusCode };
             this.Content = new ObjectContent<MessageWrapper<T>>(messageWrapper);
 
-            if (IsWinPhone7(msg))
+            if (HttpHeaderHelper.IsPhoneDevice(msg))
             {
                 this.StatusCode = HttpStatusCode.OK;
 
@@ -40,7 +42,7 @@
         {
             MessageWrapper<T> messageWrapper = new MessageWrapper<T>() { StatusCode = statusCode, Value = type };
             this.Content = new ObjectContent<MessageWrapper<T>>(messageWrapper);
-            if (IsWinPhone7(msg))
+            if (HttpHeaderHelper.IsPhoneDevice(msg))
             {
                 this.StatusCode = HttpStatusCode.OK;
             }
@@ -57,20 +59,37 @@
             TraceLog.TraceLine(tracemsg, TraceLog.LogLevel.Detail);
         }
 
-        private static bool IsWinPhone7(HttpRequestMessage msg)
-        {
-            ProductInfoHeaderValue winPhone = null;
+    }
 
-            try
-            {
-                if (msg.Headers.UserAgent != null)
-                    winPhone = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product != null && pi.Product.Name == "Zaplify-WinPhone");
+    public static class HttpHeaderHelper
+    {
+        public static bool IsPhoneDevice(HttpRequestMessage msg = null)
+        {
+            bool isPhone = false;
+            if (msg == null && System.Web.HttpContext.Current != null)
+            {   // check UserAgent in HttpContext.Current
+                string userAgent = System.Web.HttpContext.Current.Request.UserAgent;
+                if (userAgent != null)
+                {
+                    isPhone = (userAgent.Contains(UserAgents.WinPhone) ||
+                            userAgent.Contains(UserAgents.IOSPhone));
+                }
             }
-            catch (Exception)
+            else
             {
-                winPhone = null;
+                try
+                {
+                    var phoneAgent = msg.Headers.UserAgent.FirstOrDefault(pi => pi.Product != null &&
+                            (pi.Product.Name == UserAgents.WinPhone || pi.Product.Name == UserAgents.IOSPhone));
+                    isPhone = (phoneAgent != null);
+                }
+                catch (Exception)
+                {
+                    isPhone = false;
+                }
             }
-            return winPhone != null ? true : false;
+            return isPhone;
         }
     }
+
 }

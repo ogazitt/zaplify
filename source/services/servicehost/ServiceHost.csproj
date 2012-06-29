@@ -84,6 +84,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="SuggestionsStorageContext.cs" />
+    <Compile Include="UserStorageContext.cs" />
     <Compile Include="GoogleClient.cs" />
     <Compile Include="helpers\FacebookHelper.cs" />
     <Compile Include="IWorker.cs" />

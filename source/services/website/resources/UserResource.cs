@@ -48,9 +48,8 @@
 
             if (code == HttpStatusCode.Created)
             {
-                // enqueue a message for the Worker that will kick off the New User workflow
-                if (HostEnvironment.IsAzure)
-                    WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
+                // kick off the New User workflow
+                WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
                 return ReturnResult<User>(req, operation, newUser.AsUser(), HttpStatusCode.Created);
             }
             else

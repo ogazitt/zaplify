@@ -22,7 +22,7 @@
       <!-- Logging configuration -->
       <Setting name="DeploymentName" value="Dev2"/>
       <Setting name="AzureLoggingEnabled" value="1"/>
-      <Setting name="SplunkLoggingEnabled" value="1"/>
+      <Setting name="SplunkLoggingEnabled" value="0"/>
       <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
       <Setting name="SplunkLocalPort" value="9237"/>
 
