@@ -18,11 +18,11 @@
       <Setting name="WorkflowWorkerTimeout" />
       <Setting name="GoogleClientID" />
       <Setting name="GoogleClientSecret" />
-      <Setting name="DeploymentName"/>
-      <Setting name="AzureLoggingEnabled"/>
-      <Setting name="SplunkLoggingEnabled"/>
-      <Setting name="SplunkServerEndpoint"/>
-      <Setting name="SplunkLocalPort"/>
+      <Setting name="DeploymentName" />
+      <Setting name="AzureLoggingEnabled" />
+      <Setting name="SplunkLoggingEnabled" />
+      <Setting name="SplunkServerEndpoint" />
+      <Setting name="SplunkLocalPort" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
@@ -48,11 +48,13 @@
       <Site name="Web">
         <Bindings>
           <Binding name="Endpoint1" endpointName="Endpoint1" />
+          <Binding name="Endpoint2" endpointName="EndpointSSL" />
         </Bindings>
       </Site>
     </Sites>
     <Endpoints>
       <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+      <InputEndpoint name="EndpointSSL" protocol="https" port="443" certificate="ZaplifySSLCert" />
     </Endpoints>
     <Imports>
       <Import moduleName="Diagnostics" />
@@ -66,15 +68,15 @@
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="SQLDataServices" />
-      <Setting name="DataServicesEndpoint"/>
+      <Setting name="DataServicesEndpoint" />
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />
       <Setting name="GoogleClientID" />
       <Setting name="GoogleClientSecret" />
-      <Setting name="DeploymentName"/>
-      <Setting name="AzureLoggingEnabled"/>
-      <Setting name="SplunkLoggingEnabled"/>
-      <Setting name="SplunkServerEndpoint"/>
+      <Setting name="DeploymentName" />
+      <Setting name="AzureLoggingEnabled" />
+      <Setting name="SplunkLoggingEnabled" />
+      <Setting name="SplunkServerEndpoint" />
       <Setting name="SplunkLocalPort" />
     </ConfigurationSettings>
     <Startup>
@@ -95,5 +97,10 @@
     <LocalResources>
       <LocalStorage name="TraceFolder" sizeInMB="20" cleanOnRoleRecycle="true" />
     </LocalResources>
+    <Certificates>
+      <Certificate name="ZaplifySSLCert" storeLocation="LocalMachine" storeName="My" />
+      <Certificate name="ZaplfiySSLIntermediateCert" storeLocation="LocalMachine" storeName="CA" />
+      <Certificate name="ZaplifySSLRootCert" storeLocation="LocalMachine" storeName="CA" />
+    </Certificates>
   </WebRole>
 </ServiceDefinition>

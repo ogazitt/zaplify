@@ -334,6 +334,15 @@ Control.Text.autoCompletePlace = function Control$Text$autoCompletePlace($input,
     $input.unbind('keypress');
     $text.keypress(function (e) { if (e.which == 13) { return false; } });
     var autoComplete = new google.maps.places.Autocomplete($input[0]);
+
+    // TODO: temporary bound to Seattle area (calculate bounds from UserProfile GeoLocation)
+    var getBounds = function (lat, long) {
+        var x = 0.5;
+        return new google.maps.LatLngBounds(new google.maps.LatLng(lat - x, long - x), new google.maps.LatLng(lat + x, long + x));
+    }
+    var seattleArea = getBounds(47.65, -122.3);
+    autoComplete.setBounds(seattleArea);
+
     google.maps.event.addListener(autoComplete, 'place_changed', function () {
         $input.data('place', autoComplete.getPlace());
         selectHandler($input);
