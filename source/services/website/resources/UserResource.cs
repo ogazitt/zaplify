@@ -40,10 +40,15 @@
             // get password from message headers
             BasicAuthCredentials userCreds = GetUserFromMessageHeaders(req);
 
-            if (newUser.Name == userCreds.Name)
-            {   // verify same name in both body and header
+            if (userCreds.Name.Equals(newUser.Name, StringComparison.OrdinalIgnoreCase))
+            {   // verify same name in both body and auth header
                 newUser.Password = userCreds.Password;
                 code = CreateUser(newUser);
+            }
+            else
+            {   // invalid message
+                TraceLog.TraceError("Name in message body and authorization header do not match");
+                code = HttpStatusCode.NotAcceptable;
             }
 
             if (code == HttpStatusCode.Created)
