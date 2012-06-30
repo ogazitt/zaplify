@@ -345,6 +345,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // run this on the UI thread
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
+                // if the user did not get returned, the operation could not have been successful
+                if (code == HttpStatusCode.OK && user == null)
+                    code = HttpStatusCode.ServiceUnavailable;
                 switch (code)
                 {
                     case HttpStatusCode.OK:
@@ -399,6 +402,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // run this on the UI thread
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
+                // if the user came back null, the operation could not have completed successfully
+                if (code == HttpStatusCode.OK || code == HttpStatusCode.Created)
+                    if (user == null)
+                        code = HttpStatusCode.ServiceUnavailable;
                 switch (code)
                 {
                     case HttpStatusCode.OK:
@@ -433,7 +440,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("user {0} was not created", Email.Text));
+                        MessageBox.Show(String.Format("user {0} was not created - contact support@builtsteady.com", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                 }
