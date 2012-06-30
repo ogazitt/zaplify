@@ -52,7 +52,8 @@
                 try
                 {
                     clientFolder = this.StorageContext.Folders.Single<Folder>(f => f.ID == id);
-                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientFolder, null);
+                    var session = GetSessionFromMessageHeaders(req);
+                    operation = this.StorageContext.CreateOperation(CurrentUser, req.Method.Method, null, clientFolder, null, session);
                 }
                 catch (Exception ex)
                 {   // item not found - it may have been deleted by someone else.  Return 200 OK.

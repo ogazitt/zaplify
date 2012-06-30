@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -9,13 +9,27 @@ using AE.Net.Mail.Imap;
 using BuiltSteady.Zaplify.ServerEntities;
 using BuiltSteady.Zaplify.ServiceHost;
 using BuiltSteady.Zaplify.Shared.Entities;
-using System.Reflection;
 
 namespace BuiltSteady.Zaplify.MailWorker
 {
     public class MailWorker : IWorker
     {
-        public int Timeout { get { return 30000; } }  // 30 seconds
+        private int? timeout;
+        public int Timeout
+        {
+            get
+            {
+                if (!timeout.HasValue)
+                {
+                    timeout = ConfigurationSettings.GetAsNullableInt(HostEnvironment.MailWorkerTimeoutConfigKey);
+                    if (timeout == null)
+                        timeout = 30000;  // default to 30 seconds
+                    else
+                        timeout *= 1000;  // convert to ms
+                }
+                return timeout.Value;
+            }
+        }
 
         const string FolderMarker = @"#folder:";
         const string ListMarker = @"#list:";
@@ -23,10 +37,10 @@ namespace BuiltSteady.Zaplify.MailWorker
         public void Start()
         {
             TraceLog.TraceInfo("MailWorker started");
-            string hostname = ConfigurationManager.AppSettings["Hostname"];
-            int port = Int32.Parse(ConfigurationManager.AppSettings["Port"]);
-            string username = ConfigurationManager.AppSettings["Username"];
-            string password = ConfigurationManager.AppSettings["Password"];
+            string hostname = System.Configuration.ConfigurationManager.AppSettings["Hostname"];
+            int port = Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Port"]);
+            string username = System.Configuration.ConfigurationManager.AppSettings["Username"];
+            string password = System.Configuration.ConfigurationManager.AppSettings["Password"];
 
 #if IDLE
             // idle support means we can use an event-based programming model to get informed when 
@@ -309,11 +323,7 @@ namespace BuiltSteady.Zaplify.MailWorker
 
             string itemName = GetSubject(m.Subject);
             string body = m.Body;
-            if (body == null || body == "")
-            {
-                body = m.BodyHtml;
-                html = true;
-            }
+            html = m.ContentType.Contains("html");
 
             var users = Storage.StaticUserContext.Users.Where(u => u.Email == from).ToList();
             foreach (var u in users)

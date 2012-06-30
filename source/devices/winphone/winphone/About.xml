@@ -1,10 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <About>
-  <VersionNumber>0.1</VersionNumber>
+  <VersionNumber>0.2</VersionNumber>
   <DeveloperInfo>BuiltSteady, Inc.</DeveloperInfo>
   <FeedbackEmail>support@zaplify.com</FeedbackEmail>
   <Website>www.builtsteady.com</Website>
   <Versions>
+    <Version>
+      <Number>0.2</Number>
+      <Details>Session trace</Details>
+    </Version>
     <Version>
       <Number>0.1</Number>
       <Details>Pre-alpha</Details>

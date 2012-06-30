@@ -46,14 +46,14 @@
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Xna.Framework" />
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\Newtonsoft.Json.4.5.5\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\packages\Newtonsoft.Json.4.5.7\lib\sl4-windowsphone71\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NSpeex.Silverlight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\NSpeex.1.1\lib\NSpeex.Silverlight.dll</HintPath>
     </Reference>
-    <Reference Include="SharpCompress.WP7">
-      <HintPath>..\..\..\packages\sharpcompress.0.6\lib\sl3-wp\SharpCompress.WP7.dll</HintPath>
+    <Reference Include="SharpCompress.WP7, Version=0.8.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\sharpcompress.0.8.1\lib\sl3-wp\SharpCompress.WP7.dll</HintPath>
     </Reference>
     <Reference Include="SpeechKit">
       <HintPath>..\..\..\packages\SpeechKit-WP7.1.0.1\lib\SpeechKit.dll</HintPath>

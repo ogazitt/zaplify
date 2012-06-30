@@ -4,6 +4,8 @@ using System.Threading;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using BuiltSteady.Zaplify.ServiceHost;
+using System.IO;
+using System.Diagnostics;
 
 namespace BuiltSteady.Zaplify.WorkerRole
 {
@@ -24,22 +26,22 @@ namespace BuiltSteady.Zaplify.WorkerRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            var config = DiagnosticMonitor.GetDefaultInitialConfiguration();
-            config.Logs.ScheduledTransferPeriod = TimeSpan.FromMinutes(1.0);
-            config.Logs.BufferQuotaInMB = 1000;
-            config.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
-
-            // don't need to start diagnostics since it's automatically started with the Import Diagnostics in in ServiceDefinition.csdef
-            DiagnosticMonitor.Start("Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString", config);
+            // initialize azure logging
+            if (HostEnvironment.IsAzureLoggingEnabled)
+                TraceLog.InitializeAzureLogging();
 
             // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
-            TraceLog.TraceFunction();
+            //TraceLog.TraceFunction();
 
             return base.OnStart();
         }
 
         public override void Run()
         {
+            // initialize splunk logging (we do this here instead of OnStart so that the Azure logger has time to really start)
+            if (HostEnvironment.IsSplunkLoggingEnabled)
+                TraceLog.InitializeSplunkLogging();
+
             TraceLog.TraceInfo("WorkerRole started");
 
             // check the database schema versions to make sure there is no version mismatch
@@ -66,9 +68,9 @@ namespace BuiltSteady.Zaplify.WorkerRole
                 return;
             }
 
-            // get the number of workers
-            int mailWorkerCount = ConfigurationSettings.GetAsInt("MailWorkerCount");
-            int workflowWorkerCount = ConfigurationSettings.GetAsInt("WorkflowWorkerCount");
+            // get the number of workers (default is 1)
+            int mailWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.MailWorkerCountConfigKey) ?? 1;
+            int workflowWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.WorkflowWorkerCountConfigKey) ?? 1;
 
             var mailWorkerArray = new MailWorker.MailWorker[mailWorkerCount];
             var workflowWorkerArray = new WorkflowWorker.WorkflowWorker[workflowWorkerCount];

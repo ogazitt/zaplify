@@ -11,11 +11,20 @@
       <Setting name="SQLSuggestions" value="data source=kpfc7hoc39.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
       
       <Setting name="MailWorkerCount" value="1" />
+      <Setting name="MailWorkerTimeout" value="60" />
       <Setting name="WorkflowWorkerCount" value="1" />
+      <Setting name="WorkflowWorkerTimeout" value="5" />
       
       <!-- Google Client 'ZaplifyDev2' -->
       <Setting name="GoogleClientID" value="944381664180-qlt0cgaspk5061tu8uk6nsv08p326f6j.apps.googleusercontent.com"/>
       <Setting name="GoogleClientSecret" value="EKruV3S7vcm2l1xdH8TrskfY"/>
+
+      <!-- Logging configuration -->
+      <Setting name="DeploymentName" value="Dev2"/>
+      <Setting name="AzureLoggingEnabled" value="1"/>
+      <Setting name="SplunkLoggingEnabled" value="1"/>
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
+      <Setting name="SplunkLocalPort" value="9237"/>
 
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev2;AccountKey=dZAAyMjmI0Ec1VItdf2pJ5uD9Hr8lkMj6aYi7oqRDTVqAXlWZWPH2JmttLsiuB6xgCQfCfFn73AdgJ3L6JD9iw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
@@ -47,6 +56,13 @@
       <!-- Google Client 'ZaplifyDev2' -->
       <Setting name="GoogleClientID" value="944381664180-qlt0cgaspk5061tu8uk6nsv08p326f6j.apps.googleusercontent.com"/>
       <Setting name="GoogleClientSecret" value="EKruV3S7vcm2l1xdH8TrskfY"/>
+
+      <!-- Logging configuration -->
+      <Setting name="DeploymentName" value="Dev2"/>
+      <Setting name="AzureLoggingEnabled" value="1"/>
+      <Setting name="SplunkLoggingEnabled" value="1"/>
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
+      <Setting name="SplunkLocalPort" value="9237"/>
 
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev2;AccountKey=dZAAyMjmI0Ec1VItdf2pJ5uD9Hr8lkMj6aYi7oqRDTVqAXlWZWPH2JmttLsiuB6xgCQfCfFn73AdgJ3L6JD9iw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />

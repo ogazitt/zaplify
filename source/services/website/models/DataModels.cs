@@ -74,7 +74,7 @@
         User userData;
         string jsonUserData;
 
-        public UserDataModel(UserStorageContext storage, User user)
+        public UserDataModel(User user, UserStorageContext storage)
         {
             this.storageContext = storage;
             this.currentUser = user;
@@ -134,7 +134,11 @@
             get
             {
                 if (userData == null)
-                { 
+                {
+                    // synchronize with Calendar (BEFORE getting UserData)
+                    GoogleClient client = new GoogleClient(currentUser, storageContext);
+                    client.SynchronizeCalendar();
+
                     userData = storageContext.Users.
                         Include("ItemTypes.Fields").
                         Include("Tags").

@@ -38,8 +38,8 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create an EntityRef in the $User/EntityRef list
-            var entityRefItem = userContext.GetOrCreateEntityRef(user, item);
+            // get or create an EntityRef in the UserFolder EntityRefs list
+            var entityRefItem = userContext.UserFolder.GetEntityRef(user, item);
             if (entityRefItem == null)
             {
                 TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
@@ -85,8 +85,8 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create a EntityRef for the user in the $User folder
-            var entityRefItem = userContext.GetOrCreateEntityRef(user, user);
+            // get or create a EntityRef in the UserFolder EntityRefs list
+            var entityRefItem = userContext.UserFolder.GetEntityRef(user, user);
             if (entityRefItem == null)
             {
                 TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
@@ -118,7 +118,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                         entityRefItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
                     var location = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
                     if (location != null)
-                        entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
+                        entityRefItem.GetFieldValue(ExtendedFieldNames.GeoLocation, true).Value = location;
                     TraceLog.TraceInfo("Added birthday, gender, location for User");
                 }
             }
@@ -145,8 +145,8 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create the possible contacts list in the $User folder
-            Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
+            // get or create the list for Contact item types in the UserFolder
+            Item possibleContactsList = userContext.UserFolder.GetListForItemType(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
                 TraceLog.TraceError("Could not retrieve or create the possible contacts list");
@@ -163,7 +163,6 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                         Where(c => c.UserID == user.ID && c.ItemTypeID == SystemItemTypes.Contact).ToList();
 
             // get all the user's friends and add them as serialized contacts to the possible contacts list
-            float sort = 1f;
             DateTime now = DateTime.UtcNow;
             try
             {

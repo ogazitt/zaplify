@@ -543,6 +543,7 @@ Folder.prototype.IsExpanded = function () { return DataModel.UserSettings.IsFold
 Folder.prototype.Expand = function (expand) { DataModel.UserSettings.ExpandFolder(this.ID, expand); };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function (excludeListItems) { return DataModel.GetItems(this, null, excludeListItems); };
+Folder.prototype.GetItem = function (itemID) { return this.Items[itemID]; }
 Folder.prototype.GetItemByName = function (name, parentID) {
     for (id in this.Items) {
         var item = this.Items[id];
@@ -611,7 +612,12 @@ function Item() { };
 Item.Extend = function Item$Extend(item) { return $.extend(new Item(), item); }         // extend with Item prototypes
 
 // Item public functions
-Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
+Item.prototype.Copy = function () {                                                     // deep copy
+    // sanity check, use most current Item in DataModel if it exists
+    var folder = this.GetFolder();
+    var currentThis = (folder == null) ? this : folder.GetItem(this.ID);
+    return $.extend(true, new Item(), (currentThis == null) ? this : currentThis);
+};         
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.IsDefault = function () {
     var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
@@ -1142,38 +1148,36 @@ var ItemTypes = {
 // FieldNames constants
 
 var FieldNames = {
-    Name : "Name",                          // String
-    Description : "Description",            // String
-    Priority : "Priority",                  // Integer
-    Complete: "Complete",                   // Boolean 
-    CompletedOn : "CompletedOn",            // DateTime 
-    DueDate: "DueDate",                     // DateTime
-    StartTime: "StartTime",                 // DateTime
-    EndTime: "EndTime",                     // DateTime
-    Birthday: "Birthday",                   // DateTime
-    Address : "Address",                    // Address
-    WebLink : "WebLink",                    // Url
-    WebLinks : "WebLinks",                  // JSON
-    Email : "Email",                        // Email
-    Phone : "Phone",                        // Phone
-    HomePhone : "HomePhone",                // Phone
-    WorkPhone: "WorkPhone",                 // Phone
-    Category: "Category",                   // String
-    Amount : "Amount",                      // String
-    Cost : "Cost",                          // Currency
-    ItemTags : "ItemTags",                  // TagIDs
-    EntityRef: "EntityRef",                 // Guid
-    EntityType: "EntityType",               // String
-    Locations: "Locations",                 // Guid
-    Contacts: "Contacts",                   // Guid
-    Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
+     Name : "Name",                  // String       friendly name (all items have a name)
+     Description : "Description",    // String       additional notes or comments
+     Priority : "Priority",          // Integer      importance
+     Complete : "Complete",          // Boolean      task is complete
+     CompletedOn : "CompletedOn",    // DateTime     time at which task is marked complete
+     DueDate : "DueDate",            // DateTime     task due or appointment start time
+     EndDate : "EndDate",            // DateTime     appointment end time
+     Birthday : "Birthday",          // DateTime     user or contact birthday
+     Address : "Address",            // Address      address of a location
+     WebLink : "WebLink",            // Url          single web links (TODO: NOT BEING USED)
+     WebLinks : "WebLinks",          // Json         list of web links [{Name:"name", Url:"link"}, ...] 
+     Email : "Email",                // Email        email address 
+     Phone : "Phone",                // Phone        phone number (cell phone)
+     HomePhone : "HomePhone",        // Phone        home phone 
+     WorkPhone : "WorkPhone",        // Phone        work phone
+     Amount : "Amount",              // String       quantity (need format for units, etc.)
+     Cost : "Cost",                  // Currency     price or cost (need format for different currencies)
+     ItemTags : "ItemTags",          // TagIDs       extensible list of tags for marking items
+     EntityRef : "EntityRef",        // Guid         id of entity being referenced
+     EntityType : "EntityType",      // String       type of entity (User, Folder, or Item)
+     Contacts : "Contacts",          // Guid         id of list being referenced which contains contact items
+     Locations : "Locations",        // Guid         id of list being referenced which contains location items
+     Value : "Value",                // String       value for NameValue items
+     Category : "Category",          // String       category (to organize item types e.g. Grocery)
+     LatLong : "LatLong",            // String       comma-delimited geo-location lat,long
+     FacebookID : "FacebookID",      // String       facebook id for user or contact
+     Sources : "Sources",            // String       comma-delimited list of sources of information (e.g. Facebook) 
 
-    Intent: "Intent",                       // String
-    FacebookID: "FacebookID",               // String
-    Gender: "Gender",                       // String
-    Picture: "Picture",                     // Url
-    Sources: "Sources",                     // String
-    LatLong: "LatLong"                      // String
+     Gender : "Gender",              // String       male or female
+     Picture : "Picture"             // Url          link to an image
 }
 
 // ---------------------------------------------------------
