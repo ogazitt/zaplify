@@ -162,7 +162,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 			{
                 string email = ((EntryElement)Email).Value;
                 string pswd = ((EntryElement)Password).Value;
-				switch (code)
+
+                // if the user did not get returned, the operation could not have been successful
+                if (code == HttpStatusCode.OK && user == null)
+                    code = HttpStatusCode.ServiceUnavailable;
+                switch (code)
 	            {
 	                case HttpStatusCode.OK:
 	                    MessageBox.Show(String.Format("successfully connected to account {0}; data sync will start automatically.", email));
@@ -182,7 +186,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	                case HttpStatusCode.Forbidden:
-	                    MessageBox.Show(String.Format("incorrect username or password"));
+	                    MessageBox.Show(String.Format("incorrect password"));
 	                    accountOperationSuccessful = false;
 	                    break;
 	                case null:
@@ -190,7 +194,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
 	                    accountOperationSuccessful = false;
 	                    break;
 	                default:
-	                    MessageBox.Show(String.Format("account {0} was not successfully paired", email));
+                        MessageBox.Show(String.Format("did not successfully connect to account {0}", email));
 	                    accountOperationSuccessful = false;
 	                    break;
 	            }
@@ -213,6 +217,11 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             {
                 string email = ((EntryElement)Email).Value;
                 string pswd = ((EntryElement)Password).Value;
+
+                // if the user came back null, the operation could not have completed successfully
+                if (code == HttpStatusCode.OK || code == HttpStatusCode.Created)
+                    if (user == null)
+                        code = HttpStatusCode.ServiceUnavailable;
                 switch (code)
                 {
                     case HttpStatusCode.OK:
@@ -247,7 +256,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("user {0} was not created", email));
+                        MessageBox.Show(String.Format("user {0} was not created - contact support@builtsteady.com", email));
                         accountOperationSuccessful = false;
                         break;
                 }
@@ -405,7 +414,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 rootElement.Add(section);
 
                 // initialize the value of the radio button
-                var currentValue = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, rootElement.Caption);
+                var currentValue = PhoneSettingsHelper.GetPhoneSetting(App.ViewModel.PhoneClientFolder, rootElement.Caption);
                 var bindingList = PhoneSettings.Settings[rootElement.Caption].Values;
                 int selectedIndex = 0;
                 if (currentValue != null && bindingList.Any(ps => ps.Name == currentValue))
@@ -421,7 +430,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                     var radioEventElement = (RadioEventElement) ree;
                     radioEventElement.OnSelected += delegate {
                         // make a copy of the existing version of phone settings
-                        var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
+                        var phoneSettingsItemCopy = new Item(PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder), true);
 
                         // find the key and the valuy for the current setting
                         var radioRoot = radioEventElement.GetImmediateRootElement();
@@ -430,13 +439,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                         string value = phoneSetting.Values[radioRoot.RadioSelected].Name;
       
                         // store the new phone setting
-                        ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+                        PhoneSettingsHelper.StorePhoneSetting(App.ViewModel.PhoneClientFolder, key, value);
             
                         // get the new version of phone settings
-                        var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+                        var phoneSettingsItem = PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder);
 
                         // queue up a server request
-                        if (App.ViewModel.ClientSettings.ID != Guid.Empty)
+                        if (App.ViewModel.PhoneClientFolder.ID != Guid.Empty)
                         {
                             RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                             {

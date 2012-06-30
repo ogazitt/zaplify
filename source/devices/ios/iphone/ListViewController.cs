@@ -122,7 +122,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 
                 // get the sort order from client settings and sort the list
                 Source.OrderBy = ListMetadataHelper.GetListSortOrder(
-                    App.ViewModel.ClientSettings, 
+                    App.ViewModel.PhoneClientFolder, 
                     Source.List.ID == Guid.Empty ? (ClientEntity) Source.Folder : (ClientEntity) Source.List);
                 Source.SortList();
             }
@@ -299,7 +299,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
                     // store the sort order
                     ListMetadataHelper.StoreListSortOrder(
-                        App.ViewModel.ClientSettings,
+                        App.ViewModel.PhoneClientFolder,
                         Source.List.ID == Guid.Empty ? (ClientEntity) Source.Folder : (ClientEntity) Source.List,
                         Source.OrderBy);
         
@@ -320,7 +320,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
         
                     // store the sort order
                     ListMetadataHelper.StoreListSortOrder(
-                        App.ViewModel.ClientSettings,
+                        App.ViewModel.PhoneClientFolder,
                         Source.List.ID == Guid.Empty ? (ClientEntity) Source.Folder : (ClientEntity) Source.List,
                         null);
         
