@@ -11,9 +11,9 @@
 		<string>Images/zaplify-logo-iphone@2x.png</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>0.1</string>
+	<string>0.1.1</string>
 	<key>MinimumOSVersion</key>
-	<string>4.3</string>
+	<string>4.0</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
