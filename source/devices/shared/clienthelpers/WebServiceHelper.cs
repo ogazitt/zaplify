@@ -83,6 +83,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
+        // URL for the Native speech service
+        public static string SpeechUrl
+        {
+            get
+            {
+                // replace the port with 8080 (or add it if there is no port)
+                var url = BaseUrl;
+                if (url.StartsWith("http"))
+                    url = url.Substring(6);
+                if (url.Contains(":"))
+                {
+                    var index = BaseUrl.LastIndexOf(':');
+                    url = BaseUrl.Replace(BaseUrl.Substring(index), ":8080");
+                }
+                else
+                    url = BaseUrl + ":8080";
+                return url;
+            }
+        }
+
 #region // Web Service calls
 
         public static void CreateTag(User user, Tag tag, Delegate del, Delegate netOpInProgressDel)
@@ -241,10 +261,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         {
             // this code is non-reentrant
             if (isRequestInProgress == true)
-            {
-
                 return;
-            }
 
             // signal that a network operation is starting
             if (netOpInProgressDel != null)

@@ -12,9 +12,11 @@
 
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="MailWorkerTimeout" value="60" />
+      <Setting name="SpeechWorkerCount" value="1" />
+      <Setting name="SpeechWorkerTimeout" value="500000" />
       <Setting name="WorkflowWorkerCount" value="2" />
       <Setting name="WorkflowWorkerTimeout" value="5" />
-      
+
       <!-- Google Client 'Zaplify' -->
       <Setting name="GoogleClientID" value="944381664180-jm6ekhg10tu2vam4pnuknekr8hg3k0s2.apps.googleusercontent.com"/>
       <Setting name="GoogleClientSecret" value="JzoT-C-U9Nb8ehzthQI6ALSB"/>

@@ -11,7 +11,7 @@
     <AzureStorageAccountName>zaplifydev1</AzureStorageAccountName>
     <AzureStorageAccountLabel>zaplifydev1</AzureStorageAccountLabel>
     <AzureDeploymentLabel>Azure Dev1</AzureDeploymentLabel>
-    <AzureSolutionConfiguration>Release</AzureSolutionConfiguration>
+    <AzureSolutionConfiguration>Debug</AzureSolutionConfiguration>
     <AzureServiceConfiguration>Dev1</AzureServiceConfiguration>
     <AzureAppendTimestampToDeploymentLabel>True</AzureAppendTimestampToDeploymentLabel>
     <AzureAllowUpgrade>True</AzureAllowUpgrade>

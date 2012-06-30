@@ -12,6 +12,8 @@
       
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="MailWorkerTimeout" value="60" />
+      <Setting name="SpeechWorkerCount" value="1" />
+      <Setting name="SpeechWorkerTimeout" value="500000" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <Setting name="WorkflowWorkerTimeout" value="5" />
       

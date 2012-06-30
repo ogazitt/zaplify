@@ -28,7 +28,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         private List<Button> buttonList;
 
         // speech fields
-        private NuanceHelper.SpeechState speechState;
+        private SpeechHelper.SpeechState speechState;
         private string speechDebugString = null;
         private DateTime speechStart;
 
@@ -792,8 +792,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 return;
             }
 
+            // initialize the Speech provider
+#if DEBUG
+            SpeechHelper.SpeechProvider = SpeechHelper.SpeechProviders.NativeSpeech;
+#endif
+
             // set the UI state to initializing state
-            speechState = NuanceHelper.SpeechState.Initializing;
+            speechState = SpeechHelper.SpeechState.Initializing;
             SpeechSetUIState(speechState);
 
             // store debug / timing info
@@ -802,15 +807,15 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             // store debug / timing info
             TimeSpan ts = DateTime.Now - speechStart;
-            string stateString = NuanceHelper.SpeechStateString(speechState);
+            string stateString = SpeechHelper.SpeechStateString(speechState);
             string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Connecting Socket");
             TraceHelper.AddMessage(traceString);
             speechDebugString += traceString + "\n";
 
             // initialize the connection to the speech service
-            NuanceHelper.Start(
+            SpeechHelper.Start(
                 App.ViewModel.User,
-                new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                new SpeechHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
 
             // open the popup
@@ -821,19 +826,19 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         {
             switch (speechState)
             {
-                case NuanceHelper.SpeechState.Initializing:
-                case NuanceHelper.SpeechState.Listening:
-                case NuanceHelper.SpeechState.Recognizing:
+                case SpeechHelper.SpeechState.Initializing:
+                case SpeechHelper.SpeechState.Listening:
+                case SpeechHelper.SpeechState.Recognizing:
                     // user tapped the cancel button
 
                     // cancel the current operation / close the socket to the service
-                    NuanceHelper.Cancel(
+                    SpeechHelper.Cancel(
                         new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
 
                     // reset the text in the textbox
                     NameTextBox.Text = "";
                     break;
-                case NuanceHelper.SpeechState.Finished:
+                case SpeechHelper.SpeechState.Finished:
                     // user tapped the OK button
 
                     // set the text in the popup textbox
@@ -880,40 +885,40 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
             switch (speechState)
             {
-                case NuanceHelper.SpeechState.Initializing:
+                case SpeechHelper.SpeechState.Initializing:
                     // can't happen since the button isn't enabled
 #if DEBUG
                     MessageBox.Show("Invalid state SpeechState.Initializing reached");
 #endif
                     break;
-                case NuanceHelper.SpeechState.Listening:
+                case SpeechHelper.SpeechState.Listening:
                     // done button tapped
 
                     // set the UI state to recognizing state
-                    speechState = NuanceHelper.SpeechState.Recognizing;
+                    speechState = SpeechHelper.SpeechState.Recognizing;
                     SpeechSetUIState(speechState);
 
                     // store debug / timing info
                     ts = DateTime.Now - speechStart;
-                    stateString = NuanceHelper.SpeechStateString(speechState);
+                    stateString = SpeechHelper.SpeechStateString(speechState);
                     traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Stopping mic");
                     TraceHelper.AddMessage(traceString);
                     speechDebugString += traceString + "\n";
 
                     // stop listening and get the recognized text from the speech service
-                    NuanceHelper.Stop(new NuanceHelper.SpeechToTextCallbackDelegate(SpeechPopup_SpeechToTextCallback));
+                    SpeechHelper.Stop(new SpeechHelper.SpeechToTextCallbackDelegate(SpeechPopup_SpeechToTextCallback));
                     break;
-                case NuanceHelper.SpeechState.Recognizing:
+                case SpeechHelper.SpeechState.Recognizing:
                     // can't happen since the button isn't enabled
 #if DEBUG
                     MessageBox.Show("Invalid state SpeechState.Initializing reached");
 #endif
                     break;
-                case NuanceHelper.SpeechState.Finished:
+                case SpeechHelper.SpeechState.Finished:
                     // "try again" button tapped
 
                     // set the UI state to initializing state
-                    speechState = NuanceHelper.SpeechState.Initializing;
+                    speechState = SpeechHelper.SpeechState.Initializing;
                     SpeechSetUIState(speechState);
 
                     // store debug / timing info
@@ -922,28 +927,28 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
 
                     // store debug / timing info
                     ts = DateTime.Now - speechStart;
-                    stateString = NuanceHelper.SpeechStateString(speechState);
+                    stateString = SpeechHelper.SpeechStateString(speechState);
                     traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, "Initializing Request");
                     TraceHelper.AddMessage(traceString);
                     speechDebugString += traceString + "\n";
 
                     // initialize the connection to the speech service
-                    NuanceHelper.Start(
+                    SpeechHelper.Start(
                         App.ViewModel.User,
-                        new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
+                        new SpeechHelper.SpeechStateCallbackDelegate(SpeechPopup_SpeechStateCallback),
                         new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopup_NetworkOperationInProgressCallBack));
                     break;
             }
         }
 
-        private void SpeechPopup_SpeechStateCallback(NuanceHelper.SpeechState state, string message)
+        private void SpeechPopup_SpeechStateCallback(SpeechHelper.SpeechState state, string message)
         {
             speechState = state;
             SpeechSetUIState(speechState);
 
             // store debug / timing info
             TimeSpan ts = DateTime.Now - speechStart;
-            string stateString = NuanceHelper.SpeechStateString(state);
+            string stateString = SpeechHelper.SpeechStateString(state);
             string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, message);
             TraceHelper.AddMessage(traceString);
             speechDebugString += traceString + "\n";
@@ -954,12 +959,12 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
                 // set the UI state to finished state
-                speechState = NuanceHelper.SpeechState.Finished;
+                speechState = SpeechHelper.SpeechState.Finished;
                 SpeechSetUIState(speechState);
 
                 // store debug / timing info
                 TimeSpan ts = DateTime.Now - speechStart;
-                string stateString = NuanceHelper.SpeechStateString(speechState);
+                string stateString = SpeechHelper.SpeechStateString(speechState);
                 string traceString = String.Format("New state: {0}; Time: {1}; Message: {2}", stateString, ts.TotalSeconds, textString);
                 TraceHelper.AddMessage(traceString);
                 speechDebugString += traceString + "\n";
@@ -1264,29 +1269,29 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
         /// Set the UI based on the current state of the speech state machine
         /// </summary>
         /// <param name="state"></param>
-        private void SpeechSetUIState(NuanceHelper.SpeechState state)
+        private void SpeechSetUIState(SpeechHelper.SpeechState state)
         {
             switch (state)
             {
-                case NuanceHelper.SpeechState.Initializing:
+                case SpeechHelper.SpeechState.Initializing:
                     SpeechLabelText = "initializing...";
                     SpeechButtonText = "done";
                     SpeechButtonEnabled = false;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case NuanceHelper.SpeechState.Listening:
+                case SpeechHelper.SpeechState.Listening:
                     SpeechLabelText = "listening...";
                     SpeechButtonText = "done";
                     SpeechButtonEnabled = true;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case NuanceHelper.SpeechState.Recognizing:
+                case SpeechHelper.SpeechState.Recognizing:
                     SpeechLabelText = "recognizing...";
                     SpeechButtonText = "try again";
                     SpeechButtonEnabled = false;
                     SpeechCancelButtonText = "cancel";
                     break;
-                case NuanceHelper.SpeechState.Finished:
+                case SpeechHelper.SpeechState.Finished:
                     SpeechLabelText = "";
                     SpeechButtonText = "try again";
                     SpeechButtonEnabled = true;

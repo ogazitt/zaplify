@@ -30,8 +30,11 @@ namespace BuiltSteady.Zaplify.WorkerRole
             if (HostEnvironment.IsAzureLoggingEnabled)
                 TraceLog.InitializeAzureLogging();
 
+            if (HostEnvironment.IsSplunkLoggingEnabled)
+                TraceLog.InitializeSplunkLogging();
+
             // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
-            //TraceLog.TraceFunction();
+            TraceLog.TraceFunction();
 
             return base.OnStart();
         }
@@ -39,9 +42,6 @@ namespace BuiltSteady.Zaplify.WorkerRole
         public override void Run()
         {
             // initialize splunk logging (we do this here instead of OnStart so that the Azure logger has time to really start)
-            if (HostEnvironment.IsSplunkLoggingEnabled)
-                TraceLog.InitializeSplunkLogging();
-
             TraceLog.TraceInfo("WorkerRole started");
 
             // check the database schema versions to make sure there is no version mismatch
@@ -68,12 +68,15 @@ namespace BuiltSteady.Zaplify.WorkerRole
                 return;
             }
 
-            // get the number of workers (default is 1)
-            int mailWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.MailWorkerCountConfigKey) ?? 1;
-            int workflowWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.WorkflowWorkerCountConfigKey) ?? 1;
+            // get the number of workers (default is 0)
+            int workflowWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.WorkflowWorkerCountConfigKey) ?? 0;
+            int mailWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.MailWorkerCountConfigKey) ?? 0;
+            int speechWorkerCount = ConfigurationSettings.GetAsNullableInt(HostEnvironment.SpeechWorkerCountConfigKey) ?? 0;
+            speechWorkerCount = speechWorkerCount > 0 ? 1 : 0;  // maximum number of speech worker threads is 1
 
-            var mailWorkerArray = new MailWorker.MailWorker[mailWorkerCount];
             var workflowWorkerArray = new WorkflowWorker.WorkflowWorker[workflowWorkerCount];
+            var mailWorkerArray = new MailWorker.MailWorker[mailWorkerCount];
+            var speechWorkerArray = new SpeechWorker.SpeechWorker[speechWorkerCount];
 
             // run an infinite loop doing the following:
             //   check whether the worker services have stopped (indicated by a null reference)
@@ -81,10 +84,15 @@ namespace BuiltSteady.Zaplify.WorkerRole
             //   sleep for the timeout period
             while (true)
             {
+                // start workflow worker in both dev and deployed Azure fabric
                 RestartWorkerThreads<WorkflowWorker.WorkflowWorker>(workflowWorkerArray);
+
+                // start mail and speech workers only in deployed Azure fabric
                 if (!HostEnvironment.IsAzureDevFabric)
                     RestartWorkerThreads<MailWorker.MailWorker>(mailWorkerArray);
-
+                if (!HostEnvironment.IsAzureDevFabric)
+                    RestartWorkerThreads<SpeechWorker.SpeechWorker>(speechWorkerArray);
+                
                 // sleep for the timeout period
                 Thread.Sleep(timeout);
             }
@@ -113,7 +121,8 @@ namespace BuiltSteady.Zaplify.WorkerRole
                         }
                         catch (Exception ex)
                         {
-                            TraceLog.TraceFatal(String.Format("{0}{1} died; ex: {2}", typeof(T).Name, threadNum.ToString(), ex.Message));
+                            TraceLog.TraceException(String.Format("Exception caught in {0}{1}", typeof(T).Name, threadNum.ToString()), ex);
+                            TraceLog.TraceFatal(String.Format("{0}{1} died and will be recycled", typeof(T).Name, threadNum.ToString()));
                             array.SetValue(null, threadNum);
                         }
                     }) { Name = typeof(T).Name + i.ToString() };

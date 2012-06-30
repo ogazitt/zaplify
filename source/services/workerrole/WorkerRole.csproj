@@ -64,6 +64,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.4.0.20505.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -75,6 +79,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="startup\7z.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="startup\7z.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="startup\Microsoft.WindowsAzure.StorageClient.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -100,6 +110,10 @@
     <ProjectReference Include="..\servicehost\ServiceHost.csproj">
       <Project>{8BB6BE7A-0DB1-4F1E-BB0F-8E97EA9305ED}</Project>
       <Name>ServiceHost</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SpeechWorker\SpeechWorker.csproj">
+      <Project>{88E792D6-1DDE-4626-AEE7-0D44F0421124}</Project>
+      <Name>SpeechWorker</Name>
     </ProjectReference>
     <ProjectReference Include="..\workflowhost\WorkflowHost.csproj">
       <Project>{39248A70-B838-4A7C-AC1A-5C0B37EB39E2}</Project>

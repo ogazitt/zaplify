@@ -18,6 +18,8 @@ namespace BuiltSteady.Zaplify.ServiceHost
         public const string AzureStorageAccountConfigKey = "AzureStorageAccount";
         public const string MailWorkerTimeoutConfigKey = "MailWorkerTimeout";
         public const string MailWorkerCountConfigKey = "MailWorkerCount";
+        public const string SpeechWorkerTimeoutConfigKey = "SpeechWorkerTimeout";
+        public const string SpeechWorkerCountConfigKey = "SpeechWorkerCount";
         public const string WorkflowWorkerTimeoutConfigKey = "WorkflowWorkerTimeout";
         public const string WorkflowWorkerCountConfigKey = "WorkflowWorkerCount";
         const string DeploymentNameConfigKey = "DeploymentName";
@@ -32,12 +34,14 @@ namespace BuiltSteady.Zaplify.ServiceHost
         const string SplunkServerEndpointConfigKey = "SplunkServerEndpoint";
         const string SplunkLocalPortConfigKey = "SplunkLocalPort";
         const string TraceFolderConfigKey = "TraceFolder";
+        const string SpeechEndpointConfigKey = "SpeechEndpoint";
 
         static bool? isAzure;               // true for either Azure or DevFabric
         static bool? isAzureDevFabric;      // only true in DevFabric
         static bool? isAzureLoggingEnabled;
         static bool? isSplunkLoggingEnabled;
         static int?  splunkLocalPort;
+        static RoleSize? azureRoleSize;
         static string deploymentName;
         static string userDataConnection;
         static string userAccountConnection;
@@ -305,20 +309,25 @@ namespace BuiltSteady.Zaplify.ServiceHost
                 if (traceDirectoryName == null)
                 {
                     traceDirectoryName = GetLocalResourceRootPath(TraceFolderConfigKey);
-                    /*
-                    if (HttpContext.Current != null)
-                    {
-                        // web role
-                        traceDirectoryName = HttpContext.Current.Server.MapPath(@"~/trace");
-                    }
-                    else
-                    {
-                        // worker role (or web role OnStart method)
-                        traceDirectoryName = Path.Combine(Directory.GetCurrentDirectory(), @"trace");
-                    }
-                     */
                 }
                 return traceDirectoryName;
+            }
+        }
+
+        public static string SpeechEndpoint
+        {
+            get
+            {
+                if (IsAzure)
+                {
+                    RoleInstanceEndpoint externalEndPoint =
+                        RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[SpeechEndpointConfigKey];
+                    string endpoint = String.Format(
+                        "http://{0}", externalEndPoint.IPEndpoint);
+                    return endpoint;
+                }
+                else
+                    return "http://localhost:8080";
             }
         }
 
@@ -363,6 +372,50 @@ namespace BuiltSteady.Zaplify.ServiceHost
             get
             {
                 return Azure.ServiceRuntime.RoleEnvironment.CurrentRoleInstance.Id;
+            }
+        }
+
+        public enum RoleSize
+        {
+            ExtraSmall,
+            Small,
+            Medium,
+            Large,
+            ExtraLarge,
+            Unknown
+        };
+
+        public static RoleSize AzureRoleSize
+        {
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            get
+            {
+                if (!azureRoleSize.HasValue)
+                {
+                    switch (Environment.ProcessorCount)
+                    {
+                        case 1:
+                            var totalRamInMB = new Microsoft.VisualBasic.Devices.ComputerInfo().TotalPhysicalMemory / 1024 / 1024;
+                            if (totalRamInMB < 1024)
+                                azureRoleSize = RoleSize.ExtraSmall;
+                            else
+                                azureRoleSize = RoleSize.Small;
+                            break;
+                        case 2:
+                            azureRoleSize = RoleSize.Medium;
+                            break;
+                        case 4:
+                            azureRoleSize = RoleSize.Large;
+                            break;
+                        case 8:
+                            azureRoleSize = RoleSize.ExtraSmall;
+                            break;
+                        default:
+                            azureRoleSize = RoleSize.Unknown;
+                            break;
+                    }
+                }
+                return azureRoleSize.Value;
             }
         }
 

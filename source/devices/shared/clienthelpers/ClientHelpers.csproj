@@ -70,7 +70,8 @@
     <Compile Include="CollectionHelper.cs" />
     <Compile Include="AppResourcesHelper.cs" />
     <Compile Include="ClientSettingsHelper.cs" />
-    <Compile Include="NuanceHelper.cs" />
+    <Compile Include="NativeSpeechHelper.cs" />
+    <Compile Include="NuanceSpeechHelper.cs" />
     <Compile Include="SerializationHelper.cs" />
     <Compile Include="RequestQueue.cs" />
     <Compile Include="HttpWrappers.cs" />

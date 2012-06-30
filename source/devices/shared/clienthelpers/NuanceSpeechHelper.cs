@@ -22,7 +22,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         };
     }
 
-    public class NuanceHelper
+    public class NuanceSpeechHelper
     {
         private static SpeechKit _speechKit = null;
         private static Recognizer _recognizer = null;
@@ -46,27 +46,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             }
         }
 
-        /// <summary>
-        /// State of the speech state machine
-        /// </summary>
-        public enum SpeechState
-        {
-            Initializing,
-            Listening,
-            Recognizing,
-            Finished,
-        }
-        
-        // delegate to call when the speech state changes
-        public delegate void SpeechStateCallbackDelegate(SpeechState speechState, string message);
-
-        // delegate to call with the recognized string
-        public delegate void SpeechToTextCallbackDelegate(string textString);
-
         public static void Cancel(Delegate networkDel)
         {
             // update the speech state
-            speechStateDelegate.DynamicInvoke(SpeechState.Finished, "Canceled speech operation");
+            speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Finished, "Canceled speech operation");
 
             if (_recognizer != null)
             {
@@ -82,24 +65,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             speechOperationInProgress = false;
         }
 
-        public static string SpeechStateString(SpeechState state)
-        {
-            switch (state)
-            {
-                case SpeechState.Initializing:
-                    return "Initializing";
-                case SpeechState.Listening:
-                    return "Listening";
-                case SpeechState.Recognizing:
-                    return "Recognizing";
-                case SpeechState.Finished:
-                    return "Finished";
-                default:
-                    return "Unrecognized";
-            }
-        }
-
-        public static void Start(User u, SpeechStateCallbackDelegate del, Delegate networkDel)
+        public static void Start(User u, SpeechHelper.SpeechStateCallbackDelegate del, Delegate networkDel)
         {
             // trace the speech request
             TraceHelper.AddMessage("Starting Speech");
@@ -126,7 +92,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             DictationStart(RecognizerRecognizerType.Dictation);
         }
 
-        public static void Stop(SpeechToTextCallbackDelegate del)
+        public static void Stop(SpeechHelper.SpeechToTextCallbackDelegate del)
         {
             // trace the operation
             TraceHelper.AddMessage("Stopping Speech");
@@ -138,7 +104,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             _recognizer.stopRecording();
 
             // update the speech state
-            speechStateDelegate.DynamicInvoke(SpeechState.Recognizing, "Stopped recording");
+            speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Recognizing, "Stopped recording");
         }
 
         #region Helpers
@@ -149,7 +115,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             Thread thread = new Thread(() =>
             {
                 // update the speech state
-                speechStateDelegate.DynamicInvoke(SpeechState.Initializing, "Initializing");
+                speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Initializing, "Initializing");
 
                 //speechkitInitialize();
                 _recognizer = _speechKit.createRecognizer(type, RecognizerEndOfSpeechDetection.Long, _oemconfig.defaultLanguage(), NuanceHelperCallbackInstance, _handler);
@@ -188,7 +154,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             public void onRecordingBegin(Recognizer recognizer)
             {
                 TraceHelper.AddMessage("onRecordingBegin");
-                speechStateDelegate.DynamicInvoke(SpeechState.Listening, "Started recording");
+                speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Listening, "Started recording");
 
                 // trace a bad state
                 if (recognizer != _recognizer)
@@ -198,7 +164,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             public void onRecordingDone(Recognizer recognizer)
             {
                 TraceHelper.AddMessage("onRecordingDone");
-                speechStateDelegate.DynamicInvoke(SpeechState.Recognizing, "Recognizing");
+                speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Recognizing, "Recognizing");
 
                 // trace a bad state
                 if (recognizer != _recognizer)
@@ -209,7 +175,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 string text = results.getResult(0).getText();
                 TraceHelper.AddMessage("onResults: " + text);
-                speechStateDelegate.DynamicInvoke(SpeechState.Finished, "Finished: " + text);
+                speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Finished, "Finished: " + text);
                 speechToTextDelegate.DynamicInvoke(text);
 
                 // trace a bad state
@@ -226,7 +192,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 string text = error.getErrorDetail();
                 TraceHelper.AddMessage("onError: " + text);
-                speechStateDelegate.DynamicInvoke(SpeechState.Finished, text);
+                speechStateDelegate.DynamicInvoke(SpeechHelper.SpeechState.Finished, text);
 
                 // trace a bad state
                 if (recognizer != _recognizer)

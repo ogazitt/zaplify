@@ -14,15 +14,17 @@
       <Setting name="SQLSuggestions" />
       <Setting name="MailWorkerCount" />
       <Setting name="MailWorkerTimeout" />
+      <Setting name="SpeechWorkerCount" />
+      <Setting name="SpeechWorkerTimeout" />
       <Setting name="WorkflowWorkerCount" />
       <Setting name="WorkflowWorkerTimeout" />
       <Setting name="GoogleClientID" />
       <Setting name="GoogleClientSecret" />
-      <Setting name="DeploymentName"/>
-      <Setting name="AzureLoggingEnabled"/>
-      <Setting name="SplunkLoggingEnabled"/>
-      <Setting name="SplunkServerEndpoint"/>
-      <Setting name="SplunkLocalPort"/>
+      <Setting name="DeploymentName" />
+      <Setting name="AzureLoggingEnabled" />
+      <Setting name="SplunkLoggingEnabled" />
+      <Setting name="SplunkServerEndpoint" />
+      <Setting name="SplunkLocalPort" />
     </ConfigurationSettings>
     <Startup>
       <Task executionContext="elevated" commandLine="startup\Install.cmd">
@@ -36,23 +38,31 @@
           <Variable name="SPLUNKLOCALPORT">
             <RoleInstanceValue xpath="/RoleEnvironment/CurrentInstance/ConfigurationSettings/ConfigurationSetting[@name='SplunkLocalPort']/@value" />
           </Variable>
+          <Variable name="SPEECHPORT">
+            <RoleInstanceValue xpath="/RoleEnvironment/CurrentInstance/Endpoints/Endpoint[@name='SpeechEndpoint']/@port" />
+          </Variable>
         </Environment>
       </Task>
     </Startup>
     <LocalResources>
       <LocalStorage name="TraceFolder" sizeInMB="20" cleanOnRoleRecycle="true" />
     </LocalResources>
+    <Endpoints>
+      <InputEndpoint name="SpeechEndpoint" protocol="http" port="8080" localPort="8080" />
+    </Endpoints>
+    <Runtime executionContext="elevated">
+    </Runtime>
   </WorkerRole>
   <WebRole name="Website" vmsize="ExtraSmall">
     <Sites>
       <Site name="Web">
         <Bindings>
-          <Binding name="Endpoint1" endpointName="Endpoint1" />
+          <Binding name="Endpoint1" endpointName="WebsiteEndpoint" />
         </Bindings>
       </Site>
     </Sites>
     <Endpoints>
-      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+      <InputEndpoint name="WebsiteEndpoint" protocol="http" port="80" />
     </Endpoints>
     <Imports>
       <Import moduleName="Diagnostics" />
@@ -66,15 +76,15 @@
       <Setting name="SQLUsers" />
       <Setting name="SQLSuggestions" />
       <Setting name="SQLDataServices" />
-      <Setting name="DataServicesEndpoint"/>
+      <Setting name="DataServicesEndpoint" />
       <Setting name="FBAppID" />
       <Setting name="FBAppSecret" />
       <Setting name="GoogleClientID" />
       <Setting name="GoogleClientSecret" />
-      <Setting name="DeploymentName"/>
-      <Setting name="AzureLoggingEnabled"/>
-      <Setting name="SplunkLoggingEnabled"/>
-      <Setting name="SplunkServerEndpoint"/>
+      <Setting name="DeploymentName" />
+      <Setting name="AzureLoggingEnabled" />
+      <Setting name="SplunkLoggingEnabled" />
+      <Setting name="SplunkServerEndpoint" />
       <Setting name="SplunkLocalPort" />
     </ConfigurationSettings>
     <Startup>

@@ -133,6 +133,23 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public static string LevelText(LogLevel level)
+        {
+            switch (level)
+            {
+                case LogLevel.Fatal:
+                    return "Fatal Error";
+                case LogLevel.Error:
+                    return "Error";
+                case LogLevel.Info:
+                    return "Information";
+                case LogLevel.Detail:
+                    return "Detail";
+                default:
+                    return "Unknown";
+            }
+        }
+
         public enum LogLevel
         {
             Fatal,
@@ -235,23 +252,6 @@ namespace BuiltSteady.Zaplify.ServiceHost
         }
 
         #region Helpers
-
-        private static string LevelText(LogLevel level)
-        {
-            switch (level)
-            {
-                case LogLevel.Fatal:
-                    return "Fatal Error";
-                case LogLevel.Error:
-                    return "Error";
-                case LogLevel.Info:
-                    return "Information";
-                case LogLevel.Detail:
-                    return "Detail";
-                default:
-                    return "Unknown";
-            }
-        }
 
         private static string MethodInfoText()
         {
@@ -418,28 +418,32 @@ namespace BuiltSteady.Zaplify.ServiceHost
                             using (var stream = File.Create(TraceFilename))
                             using (var writer = new StreamWriter(stream))
                             {
-                                writer.WriteLine(json);
+                                // log the file creation
+                                var createRecord = new TraceRecord()
+                                {
+                                    Deployment = HostEnvironment.DeploymentName,
+                                    Role = HostEnvironment.AzureRoleName,
+                                    LogLevel = TraceLog.LevelText(TraceLog.LogLevel.Info),
+                                    Message = "Created new trace file " + TraceFilename,
+                                    Session = TraceLog.Session,
+                                    Timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff")
+                                };
+                                var createJson = JsonSerializer.Serialize(createRecord);
+                                writer.WriteLine(createJson);
                                 writer.Flush();
-
-                                // reset the trace filename if it exceeds the maximum file size
-                                if (writer.BaseStream.Position > MaxFileSize)
-                                    traceFilename = null;
-
                             }
                         }
-                        else
-                        {
-                            // open the file
-                            using (var stream = File.Open(TraceFilename, FileMode.Append, FileAccess.Write))
-                            using (var writer = new StreamWriter(stream))
-                            {
-                                writer.WriteLine(json);
-                                writer.Flush();
 
-                                // reset the trace filename if it exceeds the maximum file size
-                                if (writer.BaseStream.Position > MaxFileSize)
-                                    traceFilename = null;
-                            }
+                        // open the file
+                        using (var stream = File.Open(TraceFilename, FileMode.Append, FileAccess.Write, FileShare.Read))
+                        using (var writer = new StreamWriter(stream))
+                        {
+                            writer.WriteLine(json);
+                            writer.Flush();
+
+                            // reset the trace filename if it exceeds the maximum file size
+                            if (writer.BaseStream.Position > MaxFileSize)
+                                traceFilename = null;
                         }
 
                         // success - terminate the enclosing retry loop

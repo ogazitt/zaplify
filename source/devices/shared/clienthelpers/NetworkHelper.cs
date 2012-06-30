@@ -21,6 +21,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         static EndPoint endPoint = null;
         static bool isRequestInProgress = false;    // only one network operation at a time
 
+        static string SpeechUrl
+        {
+            get
+            {
+                var url = WebServiceHelper.SpeechUrl;
+                bool test = false;
+                if (test)
+                    url = "http://omrig-air:8081";
+                return url;
+            }
+        }
+
 #region // Network calls
 
         public static void BeginSpeech(Delegate del, Delegate netOpInProgressDel)
@@ -82,7 +94,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         // Send an HTTP POST to start a new speech recognition transaction
         public static void SendPost(User user, string encoding, Delegate del, Delegate netOpInProgressDel)
         {
-            string url = WebServiceHelper.BaseUrl + "/speech";
+            string url = SpeechUrl + "/api/speech";
             string verb = "POST";
 
             // get a Uri for the service - this will be used to decode the host / port
@@ -212,16 +224,16 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             netOpInProgressDel.DynamicInvoke(true, OperationStatus.Started);
 
             // get a Uri for the service - this will be used to decode the host / port
-            Uri uri = new Uri(WebServiceHelper.BaseUrl);
+            Uri uri = new Uri(SpeechUrl);
 
             // create the socket
             if (socket == null)
             {
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (uri.Host == "localhost")
-                    endPoint = new IPEndPoint(IPAddress.IPv6Loopback, uri.Port);
+                    endPoint = new IPEndPoint(IPAddress.Loopback, uri.Port);
                 else
-                    endPoint = new DnsEndPoint(uri.Host, uri.Port);
+                    endPoint = new DnsEndPoint(uri.Host, uri.Port, AddressFamily.InterNetwork);
             }
 
             SocketAsyncEventArgs socketEventArg = new SocketAsyncEventArgs();
