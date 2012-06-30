@@ -88,7 +88,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 initialSyncAlreadyHappened = true;
 
                 // if there's a home tab set, switch to it now
-                var homeTab = ClientSettingsHelper.GetHomeTab(App.ViewModel.ClientSettings);
+                var homeTab = PhoneSettingsHelper.GetHomeTab(App.ViewModel.PhoneClientFolder);
                 if (homeTab != null && homeTab != "Add")
                     SelectTab(homeTab);
             }
