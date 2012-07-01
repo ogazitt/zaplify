@@ -43,8 +43,17 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\shared\entities\ClientItems.cs">
+      <Link>ClientItems.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\shared\entities\EntityConstants.cs">
       <Link>EntityConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\shared\entities\ItemAccessor.cs">
+      <Link>ItemAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\shared\entities\JsonObjects.cs">
+      <Link>JsonObjects.cs</Link>
     </Compile>
     <Compile Include="ClientEntity.cs" />
     <Compile Include="Constants.cs" />

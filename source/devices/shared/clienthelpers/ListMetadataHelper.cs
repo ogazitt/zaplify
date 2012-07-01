@@ -10,19 +10,19 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 {
     public class ListMetadataHelper
     {
-        public static string GetListMetadataValue(Folder clientSettings, ClientEntity list, string fieldName)
+        public static string GetListMetadataValue(Folder phoneClient, ClientEntity list, string fieldName)
         {
-            if (clientSettings == null)
+            if (phoneClient == null)
                 return null;
 
-            var listsMetadata = GetListMetadataList(clientSettings);
+            var listsMetadata = GetListMetadataList(phoneClient);
             var listID = list.ID.ToString();
             string value = null;
-            if (clientSettings.Items.Any(i =>
+            if (phoneClient.Items.Any(i =>
                 i.ParentID == listsMetadata.ID &&
                 i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == listID)))
             {
-                var metadataItem = clientSettings.Items.Single(i =>
+                var metadataItem = phoneClient.Items.Single(i =>
                     i.ParentID == listsMetadata.ID &&
                     i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == listID));
                 if (metadataItem.FieldValues.Any(fv => fv.FieldName == fieldName))
@@ -34,18 +34,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return value;
         }
 
-        public static void StoreListMetadataValue(Folder clientSettings, ClientEntity list, string fieldName, string value)
+        public static void StoreListMetadataValue(Folder phoneClient, ClientEntity list, string fieldName, string value)
         {
-            if (clientSettings == null)
+            if (phoneClient == null)
                 return;
 
-            var listsMetadata = GetListMetadataList(clientSettings);
+            var listsMetadata = GetListMetadataList(phoneClient);
             var listID = list.ID.ToString();
-            if (clientSettings.Items.Any(i =>
+            if (phoneClient.Items.Any(i =>
                 i.ParentID == listsMetadata.ID &&
                 i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == listID)))
             {
-                var metadataItem = clientSettings.Items.Single(i =>
+                var metadataItem = phoneClient.Items.Single(i =>
                     i.ParentID == listsMetadata.ID &&
                     i.FieldValues.Any(fv => fv.FieldName == FieldNames.EntityRef && fv.Value == listID));
                 Item copy = new Item(metadataItem);
@@ -53,7 +53,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 fieldValue.Value = value;
 
                 // queue up a server request
-                if (clientSettings.ID != Guid.Empty)
+                if (phoneClient.ID != Guid.Empty)
                 {
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {
@@ -74,7 +74,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     ID = id,
                     Name = list.Name,
                     ItemTypeID = SystemItemTypes.Reference,
-                    FolderID = clientSettings.ID,
+                    FolderID = phoneClient.ID,
                     ParentID = listsMetadata.ID,
                     Created = now,
                     LastModified = now,
@@ -100,10 +100,10 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                         }
                     }
                 };
-                clientSettings.Items.Add(metadataItem);
+                phoneClient.Items.Add(metadataItem);
 
                 // queue up a server request
-                if (clientSettings.ID != Guid.Empty)
+                if (phoneClient.ID != Guid.Empty)
                 {
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {
@@ -115,8 +115,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 }
             }
 
-            // store the client settings
-            StorageHelper.WriteClientSettings(clientSettings);
+            // store the phone client folder
+            StorageHelper.WritePhoneClient(phoneClient);
         }
 
         class SelectedCount
@@ -125,93 +125,97 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             public Item EntityRefItem { get; set; }
         }
 
-        public static List<Item> GetListsOrderedBySelectedCount(Folder clientSettings)
+        public static List<Item> GetListsOrderedBySelectedCount(Folder phoneClient)
         {
-            var metadataList = GetListMetadataList(clientSettings);
-            var selectedCountLists = clientSettings.Items.Where(i =>
+            var metadataList = GetListMetadataList(phoneClient);
+            var selectedCountLists = phoneClient.Items.Where(i =>
                 i.ParentID == metadataList.ID &&
-                i.FieldValues.Any(fv => fv.FieldName == FieldNames.SelectedCount)).ToList();
+                i.FieldValues.Any(fv => fv.FieldName == ExtendedFieldNames.SelectedCount)).ToList();
 
             var orderedLists = new List<SelectedCount>();
             foreach (var l in selectedCountLists)
-                orderedLists.Add(new SelectedCount() { EntityRefItem = l, Count = Convert.ToInt32(l.GetFieldValue(FieldNames.SelectedCount).Value) });
+                orderedLists.Add(new SelectedCount() { EntityRefItem = l, Count = Convert.ToInt32(l.GetFieldValue(ExtendedFieldNames.SelectedCount).Value) });
 
             // return the ordered lists
             return orderedLists.OrderByDescending(sc => sc.Count).ThenBy(sc => sc.EntityRefItem.Name).Select(sc => sc.EntityRefItem).ToList();
         }
 
-        public static void IncrementListSelectedCount(Folder clientSettings, ClientEntity list)
+        public static void IncrementListSelectedCount(Folder phoneClient, ClientEntity list)
         {
             // get, increment, and store the selected count for a list
-            string countString = GetListMetadataValue(clientSettings, list, FieldNames.SelectedCount);
+            string countString = GetListMetadataValue(phoneClient, list, ExtendedFieldNames.SelectedCount);
             int count = Convert.ToInt32(countString);
             count++;
             countString = count.ToString();
-            StoreListMetadataValue(clientSettings, list, FieldNames.SelectedCount, countString);
+            StoreListMetadataValue(phoneClient, list, ExtendedFieldNames.SelectedCount, countString);
         }
 
-        public static string GetListSortOrder(Folder clientSettings, ClientEntity list)
+        public static string GetListSortOrder(Folder phoneClient, ClientEntity list)
         {
-            return GetListMetadataValue(clientSettings, list, FieldNames.SortBy);
+            return GetListMetadataValue(phoneClient, list, ExtendedFieldNames.SortBy);
         }
 
-        public static void StoreListSortOrder(Folder clientSettings, ClientEntity list, string listSortOrder)
+        public static void StoreListSortOrder(Folder phoneClient, ClientEntity list, string listSortOrder)
         {
-            StoreListMetadataValue(clientSettings, list, FieldNames.SortBy, listSortOrder);
+            StoreListMetadataValue(phoneClient, list, ExtendedFieldNames.SortBy, listSortOrder);
         }
 
-        public static Item GetDefaultList(Folder clientSettings, Guid itemType)
+        public static Item GetDefaultList(Folder client, Guid itemType)
         {
-            var defaultLists = GetDefaultListsList(clientSettings);
+            var defaultLists = GetDefaultListsList(client);
             if (defaultLists == null) 
                 return null;
 
-            return clientSettings.Items.FirstOrDefault(
+            return client.Items.FirstOrDefault(
                     i => i.ParentID == defaultLists.ID &&
                     i.FieldValues.Any(f => f.FieldName == FieldNames.Value && f.Value == itemType.ToString()));
         }
 
         #region Helpers
 
-        private static Item GetDefaultListsList(Folder clientSettings)
+        private static Item GetDefaultListsList(Folder client)
         {
-            return GetClientSettingsList(clientSettings, SystemEntities.DefaultLists, SystemItemTypes.NameValue);
+            return GetOrCreateList(client, SystemEntities.DefaultLists, SystemItemTypes.NameValue);
         }
 
-        private static Item GetListMetadataList(Folder clientSettings)
+        private static Item GetListMetadataList(Folder phoneClient)
         {
-            return GetClientSettingsList(clientSettings, SystemEntities.ListMetadata, SystemItemTypes.Reference);
+            return GetOrCreateList(phoneClient, SystemEntities.ListMetadata, SystemItemTypes.Reference);
         }
 
-        private static Item GetClientSettingsList(Folder clientSettings, string name, Guid itemType)
+        // helper for adding list item to either $Client or $PhoneClient folder
+        private static Item GetOrCreateList(Folder folder, string name, Guid itemType)
         {
-            if (clientSettings == null)
+            if (folder == null)
                 return null;
 
             // get the list item 
             Item listItem = null;
-            if (clientSettings.Items.Any(i => i.Name == name && i.ParentID == null))
-                listItem = clientSettings.Items.First(i => i.Name == name && i.ParentID == null);
+            if (folder.Items.Any(i => i.Name == name && i.ParentID == null))
+                listItem = folder.Items.First(i => i.Name == name && i.ParentID == null);
             else
             {
                 DateTime now = DateTime.UtcNow;
                 listItem = new Item()
                 {
                     Name = SystemEntities.ListMetadata,
-                    FolderID = clientSettings.ID,
+                    FolderID = folder.ID,
                     IsList = true,
                     ItemTypeID = itemType,
                     Items = new ObservableCollection<Item>(),
                     Created = now,
                     LastModified = now
                 };
-                clientSettings.Items.Add(listItem);
+                folder.Items.Add(listItem);
 
-                // store the client settings
-                StorageHelper.WriteClientSettings(clientSettings);
+                // store the client or phone client folder
+                if (folder.Name == SystemEntities.Client)
+                    StorageHelper.WriteClient(folder);
+                else if (folder.Name == SystemEntities.PhoneClient)
+                    StorageHelper.WritePhoneClient(folder);
 
                 // queue up a server request
-                if (clientSettings.ID != Guid.Empty)
+                if (folder.ID != Guid.Empty)
                 {
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {

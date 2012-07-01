@@ -23,12 +23,14 @@ var Dashboard = function Dashboard$() {
 // public methods
 
 Dashboard.Init = function Dashboard$Init(dataModel, renewFBToken, consentStatus) {
-    Dashboard.alertStatus(consentStatus);
+    Dashboard.dataModel = dataModel;
+
+    Dashboard.checkBrowser();
+    Dashboard.checkConsent(consentStatus);
     if (renewFBToken == true) {
         Service.GetFacebookConsent();
     }
 
-    Dashboard.dataModel = dataModel;
     Dashboard.dataModel.AddDataChangedHandler('dashboard', Dashboard.ManageDataChange);
 
     // dashboard regions
@@ -198,40 +200,83 @@ Dashboard.resize = function Dashboard$resize() {
     Dashboard.resizing = false;
 }
 
-Dashboard.alertStatus = function Dashboard$alertStatus(status) {
-    var message, header;
-    if (status != null && status.length > 0) {
-        switch (status) {
-            case "FBConsentSuccess":
-                header = "Success!";
-                message = "This application has successfully received consent for accessing your Facebook information.";
-                break;
+Dashboard.checkBrowser = function Dashboard$checkBrowser() {
+    if (Browser.IsMSIE() && Browser.MSIE_Version() < 9) {
+        var header = "We're Sorry!";
+        var message = "This application currently requires an HTML5-compatible browser. We encourage you to try using the application with the latest version of Internet Explorer, Chrome, or FireFox.<br/>Thank you";
+        Control.alert(message, header);
+    }
+}
+
+Dashboard.checkConsent = function Dashboard$checkConsent(consentStatus) {
+    if (consentStatus != null && consentStatus.length > 0) {
+        var message, header;
+        switch (consentStatus) {
             case "FBConsentFail":
                 header = "Failed!";
                 message = "This application was not able to receive consent for accessing your Facebook information.";
-                break;
-            case "GoogleConsentSuccess":
-                header = "Success!";
-                message = "This application has successfully received consent for managing your Google calendar.";
                 break;
             case "GoogleConsentFail":
                 header = "Failed!";
                 message = "This application was not able to receive consent for managing your Google calendar.";
                 break;
-            case "CloudADConsentSuccess":
-                header = "Success!";
-                message = "This application has successfully received consent for accessing your Cloud Directory.";
-                break;
             case "CloudADConsentFail":
                 header = "Failed!";
                 message = "This application was not able to receive consent for accessing your Cloud Directory.";
                 break;
+            default:
+                {
+                    Dashboard.consentStatus = consentStatus;
+                    Dashboard.dataModel.GetSuggestions(Dashboard.completeConsent);
+                }
         }
-        if (message != null) { Control.alert(message, header); }
-    } else if (Browser.IsMSIE() && Browser.MSIE_Version() < 9) {
-        header = "We're Sorry!";
-        message = "This application currently requires an HTML5-compatible browser. We encourage you to try using the application with the latest version of Internet Explorer, Chrome, or FireFox.<br/>Thank you";
-        Control.alert(message, header);
+        if (message != null) {
+            Control.alert(message, header, function () { Service.NavigateToDashboard(); });
+        }
+    }
+}
+
+Dashboard.completeConsent = function Dashboard$completeConsent(suggestions) {
+    if (Dashboard.consentStatus != null && Dashboard.consentStatus.length > 0) {
+        var message, header, suggestion;
+
+        var findSuggestion = function (suggestions, type) {
+            if (suggestions != null) {
+                for (var g in suggestions) {
+                    var childSuggestions = suggestions[g].Suggestions;
+                    if (childSuggestions != null) {
+                        for (var s in childSuggestions) {
+                            if (childSuggestions[s].SuggestionType == type)
+                                return childSuggestions[s];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        switch (Dashboard.consentStatus) {
+            case "FBConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for accessing your Facebook information.";
+                suggestion = findSuggestion(suggestions, SuggestionTypes.GetFBConsent);
+                break;
+            case "GoogleConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for managing your Google calendar.";
+                suggestion = findSuggestion(suggestions, SuggestionTypes.GetGoogleConsent);
+                break;
+            case "CloudADConsentSuccess":
+                header = "Success!";
+                message = "This application has successfully received consent for accessing your Cloud Directory.";
+                suggestion = findSuggestion(suggestions, SuggestionTypes.GetADConsent);
+                break;
+        }
+        Dashboard.consentStatus = null;
+        if (suggestion != null && suggestion.ReasonSelected != Reasons.Chosen) {
+            Dashboard.dataModel.SelectSuggestion(suggestion, Reasons.Chosen);
+            Control.alert(message, header, function () { Service.NavigateToDashboard(); });
+        }
     }
 }
 
@@ -244,12 +289,12 @@ Dashboard.getSuggestions = function Dashboard$getSuggestions(folder, item) {
         }
     } else if (folder != null) {
         if (folder.hasOwnProperty('Items')) {
-            this.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
+            Dashboard.dataModel.GetSuggestions(Dashboard.renderSuggestions, folder);
         } else {    // clear existing suggestions
             Dashboard.renderSuggestions({});
         }
     } else {
-        return this.dataModel.GetSuggestions(Dashboard.renderSuggestions);
+        return Dashboard.dataModel.GetSuggestions(Dashboard.renderSuggestions);
     }   
 }
 

@@ -426,15 +426,31 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             {
                 req.DeserializeBody();
 
-                // handle ClientSettings folder itself
+                // handle $Client folder itself
                 if (req.BodyTypeName == typeof(Folder).Name)
                 {
-                    // compare the folder ID to the client settings folder ID, and if not the same, mark the queue for deletion
+                    // compare the folder ID to the $Client folder ID, and if not the same, mark the queue for deletion
                     var folder = req.Body as Folder;
-                    if (folder != null && folder.Name == SystemEntities.ClientSettings)
+                    if (folder != null && folder.Name == SystemEntities.Client)
                     {
-                        Guid clientSettingsFolderID = StorageHelper.ReadSystemEntityID(SystemEntities.ClientSettings);
-                        if (folder.ID != clientSettingsFolderID)
+                        Guid clientFolderID = StorageHelper.ReadSystemEntityID(SystemEntities.Client);
+                        if (folder.ID != clientFolderID)
+                        {
+                            deleteQueue = true;
+                            break;
+                        }
+                    }
+                }
+
+                // handle $PhoneClient folder itself
+                if (req.BodyTypeName == typeof(Folder).Name)
+                {
+                    // compare the folder ID to the $PhoneClient folder ID, and if not the same, mark the queue for deletion
+                    var folder = req.Body as Folder;
+                    if (folder != null && folder.Name == SystemEntities.PhoneClient)
+                    {
+                        Guid phoneClientFolderID = StorageHelper.ReadSystemEntityID(SystemEntities.PhoneClient);
+                        if (folder.ID != phoneClientFolderID)
                         {
                             deleteQueue = true;
                             break;

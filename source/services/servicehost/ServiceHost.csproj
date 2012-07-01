@@ -84,16 +84,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureOAuthConfiguration.cs" />
+    <Compile Include="SuggestionsStorageContext.cs" />
+    <Compile Include="UserStorageContext.cs" />
     <Compile Include="GoogleClient.cs" />
     <Compile Include="helpers\FacebookHelper.cs" />
-    <Compile Include="FieldProcessor.cs" />
-    <Compile Include="ItemProcessor.cs" />
     <Compile Include="IWorker.cs" />
     <Compile Include="nlp\Phrase.cs" />
     <Compile Include="nlp\Tagger.cs" />
     <Compile Include="nlp\Task.cs" />
     <Compile Include="nlp\Tokenizer.cs" />
     <Compile Include="helpers\PossibleContactHelper.cs" />
+    <Compile Include="processors\ContactProcessor.cs" />
+    <Compile Include="processors\AppointmentProcessor.cs" />
+    <Compile Include="processors\FieldProcessor.cs" />
+    <Compile Include="processors\GroceryProcessor.cs" />
+    <Compile Include="processors\TaskProcessor.cs" />
+    <Compile Include="processors\ItemProcessor.cs" />
     <Compile Include="Storage.cs" />
     <Compile Include="HostEnvironment.cs" />
     <Compile Include="ConfigurationSettings.cs" />

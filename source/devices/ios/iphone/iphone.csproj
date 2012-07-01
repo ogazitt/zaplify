@@ -29,7 +29,6 @@
 </MtouchExtraArgs>
     <MtouchArch>ARMv7</MtouchArch>
     <MtouchUseSGen>true</MtouchUseSGen>
-    <MtouchSdkVersion>5.0</MtouchSdkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>

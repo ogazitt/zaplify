@@ -127,7 +127,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 var phoneSetting = PhoneSettings.Settings[setting];
                 //var bindingList = (from l in list select new { Name = l }).ToList();
                 var bindingList = phoneSetting.Values;
-                var value = ClientSettingsHelper.GetPhoneSetting(App.ViewModel.ClientSettings, setting);
+                var value = PhoneSettingsHelper.GetPhoneSetting(App.ViewModel.PhoneClientFolder, setting);
                 int selectedIndex = 0;
                 if (value != null && bindingList.Any(ps => ps.Name == value))
                 {
@@ -280,7 +280,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // get current version of phone settings
-            var phoneSettingsItemCopy = new Item(ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings), true);
+            var phoneSettingsItemCopy = new Item(PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder), true);
 
             // loop through the settings and store the new value
             foreach (var element in SettingsPanel.Children)
@@ -294,14 +294,14 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 string value = phoneSetting.Values[listPicker.SelectedIndex].Name;
 
                 // store the key/value pair in phone settings (without syncing)
-                ClientSettingsHelper.StorePhoneSetting(App.ViewModel.ClientSettings, key, value);
+                PhoneSettingsHelper.StorePhoneSetting(App.ViewModel.PhoneClientFolder, key, value);
             }
 
             // get the new version of phone settings
-            var phoneSettingsItem = ClientSettingsHelper.GetPhoneSettingsItem(App.ViewModel.ClientSettings);
+            var phoneSettingsItem = PhoneSettingsHelper.GetPhoneSettingsItem(App.ViewModel.PhoneClientFolder);
 
             // queue up a server request
-            if (App.ViewModel.ClientSettings.ID != Guid.Empty)
+            if (App.ViewModel.PhoneClientFolder.ID != Guid.Empty)
             {
                 RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                 {
@@ -345,6 +345,9 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // run this on the UI thread
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
+                // if the user did not get returned, the operation could not have been successful
+                if (code == HttpStatusCode.OK && user == null)
+                    code = HttpStatusCode.ServiceUnavailable;
                 switch (code)
                 {
                     case HttpStatusCode.OK:
@@ -399,6 +402,10 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             // run this on the UI thread
             Deployment.Current.Dispatcher.BeginInvoke(() =>
             {
+                // if the user came back null, the operation could not have completed successfully
+                if (code == HttpStatusCode.OK || code == HttpStatusCode.Created)
+                    if (user == null)
+                        code = HttpStatusCode.ServiceUnavailable;
                 switch (code)
                 {
                     case HttpStatusCode.OK:
@@ -433,7 +440,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                         accountOperationSuccessful = false;
                         break;
                     default:
-                        MessageBox.Show(String.Format("user {0} was not created", Email.Text));
+                        MessageBox.Show(String.Format("user {0} was not created - contact support@builtsteady.com", Email.Text));
                         accountOperationSuccessful = false;
                         break;
                 }

@@ -139,7 +139,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
             }
 
             // increment the SelectedCount
-            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
+            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, entity);
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
             // (do not sync for operations against $ClientSettings)
@@ -211,9 +211,14 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                 new NuanceHelper.SpeechStateCallbackDelegate(SpeechPopupDelegate.SpeechPopup_SpeechStateCallback),
                 new MainViewModel.NetworkOperationInProgressCallbackDelegate(SpeechPopupDelegate.SpeechPopup_NetworkOperationInProgressCallBack));
 
-            // open the popup
-            SetupSpeechPopup("initializing...");
-            SpeechPopup.ShowFromTabBar(((UITabBarController)this.ParentViewController).TabBar);
+            if (SpeechPopupDelegate.speechState == NuanceHelper.SpeechState.Initializing)
+            {
+                // open the popup
+                SetupSpeechPopup("initializing...");
+                SpeechPopup.ShowFromTabBar(((UITabBarController)this.ParentViewController).TabBar);
+            }
+            else
+                MessageBox.Show("our apologies - speech is unavailable at this time.");
         }
         
         #endregion
@@ -431,7 +436,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                     { 
                                         AddItem(f, null);
                                         // increment the selected count for this folder and sync if this isn't an actual Add
-                                        ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, f);
+                                        ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, f);
                                         // (do not sync for operations against $ClientSettings)
                                         //if (String.IsNullOrWhiteSpace(Name.Value))
                                         //    App.ViewModel.SyncWithService();
@@ -443,7 +448,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                                         {
                                             AddItem(f, li);
                                             // increment the selected count for this list and sync if this isn't an actual Add
-                                            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, li);
+                                            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, li);
                                             // (do not sync for operations against $ClientSettings)
                                             //if (String.IsNullOrWhiteSpace(Name.Value))
                                             //    App.ViewModel.SyncWithService();

@@ -8,7 +8,7 @@ PACKAGES_ROOT=../../../packages/Nuance.SpeechKit.1.0.1/lib/mono
 all: SpeechKitLibraryBinder.dll
 
 libSpeechKitLibrary-i386.a:
-	$(XBUILD) -project $(PROJECT) -target $(TARGET) -sdk iphonesimulator4.3 -configuration Release clean build
+	$(XBUILD) -project $(PROJECT) -target $(TARGET) -sdk iphonesimulator -configuration Release clean build
 	-mv $(PROJECT_ROOT)/build/Release-iphonesimulator/lib$(TARGET).a $@
 
 libSpeechKitLibrary-armv6.a:

@@ -203,6 +203,7 @@
     <Content Include="content\font\fontawesome-webfont.svg" />
     <Content Include="content\bootstrap-tweener.css" />
     <Content Include="content\images\busy.gif" />
+    <Content Include="favicon.ico" />
     <Content Include="content\images\glyphicons-halflings-white.png" />
     <Content Include="content\images\glyphicons-halflings.png" />
     <Content Include="content\images\icon-azure.png" />
@@ -240,7 +241,6 @@
     <Content Include="scripts\dashboard\datamodel.js" />
     <Content Include="scripts\dashboard\itemeditor.js" />
     <Content Include="scripts\dashboard\listeditor.js" />
-    <Content Include="scripts\jquery-ui-1.8.16.bootstrap.min.js" />
     <Content Include="scripts\json2.js" />
     <Content Include="scripts\master.generated.min.js">
       <DependentUpon>master.js.chirp.config</DependentUpon>

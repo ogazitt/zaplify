@@ -9,23 +9,19 @@
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="SQLUsers" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-
       <Setting name="MailWorkerCount" value="1" />
       <Setting name="MailWorkerTimeout" value="60" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <Setting name="WorkflowWorkerTimeout" value="5" />
-
       <!-- Google Client 'ZaplifyDev1' -->
-      <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com"/>
-      <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z"/>
-
+      <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com" />
+      <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z" />
       <!-- Logging configuration -->
-      <Setting name="DeploymentName" value="Dev1"/>
-      <Setting name="AzureLoggingEnabled" value="1"/>
-      <Setting name="SplunkLoggingEnabled" value="1"/>
-      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
-      <Setting name="SplunkLocalPort" value="9237"/>
-
+      <Setting name="DeploymentName" value="Dev1" />
+      <Setting name="AzureLoggingEnabled" value="1" />
+      <Setting name="SplunkLoggingEnabled" value="1" />
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997" />
+      <Setting name="SplunkLocalPort" value="9237" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -49,21 +45,19 @@
       <Setting name="SQLSuggestions" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLDataServices" value="data source=x7djs35g72.database.windows.net;Initial Catalog=ZapDataServices;User Id=builtsteady;Password=zrc022.." />
       <!-- DataServices Endpoint (empty string will use current host -->
-      <Setting name="DataServicesEndpoint" value=""/>
+      <Setting name="DataServicesEndpoint" value="" />
       <!-- Facebook Application 'ZaplifyDev1' -->
-      <Setting name="FBAppID" value="328179963908183"/>
-      <Setting name="FBAppSecret" value="4b94447dca787b096b8a7655de47b477"/>
+      <Setting name="FBAppID" value="328179963908183" />
+      <Setting name="FBAppSecret" value="4b94447dca787b096b8a7655de47b477" />
       <!-- Google Client 'ZaplifyDev1' -->
-      <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com"/>
-      <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z"/>
-
+      <Setting name="GoogleClientID" value="944381664180-1snfphgudpjm6lsjmv3nnisrt8jh13bc.apps.googleusercontent.com" />
+      <Setting name="GoogleClientSecret" value="PE6tmTv42cGVB3ytQ_L41d6z" />
       <!-- Logging configuration -->
-      <Setting name="DeploymentName" value="Dev1"/>
-      <Setting name="AzureLoggingEnabled" value="1"/>
-      <Setting name="SplunkLoggingEnabled" value="1"/>
-      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997"/>
-      <Setting name="SplunkLocalPort" value="9237"/>
-
+      <Setting name="DeploymentName" value="Dev1" />
+      <Setting name="AzureLoggingEnabled" value="1" />
+      <Setting name="SplunkLoggingEnabled" value="1" />
+      <Setting name="SplunkServerEndpoint" value="zaplifysplunk.cloudapp.net:9997" />
+      <Setting name="SplunkLocalPort" value="9237" />
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=zaplifydev1;AccountKey=6oFmJVk2uq0c0Pf1+0PlHM70f6rnw465KwFpYyLM/neOZ2YIMpkWC888dZWTRQDHEr82qm2SH8T3znZxIfeOiw==" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
       <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="Omri" />
@@ -72,6 +66,9 @@
     </ConfigurationSettings>
     <Certificates>
       <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="D19C2E1BBFDB2C6CCDF76EC64A34739610255066" thumbprintAlgorithm="sha1" />
+      <Certificate name="ZaplifySSLCert" thumbprint="52543CB496FC7F0D19FB7921C113BC2071F71CD0" thumbprintAlgorithm="sha1" />
+      <Certificate name="ZaplfiySSLIntermediateCert" thumbprint="3CA958F3E7D6837E1C1ACF8B0F6A2E6D487D6762" thumbprintAlgorithm="sha1" />
+      <Certificate name="ZaplifySSLRootCert" thumbprint="91C6D6EE3E8AC86384E548C299295C756C817B81" thumbprintAlgorithm="sha1" />
     </Certificates>
   </Role>
 </ServiceConfiguration>

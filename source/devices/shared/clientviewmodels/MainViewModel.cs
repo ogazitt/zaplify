@@ -57,7 +57,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             get
             {
-                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var theme = PhoneSettingsHelper.GetTheme(PhoneClientFolder);
                 var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
                 if (phoneSetting.Values.Any(t => t.Name == theme))
                     return (string)phoneSetting.Values.Single(t => t.Name == theme).Value;
@@ -75,7 +75,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
         {
             get
             {
-                var theme = ClientSettingsHelper.GetTheme(ClientSettings);
+                var theme = PhoneSettingsHelper.GetTheme(PhoneClientFolder);
                 var phoneSetting = PhoneSettings.Settings[PhoneSettings.Theme];
                 if (theme != null)
                     if (phoneSetting.Values.Any(t => t.Name == theme))
@@ -97,35 +97,68 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             get { return LastNetworkOperationStatus == true ? "/Images/connected.true.png" : "/Images/connected.false.png"; } 
         }
 
-        private Folder clientSettings;
-        public Folder ClientSettings
+        private Folder clientFolder;
+        public Folder ClientFolder
         {
             get
             {
-                if (clientSettings == null)
-                    clientSettings = StorageHelper.ReadClientSettings();
-                if (clientSettings == null)
+                if (clientFolder == null)
+                    clientFolder = StorageHelper.ReadClient();
+                if (clientFolder == null)
                 {
-                    // folder got corrupted - create a new one and signify a client-only ClientSettings via Guid.Empty
-                    clientSettings = new Folder()
+                    // folder corrupted - create a new one and signify a client-only Client folder via Guid.Empty
+                    clientFolder = new Folder()
                     {
                         ID = Guid.Empty,
                         SortOrder = 0,
-                        Name = SystemEntities.ClientSettings,
+                        Name = SystemEntities.Client,
                         ItemTypeID = SystemItemTypes.NameValue,
                         Items = new ObservableCollection<Item>(),
                     };
-                    StorageHelper.WriteClientSettings(clientSettings);
+                    StorageHelper.WriteClient(clientFolder);
                 }
-                return clientSettings;
+                return clientFolder;
             }
             set
             {
-                if (value != clientSettings)
+                if (value != clientFolder)
                 {
-                    clientSettings = value;
-                    StorageHelper.WriteClientSettings(clientSettings);
-                    NotifyPropertyChanged("ClientSettingsFolder");
+                    clientFolder = value;
+                    StorageHelper.WriteClient(clientFolder);
+                    NotifyPropertyChanged("ClientFolder");
+                }
+            }
+        }
+
+        private Folder phoneClientFolder;
+        public Folder PhoneClientFolder
+        {
+            get
+            {
+                if (phoneClientFolder == null)
+                    phoneClientFolder = StorageHelper.ReadPhoneClient();
+                if (phoneClientFolder == null)
+                {
+                    // folder corrupted - create a new one and signify a client-only PhoneClient folder via Guid.Empty
+                    phoneClientFolder = new Folder()
+                    {
+                        ID = Guid.Empty,
+                        SortOrder = 0,
+                        Name = SystemEntities.PhoneClient,
+                        ItemTypeID = SystemItemTypes.NameValue,
+                        Items = new ObservableCollection<Item>(),
+                    };
+                    StorageHelper.WriteClient(phoneClientFolder);
+                }
+                return phoneClientFolder;
+            }
+            set
+            {
+                if (value != phoneClientFolder)
+                {
+                    phoneClientFolder = value;
+                    StorageHelper.WritePhoneClient(phoneClientFolder);
+                    NotifyPropertyChanged("PhoneClientFolder");
 
                     // update some databound properties that are bound to client settings
                     NotifyPropertyChanged("BackgroundColor");
@@ -521,7 +554,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         public ClientEntity GetDefaultList(Guid itemType)
         {
-            Item reference = ListMetadataHelper.GetDefaultList(ClientSettings, itemType);
+            Item reference = ListMetadataHelper.GetDefaultList(ClientFolder, itemType);
             if (reference == null)
                 return Folders.FirstOrDefault(f => f.ItemTypeID == itemType);
             var entityTypeFV = reference.GetFieldValue(FieldNames.EntityType);
@@ -550,7 +583,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
 
         public List<Item> GetListsOrderedBySelectedCount()
         {
-            var lists = ListMetadataHelper.GetListsOrderedBySelectedCount(ClientSettings);
+            var lists = ListMetadataHelper.GetListsOrderedBySelectedCount(PhoneClientFolder);
 
             // if there are no lists with a selected count, create one for each default list
             if (lists.Count == 0)
@@ -559,26 +592,26 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 var task = GetDefaultList(SystemItemTypes.Task);
                 if (task != null)
                 {
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, task);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, task);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, task);
                 }
                 var grocery = GetDefaultList(SystemItemTypes.Grocery);
                 if (grocery != null)
                 {
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, grocery);
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, grocery);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, grocery);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, grocery);
                 }
 
                 // give the contact and location lists a count of 1
                 var contact = GetDefaultList(SystemItemTypes.Contact);
                 if (contact != null)
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, contact);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, contact);
                 var location = GetDefaultList(SystemItemTypes.Location);
                 if (location != null)
-                    ListMetadataHelper.IncrementListSelectedCount(ClientSettings, location);
+                    ListMetadataHelper.IncrementListSelectedCount(PhoneClientFolder, location);
 
                 // re-retrieve selected count lists
-                lists = ListMetadataHelper.GetListsOrderedBySelectedCount(ClientSettings);
+                lists = ListMetadataHelper.GetListsOrderedBySelectedCount(PhoneClientFolder);
             }
 
             return lists;
@@ -952,12 +985,20 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 // reset and save the user's tags
                 Tags = user.Tags;
 
-                // find the $ClientSettings folder and handle it specially
-                Folder csf = null;
-                if (user.Folders.Any(f => f.Name == SystemEntities.ClientSettings))
+                // find the $Client folder and handle it specially
+                Folder cf = null;
+                if (user.Folders.Any(f => f.Name == SystemEntities.Client))
                 {
-                    csf = user.Folders.First(f => f.Name == SystemEntities.ClientSettings);
-                    user.Folders.Remove(csf);
+                    cf = user.Folders.First(f => f.Name == SystemEntities.Client);
+                    user.Folders.Remove(cf);
+                }
+
+                // find the $PhoneClient folder and handle it specially
+                Folder pcf = null;
+                if (user.Folders.Any(f => f.Name == SystemEntities.PhoneClient))
+                {
+                    pcf = user.Folders.First(f => f.Name == SystemEntities.PhoneClient);
+                    user.Folders.Remove(pcf);
                 }
 
                 // reset and save the user's folders
@@ -982,9 +1023,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     StorageHelper.WriteFolder(f);
                 }
 
-                // store the $ClientSettings folder
-                if (csf != null)
-                    ClientSettings = csf;
+                // store the $Client folder
+                if (cf != null)
+                    ClientFolder = cf;
+                // store the $PhoneClient folder
+                if (pcf != null)
+                    PhoneClientFolder = pcf;
             }
 
             // invoke the SyncComplete event handler if it was set
@@ -1134,7 +1178,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
             var folders = new ObservableCollection<Folder>(UserConstants.DefaultFolders(null));
             foreach (var folder in folders)
             {
-                string queueName = folder.Name == SystemEntities.ClientSettings ? RequestQueue.SystemQueue : RequestQueue.UserQueue;
+                string queueName = folder.Name.StartsWith("$") ? RequestQueue.SystemQueue : RequestQueue.UserQueue;
                 FolderDictionary.Add(folder.ID, folder);
                 RequestQueue.EnqueueRequestRecord(queueName,
                     new RequestQueue.RequestRecord() { ReqType = RequestQueue.RequestRecord.RequestType.Insert, Body = folder, ID = folder.ID, IsDefaultObject = true });
@@ -1148,10 +1192,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 StorageHelper.WriteFolder(folder);
             }
 
-            // extract the $ClientSettings folder and handle it specially
-            var csf = folders.Single(f => f.Name == SystemEntities.ClientSettings);
-            folders.Remove(csf);
-            ClientSettings = csf;
+            // extract the $Client folder and handle it specially
+            var cf = folders.Single(f => f.Name == SystemEntities.Client);
+            folders.Remove(cf);
+            ClientFolder = cf;
+            // extract the $PhoneClient folder and handle it specially
+            var pcf = folders.Single(f => f.Name == SystemEntities.PhoneClient);
+            folders.Remove(pcf);
+            PhoneClientFolder = pcf;
 
             // initialize the SelectedCount for a few default folders and lists
             /*
@@ -1160,7 +1208,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                 if (folder.Name == UserEntities.People ||
                     folder.Name == UserEntities.Places)
                 {
-                    ListMetadataHelper.IncrementListSelectedCount(csf, folder);
+                    ListMetadataHelper.IncrementListSelectedCount(pcf, folder);
                     continue;
                 }
                 foreach (var item in folder.Items)
@@ -1168,7 +1216,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientViewModels
                     if (item.Name == UserEntities.Tasks ||
                         item.Name == UserEntities.Groceries)
                     {
-                        ListMetadataHelper.IncrementListSelectedCount(csf, item);
+                        ListMetadataHelper.IncrementListSelectedCount(pcf, item);
                         continue;
                     }
                 }                

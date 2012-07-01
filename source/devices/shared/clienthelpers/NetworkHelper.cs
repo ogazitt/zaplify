@@ -14,6 +14,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
 
     using Microsoft.Phone.Net.NetworkInformation;
     using BuiltSteady.Zaplify.Devices.ClientEntities;
+    using BuiltSteady.Zaplify.Shared.Entities;
 
     public class NetworkHelper
     {
@@ -95,17 +96,18 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             // construct the HTTP POST buffer
             string request = String.Format(
                 "{0} {1} HTTP/1.1\r\n" +
-                "User-Agent: Zaplify-WinPhone\r\n" +
-                "Zaplify-Username: {2}\r\n" +
-                "Zaplify-Password: {3}\r\n" +
-                "Host: {4}\r\n" +
+                "User-Agent: {2}\r\n" +
+                "Host: {3}\r\n" +
                 "Content-Type: application/json\r\n" +
-                "{5}\r\n" +
+                "{4}\r\n" +                                     // encoding
                 "Transfer-Encoding: chunked\r\n\r\n",
                 verb != null ? verb : "POST",
                 url,
-                user.Name,
-                user.Password,
+#if IOS
+                UserAgents.IOSPhone,
+#else
+                UserAgents.WinPhone,
+#endif
                 host,
                 encoding);
 

@@ -40,7 +40,7 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
             }
 
             // if an intent was already matched, return it now
-            var intentFV = item.GetFieldValue(FieldNames.Intent);
+            var intentFV = item.GetFieldValue(ExtendedFieldNames.Intent);
             if (intentFV != null && !String.IsNullOrWhiteSpace(intentFV.Value))
             {
                 var wt = SuggestionsContext.WorkflowTypes.FirstOrDefault(t => t.Type == intentFV.Value);
