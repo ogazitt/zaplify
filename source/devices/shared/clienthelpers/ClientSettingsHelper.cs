@@ -97,14 +97,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public const string Folders = "Folders";
     }
 
-    public class ClientSettingsHelper
+    public class PhoneSettingsHelper
     {
-        public static string GetPhoneSetting(Folder clientSettings, string setting)
+        public static string GetPhoneSetting(Folder phoneClient, string setting)
         {
-            if (clientSettings == null || setting == null)
+            if (phoneClient == null || setting == null)
                 return null;
 
-            var phoneSettingsItem = GetPhoneSettingsItem(clientSettings);
+            var phoneSettingsItem = GetPhoneSettingsItem(phoneClient);
             var settings = phoneSettingsItem.GetFieldValue(FieldNames.Value);
             if (settings != null && !String.IsNullOrEmpty(settings.Value))
             {
@@ -115,12 +115,12 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                 return null;
         }
 
-        public static void StorePhoneSetting(Folder clientSettings, string setting, string value)
+        public static void StorePhoneSetting(Folder phoneClient, string setting, string value)
         {
-            if (clientSettings == null)
+            if (phoneClient == null)
                 return;
 
-            var phoneSettingsItem = GetPhoneSettingsItem(clientSettings);
+            var phoneSettingsItem = GetPhoneSettingsItem(phoneClient);
             var settings = phoneSettingsItem.GetFieldValue(FieldNames.Value, true);
             JObject jsonSettings = null;
             if (settings != null && !String.IsNullOrEmpty(settings.Value))
@@ -130,38 +130,38 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             jsonSettings[setting] = value;
             settings.Value = jsonSettings.ToString();
 
-            // store the client settings
-            StorageHelper.WriteClientSettings(clientSettings);
+            // store the phone client folder
+            StorageHelper.WritePhoneClient(phoneClient);
         }
 
-        public static Item GetPhoneSettingsItem(Folder clientSettings)
+        public static Item GetPhoneSettingsItem(Folder phoneClient)
         {
-            if (clientSettings == null)
+            if (phoneClient == null)
                 return null;
 
             // get the list of phone settings
             Item phoneSettings = null;
-            if (clientSettings.Items.Any(i => i.Name == SystemEntities.PhoneSettings))
-                phoneSettings = clientSettings.Items.Single(i => i.Name == SystemEntities.PhoneSettings);
+            if (phoneClient.Items.Any(i => i.Name == SystemEntities.PhoneSettings))
+                phoneSettings = phoneClient.Items.Single(i => i.Name == SystemEntities.PhoneSettings);
             else
             {
                 DateTime now = DateTime.UtcNow;
                 phoneSettings = new Item()
                 {
                     Name = SystemEntities.PhoneSettings,
-                    FolderID = clientSettings.ID,
+                    FolderID = phoneClient.ID,
                     ItemTypeID = SystemItemTypes.NameValue,
                     FieldValues = new ObservableCollection<FieldValue>(),
                     Created = now,
                     LastModified = now
                 };
-                clientSettings.Items.Add(phoneSettings);
+                phoneClient.Items.Add(phoneSettings);
 
-                // store the client settings
-                StorageHelper.WriteClientSettings(clientSettings);
+                // store the phone client folder
+                StorageHelper.WritePhoneClient(phoneClient);
 
                 // queue up a server request
-                if (clientSettings.ID != Guid.Empty)
+                if (phoneClient.ID != Guid.Empty)
                 {
                     RequestQueue.EnqueueRequestRecord(RequestQueue.SystemQueue, new RequestQueue.RequestRecord()
                     {
@@ -176,24 +176,24 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             return phoneSettings;
         }
 
-        public static string GetHomeTab(Folder clientSettings)
+        public static string GetHomeTab(Folder phoneClient)
         {
-            return GetPhoneSetting(clientSettings, PhoneSettings.HomeTab);
+            return GetPhoneSetting(phoneClient, PhoneSettings.HomeTab);
         }
 
-        public static void StoreHomeTab(Folder clientSettings, string value)
+        public static void StoreHomeTab(Folder phoneClient, string value)
         {
-            StorePhoneSetting(clientSettings, PhoneSettings.HomeTab, value);
+            StorePhoneSetting(phoneClient, PhoneSettings.HomeTab, value);
         }
 
-        public static string GetTheme(Folder clientSettings)
+        public static string GetTheme(Folder phoneClient)
         {
-            return GetPhoneSetting(clientSettings, PhoneSettings.Theme);
+            return GetPhoneSetting(phoneClient, PhoneSettings.Theme);
         }
 
-        public static void StoreTheme(Folder clientSettings, string value)
+        public static void StoreTheme(Folder phoneClient, string value)
         {
-            StorePhoneSetting(clientSettings, PhoneSettings.Theme, value);
+            StorePhoneSetting(phoneClient, PhoneSettings.Theme, value);
         }
     }
 }

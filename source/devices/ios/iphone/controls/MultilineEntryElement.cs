@@ -134,6 +134,7 @@ namespace BuiltSteady.Zaplify.Devices.IPhone.Controls
                     if (Changed != null)
                         Changed(this, new EventArgs());
    					entry.ResignFirstResponder();
+                    this.GetImmediateRootElement().TableView.EndEditing(true);
 				};
 
 				entry.Started += delegate {

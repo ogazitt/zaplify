@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Xml;
 
 using BuiltSteady.Zaplify.ServerEntities;
 
@@ -11,20 +13,25 @@ using DotNetOpenAuth.OAuth2;
 using Google.Apis.Authentication.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
+using BuiltSteady.Zaplify.Shared.Entities;
 
 namespace BuiltSteady.Zaplify.ServiceHost
 {
     public class GoogleClient
     {
+        const string ExtensionItemID = "ZapItemID";
+        //const string GadgetIconPath = "/content/images/zaplogo.png";
+
         User user;
         UserStorageContext storage;
         OAuth2Authenticator<WebServerClient> googleAuthenticator;
         CalendarService calService;
         Settings calSettings;
+        string userCalendar;
 
         public GoogleClient()
         {   // for getting initial tokens
-            googleAuthenticator = CreateGoogleAuthenticator(GetGoogleTokens);
+            this.googleAuthenticator = CreateGoogleAuthenticator(GetGoogleTokens);
         }
 
         public GoogleClient(User user, UserStorageContext storage)
@@ -35,12 +42,21 @@ namespace BuiltSteady.Zaplify.ServiceHost
             {   // ensure UserCredentials are present
                 this.user = storage.GetUser(user.ID, true);
             }
-            googleAuthenticator = CreateGoogleAuthenticator(GetAccessToken);
+            UserCredential googleConsent = this.user.GetCredential(UserCredential.GoogleConsent);
+            if (googleConsent != null)
+            {
+                this.googleAuthenticator = CreateGoogleAuthenticator(GetAccessToken);
+            }
         }
 
         public OAuth2Authenticator<WebServerClient> Authenticator
         {
-            get { return this.googleAuthenticator; }
+            get { return googleAuthenticator; }
+        }
+
+        public bool ConnectToCalendar
+        {   // TODO: add setting that allows user to opt-in or out
+            get { return (Authenticator != null); }
         }
 
         public CalendarService CalendarService
@@ -55,22 +71,321 @@ namespace BuiltSteady.Zaplify.ServiceHost
             }
         }
 
+        public IList<CalendarListEntry> UserCalendars
+        {
+            get
+            {
+                CalendarListResource.ListRequest calListReq = this.CalendarService.CalendarList.List();
+                CalendarList calList = calListReq.Fetch();
+                return calList.Items;
+            }
+        }
+
+        // get the ID for the user calendar to manage with Zaplify
+        // TODO: allow user to choose this in ClientSettings
+        public string UserCalendar
+        {
+            get
+            {
+                if (userCalendar == null)
+                {
+                    CalendarSettings calendarSettings = storage.ClientFolder.GetCalendarSettings(user);
+                    if (calendarSettings != null)
+                    {
+                        if (calendarSettings.CalendarID == null)
+                        {   // find best candidate in list of user calendars
+                            var userCalendars = UserCalendars;
+                            foreach (var cal in userCalendars)
+                            {
+                                if (cal.AccessRole == "owner")
+                                {   // must have owner access
+                                    if (user.Email.Equals(cal.Id, StringComparison.OrdinalIgnoreCase))
+                                    {   // user.email matches calendar id (this is best match)
+                                        userCalendar = cal.Id;
+                                        break;
+                                    }
+                                    if (user.Email.Equals(cal.Summary, StringComparison.OrdinalIgnoreCase))
+                                    {   // user.email matches calendar summary (this is next best match)
+                                        userCalendar = cal.Id;
+                                    }
+                                    if (userCalendar == null)
+                                    {   // use first owner calendar if user.email cannot be matched
+                                        userCalendar = cal.Id;
+                                    }
+                                }
+                            }
+                            // save CalendarID
+                            calendarSettings.CalendarID = userCalendar;
+                            storage.SaveChanges();
+                        }
+                        userCalendar = calendarSettings.CalendarID;
+                    }
+                }
+                return userCalendar;
+            }
+        }
+
         public Settings CalendarSettings
         {
             get
             {
                 if (calSettings == null)
                 {
-                    SettingsResource.ListRequest settingsList = this.CalendarService.Settings.List();
-                    calSettings = settingsList.Fetch();
+                    SettingsResource.ListRequest calSettingReq = this.CalendarService.Settings.List();
+                    calSettings = calSettingReq.Fetch();
                 }
                 return calSettings;
             }
         }
 
-        public void ForceAuthentication()
+        public List<Event> GetCalendarEvents(bool onlyZapEvents = true, DateTime? utcStartTime = null, DateTime? utcEndTime = null)
+        {   // by default, filters events to past month and next 3 months
+            if (utcStartTime == null) { utcStartTime = DateTime.UtcNow.AddDays(-30); }
+            if (utcEndTime == null) { utcEndTime = DateTime.UtcNow.AddDays(90); }
+
+            EventsResource.ListRequest eventListReq = this.CalendarService.Events.List(UserCalendar);
+            eventListReq.TimeMin = XmlConvert.ToString(utcStartTime.Value, XmlDateTimeSerializationMode.Utc);
+            eventListReq.TimeMax = XmlConvert.ToString(utcEndTime.Value, XmlDateTimeSerializationMode.Utc);
+            Events events = eventListReq.Fetch();
+
+            if (onlyZapEvents)
+            {
+                List<Event> zapEvents = events.Items.Where(e =>
+                    e.ExtendedProperties != null && e.ExtendedProperties.Private != null &&
+                    e.ExtendedProperties.Private.ContainsKey(ExtensionItemID)).ToList();
+                return zapEvents;
+            }
+
+            return new List<Event>(events.Items);
+        }
+
+        public Event GetCalendarEvent(string id)
         {
-            var settings = CalendarSettings;
+            Event calEvent = null;
+            try
+            {
+                EventsResource.GetRequest eventGetReq = this.CalendarService.Events.Get(UserCalendar, id);
+                calEvent = eventGetReq.Fetch();
+            }
+            catch (Exception e)
+            {
+                TraceLog.TraceException(string.Format("Could not get Calendar event with id: '{0}'", id), e);
+            }
+            return calEvent;
+        }
+
+        public int SynchronizeCalendar()
+        {
+            int itemsUpdated = 0;
+            if (ConnectToCalendar)
+            {
+                CalendarSettings calendarSettings = storage.ClientFolder.GetCalendarSettings(user);
+                if (calendarSettings != null)
+                {
+                    DateTime lastSyncTime;
+                    if (calendarSettings.LastSync == null)
+                    {   // first-time, use consent token last modified date
+                        UserCredential googleConsent = user.GetCredential(UserCredential.GoogleConsent);
+                        lastSyncTime = googleConsent.LastModified;
+                    }
+                    else
+                    {
+                        lastSyncTime = (DateTime)calendarSettings.LastSync;
+                    }
+                    calendarSettings.LastSync = DateTime.UtcNow;
+                    itemsUpdated = SynchronizeCalendar(lastSyncTime);
+                }
+            }
+            return itemsUpdated;
+        }
+
+        int SynchronizeCalendar(DateTime utcModifiedAfter)
+        {
+            int itemsUpdated = 0;
+            try
+            {
+                var modifiedEvents = GetModifiedCalendarEvents(utcModifiedAfter);
+                foreach (Event e in modifiedEvents)
+                {
+                    Guid itemID = new Guid(e.ExtendedProperties.Private[ExtensionItemID]);
+                    Item item = storage.GetItem(user, itemID);
+                    if (item != null)
+                    {   // Name, DueDate, EndDate, and Description (support Location?)
+                        item.Name = e.Summary;
+                        item.GetFieldValue(FieldNames.DueDate).Value = e.Start.DateTime;
+                        item.GetFieldValue(FieldNames.EndDate).Value = e.End.DateTime;
+                        FieldValue fvDescription = item.GetFieldValue(FieldNames.Description, (e.Description != null));
+                        if (fvDescription != null) { fvDescription.Value = e.Description; }
+                        itemsUpdated++;
+                    }
+                }
+                if (itemsUpdated > 0) { storage.SaveChanges(); }
+            }
+            catch (Exception e)
+            {
+                TraceLog.TraceException("Could not get modified Calendar events", e);
+            }
+            return itemsUpdated;
+        }
+
+        List<Event> GetModifiedCalendarEvents(DateTime utcModifiedAfter)
+        {
+            EventsResource.ListRequest eventListReq = this.CalendarService.Events.List(UserCalendar);
+            eventListReq.UpdatedMin = XmlConvert.ToString(utcModifiedAfter, XmlDateTimeSerializationMode.Utc);
+            Events events = eventListReq.Fetch();
+            if (events.Items != null)
+            {
+                return events.Items.Where(e =>
+                e.ExtendedProperties != null && e.ExtendedProperties.Private != null &&
+                e.ExtendedProperties.Private.ContainsKey(ExtensionItemID)).ToList();
+            }
+            return new List<Event>();
+        }
+
+        public bool AddCalendarEvent(Item item)
+        {
+            DateTime utcStartTime, utcEndTime;
+            FieldValue fvStartTime = item.GetFieldValue(FieldNames.DueDate);
+            FieldValue fvEndTime = item.GetFieldValue(FieldNames.EndDate);
+            if (fvStartTime != null && !string.IsNullOrEmpty(fvStartTime.Value) && 
+                fvEndTime != null && !string.IsNullOrEmpty(fvEndTime.Value) && 
+                DateTime.TryParse(fvStartTime.Value, out utcStartTime) &&
+                DateTime.TryParse(fvEndTime.Value, out utcEndTime))
+            {
+                Event calEvent = new Event()
+                {
+                    Summary = item.Name,
+                    Start = new EventDateTime() { DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc) },
+                    End = new EventDateTime() { DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc) },
+                    ExtendedProperties = new Event.ExtendedPropertiesData(),
+                };
+                // add item id as private extended property for event
+                calEvent.ExtendedProperties.Private = new Event.ExtendedPropertiesData.PrivateData();
+                calEvent.ExtendedProperties.Private.Add(ExtensionItemID, item.ID.ToString());
+
+                FieldValue fvDescription = item.GetFieldValue(FieldNames.Description);
+                if (fvDescription != null && !string.IsNullOrEmpty(fvDescription.Value))
+                {  
+                    calEvent.Description = fvDescription.Value;
+                }                
+
+                // TODO: investigate using Gadget to support link back to Zaplify
+
+                try
+                {
+                    EventsResource.InsertRequest eventInsertReq = this.CalendarService.Events.Insert(calEvent, UserCalendar);
+                    Event result = eventInsertReq.Fetch();
+
+                    if (result.HtmlLink != null)
+                    {   // add event HtmlLink as a WebLink in item
+                        FieldValue fvWebLinks = item.GetFieldValue(FieldNames.WebLinks, true);
+                        JsonWebLink webLink = new JsonWebLink() { Name = "Calendar Event", Url = result.HtmlLink };
+                        List<JsonWebLink> webLinks = (string.IsNullOrEmpty(fvWebLinks.Value)) ?
+                            new List<JsonWebLink>() : JsonSerializer.Deserialize<List<JsonWebLink>>(fvWebLinks.Value);
+                        //var webLink = new { Name = "Calendar Event", Url = result.HtmlLink };
+                        //var webLinks = (string.IsNullOrEmpty(fvWebLinks.Value)) ?
+                        //    new List<object>() : JsonSerializer.Deserialize<List<object>>(fvWebLinks.Value);
+                        webLinks.Add(webLink);
+                        fvWebLinks.Value = JsonSerializer.Serialize(webLinks);
+                    }
+
+                    // add event id to UserFolder EntityRefs for item
+                    Item metaItem = storage.UserFolder.GetEntityRef(user, item);
+                    FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
+                    fvCalEventID.Value = result.Id;
+                    storage.SaveChanges();
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    TraceLog.TraceException("Could not add appointment to Calendar", e);
+                }
+            }
+            return false;
+        }
+
+        public bool UpdateCalendarEvent(Item item)
+        {   // assumes check for changes was made before
+            FieldValue fvStartTime = item.GetFieldValue(FieldNames.DueDate);
+            FieldValue fvEndTime = item.GetFieldValue(FieldNames.EndDate);
+            if (fvStartTime != null && !string.IsNullOrEmpty(fvStartTime.Value) &&
+                fvEndTime != null && !string.IsNullOrEmpty(fvEndTime.Value))
+            {
+                DateTime utcStartTime, utcEndTime;
+                if (DateTime.TryParse(fvStartTime.Value, out utcStartTime) && DateTime.TryParse(fvEndTime.Value, out utcEndTime))
+                {
+                    Item metaItem = storage.UserFolder.GetEntityRef(user, item);
+                    FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
+                    if (string.IsNullOrEmpty(fvCalEventID.Value))
+                    {   // add CalendarEvent for this Item
+                        return AddCalendarEvent(item);
+                    }
+                    else
+                    {
+                        Event calEvent = GetCalendarEvent(fvCalEventID.Value);
+                        if (calEvent == null)
+                        {   // may have been deleted, add another CalendarEvent for modified Item
+                            return AddCalendarEvent(item);
+                        }
+                        else
+                        {   // update existing CalendarEvent
+                            TimeSpan duration = utcEndTime - utcStartTime;
+                            if (duration.TotalMinutes >= 0)
+                            {   // ensure startTime is BEFORE endTime
+                                calEvent.Summary = item.Name;
+                                calEvent.Start.DateTime = XmlConvert.ToString(utcStartTime, XmlDateTimeSerializationMode.Utc);
+                                calEvent.End.DateTime = XmlConvert.ToString(utcEndTime, XmlDateTimeSerializationMode.Utc);
+                                FieldValue fvDescription = item.GetFieldValue(FieldNames.Description);
+                                if (fvDescription != null) { calEvent.Description = fvDescription.Value; }
+     
+                                if (calEvent.Status == "cancelled") { calEvent.Status = "confirmed"; }
+                                try
+                                {
+                                    EventsResource.PatchRequest eventPatchReq = this.CalendarService.Events.Patch(calEvent, UserCalendar, calEvent.Id);
+                                    Event updatedCalEvent = eventPatchReq.Fetch();
+                                    return true;
+                                }
+                                catch (Exception e)
+                                {
+                                    TraceLog.TraceException("Could not update appointment to Calendar", e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool RemoveCalendarEvent(Item item)
+        {   // remove CalendarEvent
+            Item metaItem = storage.UserFolder.GetEntityRef(user, item);
+            FieldValue fvCalEventID = metaItem.GetFieldValue(ExtendedFieldNames.CalEventID, true);
+            if (!string.IsNullOrEmpty(fvCalEventID.Value))
+            {   // CalendarEvent has been added for this Item
+                try
+                {                
+                    Event calEvent = GetCalendarEvent(fvCalEventID.Value);
+                    if (calEvent != null)
+                    {   // remove existing CalendarEvent
+                        EventsResource.DeleteRequest eventDeleteReq = this.CalendarService.Events.Delete(UserCalendar, calEvent.Id);
+                        string result = eventDeleteReq.Fetch();
+                        // EntityRef holding association will get cleaned up when Item is deleted
+                        return (result == string.Empty);
+                    }
+                }
+                catch (Exception e)
+                {
+                    TraceLog.TraceException("Could not remove appointment from Calendar", e);
+                }
+            }
+            return false;
+        }
+
+        public void ForceAuthentication()
+        {   // attempt to access Calendar settings to force authentication
+            SettingsResource.ListRequest calSettingReq = this.CalendarService.Settings.List();
+            calSettingReq.Fetch();
         }
 
         IAuthorizationState GetAccessToken(WebServerClient client)

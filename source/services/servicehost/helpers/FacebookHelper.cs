@@ -38,8 +38,8 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create an EntityRef in the $User/EntityRef list
-            var entityRefItem = userContext.GetOrCreateEntityRef(user, item);
+            // get or create an EntityRef in the UserFolder EntityRefs list
+            var entityRefItem = userContext.UserFolder.GetEntityRef(user, item);
             if (entityRefItem == null)
             {
                 TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
@@ -70,7 +70,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             return true;
         }
 
-        public static bool GetUserInfo(UserStorageContext userContext, User user)
+        public static bool GetUserInfo(User user, UserStorageContext storage)
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
@@ -85,11 +85,11 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create a EntityRef for the user in the $User folder
-            var entityRefItem = userContext.GetOrCreateEntityRef(user, user);
-            if (entityRefItem == null)
+            // store user information from Facebook in UserProfile
+            UserProfile userProfile = storage.ClientFolder.GetUserProfile(user);
+            if (userProfile == null)
             {
-                TraceLog.TraceError(TRACE_NO_CONTACT_ENTITYREF);
+                TraceLog.TraceError("Could not access UserProfile to import Facebook information into.");
                 return false;
             }
 
@@ -97,29 +97,27 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             {   // import information about the current user
                 // using foreach because the Query API returns an IEnumerable, but there is only one result
                 foreach (var userInfo in fbApi.Query("me", FBQueries.BasicInformation))
-                {   // store the facebook ID
-                    var fbid = (string)userInfo[FBQueryResult.ID];
-                    entityRefItem.GetFieldValue(FieldNames.FacebookID, true).Value = fbid;
-                    // augment the sources field with Facebook as a source
-                    var sourcesFV = entityRefItem.GetFieldValue(FieldNames.Sources, true);
-                    sourcesFV.Value = String.IsNullOrEmpty(sourcesFV.Value) ?
-                        Sources.Facebook :
-                        sourcesFV.Value.Contains(Sources.Facebook) ?
-                            sourcesFV.Value :
-                            String.Format("{0}:{1}", sourcesFV.Value, Sources.Facebook);
-                    // store the picture URL
-                    entityRefItem.GetFieldValue(FieldNames.Picture, true).Value = String.Format("https://graph.facebook.com/{0}/picture", fbid);
-                    // augment with birthday and gender information if they don't yet exist
-                    var birthday = (string)userInfo[FBQueryResult.Birthday];
-                    if (birthday != null)
-                        entityRefItem.GetFieldValue(FieldNames.Birthday, true).Value = birthday;
-                    var gender = (string)userInfo[FBQueryResult.Gender];
-                    if (gender != null)
-                        entityRefItem.GetFieldValue(FieldNames.Gender, true).Value = gender;
-                    var location = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
-                    if (location != null)
-                        entityRefItem.GetFieldValue(FieldNames.Location, true).Value = location;
-                    TraceLog.TraceInfo("Added birthday, gender, location for User");
+                {   
+                    // import FacebookID
+                    userProfile.FacebookID = (string)userInfo[FBQueryResult.ID];
+                    // import name if not already set
+                    if (userProfile.FirstName == null)
+                        userProfile.FirstName = (string)userInfo["first_name"];
+                    if (userProfile.LastName == null)
+                        userProfile.LastName = (string)userInfo["last_name"];
+                    // import picture if not already set
+                    if (userProfile.Picture == null)
+                        userProfile.Picture = String.Format("https://graph.facebook.com/{0}/picture", userProfile.FacebookID);
+                    // import birthday if not already set
+                    if (userProfile.Birthday == null)
+                        userProfile.Birthday = (string)userInfo[FBQueryResult.Birthday];
+                    // import gender if not already set
+                    if (userProfile.Gender == null)
+                        userProfile.Gender = (string)userInfo[FBQueryResult.Gender];
+                    // import geolocation if not already set
+                    if (userProfile.GeoLocation == null)
+                        userProfile.GeoLocation = (string)((FBQueryResult)userInfo[FBQueryResult.Location])[FBQueryResult.Name];
+                    TraceLog.TraceInfo("Imported Facebook information into UserProfile");
                 }
             }
             catch (Exception ex)
@@ -130,7 +128,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
             return true;
         }
 
-        public static bool ImportFriendsAsPossibleContacts(UserStorageContext userContext, User user)
+        public static bool ImportFriendsAsPossibleContacts(User user, UserStorageContext userContext)
         {
             // set up the FB API context
             FBGraphAPI fbApi = new FBGraphAPI();
@@ -145,8 +143,8 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
                 return false;
             }
 
-            // get or create the possible contacts list in the $User folder
-            Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
+            // get or create the list for Contact item types in the UserFolder
+            Item possibleContactsList = userContext.UserFolder.GetListForItemType(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
                 TraceLog.TraceError("Could not retrieve or create the possible contacts list");

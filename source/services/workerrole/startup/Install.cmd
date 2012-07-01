@@ -12,15 +12,18 @@ if "%EMULATED%"=="true" goto :EOF
 
 cd startup
 
-echo granting HTTP.SYS port permission
-rem netsh.exe http add urlacl url=http://+:%SPEECHPORT%/api user=everyone listen=yes delegate=yes >netsh.log 2>&1
-
 echo Getting MSIs
 deployblob.exe /downloadFrom workerrole-install /downloadTo .
 
 echo Installing Splunk
 msiexec.exe /l* splunk.log /i splunkforwarder-4.3.2-123586-x64-release.msi RECEIVING_INDEXER="%SPLUNKENDPOINT%" AGREETOLICENSE=Yes /quiet
 "%ProgramFiles%"\SplunkUniversalForwarder\bin\Splunk.exe add tcp "%SPLUNKLOCALPORT%" -auth admin:changeme >splunkinit.log 2>&1
+
+if %SPEECHWORKERCOUNT% lss 1 goto :EOF
+
+rem don't need to grant access anymore because running elevated
+echo granting HTTP.SYS port permission 
+rem netsh.exe http add urlacl url=http://+:%SPEECHPORT%/api user=everyone listen=yes delegate=yes >netsh.log 2>&1
 
 echo Installing Speech Platform
 msiexec.exe /qn /l* speech.log /i SpeechPlatformRuntime.msi

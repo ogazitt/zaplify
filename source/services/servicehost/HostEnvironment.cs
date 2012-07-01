@@ -353,7 +353,10 @@ namespace BuiltSteady.Zaplify.ServiceHost
             [MethodImpl(MethodImplOptions.NoInlining)]
             get
             {
-                return Azure.ServiceRuntime.RoleEnvironment.CurrentRoleInstance.Role.Name;
+                if (IsAzure)
+                    return Azure.ServiceRuntime.RoleEnvironment.CurrentRoleInstance.Role.Name;
+                else
+                    return Website;
             }
         }
 

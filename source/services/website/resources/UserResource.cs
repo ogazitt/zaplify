@@ -40,17 +40,21 @@
             // get password from message headers
             BasicAuthCredentials userCreds = GetUserFromMessageHeaders(req);
 
-            if (newUser.Name == userCreds.Name)
-            {   // verify same name in both body and header
+            if (userCreds.Name.Equals(newUser.Name, StringComparison.OrdinalIgnoreCase))
+            {   // verify same name in both body and auth header
                 newUser.Password = userCreds.Password;
                 code = CreateUser(newUser);
+            }
+            else
+            {   // invalid message
+                TraceLog.TraceError("Name in message body and authorization header do not match");
+                code = HttpStatusCode.NotAcceptable;
             }
 
             if (code == HttpStatusCode.Created)
             {
-                // enqueue a message for the Worker that will kick off the New User workflow
-                if (HostEnvironment.IsAzure)
-                    WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
+                // kick off the New User workflow
+                WorkflowHost.WorkflowHost.InvokeWorkflowForOperation(this.StorageContext, null, operation);
                 return ReturnResult<User>(req, operation, newUser.AsUser(), HttpStatusCode.Created);
             }
             else

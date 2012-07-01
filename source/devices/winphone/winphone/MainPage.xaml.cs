@@ -459,7 +459,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
                 initialSyncAlreadyHappened = true;
 
                 // if there's a home tab set, switch to it now
-                var homeTab = ClientSettingsHelper.GetHomeTab(App.ViewModel.ClientSettings);
+                var homeTab = PhoneSettingsHelper.GetHomeTab(App.ViewModel.PhoneClientFolder);
                 if (homeTab != null && homeTab != "Add")
                     SelectTab(homeTab);
             }
@@ -510,13 +510,13 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             if (listToAddTo.ID == Guid.Empty)
             {
                 AddItem(folderToAddTo, null);
-                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, folderToAddTo);
+                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, folderToAddTo);
             }
             else
             {
                 listToAddTo.Name = listToAddTo.Name.Trim();
                 AddItem(folderToAddTo, listToAddTo);
-                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, listToAddTo);
+                ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, listToAddTo);
             }
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
@@ -1187,7 +1187,7 @@ namespace BuiltSteady.Zaplify.Devices.WinPhone
             }
 
             // increment the SelectedCount
-            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.ClientSettings, entity);
+            ListMetadataHelper.IncrementListSelectedCount(App.ViewModel.PhoneClientFolder, entity);
 
             // if this is a navigation and not an add operation, we need to sync with the service to push the new selected count
             // (do not sync for operations against $ClientSettings)

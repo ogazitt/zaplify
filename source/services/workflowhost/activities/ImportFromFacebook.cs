@@ -28,10 +28,10 @@ namespace BuiltSteady.Zaplify.WorkflowHost.Activities
                         return Status.Error;
                     }
 
-                    if (FacebookHelper.GetUserInfo(UserContext, user) == false)
+                    if (FacebookHelper.GetUserInfo(user, UserContext) == false)
                         return Status.Error;
 
-                    if (FacebookHelper.ImportFriendsAsPossibleContacts(UserContext, user))
+                    if (FacebookHelper.ImportFriendsAsPossibleContacts(user, UserContext))
                         return Status.Complete;
                     else
                         return Status.Error;

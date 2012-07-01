@@ -45,8 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\shared\entities\ClientItems.cs">
+      <Link>ClientItems.cs</Link>
+    </Compile>
     <Compile Include="..\..\shared\entities\EntityConstants.cs">
       <Link>EntityConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\..\shared\entities\ItemAccessor.cs">
+      <Link>ItemAccessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\shared\entities\JsonObjects.cs">
+      <Link>JsonObjects.cs</Link>
     </Compile>
     <Compile Include="ActionType.cs" />
     <Compile Include="Color.cs" />

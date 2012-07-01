@@ -92,7 +92,8 @@
             }
         }
 
-        public ActionResult AccessCalendar()
+        // entry point to verify Google consent it working
+        public ActionResult AccessGoogle()
         {
             GoogleClient client = new GoogleClient(this.CurrentUser, this.StorageContext);
             client.ForceAuthentication();

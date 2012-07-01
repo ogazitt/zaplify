@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Data.Entity;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -15,6 +14,7 @@
 
     using BuiltSteady.Zaplify.ServerEntities;
     using BuiltSteady.Zaplify.ServiceHost;
+    using BuiltSteady.Zaplify.Shared.Entities;
     using BuiltSteady.Zaplify.Website.Helpers;
     using BuiltSteady.Zaplify.Website.Models.AccessControl;
 
@@ -22,7 +22,6 @@
     {
         const string authorizationHeader = "Authorization";
         const string authRequestHeader = "Cookie";
-        const string sessionHeader = "X-Zaplify-Session";
         protected UserStorageContext storageContext = null;
         User currentUser = null;
 
@@ -143,7 +142,7 @@
             // get the session from the session header if it's present
             string session = null;
             IEnumerable<string> header = new List<string>();
-            if (req.Headers.TryGetValues(sessionHeader, out header))
+            if (req.Headers.TryGetValues(HttpApplicationHeaders.Session, out header))
                 session = header.ToArray<string>()[0];
             return session;
         }
@@ -328,5 +327,6 @@
             }
             return new HttpResponseMessageWrapper<T>(req, t, code);
         }
+
     }
 }

@@ -318,7 +318,8 @@ DataModel.RemoveSuggestion = function DataModel$RemoveSuggestion(suggestion) {
 // private methods
 
 DataModel.fireDataChanged = function (folderID, itemID) {
-    if (folderID != DataModel.UserSettings.Folder.ID) {
+    // do not fire datachanged event for UserSetting folders
+    if (DataModel.UserSettings.GetFolder(folderID) == null) {
         for (var name in DataModel.onDataChangedHandlers) {
             var handler = DataModel.onDataChangedHandlers[name];
             if (typeof (handler) == "function") {
@@ -330,8 +331,8 @@ DataModel.fireDataChanged = function (folderID, itemID) {
 
 DataModel.getFolder = function (folderID) {
     var folder = DataModel.Folders[folderID];
-    if (folder == null && DataModel.UserSettings.Folder.ID == folderID) {
-        folder = DataModel.UserSettings.Folder;
+    if (folder == null) {
+        folder = DataModel.UserSettings.GetFolder(folderID);
     }
     return folder;
 }
@@ -473,7 +474,7 @@ DataModel.processFolders = function DataModel$processFolders(folders) {
     // wrap Folders and Items in ItemMap
     // the ItemMap retains original storage array
     // the ItemMap.Items property provides associative array over storage
-    var settingsIndex;
+    var clientFolderIndex, webClientFolderIndex;
     for (var i in folders) {
         folders[i] = Folder.Extend(folders[i]);    // extend with Folder functions
         var items = folders[i].Items;
@@ -483,20 +484,26 @@ DataModel.processFolders = function DataModel$processFolders(folders) {
         folders[i].ItemsMap = new ItemMap(items);
         folders[i].Items = folders[i].ItemsMap.Items;
 
-        // extract folder for UserSettings
-        if (folders[i].Name == SystemFolders.ClientSettings) { settingsIndex = i; }
+        // extract folders for UserSettings ($Client and $WebClient folders)
+        if (folders[i].Name == SystemFolders.Client) { clientFolderIndex = i; }
+        if (folders[i].Name == SystemFolders.WebClient) { webClientFolderIndex = i; }
     }
-    if (settingsIndex == null) {
-        // UserSettings folder does not exist, create it
-        Service.InsertResource(Service.FoldersResource, { Name: SystemFolders.ClientSettings, ItemTypeID: ItemTypes.NameValue, SortOrder: 0 },
+    // assumes $Client folder has already been created
+    var clientFolder = folders.splice(clientFolderIndex, 1)[0];
+    if (webClientFolderIndex == null) {
+        // $WebClient folder does not exist, create it
+        DataModel.UserSettings = new UserSettings(clientFolder);
+        Service.InsertResource(Service.FoldersResource, { Name: SystemFolders.WebClient, ItemTypeID: ItemTypes.NameValue, SortOrder: 0 },
             function (responseState) {                                      // successHandler
-                var settingsFolder = responseState.result;
-                settingsFolder = Folder.Extend(settingsFolder);    // extend with Folder functions
-                DataModel.UserSettings = new UserSettings(settingsFolder);
+                var webClientFolder = responseState.result;
+                webClientFolder = Folder.Extend(webClientFolder);    // extend with Folder functions
+                DataModel.UserSettings = new UserSettings(clientFolder, webClientFolder);
             });
     } else {
-        var settingsFolder = folders.splice(settingsIndex, 1)[0];
-        DataModel.UserSettings = new UserSettings(settingsFolder);
+        // adjust index after removing clientFolder
+        if (webClientFolderIndex > clientFolderIndex) { webClientFolderIndex--; }
+        var webClientFolder = folders.splice(webClientFolderIndex, 1)[0];
+        DataModel.UserSettings = new UserSettings(clientFolder, webClientFolder);
     }
     DataModel.FoldersMap = new ItemMap(folders);
     DataModel.Folders = DataModel.FoldersMap.Items;
@@ -543,6 +550,7 @@ Folder.prototype.IsExpanded = function () { return DataModel.UserSettings.IsFold
 Folder.prototype.Expand = function (expand) { DataModel.UserSettings.ExpandFolder(this.ID, expand); };
 Folder.prototype.GetItemType = function () { return DataModel.Constants.ItemTypes[this.ItemTypeID]; };
 Folder.prototype.GetItems = function (excludeListItems) { return DataModel.GetItems(this, null, excludeListItems); };
+Folder.prototype.GetItem = function (itemID) { return this.Items[itemID]; }
 Folder.prototype.GetItemByName = function (name, parentID) {
     for (id in this.Items) {
         var item = this.Items[id];
@@ -611,7 +619,12 @@ function Item() { };
 Item.Extend = function Item$Extend(item) { return $.extend(new Item(), item); }         // extend with Item prototypes
 
 // Item public functions
-Item.prototype.Copy = function () { return $.extend(true, new Item(), this); };         // deep copy
+Item.prototype.Copy = function () {                                                     // deep copy
+    // sanity check, use most current Item in DataModel if it exists
+    var folder = this.GetFolder();
+    var currentThis = (folder == null) ? this : folder.GetItem(this.ID);
+    return $.extend(true, new Item(), (currentThis == null) ? this : currentThis);
+};         
 Item.prototype.IsFolder = function () { return false; };
 Item.prototype.IsDefault = function () {
     var defaultList = DataModel.UserSettings.GetDefaultList(this.ItemTypeID);
@@ -1016,8 +1029,9 @@ LinkArray.prototype.Parse = function (text) {
 // ---------------------------------------------------------
 // UserSettings object - provides prototype functions
 
-function UserSettings(settingsFolder) {
-    this.Folder = settingsFolder;
+function UserSettings(clientFolder, webClientFolder) {
+    this.clientFolder = clientFolder;
+    this.webClientFolder = webClientFolder;
 
     this.init(UserSettings.viewStateName, UserSettings.viewStateKey);
     this.init(UserSettings.preferencesName, UserSettings.preferencesKey);
@@ -1029,10 +1043,16 @@ UserSettings.viewStateKey = 'WebViewState';
 UserSettings.preferencesName = 'Preferences';
 UserSettings.preferencesKey = 'WebPreferences';
 
+UserSettings.prototype.GetFolder = function (folderID) {
+    if (this.clientFolder.ID == folderID) { return this.clientFolder; }
+    if (this.webClientFolder.ID == folderID) { return this.webClientFolder; }
+    return null;
+}
+
 UserSettings.prototype.GetDefaultList = function (itemType) {
-    var defaultLists = this.Folder.GetItemByName(UserSettings.defaultListsKey);
+    var defaultLists = this.clientFolder.GetItemByName(UserSettings.defaultListsKey);
     if (defaultLists != null) {
-        var defaultList = this.Folder.GetItemByValue(itemType, defaultLists.ID);
+        var defaultList = this.clientFolder.GetItemByValue(itemType, defaultLists.ID);
         if (defaultList != null) {
             var list = defaultList.GetFieldValue(FieldNames.EntityRef);
             if (typeof (list) == 'object') { return list; }
@@ -1097,10 +1117,14 @@ UserSettings.prototype.UpdateTheme = function (theme) {
 
 UserSettings.prototype.init = function (name, itemKey) {
     var itemName = 'item' + name;
-    this[itemName] = this.Folder.GetItemByName(itemKey, null);
+    if (this.webClientFolder != null) {
+        this[itemName] = this.webClientFolder.GetItemByName(itemKey, null);
+    }
     if (this[itemName] == null) {
         this[name] = {};
-        this.Folder.InsertItem(Item.Extend({ Name: itemKey, ItemTypeID: ItemTypes.NameValue }), null, null, null);
+        if (this.webClientFolder != null) {
+            this.webClientFolder.InsertItem(Item.Extend({ Name: itemKey, ItemTypeID: ItemTypes.NameValue }), null, null, null);
+        }
     } else {
         var value = this[itemName].GetFieldValue(FieldNames.Value);
         this[name] = (value == null) ? {} : $.parseJSON(value);
@@ -1108,13 +1132,15 @@ UserSettings.prototype.init = function (name, itemKey) {
 }
 
 UserSettings.prototype.update = function (name, itemKey) {
-    var itemName = 'item' + name;
-    if (this[itemName] == null) {
-        this[itemName] = this.Folder.GetItemByName(itemKey, null);
+    if (this.webClientFolder != null) {
+        var itemName = 'item' + name;
+        if (this[itemName] == null) {
+            this[itemName] = this.webClientFolder.GetItemByName(itemKey, null);
+        }
+        var updatedItem = this[itemName].Copy();
+        updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
+        this[itemName].Update(updatedItem);
     }
-    var updatedItem = this[itemName].Copy();
-    updatedItem.SetFieldValue(FieldNames.Value, JSON.stringify(this[name]));
-    this[itemName].Update(updatedItem);
 }
 
 // ---------------------------------------------------------
@@ -1142,38 +1168,36 @@ var ItemTypes = {
 // FieldNames constants
 
 var FieldNames = {
-    Name : "Name",                          // String
-    Description : "Description",            // String
-    Priority : "Priority",                  // Integer
-    Complete: "Complete",                   // Boolean 
-    CompletedOn : "CompletedOn",            // DateTime 
-    DueDate: "DueDate",                     // DateTime
-    StartTime: "StartTime",                 // DateTime
-    EndTime: "EndTime",                     // DateTime
-    Birthday: "Birthday",                   // DateTime
-    Address : "Address",                    // Address
-    WebLink : "WebLink",                    // Url
-    WebLinks : "WebLinks",                  // JSON
-    Email : "Email",                        // Email
-    Phone : "Phone",                        // Phone
-    HomePhone : "HomePhone",                // Phone
-    WorkPhone: "WorkPhone",                 // Phone
-    Category: "Category",                   // String
-    Amount : "Amount",                      // String
-    Cost : "Cost",                          // Currency
-    ItemTags : "ItemTags",                  // TagIDs
-    EntityRef: "EntityRef",                 // Guid
-    EntityType: "EntityType",               // String
-    Locations: "Locations",                 // Guid
-    Contacts: "Contacts",                   // Guid
-    Value: "Value",                         // String (value of NameValue - e.g. SuggestionID)
+     Name : "Name",                  // String       friendly name (all items have a name)
+     Description : "Description",    // String       additional notes or comments
+     Priority : "Priority",          // Integer      importance
+     Complete : "Complete",          // Boolean      task is complete
+     CompletedOn : "CompletedOn",    // DateTime     time at which task is marked complete
+     DueDate : "DueDate",            // DateTime     task due or appointment start time
+     EndDate : "EndDate",            // DateTime     appointment end time
+     Birthday : "Birthday",          // DateTime     user or contact birthday
+     Address : "Address",            // Address      address of a location
+     WebLink : "WebLink",            // Url          single web links (TODO: NOT BEING USED)
+     WebLinks : "WebLinks",          // Json         list of web links [{Name:"name", Url:"link"}, ...] 
+     Email : "Email",                // Email        email address 
+     Phone : "Phone",                // Phone        phone number (cell phone)
+     HomePhone : "HomePhone",        // Phone        home phone 
+     WorkPhone : "WorkPhone",        // Phone        work phone
+     Amount : "Amount",              // String       quantity (need format for units, etc.)
+     Cost : "Cost",                  // Currency     price or cost (need format for different currencies)
+     ItemTags : "ItemTags",          // TagIDs       extensible list of tags for marking items
+     EntityRef : "EntityRef",        // Guid         id of entity being referenced
+     EntityType : "EntityType",      // String       type of entity (User, Folder, or Item)
+     Contacts : "Contacts",          // Guid         id of list being referenced which contains contact items
+     Locations : "Locations",        // Guid         id of list being referenced which contains location items
+     Value : "Value",                // String       value for NameValue items
+     Category : "Category",          // String       category (to organize item types e.g. Grocery)
+     LatLong : "LatLong",            // String       comma-delimited geo-location lat,long
+     FacebookID : "FacebookID",      // String       facebook id for user or contact
+     Sources : "Sources",            // String       comma-delimited list of sources of information (e.g. Facebook) 
 
-    Intent: "Intent",                       // String
-    FacebookID: "FacebookID",               // String
-    Gender: "Gender",                       // String
-    Picture: "Picture",                     // Url
-    Sources: "Sources",                     // String
-    LatLong: "LatLong"                      // String
+     Gender : "Gender",              // String       male or female
+     Picture : "Picture"             // Url          link to an image
 }
 
 // ---------------------------------------------------------
@@ -1265,8 +1289,8 @@ var Sources = {
 // SystemFolders constants
 
 var SystemFolders = {
-    ClientSettings: "$ClientSettings",
-    User: "$User"
+    Client: "$Client",
+    WebClient: "$WebClient"
 }
 
 // ---------------------------------------------------------

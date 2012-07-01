@@ -586,7 +586,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     return null;
             }
             set
-            {
+            {   // always store as UTC (SMILLET 6-26-12)
+                DateTime dueDate = Convert.ToDateTime(value).ToUniversalTime();
+                value = dueDate.ToString("o");
                 FieldValue fv = GetFieldValue(FieldNames.DueDate, true);
                 if (fv != null)
                 {
@@ -604,11 +606,32 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
         public string DueDisplay 
         { 
             get 
-            { 
-                if (Complete == true)
-                    return CompletedOn == null ? null : String.Format("completed {0}", Convert.ToDateTime(CompletedOn).ToString("d")); 
+            {
+                if (Complete == true && CompletedOn != null)
+                {
+                    return String.Format("completed {0}", Convert.ToDateTime(CompletedOn).ToString("D"));
+                }
                 else
-                    return Due == null ? null : String.Format("due {0}", ((DateTime)Due).ToString("d")); 
+                {
+                    if (EndDate != null && Due != null)
+                    {
+                        DateTime startDate = Due.Value;
+                        DateTime endDate = Convert.ToDateTime(EndDate);
+                        if (startDate.Date == endDate.Date)
+                        {
+                            return String.Format("{0} - {1}", startDate.ToString("ddd, MMM dd yyyy HH:mm tt"), endDate.ToString("t"));
+                        }
+                        else
+                        {
+                            return String.Format("{0} until {1}", startDate.ToString("g"), endDate.ToString("g"));
+                        }
+                    }
+                    else if (Due != null)
+                    {
+                        return String.Format("due {0}", ((DateTime)Due).ToString("D"));
+                    }
+                }
+                return null;
             } 
         }
 
@@ -636,6 +659,30 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
 
         // sort property for Due
         public DateTime DueSort { get { return Due == null ? DateTime.MaxValue : (DateTime)Due; } }
+
+        public string EndDate
+        {
+            get
+            {
+                FieldValue fv = GetFieldValue(FieldNames.EndDate, false);
+                if (fv != null)
+                    return fv.Value;
+                else
+                    return null;
+            }
+            set
+            {   // always store as UTC (SMILLET 6-26-12)
+                DateTime endDate = Convert.ToDateTime(value).ToUniversalTime();
+                value = endDate.ToString("o");
+                FieldValue fv = GetFieldValue(FieldNames.EndDate, true);
+                if (fv != null)
+                {
+                    fv.Value = value;
+                    NotifyPropertyChanged(FieldNames.EndDate);
+                    NotifyPropertyChanged("EndDate");
+                }
+            }
+        }
 
         public string Email
         {

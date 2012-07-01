@@ -18,7 +18,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         public static bool AddContact(UserStorageContext userContext, Item item)
         {
             User user = userContext.GetUser(item.UserID);
-            Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
+            Item possibleContactsList = userContext.UserFolder.GetListForItemType(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
             {
                 TraceLog.TraceError("Could not retrieve or create the possible contacts list");
@@ -82,7 +82,7 @@ namespace BuiltSteady.Zaplify.ServiceHost.Helpers
         {
             // clean up any possible contacts that have this ID
             User user = userContext.GetUser(item.UserID);
-            Item possibleContactsList = userContext.GetOrCreateUserItemTypeList(user, SystemItemTypes.Contact);
+            Item possibleContactsList = userContext.UserFolder.GetListForItemType(user, SystemItemTypes.Contact);
             if (possibleContactsList == null)
                 return false;
 

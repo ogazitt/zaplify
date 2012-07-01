@@ -54,16 +54,21 @@ Control.collapse = function Control$collapse($element, animate, callback) {
     }
 }
 
-Control.alert = function Control$alert(message, header) {
+Control.alert = function Control$alert(message, header, handlerClose) {
     var $modalMessage = $('#modalMessage');
     if ($modalMessage.length == 0) {
         message.replace('<br\>', '\r');
         alert(message);
+        if (handlerClose != null) { handlerClose(); }
     } else {
         if (header == null) { header = "Warning!"; }
         $modalMessage.find('.modal-header h3').html(header);
         $modalMessage.find('.modal-body p').html(message);
         $modalMessage.modal('show');
+        if (handlerClose != null) {
+            $modalMessage.find('.modal-header .close').click(function () { handlerClose(); });
+            $modalMessage.find('.modal-footer .btn-primary').click(function () { handlerClose(); });
+        }
     }
 }
 
@@ -229,6 +234,12 @@ Control.Text.render = function Control$Text$render($element, item, field, tag, t
     var tag = (tag == null) ? 'span' : tag;
     var $tag;
     var value = item.GetFieldValue(field);
+    if (field.DisplayType == DisplayTypes.DatePicker) {
+        value = Control.DateTime.format(value);
+    } else if (field.DisplayType == DisplayTypes.DateTimePicker) {
+        value = Control.DateTime.format(value);
+    }
+
     if (value != null) {
         $tag = $('<' + tag + '/>').appendTo($element);
         $tag.addClass(field.Class);
@@ -323,6 +334,15 @@ Control.Text.autoCompletePlace = function Control$Text$autoCompletePlace($input,
     $input.unbind('keypress');
     $text.keypress(function (e) { if (e.which == 13) { return false; } });
     var autoComplete = new google.maps.places.Autocomplete($input[0]);
+
+    // TODO: temporary bound to Seattle area (calculate bounds from UserProfile GeoLocation)
+    var getBounds = function (lat, lng) {
+        var x = 0.5;
+        return new google.maps.LatLngBounds(new google.maps.LatLng(lat - x, lng - x), new google.maps.LatLng(lat + x, lng + x));
+    }
+    var seattleArea = getBounds(47.65, -122.3);
+    autoComplete.setBounds(seattleArea);
+
     google.maps.event.addListener(autoComplete, 'place_changed', function () {
         $input.data('place', autoComplete.getPlace());
         selectHandler($input);
@@ -457,16 +477,20 @@ Control.Text.insert = function Control$Text$insert($input) {
         list.InsertItem(item);
     }
 }
-// handler for updating text 
-Control.Text.update = function Control$Text$update($input) {
+// handler for updating text
+Control.Text.update = function Control$Text$update($input, activeItem) {
     var item = $input.data('item');
     var field = $input.data('field');
     var value = $input.val();
     var currentValue = item.GetFieldValue(field);
+    if (field.FieldType == FieldTypes.DateTime) {
+        // store DateTime fields in UTC format
+        value = Control.DateTime.formatUTC(value);
+    }
     if (value != currentValue) {
         var updatedItem = item.Copy();
         updatedItem.SetFieldValue(field, value);
-        item.Update(updatedItem);
+        item.Update(updatedItem, activeItem);
     }
 }
 // handler for updating address
@@ -681,7 +705,7 @@ Control.DateTime.renderDatePicker = function Control$DateTime$renderDatePicker($
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.format(item.GetFieldValue(field), 'shortDate'));
     $date.datepicker({
         numberOfMonths: 2,
         onClose: function (value, picker) { Control.DateTime.update(picker.input); }
@@ -694,7 +718,7 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
     $date.addClass(field.Class);
     $date.data('item', item);
     $date.data('field', field);
-    $date.val(item.GetFieldValue(field));
+    $date.val(Control.DateTime.format(item.GetFieldValue(field), 'shortDateTime'));
     $date.datetimepicker({
         ampm: true,
         timeFormat: 'h:mm TT',
@@ -707,8 +731,56 @@ Control.DateTime.renderDateTimePicker = function Control$DateTime$renderDateTime
     return $date;
 }
 
+Control.DateTime.renderRange = function Control$DateTime$renderRange($element, item, fieldStart, fieldEnd, tag) {
+    var tag = (tag == null) ? 'span' : tag;
+    var $tag, value;
+    var startValue = item.GetFieldValue(fieldStart);
+    var endValue = item.GetFieldValue(fieldEnd);
+    if (startValue != null && endValue != null) {
+        if (fieldStart.FieldType == FieldTypes.DateTime && fieldEnd.FieldType == FieldTypes.DateTime) {
+            var startDate = new Date().parseRFC3339(startValue);
+            var endDate = new Date().parseRFC3339(endValue);
+            if (startDate.toDateString() == endDate.toDateString()) {
+                // display range as same day
+                var endParts = endDate.format().split(' ');
+                var endHour = endParts[endParts.length - 2] + ' ' + endParts[endParts.length - 1];
+                value = 'On ' + startDate.format() + ' to ' + endHour;
+            } else {
+                // display range as multiple days
+                value = 'From ' + startDate.format() + ' until ' + endDate.format();
+            }
+        } else {
+            value = 'From ' + startValue + ' until ' + endValue;
+        }
+    }
+    if (value != null) {
+        $tag = $('<' + tag + '/>').appendTo($element);
+        $tag.addClass(fieldStart.Class);
+        $tag.html(value);
+    }
+    return $tag;
+}
+
 Control.DateTime.update = function Control$DateTime$update($input) {
-    Control.Text.update($input);
+    // suppress refresh to prevent jquery-ui bug using multiple datetimepickers
+    Control.Text.update($input, null);
+}
+
+// format for DateTime
+Control.DateTime.format = function Control$DateTime$format(text, mask) {
+    if (text != null && text.length > 0) {
+        try {
+            var date = new Date().parseRFC3339(text);
+            return date.format(mask);
+        } catch (e) {
+            // if not a valid date, just return text
+        }
+    }
+    return text;
+}
+// format for UTC for storage
+Control.DateTime.formatUTC = function Control$DateTime$formatUTC(text) {
+    return Control.DateTime.format(text, "isoUtcDateTime");
 }
 
 // ---------------------------------------------------------
@@ -1054,7 +1126,7 @@ Control.DateFormat = function Control$DateFormat() {
 
 // common format strings
 Control.DateFormat.masks = {
-    "default": "mmmm dd, yyyy h:MM TT",
+    "default": "ddd, mmm dd, yyyy h:MM TT",
     shortDate: "m/d/yy",
     mediumDate: "mmm d, yyyy",
     longDate: "mmmm d, yyyy",
@@ -1064,6 +1136,7 @@ Control.DateFormat.masks = {
     longTime: "h:MM:ss TT Z",
     isoDate: "yyyy-mm-dd",
     isoTime: "HH:MM:ss",
+    shortDateTime: "mm/dd/yyyy h:MM TT",
     isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",
     isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
 };
@@ -1083,4 +1156,35 @@ Control.DateFormat.i18n = {
 // extend Date object with format prototype
 Date.prototype.format = function (mask, utc) {
     return Control.DateFormat(this, mask, utc);
+};
+
+// parse RFC3339 datetime format for downlevel browsers
+Date.prototype.parseRFC3339 = function (text) {
+    var regexp = /(\d\d\d\d)(-)?(\d\d)(-)?(\d\d)(T)?(\d\d)(:)?(\d\d)(:)?(\d\d)(\.\d+)?(Z|([+-])(\d\d)(:)?(\d\d))/;
+
+    if (text.toString().match(new RegExp(regexp))) {
+        var d = text.match(new RegExp(regexp));
+        var offset = 0;
+
+        this.setUTCDate(1);
+        this.setUTCFullYear(parseInt(d[1], 10));
+        this.setUTCMonth(parseInt(d[3], 10) - 1);
+        this.setUTCDate(parseInt(d[5], 10));
+        this.setUTCHours(parseInt(d[7], 10));
+        this.setUTCMinutes(parseInt(d[9], 10));
+        this.setUTCSeconds(parseInt(d[11], 10));
+        if (d[12])
+            this.setUTCMilliseconds(parseFloat(d[12]) * 1000);
+        else
+            this.setUTCMilliseconds(0);
+        if (d[13] != 'Z') {
+            offset = (d[15] * 60) + parseInt(d[17], 10);
+            offset *= ((d[14] == '-') ? -1 : 1);
+            this.setTime(this.getTime() - offset * 60 * 1000);
+        }
+    }
+    else {
+        this.setTime(Date.parse(text));
+    }
+    return this;
 };
