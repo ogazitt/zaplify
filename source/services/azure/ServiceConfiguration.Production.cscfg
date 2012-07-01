@@ -9,11 +9,11 @@
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="SQLUsers" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapUsers;User Id=builtsteady;Password=zrc022.." />
       <Setting name="SQLSuggestions" value="data source=qs07tzqe2v.database.windows.net;Initial Catalog=ZapSuggestions;User Id=builtsteady;Password=zrc022.." />
-      <Setting name="MailWorkerCount" value="1" />
+      <Setting name="MailWorkerCount" value="0" />
       <Setting name="MailWorkerTimeout" value="60" />
-      <Setting name="SpeechWorkerCount" value="1" />
+      <Setting name="SpeechWorkerCount" value="0" />
       <Setting name="SpeechWorkerTimeout" value="500000" />
-      <Setting name="WorkflowWorkerCount" value="2" />
+      <Setting name="WorkflowWorkerCount" value="1" />
       <Setting name="WorkflowWorkerTimeout" value="5" />
       <!-- Google Client 'Zaplify' -->
       <Setting name="GoogleClientID" value="944381664180-jm6ekhg10tu2vam4pnuknekr8hg3k0s2.apps.googleusercontent.com" />

@@ -10,9 +10,9 @@
       <Setting name="SuggestionsConnection" value="SQLSuggestions" />
       <Setting name="SQLUsers" value="data source=.\SQLEXPRESS;Initial Catalog=ZapUsers;Integrated Security=SSPI" />
       <Setting name="SQLSuggestions" value="data source=.\SQLEXPRESS;Initial Catalog=ZapSuggestions;Integrated Security=SSPI" />
-      <Setting name="MailWorkerCount" value="1" />
+      <Setting name="MailWorkerCount" value="0" />
       <Setting name="MailWorkerTimeout" value="60" />
-      <Setting name="SpeechWorkerCount" value="1" />
+      <Setting name="SpeechWorkerCount" value="0" />
       <Setting name="SpeechWorkerTimeout" value="500000" />
       <Setting name="WorkflowWorkerCount" value="1" />
       <Setting name="WorkflowWorkerTimeout" value="5" />
