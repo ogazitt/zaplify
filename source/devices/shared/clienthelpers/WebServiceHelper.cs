@@ -44,9 +44,9 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
             get
             {
 #if IOS || !DEBUG  // IOS environment and release bits always hit the public service
-                return "http://api.zaplify.com";
+                return "https://www.zaplify.com";
 #else           // the emulator defaults to hitting a localhost service; a device always hits the public service
-                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:81" : "http://api.zaplify.com";
+                return (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator) ? "http://localhost:81" : "https://www.zaplify.com";
 #endif
             }
         }
