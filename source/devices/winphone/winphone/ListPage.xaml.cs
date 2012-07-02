@@ -727,7 +727,7 @@
             item.LastModified = DateTime.UtcNow;
 
             if (item.Complete == true)
-                item.CompletedOn = item.LastModified.ToString("d");
+                item.CompletedOn = item.LastModified.ToString("o");
             else
                 item.CompletedOn = null;
             
