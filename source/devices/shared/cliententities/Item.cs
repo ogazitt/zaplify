@@ -527,7 +527,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                     return null;
             }
             set
-            {
+            {   
                 FieldValue fv = GetFieldValue(FieldNames.CompletedOn, true);
                 if (fv != null)
                 {
@@ -588,6 +588,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             set
             {   // always store as UTC (SMILLET 6-26-12)
                 DateTime dueDate = Convert.ToDateTime(value).ToUniversalTime();
+                // truncate the seconds
+                dueDate -= new TimeSpan(0, 0, dueDate.Second);
                 value = dueDate.ToString("o");
                 FieldValue fv = GetFieldValue(FieldNames.DueDate, true);
                 if (fv != null)
@@ -619,7 +621,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
                         DateTime endDate = Convert.ToDateTime(EndDate);
                         if (startDate.Date == endDate.Date)
                         {
-                            return String.Format("{0} - {1}", startDate.ToString("ddd, MMM dd yyyy HH:mm tt"), endDate.ToString("t"));
+                            return String.Format("{0} - {1}", startDate.ToString("ddd, MMM dd yyyy hh:mm tt"), endDate.ToString("t"));
                         }
                         else
                         {
@@ -673,6 +675,8 @@ namespace BuiltSteady.Zaplify.Devices.ClientEntities
             set
             {   // always store as UTC (SMILLET 6-26-12)
                 DateTime endDate = Convert.ToDateTime(value).ToUniversalTime();
+                // truncate the seconds
+                endDate -= new TimeSpan(0, 0, endDate.Second);
                 value = endDate.ToString("o");
                 FieldValue fv = GetFieldValue(FieldNames.EndDate, true);
                 if (fv != null)

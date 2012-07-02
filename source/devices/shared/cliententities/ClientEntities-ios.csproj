@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>BuiltSteady.Zaplify.Devices.ClientEntities</RootNamespace>
     <AssemblyName>BuiltSteady.Zaplify.Devices.ClientEntities</AssemblyName>
-    <ReleaseVersion>0.1.1</ReleaseVersion>
+    <ReleaseVersion>0.1.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>

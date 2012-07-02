@@ -1024,10 +1024,13 @@ namespace BuiltSteady.Zaplify.Devices.IPhone
                             break;
                         case ActionNames.Browse:
                             // construct the correct URL
-                            string url = currentValue.Replace(" ", "%20");
-                            if (url.Substring(0, 4) != "http")
-                                url = String.Format("http://{0}", url);
-                            StyledHtmlElement browserElement = new StyledHtmlElement(action.DisplayName, url, UITableViewCellStyle.Value1, url);
+                            var linkList = JsonConvert.DeserializeObject<List<Link>>(currentValue);
+                            if (linkList.Count == 0)
+                                continue;
+                            string linkUrl = linkList[0].Url.Replace(" ", "%20");
+                            if (linkUrl.Substring(0, 4) != "http")
+                                linkUrl = String.Format("http://{0}", linkUrl);
+                            StyledHtmlElement browserElement = new StyledHtmlElement(action.DisplayName, linkUrl, UITableViewCellStyle.Value1, linkUrl);
 							element = browserElement;
                             break;
                         case ActionNames.SendEmail:

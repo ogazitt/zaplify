@@ -101,6 +101,6 @@ Global
 		$12.LineAlign = 0
 		$11.inheritsSet = Mono
 		description = Zaplify
-		version = 0.1.1
+		version = 0.1.2
 	EndGlobalSection
 EndGlobal
