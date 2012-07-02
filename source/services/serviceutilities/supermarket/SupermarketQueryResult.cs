@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
 {
@@ -30,7 +31,18 @@ namespace BuiltSteady.Zaplify.ServiceUtilities.Supermarket
 
         public override string ToString()
         {
-            return properties.ToString();
+            bool comma = false;
+            var sb = new StringBuilder("{\n");
+            foreach (var key in properties.Keys)
+            {
+                if (comma)
+                    sb.AppendLine(",");
+                else
+                    comma = true;
+                sb.AppendFormat("   \"{0}\": \"{1}\"", key, properties[key]);
+            }
+            sb.AppendLine("\n}");
+            return sb.ToString();
         }
     }
 }

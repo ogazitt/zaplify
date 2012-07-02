@@ -20,15 +20,15 @@ namespace Website
                 TraceLog.InitializeAzureLogging();
 
             // initialize splunk logging
-            if (HostEnvironment.IsSplunkLoggingEnabled)
-                TraceLog.InitializeSplunkLogging();
+            //if (HostEnvironment.IsSplunkLoggingEnabled)
+            //    TraceLog.InitializeSplunkLogging();
 
             // Log function entrance (must do this after DiagnosticsMonitor has been initialized)
-            TraceLog.TraceFunction();
-            TraceLog.TraceInfo("WebRole started");
+            //TraceLog.TraceFunction();
+            //TraceLog.TraceInfo("WebRole started");
 
             // initialize the Queue 
-            MessageQueue.Initialize();
+            //MessageQueue.Initialize();
 
             return base.OnStart();
         }
