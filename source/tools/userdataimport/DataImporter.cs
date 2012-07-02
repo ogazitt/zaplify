@@ -68,11 +68,13 @@ namespace BuiltSteady.Zaplify.Tools.UserDataImport
                 // process the serialized user folders
                 foreach (var jsonFolder in jsonFolders)
                 {
-                    // skip the $ClientSettings folder (currently import does not support merging $ClientSettings)
+                    // skip the $PhoneClient folder (currently import does not support merging $PhoneClient)
                     // the difficulty is in merge semantics for individual items which have substructure (like PhoneSettings), 
                     // as well as ListMetadata for lists/folders that have the same names, but different ID's, from the lists in the DB
                     //   (e.g. Tasks, Groceries)
-                    if (jsonFolder.Name == SystemEntities.ClientSettings)
+                    if (jsonFolder.Name == SystemEntities.PhoneClient ||
+                        jsonFolder.Name == SystemEntities.Client || 
+                        jsonFolder.Name == SystemEntities.WebClient)
                         continue;
 
                     // reset some of the fields in the serialized structure to the database values
