@@ -61,8 +61,8 @@
         public ActionResult SignOut()
         {
             FormsAuthentication.SignOut();
-
-            return RedirectToAction("Home", "Dashboard");
+            //return RedirectToAction("Home", "Dashboard");
+            return RedirectToAction("SignIn");
         }
 
         public ActionResult Register()
