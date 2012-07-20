@@ -25,6 +25,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
         public string PageBackground { get; set; }
         public string TableBackground { get; set; }
         public string TableSeparatorBackground { get; set; }
+        public string ToolbarBackground { get; set; }
     }
 
     public class PhoneSettings
@@ -42,9 +43,14 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
                     Values = new List<PhoneSetting.NameValuePair>()
                     {
 #if IOS
-                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Default, Value = new PhoneTheme { PageBackground = "Images/background.png", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0" } },
-                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Pink, Value = new PhoneTheme { PageBackground = "#ffddff", TableBackground = "#ffddff", TableSeparatorBackground = "#ffb0b0b0" } },
-                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Blue, Value = new PhoneTheme { PageBackground = "#ddddff", TableBackground = "#ddddff", TableSeparatorBackground = "#ffb0b0b0" } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Default, Value = new PhoneTheme { PageBackground = "Images/background.png", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0", ToolbarBackground = "#ff768db0" } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Black, Value = new PhoneTheme { PageBackground = "#ff636363", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0", ToolbarBackground = "Black"  } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Pink, Value = new PhoneTheme { PageBackground = "#ffffe4e2", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0", ToolbarBackground = "#ffffc1bc"  } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Blue, Value = new PhoneTheme { PageBackground = "#ff8598bf", TableBackground = "White", TableSeparatorBackground = "#ffe0e0e0", ToolbarBackground = "#ff3b5998"  } },
+                        /*
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Pink, Value = new PhoneTheme { PageBackground = "#ffddff", TableBackground = "#ffddff", TableSeparatorBackground = "#ffb0b0b0", ToolbarBackground = "#ff768db0"  } },
+                        new PhoneSetting.NameValuePair() { Name = PhoneThemes.Blue, Value = new PhoneTheme { PageBackground = "#ddddff", TableBackground = "#ddddff", TableSeparatorBackground = "#ffb0b0b0", ToolbarBackground = "#ff768db0"  } },
+                        */
 #else
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Black, Value = "Black" },
                         new PhoneSetting.NameValuePair() { Name = PhoneThemes.Cyan, Value = "DarkCyan" },
@@ -77,6 +83,7 @@ namespace BuiltSteady.Zaplify.Devices.ClientHelpers
     {
 #if IOS
         public const string Default = "Default";
+        public const string Black = "Black";
         public const string Pink = "Pink";
         public const string Blue = "Blue";
 #else
